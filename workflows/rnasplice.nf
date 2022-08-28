@@ -77,6 +77,7 @@ workflow RNASPLICE {
     FASTQC (
         INPUT_CHECK.out.reads
     )
+
     ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
