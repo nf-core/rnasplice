@@ -4,7 +4,12 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
+def valid_params = [
+    aligners       : ['star', 'star_salmon'],    
+    pseudoaligners : ['salmon']
+]
+
+def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params, valid_params)
 
 // Validate input parameters
 WorkflowRnasplice.initialise(params, log)
@@ -62,22 +67,24 @@ def multiqc_report = []
 
 workflow RNASPLICE {
 
+    // Create channel for software versions (will be added to throughout pipeline)
     ch_versions = Channel.empty()
 
     //
     // SUBWORKFLOW: Read in samplesheet, validate and stage input files
     //
 
-    INPUT_CHECK (
-        ch_input
-    )
+    // Run Input check subworkflow
+    INPUT_CHECK ( ch_input )
 
+    // Take software versions from input check (.first() not required)
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
 
     //
     // SUBWORKFLOW: Read QC, and trimming
     //
 
+    // Run FastQC and TrimGalore
     FASTQC_TRIMGALORE (
         INPUT_CHECK.out.reads,
         params.skip_fastqc || params.skip_qc,
@@ -87,8 +94,52 @@ workflow RNASPLICE {
     // Take software versions from subworkflow (.first() not required)
     ch_versions = ch_versions.mix(FASTQC_TRIMGALORE.out.versions)
 
+    // Collect trimmed reads from Trimgalore
+    ch_trim_reads = FASTQC_TRIMGALORE.out.reads
+    
     //
-    // MODULE: Collect version information
+    // MODULE: Align reads using STAR
+    //
+            
+    // Align with STAR
+    if (!params.skip_alignment && (params.aligner == 'star_salmon' || params.aligner == "star")) {
+
+        // define STAR align output channels
+        ch_orig_bam        = Channel.empty()
+        ch_log_final       = Channel.empty()
+        ch_log_out         = Channel.empty()
+        ch_log_progress    = Channel.empty()
+        ch_bam_sorted      = Channel.empty()
+        ch_bam_transcript  = Channel.empty()
+        ch_fastq           = Channel.empty()
+        ch_tab             = Channel.empty()
+        
+        STAR_ALIGN ( 
+            FASTQC_TRIMGALORE.out.reads, 
+            PREPARE_GENOME.out.star_index, 
+            PREPARE_GENOME.out.gtf, 
+            params.star_ignore_sjdbgtf, 
+            params.seq_platform ?: '', 
+            params.seq_center ?: ''
+        )
+        
+        // Collect STAR output 
+        ch_orig_bam       = STAR_ALIGN.out.bam
+        ch_log_final      = STAR_ALIGN.out.log_final
+        ch_log_out        = STAR_ALIGN.out.log_out
+        ch_log_progress   = STAR_ALIGN.out.log_progress
+        ch_bam_sorted     = STAR_ALIGN.out.bam_sorted
+        ch_bam_transcript = STAR_ALIGN.out.bam_transcript
+        ch_fastq          = STAR_ALIGN.out.fastq
+        ch_tab            = STAR_ALIGN.out.tab
+
+        // Collect software version
+        ch_versions       = ch_versions.mix(STAR_ALIGN.out.versions.first())
+
+    }
+    
+    //
+    // MODULE: Collect version information across pipeline
     //
 
     CUSTOM_DUMPSOFTWAREVERSIONS (

@@ -17,6 +17,14 @@
                     "branch": "master",
                     "git_sha": "e745e167c1020928ef20ea1397b6b4d230681b4d"
                 },
+                "star/align": {
+                    "branch": "master",
+                    "git_sha": "cd22a76c78b09f7837a5a75642774a4bf48c92ba"
+                },
+                "star/genomegenerate": {
+                    "branch": "master",
+                    "git_sha": "cd22a76c78b09f7837a5a75642774a4bf48c92ba"
+                },
                 "trimgalore": {
                     "branch": "master",
                     "git_sha": "85ec13ff1fc2196c5a507ea497de468101baabed"
