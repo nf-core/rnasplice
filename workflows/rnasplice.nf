@@ -35,7 +35,8 @@ ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multi
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
-include { INPUT_CHECK } from '../subworkflows/local/input_check'
+include { INPUT_CHECK       } from '../subworkflows/local/input_check'
+include { FASTQC_TRIMGALORE } from '../subworkflows/local/fastqc_trimgalore'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -66,19 +67,29 @@ workflow RNASPLICE {
     //
     // SUBWORKFLOW: Read in samplesheet, validate and stage input files
     //
+
     INPUT_CHECK (
         ch_input
     )
+
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
 
     //
-    // MODULE: Run FastQC
+    // SUBWORKFLOW: Read QC, and trimming
     //
-    FASTQC (
-        INPUT_CHECK.out.reads
-    )
 
-    ch_versions = ch_versions.mix(FASTQC.out.versions.first())
+    FASTQC_TRIMGALORE (
+        INPUT_CHECK.out.reads,
+        params.skip_fastqc || params.skip_qc,
+        params.skip_trimming
+    )
+    
+    // Take software versions from subworkflow (.first() not required)
+    ch_versions = ch_versions.mix(FASTQC_TRIMGALORE.out.versions)
+
+    //
+    // MODULE: Collect version information
+    //
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
@@ -87,6 +98,7 @@ workflow RNASPLICE {
     //
     // MODULE: MultiQC
     //
+
     workflow_summary    = WorkflowRnasplice.paramsSummaryMultiqc(workflow, summary_params)
     ch_workflow_summary = Channel.value(workflow_summary)
 
@@ -95,7 +107,9 @@ workflow RNASPLICE {
     ch_multiqc_files = ch_multiqc_files.mix(ch_multiqc_custom_config.collect().ifEmpty([]))
     ch_multiqc_files = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
     ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
-    ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]}.ifEmpty([]))
+    ch_multiqc_files = ch_multiqc_files.mix(FASTQC_TRIMGALORE.out.fastqc_zip.collect{it[1]}.ifEmpty([]))
+    ch_multiqc_files = ch_multiqc_files.mix(FASTQC_TRIMGALORE.out.trim_zip.collect{it[1]}.ifEmpty([]))
+    ch_multiqc_files = ch_multiqc_files.mix(FASTQC_TRIMGALORE.out.trim_log.collect{it[1]}.ifEmpty([]))
 
     MULTIQC (
         ch_multiqc_files.collect()
