@@ -17,11 +17,27 @@
                     "branch": "master",
                     "git_sha": "e745e167c1020928ef20ea1397b6b4d230681b4d"
                 },
-                "star/align": {
+                "samtools/flagstat": {
                     "branch": "master",
-                    "git_sha": "cd22a76c78b09f7837a5a75642774a4bf48c92ba"
+                    "git_sha": "bbb99cb8d679555cc01c98766de7869f83283545"
                 },
-                "star/genomegenerate": {
+                "samtools/idxstats": {
+                    "branch": "master",
+                    "git_sha": "ecece498f10b47b7c9d06f53a310cea5811b4c5f"
+                },
+                "samtools/index": {
+                    "branch": "master",
+                    "git_sha": "897c33d5da084b61109500ee44c01da2d3e4e773"
+                },
+                "samtools/sort": {
+                    "branch": "master",
+                    "git_sha": "897c33d5da084b61109500ee44c01da2d3e4e773"
+                },
+                "samtools/stats": {
+                    "branch": "master",
+                    "git_sha": "f4eab7945952dc4934224309701a49913ea05ae6"
+                },
+                "star/align": {
                     "branch": "master",
                     "git_sha": "cd22a76c78b09f7837a5a75642774a4bf48c92ba"
                 },
