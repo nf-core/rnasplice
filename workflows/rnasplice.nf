@@ -152,6 +152,27 @@ workflow RNASPLICE {
         // Collect software version
         ch_versions = ch_versions.mix(BAM_SORT_SAMTOOLS.out.versions)
 
+        //
+        // SUBWORKFLOW: Count reads from BAM alignments using Salmon
+        //
+
+        // If needed run Salmon on transcriptome bam
+        if (!params.skip_alignment && params.aligner == 'star_salmon')
+
+            // Run Salmon quant, Run tx2gene.py (tx2gene for Salmon txImport Quantification), then finally runs tximport 
+            QUANTIFY_STAR_SALMON (
+                ch_transcriptome_bam,
+                ch_dummy_file,
+                PREPARE_GENOME.out.transcript_fasta,
+                PREPARE_GENOME.out.gtf,
+                true,
+                params.salmon_quant_libtype ?: ''
+            )
+
+            ch_versions = ch_versions.mix(QUANTIFY_STAR_SALMON.out.versions)
+        
+        }
+
     }
     
     //
