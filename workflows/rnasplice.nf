@@ -36,6 +36,7 @@ ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multi
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
 include { INPUT_CHECK       } from '../subworkflows/local/input_check'
+include { PREPARE_GENOME } from '../subworkflows/local/prepare_genome'
 include { FASTQC_TRIMGALORE } from '../subworkflows/local/fastqc_trimgalore'
 
 /*
@@ -63,6 +64,18 @@ def multiqc_report = []
 workflow RNASPLICE {
 
     ch_versions = Channel.empty()
+
+    //
+    // SUBWORKFLOW: Uncompress and prepare reference genome files
+    //
+    def biotype = params.gencode ? "gene_type" //: params.featurecounts_group_type
+    PREPARE_GENOME (
+        prepareToolIndices,
+        biotype,
+        is_aws_igenome
+
+    )
+    ch_versions = ch_versions.mix(PREPARE_GENOME.out.versions)
 
     //
     // SUBWORKFLOW: Read in samplesheet, validate and stage input files
