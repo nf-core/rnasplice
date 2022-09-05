@@ -4,12 +4,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-def valid_params = [
-    aligners       : ['star', 'star_salmon'],    
-    pseudoaligners : ['salmon']
-]
-
-def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params, valid_params)
+def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
 
 // Validate input parameters
 WorkflowRnasplice.initialise(params, log)
@@ -35,7 +30,6 @@ if (params.fasta && params.gtf) {
     if ((file(params.fasta).getName() - '.gz' == 'genome.fa') && (file(params.gtf).getName() - '.gz' == 'genes.gtf')) {
         is_aws_igenome = true
     }   
-     
 }
 // Stage dummy file to be used as an optional input where required
 ch_dummy_file = file("$projectDir/assets/dummy_file.txt", checkIfExists: true)
@@ -71,15 +65,16 @@ include { FASTQC_TRIMGALORE } from '../subworkflows/local/fastqc_trimgalore'
 //
 // MODULE: Installed directly from nf-core/modules
 //
-include { SALMON_QUANT                } from '../modules/nf-core/modules/salmon/quant/main'
-include { STAR_ALIGN                  } from '../modules/nf-core/modules/star/align/main'
-include { MULTIQC                     } from '../modules/nf-core/modules/multiqc/main'
-include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/modules/custom/dumpsoftwareversions/main'
+include { SALMON_QUANT                      } from '../modules/nf-core/modules/salmon/quant/main'
+include { SALMON_QUANT as STAR_SALMON_QUANT } from '../modules/nf-core/modules/salmon/quant/main'
+include { STAR_ALIGN                        } from '../modules/nf-core/modules/star/align/main'
+include { MULTIQC                           } from '../modules/nf-core/modules/multiqc/main'
+include { CUSTOM_DUMPSOFTWAREVERSIONS       } from '../modules/nf-core/modules/custom/dumpsoftwareversions/main'
 
 //
 // SUBWORKFLOWS: Installed directly from nf-core/modules
 //
-include { BAM_SORT_SAMTOOLS } from '../subworkflows/local/bam_sort_samtools/main'
+include { BAM_SORT_SAMTOOLS } from '../subworkflows/nf-core/bam_sort_samtools'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -217,13 +212,13 @@ workflow RNASPLICE {
         //
 
         // If needed run Salmon on transcriptome bam
-        if (!params.skip_alignment && params.aligner == 'star_salmon')
+        if (!params.skip_alignment && params.aligner == 'star_salmon') {
 
             alignment_mode = true
             ch_salmon_index = ch_dummy_file
 
             // Run Salmon quant, Run tx2gene.py (tx2gene for Salmon txImport Quantification), then finally runs tximport 
-            SALMON_QUANT (
+            STAR_SALMON_QUANT (
                 ch_transcriptome_bam,
                 ch_salmon_index,
                 PREPARE_GENOME.out.transcript_fasta,
@@ -232,7 +227,7 @@ workflow RNASPLICE {
                 params.salmon_quant_libtype ?: ''
             )
 
-            ch_versions = ch_versions.mix(SALMON_QUANT.out.versions)
+            ch_versions = ch_versions.mix(STAR_SALMON_QUANT.out.versions)
         
         }
 
