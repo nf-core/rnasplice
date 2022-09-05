@@ -4,7 +4,12 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
+def valid_params = [
+    aligners       : ['star_salmon', 'star'],
+    pseudoaligners : ['salmon'],
+]
+
+def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params, valid_params)
 
 // Validate input parameters
 WorkflowRnasplice.initialise(params, log)
@@ -32,6 +37,8 @@ if (params.fasta && params.gtf) {
     }   
      
 }
+// Stage dummy file to be used as an optional input where required
+ch_dummy_file = file("$projectDir/assets/dummy_file.txt", checkIfExists: true)
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -64,7 +71,7 @@ include { FASTQC_TRIMGALORE } from '../subworkflows/local/fastqc_trimgalore'
 //
 // MODULE: Installed directly from nf-core/modules
 //
-include { FASTQC                      } from '../modules/nf-core/modules/fastqc/main'
+include { SALMON_QUANT                } from '../modules/nf-core/modules/salmon/quant/main'
 include { MULTIQC                     } from '../modules/nf-core/modules/multiqc/main'
 include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/modules/custom/dumpsoftwareversions/main'
 
@@ -115,6 +122,34 @@ workflow RNASPLICE {
     // Take software versions from subworkflow (.first() not required)
     ch_versions = ch_versions.mix(FASTQC_TRIMGALORE.out.versions)
 
+    // Collect trimmed reads from Trimgalore
+    ch_trim_reads = FASTQC_TRIMGALORE.out.reads
+
+    //
+    // SUBWORKFLOW: Pseudo-alignment and quantification with Salmon
+    //
+
+    if (params.pseudo_aligner == 'salmon') {
+        
+        alignment_mode = false
+        ch_transcript_fasta = ch_dummy_file
+
+        SALMON_QUANT (
+            ch_trim_reads,
+            PREPARE_GENOME.out.salmon_index,
+            ch_transcript_fasta,
+            PREPARE_GENOME.out.gtf,
+            alignment_mode,
+            params.salmon_quant_libtype ?: ''
+        )
+
+        // Collect Salmon quant output
+        ch_salmon_multiqc = QUANTIFY_SALMON.out.results
+
+        // Take software versions from subworkflow (.first() not required)
+        ch_versions = ch_versions.mix(QUANTIFY_SALMON.out.versions)
+    }
+
     //
     // MODULE: Collect version information
     //
@@ -138,6 +173,7 @@ workflow RNASPLICE {
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC_TRIMGALORE.out.fastqc_zip.collect{it[1]}.ifEmpty([]))
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC_TRIMGALORE.out.trim_zip.collect{it[1]}.ifEmpty([]))
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC_TRIMGALORE.out.trim_log.collect{it[1]}.ifEmpty([]))
+    ch_multiqc_files = ch_multiqc_files.mix(ch_salmon_multiqc.collect{it[1]}.ifEmpty([]))
 
     MULTIQC (
         ch_multiqc_files.collect()
