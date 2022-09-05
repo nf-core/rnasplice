@@ -30,6 +30,7 @@ process SALMON_INDEX {
     $get_decoy_ids
     sed -i.bak -e 's/>//g' decoys.txt
     cat $transcript_fasta $genome_fasta > $gentrome
+
     salmon \\
         index \\
         --threads $task.cpus \\

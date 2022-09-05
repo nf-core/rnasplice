@@ -33,6 +33,7 @@ process STAR_GENOMEGENERATE {
             --runThreadN $task.cpus \\
             $memory \\
             $args
+
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
             star: \$(STAR --version | sed -e "s/STAR_//g")
@@ -44,6 +45,7 @@ process STAR_GENOMEGENERATE {
         """
         samtools faidx $fasta
         NUM_BASES=`gawk '{sum = sum + \$2}END{if ((log(sum)/log(2))/2 - 1 > 14) {printf "%.0f", 14} else {printf "%.0f", (log(sum)/log(2))/2 - 1}}' ${fasta}.fai`
+
         mkdir star
         STAR \\
             --runMode genomeGenerate \\
@@ -54,6 +56,7 @@ process STAR_GENOMEGENERATE {
             --genomeSAindexNbases \$NUM_BASES \\
             $memory \\
             $args
+
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
             star: \$(STAR --version | sed -e "s/STAR_//g")
@@ -62,4 +65,32 @@ process STAR_GENOMEGENERATE {
         END_VERSIONS
         """
     }
+
+    stub:
+    """
+    mkdir star
+    touch star/Genome
+    touch star/Log.out
+    touch star/SA
+    touch star/SAindex
+    touch star/chrLength.txt
+    touch star/chrName.txt
+    touch star/chrNameLength.txt
+    touch star/chrStart.txt
+    touch star/exonGeTrInfo.tab
+    touch star/exonInfo.tab
+    touch star/geneInfo.tab
+    touch star/genomeParameters.txt
+    touch star/sjdbInfo.txt
+    touch star/sjdbList.fromGTF.out.tab
+    touch star/sjdbList.out.tab
+    touch star/transcriptInfo.tab
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        star: \$(STAR --version | sed -e "s/STAR_//g")
+        samtools: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
+        gawk: \$(echo \$(gawk --version 2>&1) | sed 's/^.*GNU Awk //; s/, .*\$//')
+    END_VERSIONS
+    """
 }

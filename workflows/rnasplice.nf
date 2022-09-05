@@ -17,6 +17,22 @@ for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true
 // Check mandatory parameters
 if (params.input) { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
 
+// Check alignment parameters
+def prepareToolIndices  = []
+if (!params.skip_alignment) { prepareToolIndices << params.aligner        }
+if (params.pseudo_aligner)  { prepareToolIndices << params.pseudo_aligner }
+
+// Check if an AWS iGenome has been provided to use the appropriate version of STAR
+def is_aws_igenome = false
+
+if (params.fasta && params.gtf) {
+
+    if ((file(params.fasta).getName() - '.gz' == 'genome.fa') && (file(params.gtf).getName() - '.gz' == 'genes.gtf')) {
+        is_aws_igenome = true
+    }   
+     
+}
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     CONFIG FILES
@@ -36,7 +52,7 @@ ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multi
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
 include { INPUT_CHECK       } from '../subworkflows/local/input_check'
-include { PREPARE_GENOME } from '../subworkflows/local/prepare_genome'
+include { PREPARE_GENOME    } from '../subworkflows/local/prepare_genome'
 include { FASTQC_TRIMGALORE } from '../subworkflows/local/fastqc_trimgalore'
 
 /*
@@ -62,28 +78,27 @@ include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/modules/custom/
 def multiqc_report = []
 
 workflow RNASPLICE {
-
     ch_versions = Channel.empty()
 
     //
     // SUBWORKFLOW: Uncompress and prepare reference genome files
     //
-    def biotype = params.gencode ? "gene_type" //: params.featurecounts_group_type
+
+    def biotype = params.gencode ? "gene_type" : params.featurecounts_group_type
+
     PREPARE_GENOME (
         prepareToolIndices,
         biotype,
         is_aws_igenome
-
     )
+
     ch_versions = ch_versions.mix(PREPARE_GENOME.out.versions)
 
     //
     // SUBWORKFLOW: Read in samplesheet, validate and stage input files
     //
 
-    INPUT_CHECK (
-        ch_input
-    )
+    INPUT_CHECK ( ch_input )
 
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
 

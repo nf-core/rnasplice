@@ -9,17 +9,41 @@
                     "branch": "master",
                     "git_sha": "e745e167c1020928ef20ea1397b6b4d230681b4d"
                 },
+                "custom/getchromsizes": {
+                    "branch": "master",
+                    "git_sha": "213403187932dbbdd936a04474cc8cd8abae7a08"
+                },
                 "fastqc": {
                     "branch": "master",
                     "git_sha": "e745e167c1020928ef20ea1397b6b4d230681b4d"
+                },
+                "gffread": {
+                    "branch": "master",
+                    "git_sha": "e745e167c1020928ef20ea1397b6b4d230681b4d"
+                },
+                "gunzip": {
+                    "branch": "master",
+                    "git_sha": "fa37e0662690c4ec4260dae282fbce08777503e6"
                 },
                 "multiqc": {
                     "branch": "master",
                     "git_sha": "e745e167c1020928ef20ea1397b6b4d230681b4d"
                 },
+                "salmon/index": {
+                    "branch": "master",
+                    "git_sha": "e745e167c1020928ef20ea1397b6b4d230681b4d"
+                },
+                "star/genomegenerate": {
+                    "branch": "master",
+                    "git_sha": "cd22a76c78b09f7837a5a75642774a4bf48c92ba"
+                },
                 "trimgalore": {
                     "branch": "master",
                     "git_sha": "85ec13ff1fc2196c5a507ea497de468101baabed"
+                },
+                "untar": {
+                    "branch": "master",
+                    "git_sha": "51be617b1ca9bff973655eb899d591ed6ab253b5"
                 }
             }
         }
