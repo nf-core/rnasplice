@@ -4,12 +4,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-def valid_params = [
-    aligners       : ['star_salmon', 'star'],
-    pseudoaligners : ['salmon'],
-]
-
-def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params, valid_params)
+def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
 
 // Validate input parameters
 WorkflowRnasplice.initialise(params, log)
@@ -144,10 +139,10 @@ workflow RNASPLICE {
         )
 
         // Collect Salmon quant output
-        ch_salmon_multiqc = QUANTIFY_SALMON.out.results
+        ch_salmon_multiqc = SALMON_QUANT.out.results
 
         // Take software versions from subworkflow (.first() not required)
-        ch_versions = ch_versions.mix(QUANTIFY_SALMON.out.versions)
+        ch_versions = ch_versions.mix(SALMON_QUANT.out.versions)
     }
 
     //
