@@ -132,32 +132,6 @@ workflow RNASPLICE {
     ch_trim_reads = FASTQC_TRIMGALORE.out.reads
 
     //
-    // SUBWORKFLOW: Pseudo-alignment and quantification with Salmon
-    //
-
-    if (params.pseudo_aligner == 'salmon') {
-        
-        alignment_mode = false
-        ch_transcript_fasta = ch_dummy_file
-
-        SALMON_QUANT (
-            ch_trim_reads,
-            PREPARE_GENOME.out.salmon_index,
-            ch_transcript_fasta,
-            PREPARE_GENOME.out.gtf,
-            alignment_mode,
-            params.salmon_quant_libtype ?: ''
-        )
-
-        // Collect Salmon quant output
-        ch_salmon_multiqc = SALMON_QUANT.out.results
-
-        // Take software versions from subworkflow (.first() not required)
-        ch_versions = ch_versions.mix(SALMON_QUANT.out.versions)
-    }
-
-    
-    //
     // MODULE: Align reads using STAR
     //
             
@@ -166,14 +140,13 @@ workflow RNASPLICE {
         
         // Run Star alignment module 
         STAR_ALIGN ( 
-            FASTQC_TRIMGALORE.out.reads, 
+            ch_trim_reads, 
             PREPARE_GENOME.out.star_index, 
             PREPARE_GENOME.out.gtf, 
             params.star_ignore_sjdbgtf, 
             params.seq_platform ?: '', 
             params.seq_center ?: ''
         )
-        
         // Collect STAR output 
         ch_orig_bam          = STAR_ALIGN.out.bam            // channel: [ val(meta), bam            ]
         ch_log_final         = STAR_ALIGN.out.log_final      // channel: [ val(meta), log_final      ]
@@ -221,8 +194,8 @@ workflow RNASPLICE {
             STAR_SALMON_QUANT (
                 ch_transcriptome_bam,
                 ch_salmon_index,
-                PREPARE_GENOME.out.transcript_fasta,
                 PREPARE_GENOME.out.gtf,
+                PREPARE_GENOME.out.transcript_fasta,
                 alignment_mode,
                 params.salmon_quant_libtype ?: ''
             )
@@ -231,6 +204,31 @@ workflow RNASPLICE {
         
         }
 
+    }
+
+    //
+    // SUBWORKFLOW: Pseudo-alignment and quantification with Salmon
+    //
+
+    if (params.pseudo_aligner == 'salmon') {
+        
+        alignment_mode = false
+        ch_transcript_fasta = ch_dummy_file
+
+        SALMON_QUANT (
+            ch_trim_reads,
+            PREPARE_GENOME.out.salmon_index,
+            PREPARE_GENOME.out.gtf,
+            ch_transcript_fasta,
+            alignment_mode,
+            params.salmon_quant_libtype ?: ''
+        )
+
+        // Collect Salmon quant output
+        ch_salmon_multiqc = SALMON_QUANT.out.results
+
+        // Take software versions from subworkflow (.first() not required)
+        ch_versions = ch_versions.mix(SALMON_QUANT.out.versions)
     }
     
     //
