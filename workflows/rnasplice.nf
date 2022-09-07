@@ -50,6 +50,11 @@ ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multi
 */
 
 //
+// MODULE: Loaded from modules/local/
+//
+include { BEDTOOLS_GENOMECOV                 } from '../modules/local/bedtools_genomecov'
+
+//
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
 include { INPUT_CHECK       } from '../subworkflows/local/input_check'
@@ -231,6 +236,17 @@ workflow RNASPLICE {
         ch_versions = ch_versions.mix(SALMON_QUANT.out.versions)
     }
     
+    //
+    // MODULE: Genome-wide coverage with BEDTools
+    //
+    if (!params.skip_alignment && !params.skip_bigwig) {
+
+        BEDTOOLS_GENOMECOV (
+            ch_genome_bam
+        )
+        ch_versions = ch_versions.mix(BEDTOOLS_GENOMECOV.out.versions.first())
+    }
+
     //
     // MODULE: Collect version information across pipeline
     //

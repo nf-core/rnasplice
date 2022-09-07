@@ -33,10 +33,6 @@
                     "branch": "master",
                     "git_sha": "e745e167c1020928ef20ea1397b6b4d230681b4d"
                 },
-                "star/genomegenerate": {
-                    "branch": "master",
-                    "git_sha": "cd22a76c78b09f7837a5a75642774a4bf48c92ba"
-                },
                 "salmon/quant": {
                     "branch": "master",
                     "git_sha": "e745e167c1020928ef20ea1397b6b4d230681b4d"
@@ -62,6 +58,10 @@
                     "git_sha": "f4eab7945952dc4934224309701a49913ea05ae6"
                 },
                 "star/align": {
+                    "branch": "master",
+                    "git_sha": "cd22a76c78b09f7837a5a75642774a4bf48c92ba"
+                },
+                "star/genomegenerate": {
                     "branch": "master",
                     "git_sha": "cd22a76c78b09f7837a5a75642774a4bf48c92ba"
                 },
