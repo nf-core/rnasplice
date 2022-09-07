@@ -69,6 +69,14 @@
                     "branch": "master",
                     "git_sha": "85ec13ff1fc2196c5a507ea497de468101baabed"
                 },
+                "ucsc/bedclip": {
+                    "branch": "master",
+                    "git_sha": "233fa70811a03a4cecb2ece483b5c8396e2cee1d"
+                },
+                "ucsc/bedgraphtobigwig": {
+                    "branch": "master",
+                    "git_sha": "233fa70811a03a4cecb2ece483b5c8396e2cee1d"
+                },
                 "untar": {
                     "branch": "master",
                     "git_sha": "51be617b1ca9bff973655eb899d591ed6ab253b5"

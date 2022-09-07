@@ -80,6 +80,8 @@ include { CUSTOM_DUMPSOFTWAREVERSIONS       } from '../modules/nf-core/modules/c
 // SUBWORKFLOWS: Installed directly from nf-core/modules
 //
 include { BAM_SORT_SAMTOOLS } from '../subworkflows/nf-core/bam_sort_samtools'
+include { BEDGRAPH_TO_BIGWIG as BEDGRAPH_TO_BIGWIG_FORWARD       } from '../subworkflows/nf-core/bedgraph_to_bigwig'
+include { BEDGRAPH_TO_BIGWIG as BEDGRAPH_TO_BIGWIG_REVERSE       } from '../subworkflows/nf-core/bedgraph_to_bigwig'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -245,6 +247,20 @@ workflow RNASPLICE {
             ch_genome_bam
         )
         ch_versions = ch_versions.mix(BEDTOOLS_GENOMECOV.out.versions.first())
+    
+	//
+        // SUBWORKFLOW: Convert bedGraph to bigWig
+        //
+        BEDGRAPH_TO_BIGWIG_FORWARD (
+            BEDTOOLS_GENOMECOV.out.bedgraph_forward,
+            PREPARE_GENOME.out.chrom_sizes
+        )
+        ch_versions = ch_versions.mix(BEDGRAPH_TO_BIGWIG_FORWARD.out.versions)
+
+        BEDGRAPH_TO_BIGWIG_REVERSE (
+            BEDTOOLS_GENOMECOV.out.bedgraph_reverse,
+            PREPARE_GENOME.out.chrom_sizes
+        )
     }
 
     //
