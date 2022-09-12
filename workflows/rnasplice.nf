@@ -139,6 +139,7 @@ workflow RNASPLICE {
     if (!params.skip_alignment && (params.aligner == 'star_salmon' || params.aligner == "star")) {
         
         // Run Star alignment module 
+        // currently params.seq_platform not specified in the nextflow.config in rnaseq code base
         STAR_ALIGN ( 
             ch_trim_reads, 
             PREPARE_GENOME.out.star_index, 
@@ -254,11 +255,19 @@ workflow RNASPLICE {
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC_TRIMGALORE.out.fastqc_zip.collect{it[1]}.ifEmpty([]))
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC_TRIMGALORE.out.trim_zip.collect{it[1]}.ifEmpty([]))
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC_TRIMGALORE.out.trim_log.collect{it[1]}.ifEmpty([]))
-    ch_multiqc_files = ch_multiqc_files.mix(ch_salmon_multiqc.collect{it[1]}.ifEmpty([]))
-    ch_multiqc_files = ch_multiqc_files.mix(ch_log_final.collect{it[1]}.ifEmpty([]))
-    ch_multiqc_files = ch_multiqc_files.mix(ch_samtools_stats.collect{it[1]}.ifEmpty([]))
-    ch_multiqc_files = ch_multiqc_files.mix(ch_samtools_flagstat.collect{it[1]}.ifEmpty([]))
-    ch_multiqc_files = ch_multiqc_files.mix(ch_samtools_idxstats.collect{it[1]}.ifEmpty([]))
+
+    if (params.pseudo_aligner == 'salmon'){
+        ch_multiqc_files = ch_multiqc_files.mix(ch_salmon_multiqc.collect{it[1]}.ifEmpty([]))
+    }
+
+    if (!params.skip_alignment && (params.aligner == 'star_salmon' || params.aligner == "star")){
+
+        ch_multiqc_files = ch_multiqc_files.mix(ch_log_final.collect{it[1]}.ifEmpty([]))
+        ch_multiqc_files = ch_multiqc_files.mix(ch_samtools_stats.collect{it[1]}.ifEmpty([]))
+        ch_multiqc_files = ch_multiqc_files.mix(ch_samtools_flagstat.collect{it[1]}.ifEmpty([]))
+        ch_multiqc_files = ch_multiqc_files.mix(ch_samtools_idxstats.collect{it[1]}.ifEmpty([]))
+
+    }
 
     MULTIQC (
         ch_multiqc_files.collect()
