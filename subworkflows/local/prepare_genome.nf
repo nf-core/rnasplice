@@ -11,10 +11,17 @@ include { UNTAR as UNTAR_STAR_INDEX         } from '../../modules/nf-core/module
 include { UNTAR as UNTAR_SALMON_INDEX       } from '../../modules/nf-core/modules/untar/main'
 
 include { GFFREAD                           } from '../../modules/nf-core/modules/gffread/main'
+
 include { STAR_GENOMEGENERATE               } from '../../modules/nf-core/modules/star/genomegenerate/main'
+include { STAR_GENOMEGENERATE_IGENOMES      } from '../../modules/local/star_genomegenerate_igenomes'
+
 include { SALMON_INDEX                      } from '../../modules/nf-core/modules/salmon/index/main'
 
+include { RSEM_PREPAREREFERENCE as MAKE_TRANSCRIPTS_FASTA } from '../../modules/nf-core/modules/rsem/preparereference/main'
+
 include { CUSTOM_GETCHROMSIZES              } from '../../modules/nf-core/modules/custom/getchromsizes/main'
+
+include { GTF_GENE_FILTER                   } from '../../modules/local/gtf_gene_filter'
 
 workflow PREPARE_GENOME {
 
@@ -70,7 +77,7 @@ workflow PREPARE_GENOME {
 
 
     //
-    // Uncompress transcript fasta file
+    // Uncompress transcript fasta file / create if required
     //
     if (params.transcript_fasta) {
         if (params.transcript_fasta.endsWith('.gz')) {
@@ -78,7 +85,12 @@ workflow PREPARE_GENOME {
             ch_versions         = ch_versions.mix(GUNZIP_TRANSCRIPT_FASTA.out.versions)
         } else {
             ch_transcript_fasta = file(params.transcript_fasta)
-        }
+        } 
+    } else {
+        ch_filter_gtf       = GTF_GENE_FILTER ( ch_fasta, ch_gtf ).gtf
+        ch_transcript_fasta = MAKE_TRANSCRIPTS_FASTA ( ch_fasta, ch_filter_gtf ).transcript_fasta
+        ch_versions         = ch_versions.mix(GTF_GENE_FILTER.out.versions)
+        ch_versions         = ch_versions.mix(MAKE_TRANSCRIPTS_FASTA.out.versions)
     }
 
     //

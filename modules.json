@@ -29,6 +29,10 @@
                     "branch": "master",
                     "git_sha": "e745e167c1020928ef20ea1397b6b4d230681b4d"
                 },
+                "rsem/preparereference": {
+                    "branch": "master",
+                    "git_sha": "1b5d3f5ac2ae61ee35dece20a2aeb8018b6438ce"
+                },
                 "salmon/index": {
                     "branch": "master",
                     "git_sha": "e745e167c1020928ef20ea1397b6b4d230681b4d"
