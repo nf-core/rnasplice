@@ -75,6 +75,7 @@ include { SALMON_QUANT as STAR_SALMON_QUANT } from '../modules/nf-core/modules/s
 include { STAR_ALIGN                        } from '../modules/nf-core/modules/star/align/main'
 include { MULTIQC                           } from '../modules/nf-core/modules/multiqc/main'
 include { CUSTOM_DUMPSOFTWAREVERSIONS       } from '../modules/nf-core/modules/custom/dumpsoftwareversions/main'
+include { CAT_FASTQ                         } from '../modules/nf-core/modules/cat/fastq/main'
 
 //
 // SUBWORKFLOWS: Installed directly from nf-core/modules
@@ -116,10 +117,41 @@ workflow RNASPLICE {
     //
 
     // Run Input check subworkflow
-    INPUT_CHECK ( ch_input )
+    INPUT_CHECK (
+	 ch_input 
+    ) 
+    .reads
+    .map {
+        meta, fastq ->
+            def meta_clone = meta.clone()
+            meta_clone.id = meta_clone.id.split('_')[0..-2].join('_')
+            [ meta_clone, fastq ] 
+    }
+    .groupTuple(by: [0])
+    .branch {
+        meta, fastq ->
+            single  : fastq.size() == 1
+                return [ meta, fastq.flatten() ]
+            multiple: fastq.size() > 1
+                return [ meta, fastq.flatten() ]
+    }
+    .set { ch_fastq }
 
     // Take software versions from input check (.first() not required)
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
+    
+    //
+    // MODULE: Concatenate FastQ files from same sample if required
+    //
+    
+    CAT_FASTQ (
+        ch_fastq.multiple
+    )
+    .reads
+    .mix(ch_fastq.single)
+    .set { ch_cat_fastq }   
+    ch_versions = ch_versions.mix(CAT_FASTQ.out.versions.first().ifEmpty(null))
+
 
     //
     // SUBWORKFLOW: Read QC, and trimming
@@ -127,7 +159,7 @@ workflow RNASPLICE {
 
     // Run FastQC and TrimGalore
     FASTQC_TRIMGALORE (
-        INPUT_CHECK.out.reads,
+        ch_cat_fastq,
         params.skip_fastqc || params.skip_qc,
         params.skip_trimming
     )
