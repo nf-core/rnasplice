@@ -221,6 +221,34 @@ workflow RNASPLICE {
         ch_versions = ch_versions.mix(BAM_SORT_SAMTOOLS.out.versions)
 
         //
+        // Create channels: [ meta1, meta2, [ group1_bam, group2_bam ]]
+        //
+
+        BAM_SORT_SAMTOOLS
+            .out
+            .bam
+            .map { meta, bam -> [meta.condition, meta, bam] }
+            .groupTuple(by:0)
+            .toSortedList()
+            .set { ch_genome_bam_conditions }
+        
+        ch_genome_bam_conditions
+            .map {
+                it -> [it[0][1], it[1][1], [it[0][2], it[1][2]]]
+            }
+            .set { ch_genome_bam_conditions }
+
+        ch_genome_bam_conditions
+            .multiMap {
+                meta1, meta2, bam -> 
+                meta1: meta1
+                meta2: meta2
+                bam1: bam[0]
+                bam2: bam[1]
+            }
+            .set { ch_genome_bam_conditions_multimap }
+
+        //
         // SUBWORKFLOW: Count reads from BAM alignments using Salmon
         //
 
