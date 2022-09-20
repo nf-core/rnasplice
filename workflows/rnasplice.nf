@@ -60,6 +60,8 @@ include { BEDTOOLS_GENOMECOV                 } from '../modules/local/bedtools_g
 include { INPUT_CHECK       } from '../subworkflows/local/input_check'
 include { PREPARE_GENOME    } from '../subworkflows/local/prepare_genome'
 include { FASTQC_TRIMGALORE } from '../subworkflows/local/fastqc_trimgalore'
+include { TX2GENE_TXIMPORT as SALMON_TX2GENE_TXIMPORT      } from '../subworkflows/local/tx2gene_tximport'
+include { TX2GENE_TXIMPORT as STAR_SALMON_TX2GENE_TXIMPORT } from '../subworkflows/local/tx2gene_tximport'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -269,7 +271,16 @@ workflow RNASPLICE {
             )
 
             ch_versions = ch_versions.mix(STAR_SALMON_QUANT.out.versions)
-        
+
+
+            //
+            // SUBWORKFLOW: Run Tximport and produce tx2gene from gtf using gffread
+            //
+
+            STAR_SALMON_TX2GENE_TXIMPORT (
+                STAR_SALMON_QUANT.out.results.collect{it[1]},
+                PREPARE_GENOME.out.gtf
+            )
         }
 
     }
@@ -297,6 +308,15 @@ workflow RNASPLICE {
 
         // Take software versions from subworkflow (.first() not required)
         ch_versions = ch_versions.mix(SALMON_QUANT.out.versions)
+
+        //
+        // SUBWORKFLOW: Run Tximport and produce tx2gene from gtf using gffread
+        //
+
+        SALMON_TX2GENE_TXIMPORT (
+            SALMON_QUANT.out.results.collect{it[1]},
+            PREPARE_GENOME.out.gtf
+        )
     }
     
     //
