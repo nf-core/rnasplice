@@ -1,2 +1,8 @@
-sample,fastq_1,fastq_2,strandedness
-GM12878,https://github.com/nf-core/test-datasets/raw/modules/data/genomics/homo_sapiens/illumina/fastq/test_rnaseq_1.fastq.gz,https://github.com/nf-core/test-datasets/raw/modules/data/genomics/homo_sapiens/illumina/fastq/test_rnaseq_2.fastq.gz,forward
+sample,fastq_1,fastq_2,strandedness,condition
+WT_REP1,s3://nf-core-awsmegatests/rnaseq/input_data/minimal/GSE110004/SRR6357070_1.fastq.gz,s3://nf-core-awsmegatests/rnaseq/input_data/minimal/GSE110004/SRR6357070_2.fastq.gz,reverse,wt
+WT_REP1,s3://nf-core-awsmegatests/rnaseq/input_data/minimal/GSE110004/SRR6357071_1.fastq.gz,s3://nf-core-awsmegatests/rnaseq/input_data/minimal/GSE110004/SRR6357071_2.fastq.gz,reverse,wt
+WT_REP2,s3://nf-core-awsmegatests/rnaseq/input_data/minimal/GSE110004/SRR6357072_1.fastq.gz,s3://nf-core-awsmegatests/rnaseq/input_data/minimal/GSE110004/SRR6357072_2.fastq.gz,reverse,wt
+RAP1_UNINDUCED_REP1,s3://nf-core-awsmegatests/rnaseq/input_data/minimal/GSE110004/SRR6357073_1.fastq.gz,,reverse,wt
+RAP1_UNINDUCED_REP2,s3://nf-core-awsmegatests/rnaseq/input_data/minimal/GSE110004/SRR6357074_1.fastq.gz,,reverse,treatment
+RAP1_UNINDUCED_REP2,s3://nf-core-awsmegatests/rnaseq/input_data/minimal/GSE110004/SRR6357075_1.fastq.gz,,reverse,treatment
+RAP1_IAA_30M_REP1,s3://nf-core-awsmegatests/rnaseq/input_data/minimal/GSE110004/SRR6357076_1.fastq.gz,s3://nf-core-awsmegatests/rnaseq/input_data/minimal/GSE110004/SRR6357076_2.fastq.gz,reverse,treatment
