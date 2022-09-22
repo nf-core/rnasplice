@@ -62,6 +62,8 @@ include { PREPARE_GENOME    } from '../subworkflows/local/prepare_genome'
 include { FASTQC_TRIMGALORE } from '../subworkflows/local/fastqc_trimgalore'
 include { TX2GENE_TXIMPORT as SALMON_TX2GENE_TXIMPORT      } from '../subworkflows/local/tx2gene_tximport'
 include { TX2GENE_TXIMPORT as STAR_SALMON_TX2GENE_TXIMPORT } from '../subworkflows/local/tx2gene_tximport'
+include { DEXSEQ_DTU as SALMON_DEXSEQ_DTU } from '../subworkflows/local/dexseq_dtu'
+include { DEXSEQ_DTU as STAR_SALMON_DEXSEQ_DTU } from '../subworkflows/local/dexseq_dtu'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -265,6 +267,16 @@ workflow RNASPLICE {
                 STAR_SALMON_QUANT.out.results.collect{it[1]},
                 PREPARE_GENOME.out.gtf
             )
+
+            //
+            // SUBWORKFLOW: Run Dexseq DTU
+            //
+
+            STAR_SALMON_DEXSEQ_DTU (
+                SALMON_TX2GENE_TXIMPORT.out.txi,
+                SALMON_TX2GENE_TXIMPORT.out.tx2gene,
+                Channel.fromPath(params.input)
+            )
         }
 
     }
@@ -300,6 +312,16 @@ workflow RNASPLICE {
         SALMON_TX2GENE_TXIMPORT (
             SALMON_QUANT.out.results.collect{it[1]},
             PREPARE_GENOME.out.gtf
+        )
+
+        //
+        // SUBWORKFLOW: Run Dexseq DTU
+        //
+
+        STAR_SALMON_DEXSEQ_DTU (
+            SALMON_TX2GENE_TXIMPORT.out.txi,
+            SALMON_TX2GENE_TXIMPORT.out.tx2gene,
+            Channel.fromPath(params.input)
         )
     }
     
