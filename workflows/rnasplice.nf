@@ -76,6 +76,8 @@ include { STAR_ALIGN                        } from '../modules/nf-core/modules/s
 include { MULTIQC                           } from '../modules/nf-core/modules/multiqc/main'
 include { CUSTOM_DUMPSOFTWAREVERSIONS       } from '../modules/nf-core/modules/custom/dumpsoftwareversions/main'
 include { CAT_FASTQ                         } from '../modules/nf-core/modules/cat/fastq/main'
+include { DEXSEQ_ANNOTATION                 } from '../modules/local/dexseq_annotation'
+include { DEXSEQ_COUNT                      } from '../modules/local/dexseq_count'
 
 //
 // SUBWORKFLOWS: Installed directly from nf-core/modules
@@ -83,6 +85,7 @@ include { CAT_FASTQ                         } from '../modules/nf-core/modules/c
 include { BAM_SORT_SAMTOOLS } from '../subworkflows/nf-core/bam_sort_samtools'
 include { BEDGRAPH_TO_BIGWIG as BEDGRAPH_TO_BIGWIG_FORWARD       } from '../subworkflows/nf-core/bedgraph_to_bigwig'
 include { BEDGRAPH_TO_BIGWIG as BEDGRAPH_TO_BIGWIG_REVERSE       } from '../subworkflows/nf-core/bedgraph_to_bigwig'
+
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -303,6 +306,28 @@ workflow RNASPLICE {
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
     )
+
+    //
+    // MODULE: Preparing the annotation using DEXSeq
+    //
+
+    DEXSEQ_ANNOTATION (
+	PREPARE_GENOME.out.gtf
+    )
+
+    ch_versions = ch_versions.mix(DEXSEQ_ANNOTATION.out.versions)
+
+    //
+    // MODULE: DEXSeq Count
+    //
+
+    DEXSEQ_COUNT (
+	DEXSEQ_ANNOTATION.out.gff,
+	ch_genome_bam
+    )
+
+    ch_versions = ch_versions.mix(DEXSEQ_COUNT.out.versions)
+
 
     //
     // MODULE: MultiQC
