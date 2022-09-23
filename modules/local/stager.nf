@@ -6,17 +6,23 @@ process STAGER {
     // need a multitool container for r-base, dexseq, stager, drimseq and on quay hub
 
     input:
-    path dexseq_rds
+    
+    path rds          // dxd.rds or drimseq_d.rds  
+    val analysis_type // dexseq or drimseq
+    path tx2gene
+    path results_rds  // qvals.rds or res.txp.rds
 
     output:
-    path "*.csv"                , emit: stager_csv
-    path "*.rds"                , emit: stager_rds
+
+    path "*.stageR.padj.tsv"    , emit: stager_padj_tsv
+    path "*.stageR.padj.rds"    , emit: stager_padj_rds
+    path "*.stageRObj.rds"      , emit: stager_rds
     path "versions.yml"         , emit: versions
 
     script:
-    def args = task.ext.args ?: '' 
+    def args = task.ext.args ?: ''
     """
-    run_stager.r $dexseq_rds $args
+    run_stager.R $rds $analysis_type $tx2gene $results_rds
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

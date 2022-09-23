@@ -30,20 +30,30 @@ workflow DEXSEQ_DTU {
 
     ch_versions = ch_versions.mix(DEXSEQ.out.versions)
 
-    STAGER ( DEXSEQ.out.dexseq_rds )
+    def analysis_type = 'dexseq'
+    
+    STAGER ( 
+        DEXSEQ.out.dexseq_rds,
+        analysis_type,
+        tx2gene,
+        DEXSEQ.out.qval_rds
+    )
 
     ch_versions = ch_versions.mix(STAGER.out.versions)
 
     emit:
 
-    drimseq_filter_csv    = DRIMSEQ_FILTER.out.drimseq_filter_csv    // path: *.csv
-    drimseq_filter_rds    = DRIMSEQ_FILTER.out.drimseq_filter_rds    // path: *.rds
+    drimseq_filter_rds    = DRIMSEQ_FILTER.out.drimseq_filter_rds    // path: d.rds
 
-    dexseq_csv            = DEXSEQ.out.dexseq_csv                    // path: *.csv
-    dexseq_rds            = DEXSEQ.out.dexseq_rds                    // path: *.rds
+    dexseq_rds            = DEXSEQ.out.dexseq_rds                    // path: dxd.rds
+    dexseq_results_rds    = DEXSEQ.out.dexseq_results_rds            // path: dxr.rds
+    dexseq_results_tsv    = DEXSEQ.out.dexseq_results_tsv            // path: dxr.tsv
+    qval_rds              = DEXSEQ.out.qval_rds                      // path: qval.rds
+    dexseq_results_q_tsv  = DEXSEQ.out.dexseq_results_q_tsv          // path: dxr.g.tsv
 
-    stager_csv            = STAGER.out.stager_csv                    // path: *.csv
-    stager_rds            = STAGER.out.stager_rds                    // path: *.rds
+    stager_padj_tsv       = STAGER.out.stager_padj_tsv               // path: *.stageR.padj.tsv
+    stager_padj_rds       = STAGER.out.stager_padj_rds               // path: **.stageR.padj.rds
+    stager_rds            = STAGER.out.stager_rds                    // path: *.stageRObj.rds
 
     versions              = ch_versions                              // channel: [ versions.yml ]
 }
