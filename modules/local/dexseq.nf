@@ -9,13 +9,16 @@ process DEXSEQ {
     path drimseq_filter_rds
 
     output:
-    path "*.csv"                , emit: dexseq_csv
-    path "*.rds"                , emit: dexseq_rds
-    path "versions.yml"         , emit: versions
+    path "dxd.rds"                , emit: dexseq_rds
+    path "dxr.rds"                , emit: dexseq_results_rds
+    path "dxr.tsv"                , emit: dexseq_results_tsv
+    path "qval.rds"               , emit: qval_rds
+    path "dxr.g.tsv"              , emit: dexseq_results_q_tsv
+    path "versions.yml"           , emit: versions
 
     script:
     """
-    run_dexseq.r $drimseq_filter_rds
+    run_dexseq.R $drimseq_filter_rds
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
