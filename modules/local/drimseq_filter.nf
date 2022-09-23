@@ -11,14 +11,27 @@ process DRIMSEQ_FILTER {
     path samplesheet // path: /path/to/samplesheet.csv
 
     output:
-    path "*.rds"                , emit: drimseq_filter_rds
-    path "*.csv"                , emit: drimseq_filter_csv
+    path "d.rds"                , emit: drimseq_filter_rds
     path "versions.yml"         , emit: versions
 
     script:
     def args = task.ext.args ?: '' 
+
+    def min_samps_gene_expr = params.min_samps_gene_expr ?: 12
+    def min_samps_feature_expr = params.min_samps_feature_expr ?: 6
+    def min_samps_feature_prop = params.min_samps_feature_prop ?: 6
+    def min_feature_expr = params.min_feature_expr ?: 10
+    def min_feature_prop = params.min_feature_prop ?: 0.1
+    def min_gene_expr = params.min_gene_expr ?: 10
+
     """
-    run_drimseq.r $txi $tx2gene $samplesheet
+    run_drimseq_filter.R $txi $tx2gene $samplesheet \\
+        $min_samps_gene_expr \\
+        $min_samps_feature_expr \\
+        $min_samps_feature_prop \\
+        $min_feature_expr \\
+        $min_feature_prop \\
+        $min_gene_expr
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

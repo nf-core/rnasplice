@@ -271,11 +271,24 @@ workflow RNASPLICE {
             //
             // SUBWORKFLOW: Run Dexseq DTU
             //
+            
+
+            ch_samplesheet = Channel.fromPath(params.input)
+
+            if (params.dtu_txi == "dtuScaledTPM") {
+
+                ch_txi = SALMON_TX2GENE_TXIMPORT.out.txi_dtu
+
+            } else if (params.dtu_txi == "scaledTPM") {
+
+                ch_txi = SALMON_TX2GENE_TXIMPORT.out.txi_s
+
+            }
 
             STAR_SALMON_DEXSEQ_DTU (
-                SALMON_TX2GENE_TXIMPORT.out.txi,
+                ch_txi,
                 SALMON_TX2GENE_TXIMPORT.out.tx2gene,
-                Channel.fromPath(params.input)
+                ch_samplesheet
             )
         }
 
@@ -318,10 +331,22 @@ workflow RNASPLICE {
         // SUBWORKFLOW: Run Dexseq DTU
         //
 
-        STAR_SALMON_DEXSEQ_DTU (
-            SALMON_TX2GENE_TXIMPORT.out.txi,
+        ch_samplesheet = Channel.fromPath(params.input)
+
+        if (params.dtu_txi == "dtuScaledTPM") {
+
+            ch_txi = SALMON_TX2GENE_TXIMPORT.out.txi_dtu
+
+        } else if (params.dtu_txi == "scaledTPM") {
+
+            ch_txi = SALMON_TX2GENE_TXIMPORT.out.txi_s
+
+        }
+
+        SALMON_DEXSEQ_DTU (
+            ch_txi,
             SALMON_TX2GENE_TXIMPORT.out.tx2gene,
-            Channel.fromPath(params.input)
+            ch_samplesheet
         )
     }
     
