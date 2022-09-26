@@ -120,7 +120,7 @@ workflow RNASPLICE {
 
     // Run Input check subworkflow
     INPUT_CHECK (
-	 ch_input 
+	    ch_input 
     ) 
     .reads
     .map {
@@ -142,6 +142,37 @@ workflow RNASPLICE {
     // Take software versions from input check (.first() not required)
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
     
+    if (params.rmats) {
+
+        INPUT_CHECK
+            .out
+            .reads
+            .map { meta, fastq -> meta.single_end}
+            .unique()
+            .collect()
+            .map {
+                if(it.size() > 1) {
+                    exit 1, "ERROR: Please check input samplesheet -> Cannot run rMats with mixed single and paired end samples"
+                } else {
+                    return it
+                }
+            }
+
+        INPUT_CHECK
+            .out
+            .reads
+            .map { meta, fastq -> meta.strandedness}
+            .unique()
+            .collect()
+            .map {
+                if(it.size() > 1) {
+                    exit 1, "ERROR: Please check input samplesheet -> Cannot run rMats with mixed stranded samples"
+                } else {
+                    return it
+                }
+            }
+    }
+
     //
     // MODULE: Concatenate FastQ files from same sample if required
     //
@@ -151,9 +182,9 @@ workflow RNASPLICE {
     )
     .reads
     .mix(ch_fastq.single)
-    .set { ch_cat_fastq }   
-    ch_versions = ch_versions.mix(CAT_FASTQ.out.versions.first().ifEmpty(null))
+    .set { ch_cat_fastq }
 
+    ch_versions = ch_versions.mix(CAT_FASTQ.out.versions.first().ifEmpty(null))
 
     //
     // SUBWORKFLOW: Read QC, and trimming
