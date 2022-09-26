@@ -58,6 +58,9 @@ if (!c("sample", "condition") %in% colnames(samps)) {
 # Take only sample and condition columns
 samps <- samps[,c("sample", "condition")]
 
+# filter for unique rows based on sample name
+samps <- samps[,!duplicated(samps[,"sample"])]
+
 ######################################
 #### Get Counts from tximport txi ####
 ######################################

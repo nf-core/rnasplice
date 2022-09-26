@@ -1,4 +1,4 @@
-process DEXSEQ {
+process DEXSEQ_DTU {
     label "process_medium"
 
     conda     (params.enable_conda ? "conda-forge::r-base=4.0.2 bioconda::bioconductor-dexseq=1.36.0 bioconda::bioconductor-drimseq=1.18.0 bioconda::bioconductor-stager=1.12.0" : null)

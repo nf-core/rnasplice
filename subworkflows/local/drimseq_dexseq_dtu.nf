@@ -3,10 +3,10 @@
 //
 
 include { DRIMSEQ_FILTER  } from '../../modules/local/drimseq_filter'
-include { DEXSEQ         } from '../../modules/local/dexseq'
+include { DEXSEQ_DTU         } from '../../modules/local/dexseq_dtu'
 include { STAGER         } from '../../modules/local/stager'
 
-workflow DEXSEQ_DTU {
+workflow DRIMSEQ_DEXSEQ_DTU {
 
     take:
 
@@ -26,7 +26,7 @@ workflow DEXSEQ_DTU {
 
     ch_versions = ch_versions.mix(DRIMSEQ_FILTER.out.versions)
 
-    DEXSEQ ( DRIMSEQ_FILTER.out.drimseq_filter_rds )
+    DEXSEQ_DTU ( DRIMSEQ_FILTER.out.drimseq_filter_rds )
 
     ch_versions = ch_versions.mix(DEXSEQ.out.versions)
 
