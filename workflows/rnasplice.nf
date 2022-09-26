@@ -62,8 +62,8 @@ include { PREPARE_GENOME    } from '../subworkflows/local/prepare_genome'
 include { FASTQC_TRIMGALORE } from '../subworkflows/local/fastqc_trimgalore'
 include { TX2GENE_TXIMPORT as SALMON_TX2GENE_TXIMPORT      } from '../subworkflows/local/tx2gene_tximport'
 include { TX2GENE_TXIMPORT as STAR_SALMON_TX2GENE_TXIMPORT } from '../subworkflows/local/tx2gene_tximport'
-include { DEXSEQ_DTU as SALMON_DEXSEQ_DTU } from '../subworkflows/local/dexseq_dtu'
-include { DEXSEQ_DTU as STAR_SALMON_DEXSEQ_DTU } from '../subworkflows/local/dexseq_dtu'
+include { DRIMSEQ_DEXSEQ_DTU as SALMON_DEXSEQ_DTU } from '../subworkflows/local/drimseq_dexseq_dtu'
+include { DRIMSEQ_DEXSEQ_DTU as STAR_SALMON_DEXSEQ_DTU } from '../subworkflows/local/drimseq_dexseq_dtu'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
