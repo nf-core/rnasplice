@@ -28,15 +28,15 @@ workflow DRIMSEQ_DEXSEQ_DTU {
 
     DEXSEQ_DTU ( DRIMSEQ_FILTER.out.drimseq_filter_rds )
 
-    ch_versions = ch_versions.mix(DEXSEQ.out.versions)
+    ch_versions = ch_versions.mix(DEXSEQ_DTU.out.versions)
 
     def analysis_type = 'dexseq'
     
     STAGER ( 
-        DEXSEQ.out.dexseq_rds,
+        DEXSEQ_DTU.out.dexseq_rds,
         analysis_type,
         tx2gene,
-        DEXSEQ.out.qval_rds
+        DEXSEQ_DTU.out.qval_rds
     )
 
     ch_versions = ch_versions.mix(STAGER.out.versions)
@@ -45,11 +45,11 @@ workflow DRIMSEQ_DEXSEQ_DTU {
 
     drimseq_filter_rds    = DRIMSEQ_FILTER.out.drimseq_filter_rds    // path: d.rds
 
-    dexseq_rds            = DEXSEQ.out.dexseq_rds                    // path: dxd.rds
-    dexseq_results_rds    = DEXSEQ.out.dexseq_results_rds            // path: dxr.rds
-    dexseq_results_tsv    = DEXSEQ.out.dexseq_results_tsv            // path: dxr.tsv
-    qval_rds              = DEXSEQ.out.qval_rds                      // path: qval.rds
-    dexseq_results_q_tsv  = DEXSEQ.out.dexseq_results_q_tsv          // path: dxr.g.tsv
+    dexseq_rds            = DEXSEQ_DTU.out.dexseq_rds                    // path: dxd.rds
+    dexseq_results_rds    = DEXSEQ_DTU.out.dexseq_results_rds            // path: dxr.rds
+    dexseq_results_tsv    = DEXSEQ_DTU.out.dexseq_results_tsv            // path: dxr.tsv
+    qval_rds              = DEXSEQ_DTU.out.qval_rds                      // path: qval.rds
+    dexseq_results_q_tsv  = DEXSEQ_DTU.out.dexseq_results_q_tsv          // path: dxr.g.tsv
 
     stager_padj_tsv       = STAGER.out.stager_padj_tsv               // path: *.stageR.padj.tsv
     stager_padj_rds       = STAGER.out.stager_padj_rds               // path: **.stageR.padj.rds
