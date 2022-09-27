@@ -2,9 +2,9 @@ process DEXSEQ_COUNT {
     tag "$meta.id"
     label 'process_medium'
 
-    conda (params.enable_conda ? "conda-forge::r-base=4.0.2 bioconda::bioconductor-dexseq=1.36.0" : null)
+    conda (params.enable_conda ? "bioconda::htseq=2.0.2" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    	'https://depot.galaxyproject.org/singularity/python:3.9--1' :
+    	'https://depot.galaxyproject.org/singularity/htseq:2.0.2--py310ha14a713_0' :
 	'quay.io/biocontainers/htseq:2.0.2--py310ha14a713_0' }"
 	
     input:
@@ -20,15 +20,22 @@ process DEXSEQ_COUNT {
 
     script:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}"
-    
+    def read_type = meta.single_end ? '' : '-p yes'    
+    def alignment_quality = "-a ${params.alignment_quality}"
+    def strandedness = ''
+    if (meta.strandedness == 'forward') {
+        strandedness = '-s yes'
+    } else if (meta.strandedness == 'reverse') {
+        strandedness = '-s reverse'
+    } else if (meta.strandedness == 'unstranded') {
+	strandedness = '-s no'
+    }
+
     """
-    dexseq_count.py $gff -f bam $bam count.txt $args 
+    dexseq_count.py $gff $read_type -f bam $bam -r pos count.txt $alignment_quality $strandedness
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-    	r-base: \$(echo \$(R --version 2>&1) | sed 's/^.*R version //; s/ .*\$//')
-        bioconductor-dexseq:  \$(Rscript -e "library(DEXSeq); cat(as.character(packageVersion('DEXSeq')))")
-	python: \$(python --version | sed 's/Python //g')
+	htseq: \$(pip show htseq | sed -e '/Version/!d'| sed 's/Version: //g')
     END_VERSIONS
     """
 }
