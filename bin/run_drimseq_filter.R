@@ -8,7 +8,7 @@ args = commandArgs(trailingOnly=TRUE)
 
 if (length(args) < 3) {
   
-  stop("Usage: run_drimseq_filter.R <txi> <tx2gene> <samplesheet>", call.=FALSE)
+  stop("Usage: run_drimseq_filter.R <txi> <tximport_tx2gene> <samplesheet>", call.=FALSE)
   
 }
 
@@ -17,7 +17,7 @@ if (length(args) < 3) {
 ######################################
 
 txi = args[1]  # txi.rds object from tximport
-tx2gene = args[2] # tx2gene information
+tximport_tx2gene = args[2] # tx2gene information
 samplesheet = args[3] # samplesheet
 
 # Filter params
@@ -33,13 +33,13 @@ min_gene_expr = args[9] # Default: 10
 ######################################
 
 # Read in tx2gene file
-rowdata <- read.csv(tx2gene, sep="\t", header = FALSE)
+tx2gene <- read.csv(tximport_tx2gene, sep="\t", header = TRUE)
 
-# Set tx2gene header
-colnames(rowdata) <- c("tx", "gene_id", "gene_name")
+# # Set tx2gene header
+# colnames(rowdata) <- c("tx", "gene_id", "gene_name")
 
-# Take only first 2 cols - tx and gene_id
-tx2gene <- rowdata[,1:2]
+# # Take only first 2 cols - tx and gene_id
+# tximport_tx2gene <- rowdata[,1:2]
 
 ######################################
 ######## Process sample sheet ########
@@ -49,7 +49,7 @@ tx2gene <- rowdata[,1:2]
 samps <- read.csv(samplesheet, sep=",", header = TRUE)
 
 # check header of sample sheet
-if (!c("sample", "condition") %in% colnames(samps)) {
+if (!c("sample") %in% colnames(samps) | !c("condition") %in% colnames(samps)) {
   
   stop("run_drimseq_filter.R Samplesheet must contain 'sample' and 'condition' column headers.", call.=FALSE)
   
@@ -59,7 +59,10 @@ if (!c("sample", "condition") %in% colnames(samps)) {
 samps <- samps[,c("sample", "condition")]
 
 # filter for unique rows based on sample name
-samps <- samps[,!duplicated(samps[,"sample"])]
+samps <- samps[!duplicated(samps[,"sample"]),]
+
+# Change name of cols for DRIMseq 
+colnames(samps) <- c("sample_id", "condition")
 
 ######################################
 #### Get Counts from tximport txi ####
@@ -71,13 +74,24 @@ txi <- readRDS(txi)
 # Take the counts from txi (will be scaledTPM or dtuScaledTPM)
 cts <- txi$counts
 
-# Filter for txs with > 0 counts across all samples
-cts <- cts[rowSums(cts) > 0,]
+# ensure tx2gene and txi cts match
+tx2gene <- tx2gene[match(rownames(cts),tx2gene$tx),]
+
+# check header of sample sheet
+if (!all(rownames(cts) == tx2gene$tx)) {
+  
+  stop("run_drimseq_filter.R Tx2gene rownames and txi rownames must match.", call.=FALSE)
+  
+}
 
 # Create counts data frame used downstream
 counts <- data.frame(gene_id = tx2gene$gene_id,
                       feature_id = tx2gene$tx,
                       cts)
+
+
+# Filter for txs with > 0 counts across all samples
+counts <- counts[rowSums(counts[,(3:ncol(counts))]) > 0,]
 
 ######################################
 ########### Run DRIMSeq filter #######

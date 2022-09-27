@@ -141,6 +141,9 @@ write.table(cbind.data.frame(tx2gene,gi.s[["counts"]]), paste(c(prefix, "gene_co
 write.table(cbind.data.frame(tx2gene,gi.ls[["abundance"]]), paste(c(prefix, "gene_tpm_length_scaled.tsv"), collapse="."), sep="\t", quote=FALSE, row.names = FALSE)
 write.table(cbind.data.frame(tx2gene,gi.ls[["counts"]]), paste(c(prefix, "gene_counts_length_scaled.tsv"), collapse="."), sep="\t", quote=FALSE, row.names = FALSE)
 
+# output new tx2gene
+write.table(tx2gene, "tximport.tx2gene.tsv", sep="\t", quote=FALSE, row.names = FALSE)
+
 ####################################
 ########### Session info ###########
 ####################################

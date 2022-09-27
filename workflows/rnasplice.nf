@@ -287,7 +287,7 @@ workflow RNASPLICE {
 
             STAR_SALMON_DEXSEQ_DTU (
                 ch_txi,
-                SALMON_TX2GENE_TXIMPORT.out.tx2gene,
+                SALMON_TX2GENE_TXIMPORT.out.tximport_tx2gene,
                 ch_samplesheet
             )
         }
@@ -345,7 +345,7 @@ workflow RNASPLICE {
 
         SALMON_DEXSEQ_DTU (
             ch_txi,
-            SALMON_TX2GENE_TXIMPORT.out.tx2gene,
+            SALMON_TX2GENE_TXIMPORT.out.tximport_tx2gene,
             ch_samplesheet
         )
     }

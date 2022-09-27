@@ -9,7 +9,6 @@ process STAGER {
     
     path rds          // dxd.rds or drimseq_d.rds  
     val analysis_type // dexseq or drimseq
-    path tx2gene
     path results_rds  // qvals.rds or res.txp.rds
 
     output:
@@ -22,7 +21,7 @@ process STAGER {
     script:
     def args = task.ext.args ?: ''
     """
-    run_stager.R $rds $analysis_type $tx2gene $results_rds
+    run_stager.R $rds $analysis_type $results_rds
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

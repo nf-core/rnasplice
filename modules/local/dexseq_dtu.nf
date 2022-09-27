@@ -18,7 +18,7 @@ process DEXSEQ_DTU {
 
     script:
     """
-    run_dexseq.R $drimseq_filter_rds
+    run_dexseq_dtu.R $drimseq_filter_rds
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

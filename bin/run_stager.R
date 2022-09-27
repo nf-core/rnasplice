@@ -8,7 +8,7 @@ args = commandArgs(trailingOnly=TRUE)
 
 if (length(args) < 2) {
 
-    stop("Usage: run_stager.R <dexseq_results_rds/drimseq_results_rds> <analysis_type> <tx2gene> <qvals>|<res.txp>", call.=FALSE)
+    stop("Usage: run_stager.R <dexseq_results_rds/drimseq_results_rds> <analysis_type> <qvals>|<res.txp>", call.=FALSE)
 
 }
 
@@ -18,7 +18,6 @@ if (length(args) < 2) {
 
 results = args[1]
 analysis_type = args[2]  
-tx2gene = args[3]
 
 #########################################
 ####### Run stageR postprocessing #######
