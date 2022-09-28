@@ -33,7 +33,7 @@ workflow DRIMSEQ_DEXSEQ_DTU {
     def analysis_type = 'dexseq'
     
     STAGER ( 
-        DEXSEQ_DTU.out.dexseq_rds,
+        DEXSEQ_DTU.out.dexseq_results_rds,
         analysis_type,
         DEXSEQ_DTU.out.qval_rds
     )

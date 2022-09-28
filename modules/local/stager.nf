@@ -7,7 +7,7 @@ process STAGER {
 
     input:
     
-    path rds          // dxd.rds or drimseq_d.rds  
+    path rds          // dxr.rds or drimseq_d.rds  
     val analysis_type // dexseq or drimseq
     path results_rds  // qvals.rds or res.txp.rds
 
