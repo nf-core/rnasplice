@@ -1,6 +1,7 @@
 #!/usr/bin/env Rscript
 
 library(DEXSeq)
+library(DRIMSeq)
 
 args = commandArgs(trailingOnly=TRUE)
 
@@ -22,6 +23,9 @@ d <- args[1]  # d.rds object from run_drimseq_filter.R
 ######## Run DEXseq analysis #########
 ######################################
 
+# Read r object
+d <- readRDS(d)
+
 # Take pre-filtered sample data from DRIMSeq object
 sample.data <- DRIMSeq::samples(d)
 
@@ -29,7 +33,7 @@ sample.data <- DRIMSeq::samples(d)
 colnames(sample.data) <- c("sample", "condition")
 
 # Take count data from same filtered DRIMSeq object
-count.data <- round(DRIMSeq::counts(d)[,(3:ncol(counts))])
+count.data <- round(DRIMSeq::counts(d)[,(3:ncol(DRIMSeq::counts(d)))])
 
 # Define models
 fullModel <- as.formula("~sample + exon + condition:exon")
@@ -55,10 +59,6 @@ dxd <- DEXSeq::testForDEU(dxd, reducedModel = reducedModel)
 
 # Get Results
 dxr <- DEXSeq::DEXSeqResults(dxd, independentFiltering = FALSE)
-
-# Format results
-columns <- c("featureID","groupID","pvalue")
-dxr <- as.data.frame(dxr[,columns])
 
 # Get q vals
 qval <- DEXSeq::perGeneQValue(dxr)
