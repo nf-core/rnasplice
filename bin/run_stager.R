@@ -29,9 +29,11 @@ if (analysis_type == "dexseq"){
 
     dxr <- readRDS(results)
     
-    qval <- args[4]
+    qval <- args[3]
 
     qval <- readRDS(qval)
+
+    dxr <- as.data.frame(dxr)
 
     pConfirmation <- matrix(dxr$pvalue,ncol=1)
     dimnames(pConfirmation) <- list(strp(dxr$featureID),"transcript")
@@ -42,13 +44,17 @@ if (analysis_type == "dexseq"){
     tx2gene <- as.data.frame(dxr[,c("featureID", "groupID")])
     for (i in 1:2) tx2gene[,i] <- strp(tx2gene[,i])
 
+    res_pval <- as.data.frame(dxr[,1:7])
+
 } else if (analysis_type == "drimseq"){
 
     res <- readRDS(results)
 
-    res.txp <- args[4]
-    
+    res.txp <- args[3]
+
     res.txp <- readRDS(res.txp)
+
+    res <- as.data.frame(res)
 
     pConfirmation <- matrix(res.txp$pvalue, ncol=1)
     rownames(pConfirmation) <- strp(res.txp$feature_id)
@@ -58,18 +64,20 @@ if (analysis_type == "dexseq"){
 
     tx2gene <- res.txp[,c("feature_id", "gene_id")]
     for (i in 1:2) tx2gene[,i] <- strp(tx2gene[,i])
+
+    res_pval <- as.data.frame(res[,1:6])
 }
 
 # Run StageR 
 
 stageRObj <- stageRTx(pScreen=pScreen, pConfirmation=pConfirmation,
-                        pScreenAdjusted=FALSE, tx2gene=tx2gene)
+                      pScreenAdjusted=FALSE, tx2gene=tx2gene)
 
-stageRObj <- stageWiseAdjustment(stageRObj, method="dtu", alpha=0.05)
+stageRObj <- stageWiseAdjustment(stageRObj, method="dtu", alpha=0.05, allowNA=TRUE)
 
 suppressWarnings({
     stageR.padj <- getAdjustedPValues(stageRObj, order=FALSE,
-                                    onlySignificantGenes=TRUE)
+                                      onlySignificantGenes=FALSE)
 })
 
 ################################
@@ -82,6 +90,12 @@ saveRDS(stageRObj, paste0(analysis_type,".stageRObj.rds"))
 # Adjusted P values
 saveRDS(stageR.padj, paste0(analysis_type,".stageR.padj.rds"))
 write.table(stageR.padj, paste0(analysis_type,".stageR.padj.tsv"), sep="\t", quote=FALSE, row.names = FALSE)
+
+# Combine outputs of stager and drim/dexseq
+colnames(stageR.padj) <- paste("stageR", colnames(stageR.padj), sep = ".")
+colnames(res_pval) <- paste(analysis_type, colnames(res_pval), sep = ".")
+
+write.table(cbind.data.frame(res_pval,stageR.padj), paste0(analysis_type,".combined.stageR.padj.tsv"), sep="\t", quote=FALSE, row.names = FALSE)
 
 ####################################
 ########### Session info ###########
