@@ -132,14 +132,17 @@ write.table(cbind.data.frame(tx2gene,txi.dtu[["abundance"]]), paste(c(prefix, "t
 write.table(cbind.data.frame(tx2gene,txi.dtu[["counts"]]), paste(c(prefix, "transcript_counts_dtu_scaled.tsv"), collapse="."), sep="\t", quote=FALSE, row.names = FALSE)
 
 # gene level
-write.table(cbind.data.frame(tx2gene,gi[["abundance"]]), paste(c(prefix, "gene_tpm.tsv"), collapse="."), sep="\t", quote=FALSE, row.names = FALSE)
-write.table(cbind.data.frame(tx2gene,gi[["counts"]]), paste(c(prefix, "gene_counts.tsv"), collapse="."), sep="\t", quote=FALSE, row.names = FALSE)
+write.table(cbind.data.frame(gene_id = rownames(gi[["abundance"]]), gi[["abundance"]]), paste(c(prefix, "gene_tpm.tsv"), collapse="."), sep="\t", quote=FALSE, row.names = FALSE)
+write.table(cbind.data.frame(gene_id = rownames(gi[["counts"]]),gi[["counts"]]), paste(c(prefix, "gene_counts.tsv"), collapse="."), sep="\t", quote=FALSE, row.names = FALSE)
 
-write.table(cbind.data.frame(tx2gene,gi.s[["abundance"]]), paste(c(prefix, "gene_tpm_scaled.tsv"), collapse="."), sep="\t", quote=FALSE, row.names = FALSE)
-write.table(cbind.data.frame(tx2gene,gi.s[["counts"]]), paste(c(prefix, "gene_counts_scaled.tsv"), collapse="."), sep="\t", quote=FALSE, row.names = FALSE)
+write.table(cbind.data.frame(gene_id = rownames(gi.s[["abundance"]]),gi.s[["abundance"]]), paste(c(prefix, "gene_tpm_scaled.tsv"), collapse="."), sep="\t", quote=FALSE, row.names = FALSE)
+write.table(cbind.data.frame(gene_id = rownames(gi.s[["counts"]]),gi.s[["counts"]]), paste(c(prefix, "gene_counts_scaled.tsv"), collapse="."), sep="\t", quote=FALSE, row.names = FALSE)
 
-write.table(cbind.data.frame(tx2gene,gi.ls[["abundance"]]), paste(c(prefix, "gene_tpm_length_scaled.tsv"), collapse="."), sep="\t", quote=FALSE, row.names = FALSE)
-write.table(cbind.data.frame(tx2gene,gi.ls[["counts"]]), paste(c(prefix, "gene_counts_length_scaled.tsv"), collapse="."), sep="\t", quote=FALSE, row.names = FALSE)
+write.table(cbind.data.frame(gene_id = rownames(gi.ls[["abundance"]]),gi.ls[["abundance"]]), paste(c(prefix, "gene_tpm_length_scaled.tsv"), collapse="."), sep="\t", quote=FALSE, row.names = FALSE)
+write.table(cbind.data.frame(gene_id = rownames(gi.ls[["counts"]]),gi.ls[["counts"]]), paste(c(prefix, "gene_counts_length_scaled.tsv"), collapse="."), sep="\t", quote=FALSE, row.names = FALSE)
+
+# output new tx2gene
+write.table(tx2gene, "tximport.tx2gene.tsv", sep="\t", quote=FALSE, row.names = FALSE)
 
 ####################################
 ########### Session info ###########

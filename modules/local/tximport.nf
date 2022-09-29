@@ -39,6 +39,8 @@ process TXIMPORT {
     path "*transcript_tpm_dtu_scaled.tsv"       , emit: tpm_transcript_dtu_scaled
     path "*transcript_counts_dtu_scaled.tsv"    , emit: counts_transcript_dtu_scaled
 
+    path "tximport.tx2gene.tsv"                 , emit: tximport_tx2gene
+
     path "versions.yml"                         , emit: versions
 
     when:

@@ -62,6 +62,8 @@ include { PREPARE_GENOME    } from '../subworkflows/local/prepare_genome'
 include { FASTQC_TRIMGALORE } from '../subworkflows/local/fastqc_trimgalore'
 include { TX2GENE_TXIMPORT as SALMON_TX2GENE_TXIMPORT      } from '../subworkflows/local/tx2gene_tximport'
 include { TX2GENE_TXIMPORT as STAR_SALMON_TX2GENE_TXIMPORT } from '../subworkflows/local/tx2gene_tximport'
+include { DRIMSEQ_DEXSEQ_DTU as SALMON_DEXSEQ_DTU } from '../subworkflows/local/drimseq_dexseq_dtu'
+include { DRIMSEQ_DEXSEQ_DTU as STAR_SALMON_DEXSEQ_DTU } from '../subworkflows/local/drimseq_dexseq_dtu'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -296,6 +298,29 @@ workflow RNASPLICE {
                 STAR_SALMON_QUANT.out.results.collect{it[1]},
                 PREPARE_GENOME.out.gtf
             )
+
+            //
+            // SUBWORKFLOW: Run Dexseq DTU
+            //
+            
+
+            ch_samplesheet = Channel.fromPath(params.input)
+
+            if (params.dtu_txi == "dtuScaledTPM") {
+
+                ch_txi = SALMON_TX2GENE_TXIMPORT.out.txi_dtu
+
+            } else if (params.dtu_txi == "scaledTPM") {
+
+                ch_txi = SALMON_TX2GENE_TXIMPORT.out.txi_s
+
+            }
+
+            STAR_SALMON_DEXSEQ_DTU (
+                ch_txi,
+                SALMON_TX2GENE_TXIMPORT.out.tximport_tx2gene,
+                ch_samplesheet
+            )
         }
 
     }
@@ -331,6 +356,28 @@ workflow RNASPLICE {
         SALMON_TX2GENE_TXIMPORT (
             SALMON_QUANT.out.results.collect{it[1]},
             PREPARE_GENOME.out.gtf
+        )
+
+        //
+        // SUBWORKFLOW: Run Dexseq DTU
+        //
+
+        ch_samplesheet = Channel.fromPath(params.input)
+
+        if (params.dtu_txi == "dtuScaledTPM") {
+
+            ch_txi = SALMON_TX2GENE_TXIMPORT.out.txi_dtu
+
+        } else if (params.dtu_txi == "scaledTPM") {
+
+            ch_txi = SALMON_TX2GENE_TXIMPORT.out.txi_s
+
+        }
+
+        SALMON_DEXSEQ_DTU (
+            ch_txi,
+            SALMON_TX2GENE_TXIMPORT.out.tximport_tx2gene,
+            ch_samplesheet
         )
     }
     

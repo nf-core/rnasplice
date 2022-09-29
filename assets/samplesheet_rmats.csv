@@ -1,0 +1,7 @@
+sample,fastq_1,fastq_2,strandedness,condition
+SRR536350,https://github.com/zifornd/test-datasets/raw/main/testdata/SRP014759/SRR536350_PC3E_sample_1.fq.gz,https://github.com/zifornd/test-datasets/raw/main/testdata/SRP014759/SRR536350_PC3E_sample_2.fq.gz,forward,pc3e
+SRR536348,https://github.com/zifornd/test-datasets/raw/main/testdata/SRP014759/SRR536348_PC3E_sample_1.fq.gz,https://github.com/zifornd/test-datasets/raw/main/testdata/SRP014759/SRR536348_PC3E_sample_2.fq.gz,forward,pc3e
+SRR536352,https://github.com/zifornd/test-datasets/raw/main/testdata/SRP014759/SRR536352_PC3E_sample_1.fq.gz,https://github.com/zifornd/test-datasets/raw/main/testdata/SRP014759/SRR536352_PC3E_sample_2.fq.gz,forward,pc3e
+SRR536342,https://github.com/zifornd/test-datasets/raw/main/testdata/SRP014759/SRR536342_GS689_Li_sample_1.fq.gz,https://github.com/zifornd/test-datasets/raw/main/testdata/SRP014759/SRR536342_GS689_Li_sample_2.fq.gz,forward,GS689
+SRR536344,https://github.com/zifornd/test-datasets/raw/main/testdata/SRP014759/SRR536344_GS689_Li_sample_1.fq.gz,https://github.com/zifornd/test-datasets/raw/main/testdata/SRP014759/SRR536344_GS689_Li_sample_2.fq.gz,forward,GS689
+SRR536346,https://github.com/zifornd/test-datasets/raw/main/testdata/SRP014759/SRR536346_GS689_Li_sample_1.fq.gz,https://github.com/zifornd/test-datasets/raw/main/testdata/SRP014759/SRR536346_GS689_Li_sample_2.fq.gz,forward,GS689
