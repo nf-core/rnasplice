@@ -12,27 +12,33 @@ process DEXSEQ_COUNT {
     tuple val(meta), path(bam)
 
     output:
-    path "*.txt"        , emit: dexseq_txt
-    path  "versions.yml", emit: versions
+    path "*.count.txt"        , emit: dexseq_txt
+    path  "versions.yml"      , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
+
     def args = task.ext.args ?: ''
+    def prefix = task.ext.prefix ?: "${meta.id}"
+
     def read_type = meta.single_end ? '' : '-p yes'    
+
     def alignment_quality = "-a ${params.alignment_quality}"
+
     def strandedness = ''
     if (meta.strandedness == 'forward') {
         strandedness = '-s yes'
     } else if (meta.strandedness == 'reverse') {
         strandedness = '-s reverse'
     } else if (meta.strandedness == 'unstranded') {
-	strandedness = '-s no'
+	    strandedness = '-s no'
     }
 
     """
-    dexseq_count.py $gff $read_type -f bam $bam -r pos count.txt $alignment_quality $strandedness
+    dexseq_count.py $gff $read_type -f bam $bam -r pos ${prefix}.count.txt $alignment_quality $strandedness
+    
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
 	htseq: \$(pip show htseq | sed -e '/Version/!d'| sed 's/Version: //g')
