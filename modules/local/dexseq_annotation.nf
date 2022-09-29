@@ -11,18 +11,21 @@ process DEXSEQ_ANNOTATION {
     path gtf
 
     output:
-    path "*.gff"        , emit:gff
-    path "versions.yml", emit: versions
+    path "*.gff"        , emit: gff
+    path "versions.yml" , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
+
     def args = task.ext.args ?: ''
+    def prefix = task.ext.prefix ?: "DEXSeq"
+
     def aggregation = params.aggregation ? '' : '-r no'
 
     """
-    dexseq_prepare_annotation.py $gtf genome.gff $aggregation     
+    dexseq_prepare_annotation.py $gtf ${prefix}.gff $aggregation     
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
 	htseq: \$(pip show htseq | sed -e '/Version/!d'| sed 's/Version: //g')    	
