@@ -64,6 +64,7 @@ include { TX2GENE_TXIMPORT as SALMON_TX2GENE_TXIMPORT      } from '../subworkflo
 include { TX2GENE_TXIMPORT as STAR_SALMON_TX2GENE_TXIMPORT } from '../subworkflows/local/tx2gene_tximport'
 include { DRIMSEQ_DEXSEQ_DTU as SALMON_DEXSEQ_DTU } from '../subworkflows/local/drimseq_dexseq_dtu'
 include { DRIMSEQ_DEXSEQ_DTU as STAR_SALMON_DEXSEQ_DTU } from '../subworkflows/local/drimseq_dexseq_dtu'
+include { RMATS             } from '../subworkflows/local/rmats'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -256,16 +257,35 @@ workflow RNASPLICE {
         ch_versions = ch_versions.mix(BAM_SORT_SAMTOOLS.out.versions)
 
         //
-        // Create channel grouped by condition: [ [condition1, [group1_metas], [ group1_bams ]], [condition2, [group2_metas], [group2_bams]]]
+        // Run rMATS subworkflow if rmats paramater true:
         //
 
-        BAM_SORT_SAMTOOLS
-            .out
-            .bam
-            .map { meta, bam -> [meta.condition, meta, bam] }
-            .groupTuple(by:0)
-            .toSortedList()
-            .set { ch_genome_bam_conditions }
+        if (params.rmats) {
+
+            //
+            // Create channel grouped by condition: [ [condition1, [condition1_metas], [group1_bams]], [condition2, [condition2_metas], [condition2_bams]]]
+            //
+                
+            BAM_SORT_SAMTOOLS
+                .out
+                .bam
+                .map { meta, bam -> [meta.condition, meta, bam] }
+                .groupTuple(by:0)
+                .toSortedList()
+                .set { ch_genome_bam_conditions }
+            
+            //
+            // SUBWORKFLOW: Run rMATS
+            //
+            
+            RMATS ( 
+                ch_genome_bam_conditions,
+                PREPARE_GENOME.out.gtf 
+            )
+
+            ch_versions = ch_versions.mix(RMATS.out.versions)
+
+        }
 
         //
         // SUBWORKFLOW: Count reads from BAM alignments using Salmon
