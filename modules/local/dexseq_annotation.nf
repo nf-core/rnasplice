@@ -25,10 +25,11 @@ process DEXSEQ_ANNOTATION {
     def aggregation = params.aggregation ? '' : '-r no'
 
     """
-    dexseq_prepare_annotation.py $gtf ${prefix}.gff $aggregation     
+    dexseq_prepare_annotation.py $gtf ${prefix}.gff $aggregation
+    
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-	htseq: \$(pip show htseq | sed -e '/Version/!d'| sed 's/Version: //g')    	
+        htseq: \$(python -c "import pkg_resources; print(pkg_resources.get_distribution('htseq').version)")
     END_VERSIONS
     """
 }
