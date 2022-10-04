@@ -6,10 +6,10 @@ process DEXSEQ_EXON {
     // need a multitool container for r-base, dexseq, stager, drimseq and on quay hub
 
     input:
-    path dexseq_counts           // path dexseq_counts
-    path gff                     // path dexseq_gff
-    path samplesheet             // path samplesheet
-    val read_method              // htseq or featurecounts
+    path ("dexseq_clean_counts/*")     // path dexseq_clean_counts
+    path gff                           // path dexseq_gff
+    path samplesheet                   // path samplesheet
+    val read_method                    // htseq or featurecounts
 
     output:
     path "dxd_exon.rds"           , emit: dexseq_exon_rds
@@ -21,7 +21,7 @@ process DEXSEQ_EXON {
 
     script:
     """
-    run_dexseq_exon.R $dexseq_counts $gff $samplesheet $read_method
+    run_dexseq_exon.R dexseq_clean_counts $gff $samplesheet $read_method
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

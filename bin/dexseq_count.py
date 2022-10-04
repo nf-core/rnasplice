@@ -95,7 +95,7 @@ if sam_file == "-":
 features = HTSeq.GenomicArrayOfSets( "auto", stranded=stranded )     
 for f in  HTSeq.GFF_Reader( gff_file ):
    if f.type == "exonic_part":
-      f.name = f.attr['gene_id'] + ":" + f.attr['exonic_part_number']
+      f.name = f.attr['gene_id'].strip('"') + ":" + f.attr['exonic_part_number'].strip('"')
       features[f.iv] += f.name
 
 # initialise counters

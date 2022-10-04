@@ -12,8 +12,8 @@ process DEXSEQ_COUNT {
     tuple val(meta), path(bam)
 
     output:
-    path "*.count.txt"        , emit: dexseq_txt
-    path  "versions.yml"      , emit: versions
+    path "*.clean.count.txt"        , emit: dexseq_clean_txt
+    path  "versions.yml"            , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -37,11 +37,11 @@ process DEXSEQ_COUNT {
     }
 
     """
-    dexseq_count.py $gff $read_type -f bam $bam -r pos ${prefix}.count.txt $alignment_quality $strandedness
-    
+    dexseq_count.py $gff $read_type -f bam $bam -r pos ${prefix}.clean.count.txt $alignment_quality $strandedness
+
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-	htseq: \$(pip show htseq | sed -e '/Version/!d'| sed 's/Version: //g')
+        htseq: \$(python -c "import pkg_resources; print(pkg_resources.get_distribution('htseq').version)")
     END_VERSIONS
     """
 }
