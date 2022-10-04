@@ -119,14 +119,18 @@ class RowChecker:
 
         """
         assert len(self._seen) == len(self.modified), "The pair of sample name and FASTQ must be unique."
-        if len({pair[0] for pair in self._seen}) < len(self._seen):
-            counts = Counter(pair[0] for pair in self._seen)
-            seen = Counter()
-            for row in self.modified:
-                sample = row[self._sample_col]
-                seen[sample] += 1
-                if counts[sample] > 1:
-                    row[self._sample_col] = f"{sample}_T{seen[sample]}"
+        
+        # if there are less unique sample names than number of rows in sample sheet (ie. multiple runs for same sample)
+        # Then mark those which have been seen multiple times.
+        # alternatively we can just mark every sample with _T{int} to ensure they are unique and does not break CAT_FASTQ for rnaseq
+        # if len({pair[0] for pair in self._seen}) < len(self._seen): # Have removed to include all samples.
+        counts = Counter(pair[0] for pair in self._seen)
+        seen = Counter()
+        for row in self.modified:
+            sample = row[self._sample_col]
+            seen[sample] += 1
+            # if counts[sample] > 1: # Have removed to mark every sample with _T{int}
+            row[self._sample_col] = f"{sample}_T{seen[sample]}"
 
 
 def read_head(handle, num_lines=10):
