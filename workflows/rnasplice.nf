@@ -78,6 +78,7 @@ include { CUSTOM_DUMPSOFTWAREVERSIONS       } from '../modules/nf-core/modules/c
 include { CAT_FASTQ                         } from '../modules/nf-core/modules/cat/fastq/main'
 include { DEXSEQ_ANNOTATION                 } from '../modules/local/dexseq_annotation'
 include { DEXSEQ_COUNT                      } from '../modules/local/dexseq_count'
+include { DEXSEQ_EXON                       } from '../modules/local/dexseq_exon'
 
 //
 // SUBWORKFLOWS: Installed directly from nf-core/modules
@@ -223,6 +224,44 @@ workflow RNASPLICE {
         // Collect software version
         ch_versions = ch_versions.mix(BAM_SORT_SAMTOOLS.out.versions)
 
+        if (params.dexseq_exon) {
+
+            //
+            // MODULE: Preparing the annotation using DEXSeq
+            //
+
+            DEXSEQ_ANNOTATION (
+                PREPARE_GENOME.out.gtf
+            )
+
+            ch_versions = ch_versions.mix(DEXSEQ_ANNOTATION.out.versions.first())
+
+            //
+            // MODULE: DEXSeq Count
+            //
+
+            DEXSEQ_COUNT (
+                DEXSEQ_ANNOTATION.out.gff,
+                ch_genome_bam
+            )
+
+            ch_versions = ch_versions.mix(DEXSEQ_COUNT.out.versions.first())
+
+            //
+            // MODULE: DEXSeq differential exon usage
+            //
+
+            ch_samplesheet = Channel.fromPath(params.input)
+            def read_method = "htseq"
+
+            DEXSEQ_EXON (
+                DEXSEQ_COUNT.out.dexseq_clean_txt.collect(),
+                DEXSEQ_ANNOTATION.out.gff,
+                ch_samplesheet,
+                read_method
+            )
+        }
+        
         //
         // SUBWORKFLOW: Count reads from BAM alignments using Salmon
         //
@@ -306,28 +345,6 @@ workflow RNASPLICE {
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
     )
-
-    //
-    // MODULE: Preparing the annotation using DEXSeq
-    //
-
-    DEXSEQ_ANNOTATION (
-	PREPARE_GENOME.out.gtf
-    )
-
-    ch_versions = ch_versions.mix(DEXSEQ_ANNOTATION.out.versions)
-
-    //
-    // MODULE: DEXSeq Count
-    //
-
-    DEXSEQ_COUNT (
-	DEXSEQ_ANNOTATION.out.gff,
-	ch_genome_bam
-    )
-
-    ch_versions = ch_versions.mix(DEXSEQ_COUNT.out.versions)
-
 
     //
     // MODULE: MultiQC
