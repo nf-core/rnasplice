@@ -53,7 +53,7 @@ ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multi
 // MODULE: Loaded from modules/local/
 //
 include { BEDTOOLS_GENOMECOV      } from '../modules/local/bedtools_genomecov'
-include { STAR_ALIGN_IGENOMES     } from '../../modules/local/star_align_igenomes'
+include { STAR_ALIGN_IGENOMES     } from '../modules/local/star_align_igenomes'
 
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
@@ -66,6 +66,7 @@ include { TX2GENE_TXIMPORT as STAR_SALMON_TX2GENE_TXIMPORT } from '../subworkflo
 include { DRIMSEQ_DEXSEQ_DTU as SALMON_DEXSEQ_DTU } from '../subworkflows/local/drimseq_dexseq_dtu'
 include { DRIMSEQ_DEXSEQ_DTU as STAR_SALMON_DEXSEQ_DTU } from '../subworkflows/local/drimseq_dexseq_dtu'
 include { RMATS             } from '../subworkflows/local/rmats'
+include { DEXSEQ_DEU        } from '../subworkflows/local/dexseq_deu'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -89,6 +90,7 @@ include { CAT_FASTQ                         } from '../modules/nf-core/modules/c
 include { BAM_SORT_SAMTOOLS } from '../subworkflows/nf-core/bam_sort_samtools'
 include { BEDGRAPH_TO_BIGWIG as BEDGRAPH_TO_BIGWIG_FORWARD       } from '../subworkflows/nf-core/bedgraph_to_bigwig'
 include { BEDGRAPH_TO_BIGWIG as BEDGRAPH_TO_BIGWIG_REVERSE       } from '../subworkflows/nf-core/bedgraph_to_bigwig'
+
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -283,6 +285,20 @@ workflow RNASPLICE {
         // Collect software version
         ch_versions = ch_versions.mix(BAM_SORT_SAMTOOLS.out.versions)
 
+        if (params.dexseq_exon) {
+            
+            ch_samplesheet = Channel.fromPath(params.input)
+            def read_method = "htseq"
+
+            DEXSEQ_DEU(
+                PREPARE_GENOME.out.gtf,
+                ch_genome_bam,
+                ch_samplesheet,
+                read_method
+            )
+
+        }
+        
         //
         // Run rMATS subworkflow if rmats paramater true:
         //
