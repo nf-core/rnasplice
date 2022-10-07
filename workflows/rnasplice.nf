@@ -52,7 +52,8 @@ ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multi
 //
 // MODULE: Loaded from modules/local/
 //
-include { BEDTOOLS_GENOMECOV                 } from '../modules/local/bedtools_genomecov'
+include { BEDTOOLS_GENOMECOV      } from '../modules/local/bedtools_genomecov'
+include { STAR_ALIGN_IGENOMES     } from '../modules/local/star_align_igenomes'
 
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
@@ -60,6 +61,7 @@ include { BEDTOOLS_GENOMECOV                 } from '../modules/local/bedtools_g
 include { INPUT_CHECK       } from '../subworkflows/local/input_check'
 include { PREPARE_GENOME    } from '../subworkflows/local/prepare_genome'
 include { FASTQC_TRIMGALORE } from '../subworkflows/local/fastqc_trimgalore'
+include { DEXSEQ_DEU        } from '../subworkflows/local/dexseq_deu'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -76,9 +78,6 @@ include { STAR_ALIGN                        } from '../modules/nf-core/modules/s
 include { MULTIQC                           } from '../modules/nf-core/modules/multiqc/main'
 include { CUSTOM_DUMPSOFTWAREVERSIONS       } from '../modules/nf-core/modules/custom/dumpsoftwareversions/main'
 include { CAT_FASTQ                         } from '../modules/nf-core/modules/cat/fastq/main'
-include { DEXSEQ_ANNOTATION                 } from '../modules/local/dexseq_annotation'
-include { DEXSEQ_COUNT                      } from '../modules/local/dexseq_count'
-include { DEXSEQ_EXON                       } from '../modules/local/dexseq_exon'
 
 //
 // SUBWORKFLOWS: Installed directly from nf-core/modules
@@ -181,28 +180,54 @@ workflow RNASPLICE {
     // Align with STAR
     if (!params.skip_alignment && (params.aligner == 'star_salmon' || params.aligner == "star")) {
         
-        // Run Star alignment module 
-        // currently params.seq_platform not specified in the nextflow.config in rnaseq code base
-        STAR_ALIGN ( 
-            ch_trim_reads, 
-            PREPARE_GENOME.out.star_index, 
-            PREPARE_GENOME.out.gtf, 
-            params.star_ignore_sjdbgtf, 
-            params.seq_platform ?: '', 
-            params.seq_center ?: ''
-        )
-        // Collect STAR output 
-        ch_orig_bam          = STAR_ALIGN.out.bam            // channel: [ val(meta), bam            ]
-        ch_log_final         = STAR_ALIGN.out.log_final      // channel: [ val(meta), log_final      ]
-        ch_log_out           = STAR_ALIGN.out.log_out        // channel: [ val(meta), log_out        ]
-        ch_log_progress      = STAR_ALIGN.out.log_progress   // channel: [ val(meta), log_progress   ]
-        ch_bam_sorted        = STAR_ALIGN.out.bam_sorted     // channel: [ val(meta), bam_sorted     ]
-        ch_transcriptome_bam = STAR_ALIGN.out.bam_transcript // channel: [ val(meta), bam_transcript ]
-        ch_fastq             = STAR_ALIGN.out.fastq          // channel: [ val(meta), fastq          ]   
-        ch_tab               = STAR_ALIGN.out.tab            // channel: [ val(meta), tab            ]
+        if (is_aws_igenome) {
 
-        // Collect software version
-        ch_versions       = ch_versions.mix(STAR_ALIGN.out.versions.first())
+            STAR_ALIGN_IGENOMES ( 
+                ch_trim_reads, 
+                PREPARE_GENOME.out.star_index,
+                PREPARE_GENOME.out.gtf, 
+                params.star_ignore_sjdbgtf,
+                params.seq_platform ?: '',
+                params.seq_center ?: '' 
+            )
+            // Collect STAR_ALIGN_IGENOMES output 
+            ch_orig_bam          = STAR_ALIGN_IGENOMES.out.bam            // channel: [ val(meta), bam            ]
+            ch_log_final         = STAR_ALIGN_IGENOMES.out.log_final      // channel: [ val(meta), log_final      ]
+            ch_log_out           = STAR_ALIGN_IGENOMES.out.log_out        // channel: [ val(meta), log_out        ]
+            ch_log_progress      = STAR_ALIGN_IGENOMES.out.log_progress   // channel: [ val(meta), log_progress   ]
+            ch_bam_sorted        = STAR_ALIGN_IGENOMES.out.bam_sorted     // channel: [ val(meta), bam_sorted     ]
+            ch_transcriptome_bam = STAR_ALIGN_IGENOMES.out.bam_transcript // channel: [ val(meta), bam_transcript ]
+            ch_fastq             = STAR_ALIGN_IGENOMES.out.fastq          // channel: [ val(meta), fastq          ]   
+            ch_tab               = STAR_ALIGN_IGENOMES.out.tab            // channel: [ val(meta), tab            ]
+
+            // Collect software version
+            ch_versions       = ch_versions.mix(STAR_ALIGN_IGENOMES.out.versions.first())
+
+        } else {
+
+            // Run Star alignment module 
+            // currently params.seq_platform not specified in the nextflow.config in rnaseq code base
+            STAR_ALIGN ( 
+                ch_trim_reads, 
+                PREPARE_GENOME.out.star_index, 
+                PREPARE_GENOME.out.gtf, 
+                params.star_ignore_sjdbgtf, 
+                params.seq_platform ?: '', 
+                params.seq_center ?: ''
+            )
+            // Collect STAR output 
+            ch_orig_bam          = STAR_ALIGN.out.bam            // channel: [ val(meta), bam            ]
+            ch_log_final         = STAR_ALIGN.out.log_final      // channel: [ val(meta), log_final      ]
+            ch_log_out           = STAR_ALIGN.out.log_out        // channel: [ val(meta), log_out        ]
+            ch_log_progress      = STAR_ALIGN.out.log_progress   // channel: [ val(meta), log_progress   ]
+            ch_bam_sorted        = STAR_ALIGN.out.bam_sorted     // channel: [ val(meta), bam_sorted     ]
+            ch_transcriptome_bam = STAR_ALIGN.out.bam_transcript // channel: [ val(meta), bam_transcript ]
+            ch_fastq             = STAR_ALIGN.out.fastq          // channel: [ val(meta), fastq          ]   
+            ch_tab               = STAR_ALIGN.out.tab            // channel: [ val(meta), tab            ]
+
+            // Collect software version
+            ch_versions       = ch_versions.mix(STAR_ALIGN.out.versions.first())
+        }
 
         //
         // SUBWORKFLOW: Sort, index BAM file and run samtools stats, flagstat and idxstats
@@ -225,41 +250,17 @@ workflow RNASPLICE {
         ch_versions = ch_versions.mix(BAM_SORT_SAMTOOLS.out.versions)
 
         if (params.dexseq_exon) {
-
-            //
-            // MODULE: Preparing the annotation using DEXSeq
-            //
-
-            DEXSEQ_ANNOTATION (
-                PREPARE_GENOME.out.gtf
-            )
-
-            ch_versions = ch_versions.mix(DEXSEQ_ANNOTATION.out.versions.first())
-
-            //
-            // MODULE: DEXSeq Count
-            //
-
-            DEXSEQ_COUNT (
-                DEXSEQ_ANNOTATION.out.gff,
-                ch_genome_bam
-            )
-
-            ch_versions = ch_versions.mix(DEXSEQ_COUNT.out.versions.first())
-
-            //
-            // MODULE: DEXSeq differential exon usage
-            //
-
+            
             ch_samplesheet = Channel.fromPath(params.input)
             def read_method = "htseq"
 
-            DEXSEQ_EXON (
-                DEXSEQ_COUNT.out.dexseq_clean_txt.collect(),
-                DEXSEQ_ANNOTATION.out.gff,
+            DEXSEQ_DEU(
+                PREPARE_GENOME.out.gtf,
+                ch_genome_bam,
                 ch_samplesheet,
                 read_method
             )
+
         }
         
         //
