@@ -366,24 +366,26 @@ workflow RNASPLICE {
             // SUBWORKFLOW: Run Dexseq DTU
             //
             
+            if (params.dexseq_dtu) {
 
-            ch_samplesheet = Channel.fromPath(params.input)
+                ch_samplesheet = Channel.fromPath(params.input)
 
-            if (params.dtu_txi == "dtuScaledTPM") {
+                if (params.dtu_txi == "dtuScaledTPM") {
 
-                ch_txi = SALMON_TX2GENE_TXIMPORT.out.txi_dtu
+                    ch_txi = SALMON_TX2GENE_TXIMPORT.out.txi_dtu
 
-            } else if (params.dtu_txi == "scaledTPM") {
+                } else if (params.dtu_txi == "scaledTPM") {
 
-                ch_txi = SALMON_TX2GENE_TXIMPORT.out.txi_s
+                    ch_txi = SALMON_TX2GENE_TXIMPORT.out.txi_s
 
+                }
+
+                STAR_SALMON_DEXSEQ_DTU (
+                    ch_txi,
+                    SALMON_TX2GENE_TXIMPORT.out.tximport_tx2gene,
+                    ch_samplesheet
+                )
             }
-
-            STAR_SALMON_DEXSEQ_DTU (
-                ch_txi,
-                SALMON_TX2GENE_TXIMPORT.out.tximport_tx2gene,
-                ch_samplesheet
-            )
         }
 
     }
@@ -424,24 +426,26 @@ workflow RNASPLICE {
         //
         // SUBWORKFLOW: Run Dexseq DTU
         //
+        if (params.dexseq_dtu) {
 
-        ch_samplesheet = Channel.fromPath(params.input)
+            ch_samplesheet = Channel.fromPath(params.input)
 
-        if (params.dtu_txi == "dtuScaledTPM") {
+            if (params.dtu_txi == "dtuScaledTPM") {
 
-            ch_txi = SALMON_TX2GENE_TXIMPORT.out.txi_dtu
+                ch_txi = SALMON_TX2GENE_TXIMPORT.out.txi_dtu
 
-        } else if (params.dtu_txi == "scaledTPM") {
+            } else if (params.dtu_txi == "scaledTPM") {
 
-            ch_txi = SALMON_TX2GENE_TXIMPORT.out.txi_s
+                ch_txi = SALMON_TX2GENE_TXIMPORT.out.txi_s
 
+            }
+
+            SALMON_DEXSEQ_DTU (
+                ch_txi,
+                SALMON_TX2GENE_TXIMPORT.out.tximport_tx2gene,
+                ch_samplesheet
+            )
         }
-
-        SALMON_DEXSEQ_DTU (
-            ch_txi,
-            SALMON_TX2GENE_TXIMPORT.out.tximport_tx2gene,
-            ch_samplesheet
-        )
     }
     
     //
