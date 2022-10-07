@@ -1,5 +1,5 @@
 process DEXSEQ_EXON {
-    label "process_medium"
+    label "process_high"
 
     conda     (params.enable_conda ? "conda-forge::r-base=4.0.2 bioconda::bioconductor-dexseq=1.36.0 bioconda::bioconductor-drimseq=1.18.0 bioconda::bioconductor-stager=1.12.0" : null)
     container "docker.io/yuukiiwa/nanoseq:dexseq"
@@ -20,8 +20,10 @@ process DEXSEQ_EXON {
     path "versions.yml"           , emit: versions
 
     script:
+    def demoninator = params.lfc_denominator ?: ""
+
     """
-    run_dexseq_exon.R dexseq_clean_counts $gff $samplesheet $read_method
+    run_dexseq_exon.R dexseq_clean_counts $gff $samplesheet $read_method ${task.cpus} $demoninator
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

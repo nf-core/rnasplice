@@ -1,14 +1,15 @@
 #!/usr/bin/env Rscript
 
 library(DEXSeq)
+library(BiocParallel)
 
 args = commandArgs(trailingOnly=TRUE)
 
 # Check args provided
 
-if (length(args) < 1) {
+if (length(args) < 5) {
   
-  stop("Usage: run_dexseq_exon.R <countFiles> <flattenedFile> <samplesheet> <read_method>", call.=FALSE)
+  stop("Usage: run_dexseq_exon.R <countFiles_dir> <flattenedFile> <samplesheet> <read_method> <ncores> <denominator>", call.=FALSE)
   
 }
 
@@ -20,6 +21,23 @@ countFiles_dir <- args[1] # count files
 flattenedFile <- args[2]  # gff
 samplesheet <- args[3]    # samplesheet
 read_method <- args[4]    # either HTSeq or featurecounts
+ncores <- args[5]         # MultiCoreParam ncores
+
+if (length(args) == 6) {
+
+  denominator <- args[6]  # denominator for lfc set by user
+
+} else {
+
+  denominator <- ""       # denominator for lfc as default "" meaning is set as first sample condition
+
+}
+
+######################################
+######## Define Multicoreparams ######
+######################################
+
+BPPARAM <- BiocParallel::MulticoreParam(ncores, stop.on.error = TRUE)
 
 ######################################
 ######## Process sample sheet ########
@@ -52,26 +70,37 @@ countFiles = list.files(countFiles_dir, pattern = ".clean.count.txt$", full.name
 
 fullModel <- as.formula("~sample + exon + condition:exon")
 reducedModel <- as.formula("~sample + exon")
-fitExpToVar <- "condition"
-denominator <- ""
 
 if (read_method == "htseq"){
-    
+
     dxd <- DEXSeq::DEXSeqDataSetFromHTSeq(countfiles = countFiles,
                                           sampleData = samps,
                                           design = fullModel,
                                           flattenedfile = flattenedFile)
 }
 
+if (read_method == "featurecounts"){
+
+    source("load_SubreadOutput.R")
+
+    dxd <- DEXSeqDataSetFromFeatureCounts(countFiles,
+                                          flattenedfile = flattenedFile,
+                                          sampleData = samps)
+
+}
+
 dxd <- DEXSeq::estimateSizeFactors(dxd)
 
-dxd <- DEXSeq::estimateDispersions(dxd, quiet = TRUE)
+dxd <- DEXSeq::estimateDispersions(dxd, quiet = TRUE, BPPARAM = BPPARAM)
 
 # Looks for condition specific difference in tx proportions
-dxd <- DEXSeq::testForDEU(dxd, fullModel = fullModel, reducedModel = reducedModel)
+dxd <- DEXSeq::testForDEU(dxd, fullModel = fullModel, reducedModel = reducedModel, BPPARAM = BPPARAM)
 
-# Get fold changes based on condition col in colData
-dxd <- DEXSeq::estimateExonFoldChanges(dxd, fitExpToVar = fitExpToVar, denominator = denominator)
+# Define sample col used for lfc calculation - at current this is fixed to required "condition" column
+fitExpToVar <- "condition"
+
+# Get fold changes based on fitExpToVar col in colData and denominator defines baseline for lfc
+dxd <- DEXSeq::estimateExonFoldChanges(dxd, fitExpToVar = fitExpToVar, denominator = denominator, BPPARAM = BPPARAM)
 
 # Get Results
 dxr <- DEXSeq::DEXSeqResults(dxd, independentFiltering = FALSE)
@@ -83,8 +112,8 @@ qval <- DEXSeq::perGeneQValue(dxr)
 dxr.g <- data.frame(gene = names(qval), qval)
 
 # dxr tsv
-drop <- c("genomicData","countData")
-dxr.tsv <- as.data.frame(dxr)[ , !(names(as.data.frame(dxr)) %in% drop)]
+keep <- colnames(dxr)[sapply(dxr, class) %in% c("numeric", "character")]
+dxr.tsv <- dxr[ , colnames(dxr) %in% keep]
 
 ################################
 ######### Save outputs #########
