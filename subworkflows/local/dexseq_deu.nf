@@ -23,18 +23,30 @@ workflow DEXSEQ_DEU {
     // MODULE: Preparing the annotation using DEXSeq
     //
 
-    DEXSEQ_ANNOTATION (
-        gtf
-    )
+    // If user specifies a DEXSeq safe GFF create channel, else run dexseq annotation
+    
+    if (params.gff_dexseq) {
+        
+        ch_dexseq_gff = Channel.fromPath(params.gff_dexseq)
 
-    ch_versions = ch_versions.mix(DEXSEQ_ANNOTATION.out.versions.first())
+    } else {
+
+        DEXSEQ_ANNOTATION (
+            gtf
+        )
+
+        ch_dexseq_gff = DEXSEQ_ANNOTATION.out.gff
+
+        ch_versions = ch_versions.mix(DEXSEQ_ANNOTATION.out.versions.first())
+
+    }
 
     //
     // MODULE: DEXSeq Count
     //
 
     DEXSEQ_COUNT (
-        DEXSEQ_ANNOTATION.out.gff,
+        ch_dexseq_gff,
         ch_genome_bam
     )
 
@@ -43,9 +55,6 @@ workflow DEXSEQ_DEU {
     //
     // MODULE: DEXSeq differential exon usage
     //
-
-    // ch_samplesheet = Channel.fromPath(params.input)
-    // def read_method = "htseq"
 
     DEXSEQ_EXON (
         DEXSEQ_COUNT.out.dexseq_clean_txt.collect(),
@@ -58,7 +67,7 @@ workflow DEXSEQ_DEU {
 
     emit:
 
-    gff                        = DEXSEQ_ANNOTATION.out.gff                    // path: gff
+    gff                        = ch_dexseq_gff                                // path: gff
 
     dexseq_clean_txt           = DEXSEQ_COUNT.out.dexseq_clean_txt.collect()  
 
