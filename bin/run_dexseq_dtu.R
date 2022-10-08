@@ -2,14 +2,15 @@
 
 library(DEXSeq)
 library(DRIMSeq)
+library(BiocParallel)
 
 args = commandArgs(trailingOnly=TRUE)
 
 # Check args provided
 
-if (length(args) < 1) {
+if (length(args) < 2) {
   
-  stop("Usage: run_dexseq.R <drimseq_filter_rds>", call.=FALSE)
+  stop("Usage: run_dexseq.R <drimseq_filter_rds> <ncores> <denominator>", call.=FALSE)
   
 }
 
@@ -17,7 +18,24 @@ if (length(args) < 1) {
 ########### Collect inputs ###########
 ######################################
 
-d <- args[1]  # d.rds object from run_drimseq_filter.R
+d <- args[1]              # d.rds object from run_drimseq_filter.R
+ncores <- args[2]         # MultiCoreParam ncores
+
+if (length(args) == 3) {
+
+  denominator <- args[3]  # denominator for lfc set by user
+
+} else {
+
+  denominator <- ""       # denominator for lfc as default "" meaning is set as first sample condition
+
+}
+
+######################################
+######## Define Multicoreparams ######
+######################################
+
+BPPARAM <- BiocParallel::MulticoreParam(ncores, stop.on.error = TRUE)
 
 ######################################
 ######## Run DEXseq analysis #########
@@ -52,10 +70,16 @@ dxd <- DEXSeq::DEXSeqDataSet(countData = count.data,
 
 dxd <- DEXSeq::estimateSizeFactors(dxd)
 
-dxd <- DEXSeq::estimateDispersions(dxd, quiet = TRUE)
+dxd <- DEXSeq::estimateDispersions(dxd, quiet = TRUE, BPPARAM = BPPARAM)
 
 # Looks for condition specific difference in tx proportions
-dxd <- DEXSeq::testForDEU(dxd, reducedModel = reducedModel)
+dxd <- DEXSeq::testForDEU(dxd, reducedModel = reducedModel, BPPARAM = BPPARAM)
+
+# Define sample col used for lfc calculation - at current this is fixed to required "condition" column
+fitExpToVar <- "condition"
+
+# Get fold changes based on fitExpToVar col in colData and denominator defines baseline for lfc
+dxd <- DEXSeq::estimateExonFoldChanges(dxd, fitExpToVar = fitExpToVar, denominator = denominator, BPPARAM = BPPARAM)
 
 # Get Results
 dxr <- DEXSeq::DEXSeqResults(dxd, independentFiltering = FALSE)
@@ -66,6 +90,10 @@ qval <- DEXSeq::perGeneQValue(dxr)
 # Format q vals
 dxr.g <- data.frame(gene = names(qval),qval)
 
+# dxr tsv
+keep <- colnames(dxr)[sapply(dxr, class) %in% c("numeric", "character")]
+dxr.tsv <- dxr[ , colnames(dxr) %in% keep]
+
 ################################
 ######### Save outputs #########
 ################################
@@ -75,7 +103,7 @@ saveRDS(dxd, "dxd.rds")
 
 # results
 saveRDS(dxr, "dxr.rds")
-write.table(dxr, "dxr.tsv", sep="\t", quote=FALSE, row.names = TRUE)
+write.table(dxr.tsv , "dxr.tsv", sep="\t", quote=FALSE, row.names = TRUE)
 
 # qvals
 saveRDS(qval, "qval.rds")

@@ -17,8 +17,10 @@ process DEXSEQ_DTU {
     path "versions.yml"           , emit: versions
 
     script:
+    def demoninator = params.dtu_lfc_denominator ?: ""
+
     """
-    run_dexseq_dtu.R $drimseq_filter_rds
+    run_dexseq_dtu.R $drimseq_filter_rds ${task.cpus} $demoninator
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
