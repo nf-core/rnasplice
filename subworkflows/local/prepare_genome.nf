@@ -2,24 +2,24 @@
 // Uncompress and prepare reference genome files
 //
 
-include { GUNZIP as GUNZIP_FASTA            } from '../../modules/nf-core/modules/gunzip/main'
-include { GUNZIP as GUNZIP_GTF              } from '../../modules/nf-core/modules/gunzip/main'
-include { GUNZIP as GUNZIP_GFF              } from '../../modules/nf-core/modules/gunzip/main'
-include { GUNZIP as GUNZIP_TRANSCRIPT_FASTA } from '../../modules/nf-core/modules/gunzip/main'
+include { GUNZIP as GUNZIP_FASTA            } from '../../modules/nf-core/gunzip/main'
+include { GUNZIP as GUNZIP_GTF              } from '../../modules/nf-core/gunzip/main'
+include { GUNZIP as GUNZIP_GFF              } from '../../modules/nf-core/gunzip/main'
+include { GUNZIP as GUNZIP_TRANSCRIPT_FASTA } from '../../modules/nf-core/gunzip/main'
 
-include { UNTAR as UNTAR_STAR_INDEX         } from '../../modules/nf-core/modules/untar/main'
-include { UNTAR as UNTAR_SALMON_INDEX       } from '../../modules/nf-core/modules/untar/main'
+include { UNTAR as UNTAR_STAR_INDEX         } from '../../modules/nf-core/untar/main'
+include { UNTAR as UNTAR_SALMON_INDEX       } from '../../modules/nf-core/untar/main'
 
-include { GFFREAD                           } from '../../modules/nf-core/modules/gffread/main'
+include { GFFREAD                           } from '../../modules/nf-core/gffread/main'
 
-include { STAR_GENOMEGENERATE               } from '../../modules/nf-core/modules/star/genomegenerate/main'
+include { STAR_GENOMEGENERATE               } from '../../modules/nf-core/star/genomegenerate/main'
 include { STAR_GENOMEGENERATE_IGENOMES      } from '../../modules/local/star_genomegenerate_igenomes'
 
-include { SALMON_INDEX                      } from '../../modules/nf-core/modules/salmon/index/main'
+include { SALMON_INDEX                      } from '../../modules/nf-core/salmon/index/main'
 
-include { RSEM_PREPAREREFERENCE as MAKE_TRANSCRIPTS_FASTA } from '../../modules/nf-core/modules/rsem/preparereference/main'
+include { RSEM_PREPAREREFERENCE as MAKE_TRANSCRIPTS_FASTA } from '../../modules/nf-core/rsem/preparereference/main'
 
-include { CUSTOM_GETCHROMSIZES              } from '../../modules/nf-core/modules/custom/getchromsizes/main'
+include { CUSTOM_GETCHROMSIZES              } from '../../modules/nf-core/custom/getchromsizes/main'
 
 include { GTF_GENE_FILTER                   } from '../../modules/local/gtf_gene_filter'
 
