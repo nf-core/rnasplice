@@ -288,8 +288,7 @@ workflow RNASPLICE {
 
         if (params.dexseq_exon) {
 
-            
-            ch_dexseq_gff = Channel.empty()
+            //ch_dexseq_gff = Channel.empty()
 
             if (params.gff_dexseq) {
 
@@ -310,14 +309,14 @@ workflow RNASPLICE {
             ch_samplesheet = Channel.fromPath(params.input)
             def read_method = "htseq"
 
-            DEXSEQ_DEU(
-                PREPARE_GENOME.out.gtf,
-                ch_genome_bam,
-                ch_samplesheet,
-                read_method,
-                ch_dexseq_gff
-            )
+            ch_genome_bam_gff = ch_genome_bam.combine(ch_dexseq_gff)
 
+            DEXSEQ_DEU(
+                ch_genome_bam_gff,
+                ch_dexseq_gff,
+                ch_samplesheet,
+                read_method
+            )
         }
         
         //
