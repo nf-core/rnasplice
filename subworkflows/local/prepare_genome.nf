@@ -75,6 +75,12 @@ workflow PREPARE_GENOME {
         ch_versions = ch_versions.mix(GFFREAD.out.versions)
     }
 
+    // test
+    ch_dexseq_gff = Channel.empty()
+    if(params.gff_dexseq) {
+        ch_dexseq_gff = Channel.fromPath("/home/bean/Documents/GitHub/results_dexseq_exon/dexseq/DEXSeq.gff")
+    }
+
 
     //
     // Uncompress transcript fasta file / create if required
@@ -142,6 +148,7 @@ workflow PREPARE_GENOME {
     transcript_fasta = ch_transcript_fasta //    path: transcript.fasta
     star_index       = ch_star_index       //    path: star/index/
     salmon_index     = ch_salmon_index     //    path: salmon/index/
+    dexseq_gff       = ch_dexseq_gff       
 
     versions         = ch_versions.ifEmpty(null) // channel: [ versions.yml ]
 }
