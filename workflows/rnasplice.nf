@@ -55,6 +55,7 @@ ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multi
 include { INPUT_CHECK       } from '../subworkflows/local/input_check'
 include { PREPARE_GENOME    } from '../subworkflows/local/prepare_genome'
 include { FASTQC_TRIMGALORE } from '../subworkflows/local/fastqc_trimgalore'
+include { SUPPA             } from '../subworkflows/local/suppa'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -211,7 +212,7 @@ workflow RNASPLICE {
     // SUBWORKFLOW: Pseudo-alignment and quantification with Salmon
     //
 
-    if (params.pseudo_aligner == 'salmon') {
+   /* if (params.pseudo_aligner == 'salmon') {
         
         alignment_mode = false
         ch_transcript_fasta = ch_dummy_file
@@ -230,11 +231,17 @@ workflow RNASPLICE {
 
         // Take software versions from subworkflow (.first() not required)
         ch_versions = ch_versions.mix(SALMON_QUANT.out.versions)
-    }
-    
+    }*/
+
     //
-    // MODULE: Collect version information across pipeline
+    // SUBWORKFLOW: SUPPA
     //
+   
+    ch_tpm = file("$projectDir/assets/tpm.txt", checkIfExists: true) /* SUPPA Check! Temporary tpm file for testing */
+    // Run SUPPA
+    SUPPA (
+        PREPARE_GENOME.out.gtf,ch_tpm,ch_input
+    )
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
@@ -256,9 +263,9 @@ workflow RNASPLICE {
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC_TRIMGALORE.out.trim_zip.collect{it[1]}.ifEmpty([]))
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC_TRIMGALORE.out.trim_log.collect{it[1]}.ifEmpty([]))
 
-    if (params.pseudo_aligner == 'salmon'){
+    /*if (params.pseudo_aligner == 'salmon'){
         ch_multiqc_files = ch_multiqc_files.mix(ch_salmon_multiqc.collect{it[1]}.ifEmpty([]))
-    }
+    }*/
 
     if (!params.skip_alignment && (params.aligner == 'star_salmon' || params.aligner == "star")){
 
