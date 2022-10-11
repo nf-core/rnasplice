@@ -142,6 +142,10 @@ filter_txi <- function(txi.obj, tx2gene_tsv){
   txi.obj$counts <- countsMatTx
   txi.obj$length <- lengthMatTx
   
+  tx2gene_tsv <- tx2gene_tsv[match(rownames(txi.obj$abundance), as.character(tx2gene_tsv[["tx"]])),]
+
+  if (!all(rownames(txi.obj$abundance) == tx2gene_tsv$tx)) stop("Stop: tx2gene and txi rownames do not match - Cannot proceed with merge.")
+
   return(list(txi.obj, tx2gene_tsv))
 }
 
@@ -200,6 +204,10 @@ write.table(cbind.data.frame(gene_id = rownames(gi.ls[["counts"]]),gi.ls[["count
 
 # output new tx2gene
 write.table(tx2gene, "tximport.tx2gene.tsv", sep="\t", quote=FALSE, row.names = FALSE)
+
+# output single tpm tsv for suppa downstream
+suppa_tpm <- txi[["abundance"]]
+write.table(suppa_tpm, paste(c(prefix, "iso_tpm.txt"), collapse="."), sep="\t", quote=FALSE, row.names = TRUE)
 
 ####################################
 ########### Session info ###########
