@@ -6,6 +6,7 @@ include { GUNZIP as GUNZIP_FASTA            } from '../../modules/nf-core/gunzip
 include { GUNZIP as GUNZIP_GTF              } from '../../modules/nf-core/gunzip/main'
 include { GUNZIP as GUNZIP_GFF              } from '../../modules/nf-core/gunzip/main'
 include { GUNZIP as GUNZIP_TRANSCRIPT_FASTA } from '../../modules/nf-core/gunzip/main'
+include { GUNZIP as GUNZIP_GFF_DEXSEQ       } from '../../modules/nf-core/gunzip/main'
 
 include { UNTAR as UNTAR_STAR_INDEX         } from '../../modules/nf-core/untar/main'
 include { UNTAR as UNTAR_SALMON_INDEX       } from '../../modules/nf-core/untar/main'
@@ -77,6 +78,19 @@ workflow PREPARE_GENOME {
 
 
     //
+    // Uncompress DEXSeq GFF annotation file 
+    //
+    ch_dexseq_gff = Channel.empty()
+    if (params.gff_dexseq) {
+        if (params.gff_dexseq.endsWith('.gz')) {
+            ch_dexseq_gff = GUNZIP_GFF_DEXSEQ ( [ [:], params.gff_dexseq ] ).gunzip.map { it[1] }
+            ch_versions = ch_versions.mix(GUNZIP_GFF_DEXSEQ.out.versions)
+        } else {
+            ch_dexseq_gff = file(params.gff_dexseq)
+        }
+    }
+
+    //
     // Uncompress transcript fasta file / create if required
     //
     if (params.transcript_fasta) {
@@ -142,6 +156,7 @@ workflow PREPARE_GENOME {
     transcript_fasta = ch_transcript_fasta //    path: transcript.fasta
     star_index       = ch_star_index       //    path: star/index/
     salmon_index     = ch_salmon_index     //    path: salmon/index/
+    dexseq_gff       = ch_dexseq_gff       //    path: dexseq.gff
 
     versions         = ch_versions.ifEmpty(null) // channel: [ versions.yml ]
 }

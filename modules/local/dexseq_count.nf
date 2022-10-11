@@ -8,8 +8,7 @@ process DEXSEQ_COUNT {
 	'quay.io/biocontainers/htseq:2.0.2--py310ha14a713_0' }"
 	
     input:
-    path gff
-    tuple val(meta), path(bam)
+    tuple val(meta), path(bam), path (gff)
 
     output:
     path "*.clean.count.txt"        , emit: dexseq_clean_txt
