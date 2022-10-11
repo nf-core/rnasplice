@@ -53,14 +53,13 @@ ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multi
 // MODULE: Loaded from modules/local/
 //
 include { BEDTOOLS_GENOMECOV      } from '../modules/local/bedtools_genomecov'
-include { STAR_ALIGN_IGENOMES     } from '../../modules/local/star_align_igenomes'
-
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
 include { INPUT_CHECK       } from '../subworkflows/local/input_check'
 include { PREPARE_GENOME    } from '../subworkflows/local/prepare_genome'
 include { FASTQC_TRIMGALORE } from '../subworkflows/local/fastqc_trimgalore'
+include { ALIGN_STAR        } from '../subworkflows/local/align_star'
 include { TX2GENE_TXIMPORT as SALMON_TX2GENE_TXIMPORT      } from '../subworkflows/local/tx2gene_tximport'
 include { TX2GENE_TXIMPORT as STAR_SALMON_TX2GENE_TXIMPORT } from '../subworkflows/local/tx2gene_tximport'
 include { DRIMSEQ_DEXSEQ_DTU as SALMON_DEXSEQ_DTU } from '../subworkflows/local/drimseq_dexseq_dtu'
@@ -78,7 +77,6 @@ include { RMATS             } from '../subworkflows/local/rmats'
 //
 include { SALMON_QUANT                      } from '../modules/nf-core/modules/salmon/quant/main'
 include { SALMON_QUANT as STAR_SALMON_QUANT } from '../modules/nf-core/modules/salmon/quant/main'
-include { STAR_ALIGN                        } from '../modules/nf-core/modules/star/align/main'
 include { MULTIQC                           } from '../modules/nf-core/modules/multiqc/main'
 include { CUSTOM_DUMPSOFTWAREVERSIONS       } from '../modules/nf-core/modules/custom/dumpsoftwareversions/main'
 include { CAT_FASTQ                         } from '../modules/nf-core/modules/cat/fastq/main'
@@ -86,7 +84,6 @@ include { CAT_FASTQ                         } from '../modules/nf-core/modules/c
 //
 // SUBWORKFLOWS: Installed directly from nf-core/modules
 //
-include { BAM_SORT_SAMTOOLS } from '../subworkflows/nf-core/bam_sort_samtools'
 include { BEDGRAPH_TO_BIGWIG as BEDGRAPH_TO_BIGWIG_FORWARD       } from '../subworkflows/nf-core/bedgraph_to_bigwig'
 include { BEDGRAPH_TO_BIGWIG as BEDGRAPH_TO_BIGWIG_REVERSE       } from '../subworkflows/nf-core/bedgraph_to_bigwig'
 
@@ -208,80 +205,42 @@ workflow RNASPLICE {
     ch_trim_reads = FASTQC_TRIMGALORE.out.reads
 
     //
-    // MODULE: Align reads using STAR
+    // SUBWORKFLOW: Alignment with STAR
     //
-            
-    // Align with STAR
-    if (!params.skip_alignment && (params.aligner == 'star_salmon' || params.aligner == "star")) {
-        
-        if (is_aws_igenome) {
 
-            STAR_ALIGN_IGENOMES ( 
-                ch_trim_reads, 
-                PREPARE_GENOME.out.star_index,
-                PREPARE_GENOME.out.gtf, 
-                params.star_ignore_sjdbgtf,
-                params.seq_platform ?: '',
-                params.seq_center ?: '' 
-            )
-            // Collect STAR_ALIGN_IGENOMES output 
-            ch_orig_bam          = STAR_ALIGN_IGENOMES.out.bam            // channel: [ val(meta), bam            ]
-            ch_log_final         = STAR_ALIGN_IGENOMES.out.log_final      // channel: [ val(meta), log_final      ]
-            ch_log_out           = STAR_ALIGN_IGENOMES.out.log_out        // channel: [ val(meta), log_out        ]
-            ch_log_progress      = STAR_ALIGN_IGENOMES.out.log_progress   // channel: [ val(meta), log_progress   ]
-            ch_bam_sorted        = STAR_ALIGN_IGENOMES.out.bam_sorted     // channel: [ val(meta), bam_sorted     ]
-            ch_transcriptome_bam = STAR_ALIGN_IGENOMES.out.bam_transcript // channel: [ val(meta), bam_transcript ]
-            ch_fastq             = STAR_ALIGN_IGENOMES.out.fastq          // channel: [ val(meta), fastq          ]   
-            ch_tab               = STAR_ALIGN_IGENOMES.out.tab            // channel: [ val(meta), tab            ]
+    ch_genome_bam                 = Channel.empty()
+    ch_genome_bam_index           = Channel.empty()
+    ch_samtools_stats             = Channel.empty()
+    ch_samtools_flagstat          = Channel.empty()
+    ch_samtools_idxstats          = Channel.empty()
+    ch_star_multiqc               = Channel.empty()
+    ch_aligner_pca_multiqc        = Channel.empty()
+    ch_aligner_clustering_multiqc = Channel.empty()
 
-            // Collect software version
-            ch_versions       = ch_versions.mix(STAR_ALIGN_IGENOMES.out.versions.first())
+    if (!params.skip_alignment && ( params.aligner == 'star' || params.aligner == 'star_salmon')) {
+        ALIGN_STAR (
+            ch_trim_reads,
+            PREPARE_GENOME.out.star_index,
+            PREPARE_GENOME.out.gtf,
+            params.star_ignore_sjdbgtf,
+            '',
+            params.seq_center ?: '',
+            is_aws_igenome
+        )
 
-        } else {
+        ch_genome_bam        = ALIGN_STAR.out.bam
+        ch_genome_bam_index  = ALIGN_STAR.out.bai
+        ch_transcriptome_bam = ALIGN_STAR.out.bam_transcript
+        ch_samtools_stats    = ALIGN_STAR.out.stats
+        ch_samtools_flagstat = ALIGN_STAR.out.flagstat
+        ch_samtools_idxstats = ALIGN_STAR.out.idxstats
+        ch_star_multiqc      = ALIGN_STAR.out.log_final
 
-            // Run Star alignment module 
-            // currently params.seq_platform not specified in the nextflow.config in rnaseq code base
-            STAR_ALIGN ( 
-                ch_trim_reads, 
-                PREPARE_GENOME.out.star_index, 
-                PREPARE_GENOME.out.gtf, 
-                params.star_ignore_sjdbgtf, 
-                params.seq_platform ?: '', 
-                params.seq_center ?: ''
-            )
-            // Collect STAR output 
-            ch_orig_bam          = STAR_ALIGN.out.bam            // channel: [ val(meta), bam            ]
-            ch_log_final         = STAR_ALIGN.out.log_final      // channel: [ val(meta), log_final      ]
-            ch_log_out           = STAR_ALIGN.out.log_out        // channel: [ val(meta), log_out        ]
-            ch_log_progress      = STAR_ALIGN.out.log_progress   // channel: [ val(meta), log_progress   ]
-            ch_bam_sorted        = STAR_ALIGN.out.bam_sorted     // channel: [ val(meta), bam_sorted     ]
-            ch_transcriptome_bam = STAR_ALIGN.out.bam_transcript // channel: [ val(meta), bam_transcript ]
-            ch_fastq             = STAR_ALIGN.out.fastq          // channel: [ val(meta), fastq          ]   
-            ch_tab               = STAR_ALIGN.out.tab            // channel: [ val(meta), tab            ]
-
-            // Collect software version
-            ch_versions       = ch_versions.mix(STAR_ALIGN.out.versions.first())
+        if (params.bam_csi_index) {
+            ch_genome_bam_index = ALIGN_STAR.out.csi
         }
 
-        //
-        // SUBWORKFLOW: Sort, index BAM file and run samtools stats, flagstat and idxstats
-        //
-
-        // Run Samtools subworkflow (sort, index with stats)
-        BAM_SORT_SAMTOOLS ( ch_orig_bam )
-
-        // Collect Samtools output - sorted bam, indices (bai, csi)
-        ch_genome_bam        = BAM_SORT_SAMTOOLS.out.bam         // channel: [ val(meta), [ bam ] ]
-        ch_genome_bam_index  = BAM_SORT_SAMTOOLS.out.bai         // channel: [ val(meta), [ bai ] ]
-        ch_genom_csi         = BAM_SORT_SAMTOOLS.out.csi         // channel: [ val(meta), [ csi ] ]
-
-        // Collect Samtools stats output - stats, flagstat, idxstats
-        ch_samtools_stats    = BAM_SORT_SAMTOOLS.out.stats       // channel: [ val(meta), [ stats ] ]
-        ch_samtools_flagstat = BAM_SORT_SAMTOOLS.out.flagstat    // channel: [ val(meta), [ flagstat ] ]
-        ch_samtools_idxstats = BAM_SORT_SAMTOOLS.out.idxstats    // channel: [ val(meta), [ idxstats ] ]
-        
-        // Collect software version
-        ch_versions = ch_versions.mix(BAM_SORT_SAMTOOLS.out.versions)
+        ch_versions = ch_versions.mix(ALIGN_STAR.out.versions)
 
         //
         // Run rMATS subworkflow if rmats paramater true:
@@ -483,7 +442,7 @@ workflow RNASPLICE {
 
     if (!params.skip_alignment && (params.aligner == 'star_salmon' || params.aligner == "star")){
 
-        ch_multiqc_files = ch_multiqc_files.mix(ch_log_final.collect{it[1]}.ifEmpty([]))
+        ch_multiqc_files = ch_multiqc_files.mix(ch_star_multiqc.collect{it[1]}.ifEmpty([]))
         ch_multiqc_files = ch_multiqc_files.mix(ch_samtools_stats.collect{it[1]}.ifEmpty([]))
         ch_multiqc_files = ch_multiqc_files.mix(ch_samtools_flagstat.collect{it[1]}.ifEmpty([]))
         ch_multiqc_files = ch_multiqc_files.mix(ch_samtools_idxstats.collect{it[1]}.ifEmpty([]))
