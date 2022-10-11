@@ -20,6 +20,9 @@ include { DIFFSPLICE as DIFFSPLICE_IOE } from '../../modules/local/suppa_diffspl
 include { DIFFSPLICE as DIFFSPLICE_IOI } from '../../modules/local/suppa_diffsplice.nf'
 //include { DIFFSPLICE_ISO } from '../../modules/local/diffsplice_iso.nf' //SUPPA Check!
 
+include { CLUSTEREVENTS as CLUSTEREVENTS_IOE } from '../../modules/local/suppa_clusterevents.nf'
+include { CLUSTEREVENTS as CLUSTEREVENTS_IOI } from '../../modules/local/suppa_clusterevents.nf'
+
 workflow SUPPA {
 
     take:
@@ -58,6 +61,9 @@ workflow SUPPA {
     DIFFSPLICE_IOE(IOE.out.events,SPLIT_TPM.out.tpms,SPLIT_PSI_IOE.out.psis) // Local events
     DIFFSPLICE_IOI(IOI.out.events,SPLIT_TPM.out.tpms,SPLIT_PSI_IOI.out.psis) // Transcript events
     //DIFFSPLICE_ISO(SPLIT_TPM.out.tpms,SPLIT_PSI_ISO.out.psis)
+
+    CLUSTEREVENTS_IOE(DIFFSPLICE_IOE.out.dpsi, DIFFSPLICE_IOE.out.psivec)
+    //CLUSTEREVENTS_IOI(DIFFSPLICE_IOI.out.dpsi, DIFFSPLICE_IOI.out.psivec) 
 
     //Define output
     emit:
