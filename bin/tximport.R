@@ -122,18 +122,21 @@ filter_txi <- function(txi.obj, tx2gene_tsv){
   in the first column of tx2gene. Check to see that you are using
   the same annotation for both.\n\n",txFromFile,"\n\n",txFromTable))
   }
-  
+
   # remove transcripts (and genes) not in the rownames of matrices
+  ntx2genemissing <- sum(!tx2gene_tsv$tx %in% txId)
+  if (ntx2genemissing > 0) message("Filtering transcripts from tx2gene: ", ntx2genemissing)
   tx2gene_tsv <- tx2gene_tsv[tx2gene_tsv$tx %in% txId,]
-  ntxmissing <- sum(!txId %in% tx2gene_tsv$tx)
-  if (ntxmissing > 0) message("transcripts missing from tx2gene: ", ntxmissing)
   
   # subset to transcripts in the tx2gene table
+  ntxmissing <- sum(!txId %in% tx2gene_tsv$tx)
+  if (ntxmissing > 0) message("Filtering transcripts from txi: ", ntxmissing)
+
   sub.idx <- txId %in% tx2gene_tsv$tx
   abundanceMatTx <- abundanceMatTx[sub.idx,,drop=FALSE]
   countsMatTx <- countsMatTx[sub.idx,,drop=FALSE]
   lengthMatTx <- lengthMatTx[sub.idx,,drop=FALSE]
-  
+
   # resave matrices
   txi.obj$abundance <- abundanceMatTx
   txi.obj$counts <- countsMatTx
