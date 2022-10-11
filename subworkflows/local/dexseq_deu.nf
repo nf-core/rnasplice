@@ -1,7 +1,7 @@
 //
 // Dexseq DEU subworkflow
 //
-
+include { DEXSEQ_ANNOTATION   } from '../../modules/local/dexseq_annotation'
 include { DEXSEQ_COUNT        } from '../../modules/local/dexseq_count'
 include { DEXSEQ_EXON         } from '../../modules/local/dexseq_exon'
 
@@ -9,14 +9,35 @@ workflow DEXSEQ_DEU {
 
     take:
 
-    ch_genome_bam_gff     // bam gff channel
-    ch_dexseq_gff      // gff
-    ch_samplesheet    // Channel.fromPath(params.input)
-    read_method       // val: htseq or featurecounts       
+    gtf                // path gtf
+    ch_genome_bam      // bam channel
+    ch_dexseq_gff      // path dexseq gff
+    ch_samplesheet     // Channel.fromPath(params.input)
+    read_method        // val: htseq or featurecounts       
 
     main:
 
     ch_versions = Channel.empty()
+
+    // If dexseq gff is empty string create using dexseq anno module
+
+    if (!ch_dexseq_gff) {
+
+        //
+        // MODULE: DEXSeq Annotation
+        //
+
+        DEXSEQ_ANNOTATION (
+            gtf
+        )
+
+        ch_versions = ch_versions.mix(DEXSEQ_ANNOTATION.out.versions.first())
+
+        ch_dexseq_gff = DEXSEQ_ANNOTATION.out.gff
+
+    } 
+
+    ch_genome_bam_gff = ch_genome_bam.combine(ch_dexseq_gff)
 
     //
     // MODULE: DEXSeq Count

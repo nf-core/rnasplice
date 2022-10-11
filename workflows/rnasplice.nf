@@ -54,7 +54,6 @@ ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multi
 //
 include { BEDTOOLS_GENOMECOV      } from '../modules/local/bedtools_genomecov'
 include { STAR_ALIGN_IGENOMES     } from '../modules/local/star_align_igenomes'
-include { DEXSEQ_ANNOTATION   } from '../modules/local/dexseq_annotation'
 
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
@@ -288,31 +287,13 @@ workflow RNASPLICE {
 
         if (params.dexseq_exon) {
 
-            //ch_dexseq_gff = Channel.empty()
-
-            if (params.gff_dexseq) {
-
-                ch_dexseq_gff = PREPARE_GENOME.out.dexseq_gff
-
-            } else {
-
-                DEXSEQ_ANNOTATION (
-                    PREPARE_GENOME.out.gtf
-                )
-
-                ch_versions = ch_versions.mix(DEXSEQ_ANNOTATION.out.versions.first())
-
-                ch_dexseq_gff = DEXSEQ_ANNOTATION.out.gff
-
-            }
-            
+            ch_dexseq_gff = params.gff_dexseq ? PREPARE_GENOME.out.dexseq_gff : ""
             ch_samplesheet = Channel.fromPath(params.input)
             def read_method = "htseq"
-
-            ch_genome_bam_gff = ch_genome_bam.combine(ch_dexseq_gff)
-
+        
             DEXSEQ_DEU(
-                ch_genome_bam_gff,
+                PREPARE_GENOME.out.gtf,
+                ch_genome_bam,
                 ch_dexseq_gff,
                 ch_samplesheet,
                 read_method
