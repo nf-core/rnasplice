@@ -19,11 +19,12 @@ process CLUSTEREVENTS {
     task.ext.when == null || task.ext.when
 
     script: //  Cluster events between conditions
-    //def a = $pwd
     """
-    suppa.py \\
+    cp $dpsi dpsi
+    
+     suppa.py \\
         clusterEvents \\
-        --dpsi $dpsi \\
+        --dpsi dpsi \\
         --psivec $psivec \\
         --sig-threshold 0.05 \\
         --eps 0.2 \\

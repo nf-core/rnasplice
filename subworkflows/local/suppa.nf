@@ -63,7 +63,7 @@ workflow SUPPA {
     //DIFFSPLICE_ISO(SPLIT_TPM.out.tpms,SPLIT_PSI_ISO.out.psis)
 
     CLUSTEREVENTS_IOE(DIFFSPLICE_IOE.out.dpsi, DIFFSPLICE_IOE.out.psivec)
-    //CLUSTEREVENTS_IOI(DIFFSPLICE_IOI.out.dpsi, DIFFSPLICE_IOI.out.psivec) 
+    CLUSTEREVENTS_IOI(DIFFSPLICE_IOI.out.dpsi, DIFFSPLICE_IOI.out.psivec) 
 
     //Define output
     emit:
