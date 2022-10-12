@@ -236,13 +236,15 @@ workflow RNASPLICE {
     //
     // SUBWORKFLOW: SUPPA
     //
-   
-    ch_tpm = file("$projectDir/assets/tpm.txt", checkIfExists: true) /* SUPPA Check! Temporary tpm file for testing */
-    // Run SUPPA
-    SUPPA (
-        PREPARE_GENOME.out.gtf,ch_tpm,ch_input
-    )
+   if (params.suppa) {
 
+        ch_tpm = file("$projectDir/assets/tpm.txt", checkIfExists: true) /* SUPPA Check! Temporary tpm file for testing */
+        // Run SUPPA
+        SUPPA (
+            PREPARE_GENOME.out.gtf,ch_tpm,ch_input
+        )
+        
+   }
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
     )
