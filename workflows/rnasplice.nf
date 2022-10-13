@@ -153,7 +153,7 @@ workflow RNASPLICE {
         INPUT_CHECK
             .out
             .reads
-            .map { meta, fastq -> meta.single_end}
+            .map { meta, fastq -> meta.single_end }
             .unique()
             .collect()
             .map {
@@ -167,7 +167,7 @@ workflow RNASPLICE {
         INPUT_CHECK
             .out
             .reads
-            .map { meta, fastq -> meta.strandedness}
+            .map { meta, fastq -> meta.strandedness }
             .unique()
             .collect()
             .map {
@@ -300,15 +300,15 @@ workflow RNASPLICE {
         }
         
         //
-        // Run rMATS subworkflow if rmats paramater true:
+        // Run rMATS subworkflow if rmats parameter true:
         //
 
         if (params.rmats) {
 
             //
-            // Create channel grouped by condition: [ [condition1, [condition1_metas], [group1_bams]], [condition2, [condition2_metas], [condition2_bams]]]
+            // Create channel grouped by condition: [ [condition1, [condition1_metas], [group1_bams]], [condition2, [condition2_metas], [condition2_bams]]] if there are more than one condition
             //
-                
+            
             BAM_SORT_SAMTOOLS
                 .out
                 .bam
@@ -316,6 +316,26 @@ workflow RNASPLICE {
                 .groupTuple(by:0)
                 .toSortedList()
                 .set { ch_genome_bam_conditions }
+
+            //
+            // Create variable to check if samples have one condition or two
+            //
+
+            def single_condition = false
+
+            INPUT_CHECK
+            .out
+            .reads
+            .map { meta, fastq -> meta.condition }
+            .unique()
+            .collect()
+            .map {
+                if(it.size() > 1) {
+                    single_condition = false
+                } else {
+                    single_condition = true
+                }
+            }
             
             //
             // SUBWORKFLOW: Run rMATS
@@ -323,7 +343,8 @@ workflow RNASPLICE {
             
             RMATS ( 
                 ch_genome_bam_conditions,
-                PREPARE_GENOME.out.gtf 
+                PREPARE_GENOME.out.gtf,
+                single_condition
             )
 
             ch_versions = ch_versions.mix(RMATS.out.versions)
@@ -372,11 +393,11 @@ workflow RNASPLICE {
 
                 if (params.dtu_txi == "dtuScaledTPM") {
 
-                    ch_txi = SALMON_TX2GENE_TXIMPORT.out.txi_dtu
+                    ch_txi = STAR_SALMON_TX2GENE_TXIMPORT.out.txi_dtu
 
                 } else if (params.dtu_txi == "scaledTPM") {
 
-                    ch_txi = SALMON_TX2GENE_TXIMPORT.out.txi_s
+                    ch_txi = STAR_SALMON_TX2GENE_TXIMPORT.out.txi_s
 
                 }
 

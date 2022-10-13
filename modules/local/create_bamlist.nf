@@ -1,4 +1,4 @@
-process CREATE_BAMLISTS {
+process CREATE_BAMLIST {
     //tag "$meta.id"
     label "process_medium"
 
@@ -8,14 +8,12 @@ process CREATE_BAMLISTS {
         'biocontainers/biocontainers:v1.2.0_cv1' }"
     
     input:
-    tuple val(cond), val(meta), path(bam1)
-    tuple val(cond), val(meta), path(bam2)
+    tuple val(cond), val(meta), path(bam)
 
     output:
-    path("bamlist_group1.txt"), emit:bam_group1
-    path("bamlist_group2.txt"), emit:bam_group2
+    path("*_bamlist.txt"), emit:bam_text
 
     exec:
-    task.workDir.resolve('bamlist_group1.txt').text = bam1.join(',')
-    task.workDir.resolve('bamlist_group2.txt').text = bam2.join(',')
+    task.workDir.resolve("${cond}_bamlist.txt").text = bam.join(',')
+    
 }
