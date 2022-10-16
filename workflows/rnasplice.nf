@@ -238,7 +238,26 @@ workflow RNASPLICE {
     //
    if (params.suppa) {
 
+        INPUT_CHECK
+            .out
+            .reads
+            .map { meta, fastq -> [ meta.condition, meta.id ] }
+            .groupTuple(by:0)
+            .toSortedList()
+            .map { it -> [ it[0][1].unique().join(','), it[1][1].unique().join(','), it[0][0] + '.tpm', it[1][0] + '.tpm'].join(' ')} // reorganise output ready for SUPPA and take only unique sample names (given there may be repeat runs)
+            .set { ch_getlist_suppa_tpm }
+
+        INPUT_CHECK
+            .out
+            .reads
+            .map { meta, fastq -> [ meta.condition, meta.id ] }
+            .groupTuple(by:0)
+            .toSortedList()
+            .map { it -> [ it[0][1].unique().join(','), it[1][1].unique().join(','), it[0][0] + '.psi', it[1][0] + '.psi'].join(' ')} // reorganise output ready for SUPPA and take only unique sample names (given there may be repeat runs)
+            .set { ch_getlist_suppa_psi }
+
         ch_tpm = file("$projectDir/assets/tpm.txt", checkIfExists: true) /* SUPPA Check! Temporary tpm file for testing */
+
         // Run SUPPA
         SUPPA (
             PREPARE_GENOME.out.gtf,ch_tpm,ch_input
