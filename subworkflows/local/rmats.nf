@@ -15,7 +15,8 @@ workflow RMATS {
 
     ch_genome_bam_conditions             // channel: [ [condition1, [condition1_metas], [condition1_bams]], [condition2, [condition2_metas], [condition2_bams]]]
     gtf                                  // channel: /path/to/genome.gtf
-    single_condition
+    single_condition_bool                // channel: true/false
+    
     main:
 
     ch_versions = Channel.empty()
@@ -32,10 +33,12 @@ workflow RMATS {
             }
             .set { ch_genome_bam_conditions }
 
-    if (!single_condition) {
+    //single_condition_bool.view()
+
+    if (!single_condition_bool) {
 
       //
-      // Create input bam file
+      // Create input bam list file
       //
 
       CREATE_BAMLIST_COND1 ( 
@@ -73,20 +76,16 @@ workflow RMATS {
     
     ch_versions    = ch_versions.mix(RMATS_POST.out.versions)
 
-    // Define output
-
-    emit:
-
-    rmats_prep       = RMATS_PREP.out.rmats_temp         //    path: rmats_temp/*
-    rmats_prep_log   = RMATS_PREP.out.log                //    path: rmats_prep.log
-    rmats_post       = RMATS_POST.out.rmats_post         //    path: rmats_post/*
-    rmats_post_log   = RMATS_POST.out.log                //    path: rmats_post.log
+    ch_rmats_prep       = RMATS_PREP.out.rmats_temp         //    path: rmats_temp/*
+    ch_rmats_prep_log   = RMATS_PREP.out.log                //    path: rmats_prep.log
+    ch_rmats_post       = RMATS_POST.out.rmats_post         //    path: rmats_post/*
+    ch_rmats_post_log   = RMATS_POST.out.log                //    path: rmats_post.log
 
 
     } else {
 
       //
-      // Create input bam file
+      // Create input bam list file
       //
 
       CREATE_BAMLIST_COND1 (
@@ -116,17 +115,22 @@ workflow RMATS {
 
     ch_versions    = ch_versions.mix(RMATS_POST_SINGLE.out.versions)
 
-    // Define output
-
-    emit:
-
-    rmats_prep       = RMATS_PREP_SINGLE.out.rmats_temp  //    path: rmats_temp/*
-    rmats_prep_log   = RMATS_PREP_SINGLE.out.log         //    path: rmats_prep.log
-    rmats_post       = RMATS_POST_SINGLE.out.rmats_post  //    path: rmats_post/*
-    rmats_post_log   = RMATS_POST_SINGLE.out.log         //    path: rmats_post.log
+    ch_rmats_prep       = RMATS_PREP_SINGLE.out.rmats_temp  //    path: rmats_temp/*
+    ch_rmats_prep_log   = RMATS_PREP_SINGLE.out.log         //    path: rmats_prep.log
+    ch_rmats_post       = RMATS_POST_SINGLE.out.rmats_post  //    path: rmats_post/*
+    ch_rmats_post_log   = RMATS_POST_SINGLE.out.log         //    path: rmats_post.log
 
     }
 
-    versions = ch_versions.ifEmpty(null)                 //    channel: [ versions.yml ]
+    // Define output
+    
+    emit:
+
+    rmats_prep       = ch_rmats_prep        //    path: rmats_temp/*
+    rmats_prep_log   = ch_rmats_prep_log    //    path: rmats_prep.log
+    rmats_post       = ch_rmats_post        //    path: rmats_post/*
+    rmats_post_log   = ch_rmats_post_log    //    path: rmats_post.log
+
+    versions = ch_versions.ifEmpty(null)    //    channel: [ versions.yml ]
 }
 

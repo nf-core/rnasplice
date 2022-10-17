@@ -177,6 +177,22 @@ workflow RNASPLICE {
                     return it
                 }
             }
+
+        INPUT_CHECK
+            .out
+            .reads
+            .map { meta, fastq -> meta.condition }
+            .unique()
+            .collect()
+            .map {
+                if(it.size() > 2) {
+                    exit 1, "ERROR: Please check input samplesheet -> Cannot run rMats with more than 2 conditions"
+                } else {
+                    return it
+                }
+            }
+
+
     }
 
     //
@@ -321,8 +337,6 @@ workflow RNASPLICE {
             // Create variable to check if samples have one condition or two
             //
 
-            def single_condition = false
-
             INPUT_CHECK
             .out
             .reads
@@ -330,12 +344,16 @@ workflow RNASPLICE {
             .unique()
             .collect()
             .map {
+                def single_condition = false
                 if(it.size() > 1) {
                     single_condition = false
+                    return(single_condition)
                 } else {
                     single_condition = true
+                    return(single_condition)
                 }
-            }
+            }.set{ single_condition_bool }
+            single_condition_bool.view()
             
             //
             // SUBWORKFLOW: Run rMATS
@@ -344,7 +362,7 @@ workflow RNASPLICE {
             RMATS ( 
                 ch_genome_bam_conditions,
                 PREPARE_GENOME.out.gtf,
-                single_condition
+                single_condition_bool
             )
 
             ch_versions = ch_versions.mix(RMATS.out.versions)
@@ -403,7 +421,7 @@ workflow RNASPLICE {
 
                 STAR_SALMON_DEXSEQ_DTU (
                     ch_txi,
-                    SALMON_TX2GENE_TXIMPORT.out.tximport_tx2gene,
+                    STAR_SALMON_TX2GENE_TXIMPORT.out.tximport_tx2gene,
                     ch_samplesheet
                 )
             }
