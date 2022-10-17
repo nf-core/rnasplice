@@ -260,7 +260,11 @@ workflow RNASPLICE {
 
         // Run SUPPA
         SUPPA (
-            PREPARE_GENOME.out.gtf,ch_tpm,ch_input
+            PREPARE_GENOME.out.gtf,
+            ch_tpm,
+            //ch_input,
+            ch_getlist_suppa_tpm,
+            ch_getlist_suppa_psi
         )
         
    }

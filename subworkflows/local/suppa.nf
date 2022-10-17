@@ -15,7 +15,7 @@ include { SPLIT_FILES as SPLIT_PSI_IOE  } from '../../modules/local/suppa_split_
 include { SPLIT_FILES as SPLIT_PSI_IOI  } from '../../modules/local/suppa_split_files.nf'
 // include { SPLIT_FILES as SPLIT_PSI_ISO  } from '../../modules/local/split_files.nf' //SUPPA Check!
 
-include { GETLIST } from '../../modules/local/suppa_getlist.nf'
+//include { GETLIST } from '../../modules/local/suppa_getlist.nf'
 
 include { DIFFSPLICE as DIFFSPLICE_IOE } from '../../modules/local/suppa_diffsplice.nf'
 include { DIFFSPLICE as DIFFSPLICE_IOI } from '../../modules/local/suppa_diffsplice.nf'
@@ -30,18 +30,20 @@ workflow SUPPA {
 
     ch_gtf           
     ch_tpm 
-    ch_input     
+    //ch_input  
+    ch_getlist_suppa_tpm  
+    ch_getlist_suppa_psi 
 
     main:
 
     // Get Strings as needed for SPLIT_FILES module
 
-    GETLIST( ch_input ) // Get the list of samples in each condition in a text file as per the format needed for SPLIT_FILES module
+    //GETLIST( ch_input ) // Get the list of samples in each condition in a text file as per the format needed for SPLIT_FILES module
 
-    tpm_list = GETLIST.out.tpm_list.getText() // Fetch the string in the text file 
-    psi_list = GETLIST.out.psi_list.getText() // Fetch the string in the text file 
+    //tpm_list = GETLIST.out.tpm_list.getText() // Fetch the string in the text file 
+    //psi_list = GETLIST.out.psi_list.getText() // Fetch the string in the text file 
     
-    SPLIT_TPM ( ch_tpm, tpm_list ) // Split the tpm file (contains all samples) into individual files based on condition
+    SPLIT_TPM ( ch_tpm, ch_getlist_suppa_tpm ) // Split the tpm file (contains all samples) into individual files based on condition
 
     // define empty versions channel
     ch_versions = Channel.empty()
@@ -68,7 +70,7 @@ workflow SUPPA {
         // Split the PSI and TPM files between the conditions
         SPLIT_PSI_IOE ( 
             IOE_PSI.out.psi, 
-            psi_list 
+            ch_getlist_suppa_psi 
         )
 
         // Calculate differential analysis between conditions
@@ -77,8 +79,18 @@ workflow SUPPA {
             SPLIT_TPM.out.tpms,
             SPLIT_PSI_IOE.out.psis
         )
+      /*  DIFFSPLICE_IOE
+            .out
+            .psivec
+            .withReader { line = it.readLine()}
+            .map{it -> [it.toString()]}
+            .set { ch_test }
+            ch_test.view()*/
 
-        // CLUSTEREVENTS_IOE(DIFFSPLICE_IOE.out.dpsi, DIFFSPLICE_IOE.out.psivec)
+        CLUSTEREVENTS_IOE(
+            DIFFSPLICE_IOE.out.dpsi,
+            DIFFSPLICE_IOE.out.psivec
+        )
 
     }
 
@@ -104,7 +116,7 @@ workflow SUPPA {
         // Split the PSI and TPM files between the conditions
         SPLIT_PSI_IOI ( 
             IOI_PSI.out.psi, 
-            psi_list 
+            ch_getlist_suppa_psi 
         )
 
         // Calculate differential analysis between conditions - Transcript events
@@ -114,7 +126,10 @@ workflow SUPPA {
             SPLIT_PSI_IOI.out.psis
         ) 
 
-        //CLUSTEREVENTS_IOI(DIFFSPLICE_IOI.out.dpsi, DIFFSPLICE_IOI.out.psivec) 
+        CLUSTEREVENTS_IOI(
+            DIFFSPLICE_IOI.out.dpsi,
+            DIFFSPLICE_IOI.out.psivec
+        ) 
 
     }
     
@@ -122,7 +137,7 @@ workflow SUPPA {
 
     if (params.suppa_per_isoform) {
 
-        // ISOFORM_PSI (ch_gtf, ch_tpm) // Get psi per transcript Isoform (using GTF and TPM) 
+        ISOFORM_PSI (ch_gtf, ch_tpm) // Get psi per transcript Isoform (using GTF and TPM) 
         // SPLIT_PSI_ISO (ISOFORM_PSI.out.psi,psi_list) //SUPPA Check!
         // DIFFSPLICE_ISO(SPLIT_TPM.out.tpms,SPLIT_PSI_ISO.out.psis)
     }
