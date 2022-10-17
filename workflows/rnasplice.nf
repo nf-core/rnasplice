@@ -353,7 +353,25 @@ workflow RNASPLICE {
                     return(single_condition)
                 }
             }.set{ single_condition_bool }
-            single_condition_bool.view()
+            def single_condition_bool2 = single_condition_bool.view()
+
+            samplesheet = file(params.input)
+            def count = 0
+            def condition = []
+            samplesheet.eachLine { line ->
+                if ( count > 0 ) {
+                    condition << line.split(",")[4]
+                    count++
+                } else {
+                    count++
+                }
+            }
+            def single_condition = false
+            if( condition.unique().size() > 1 ) {
+                single_condition = false
+            } else {
+                single_condition = true
+            }
             
             //
             // SUBWORKFLOW: Run rMATS
@@ -362,7 +380,7 @@ workflow RNASPLICE {
             RMATS ( 
                 ch_genome_bam_conditions,
                 PREPARE_GENOME.out.gtf,
-                single_condition_bool
+                single_condition
             )
 
             ch_versions = ch_versions.mix(RMATS.out.versions)
