@@ -357,27 +357,11 @@ workflow RNASPLICE {
             // Create variable to check if samples have one condition or two
             //
 
-            INPUT_CHECK
-            .out
-            .reads
-            .map { meta, fastq -> meta.condition }
-            .unique()
-            .collect()
-            .map {
-                def single_condition = false
-                if(it.size() > 1) {
-                    single_condition = false
-                    return(single_condition)
-                } else {
-                    single_condition = true
-                    return(single_condition)
-                }
-            }.set{ single_condition_bool }
-            def single_condition_bool2 = single_condition_bool.view()
-
             samplesheet = file(params.input)
+	    
             def count = 0
             def condition = []
+	    
             samplesheet.eachLine { line ->
                 if ( count > 0 ) {
                     condition << line.split(",")[4]
@@ -386,8 +370,10 @@ workflow RNASPLICE {
                     count++
                 }
             }
+	    
             def single_condition = false
-            if( condition.unique().size() > 1 ) {
+	   
+            if ( condition.unique().size() > 1 ) {
                 single_condition = false
             } else {
                 single_condition = true
