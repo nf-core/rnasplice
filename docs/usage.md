@@ -32,7 +32,7 @@ CONTROL_REP1,AEG588A1_S1_L004_R1_001.fastq.gz,AEG588A1_S1_L004_R2_001.fastq.gz
 The pipeline will auto-detect whether a sample is single- or paired-end using the information provided in the samplesheet. The samplesheet can have as many columns as you desire, however, there is a strict requirement for the first 4 columns to match those defined in the table below.
 
 A final samplesheet file consisting of both single- and paired-end data may look something like the one below. This is for 6 samples, where `TREATMENT_REP3` has been sequenced twice.
-
+<span style="color:blue">some *
 ```
 sample,fastq_1,fastq_2,strandedness
 CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz,forward
@@ -43,6 +43,7 @@ TREATMENT_REP2,AEG588A5_S5_L003_R1_001.fastq.gz,,reverse
 TREATMENT_REP3,AEG588A6_S6_L003_R1_001.fastq.gz,,reverse
 TREATMENT_REP3,AEG588A6_S6_L004_R1_001.fastq.gz,,reverse
 ```
+* text</span>
 
 | Column    | Description                                                                                                                                                                            |
 | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -50,6 +51,7 @@ TREATMENT_REP3,AEG588A6_S6_L004_R1_001.fastq.gz,,reverse
 | `fastq_1` | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
 | `fastq_2` | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
 | `strandedness` | Sample strand-specificity. Must be one of `unstranded`, `forward` or `reverse`.  |
+
 An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline.
 
 > **NB:** The `group` and `replicate` columns were replaced with a single `sample` column as of v3.1 of the pipeline. The `sample` column is essentially a concatenation of the `group` and `replicate` columns, however it now also offers more flexibility in instances where replicate information is not required e.g. when sequencing clinical samples. If all values of `sample` have the same number of underscores, fields defined by these underscore-separated names may be used in the PCA plots produced by the pipeline, to regain the ability to represent different groupings.
@@ -99,10 +101,10 @@ This will launch the pipeline with the `docker` configuration profile. See below
 Note that the pipeline will create the following files in your working directory:
 
 ```
-work               > # Directory containing the nextflow working files
-<OUTIDR>           > # Finished results in specified location (defined with --outdir)
-.nextflow_log      > # Log file from Nextflow
-> # Other nextflow hidden files, eg. history of pipeline runs and old logs.
+work               # Directory containing the nextflow working files
+<OUTIDR>           # Finished results in specified location (defined with --outdir)
+.nextflow_log      # Log file from Nextflow
+# Other nextflow hidden files, eg. history of pipeline runs and old logs.
 ```
 
 ### Updating the pipeline
@@ -202,6 +204,7 @@ Work dir:
 
 Tip: you can replicate the issue by changing to the process work dir and entering the command `bash .command.run`
 ```
+{: .blue}
 
 To bypass this error you would need to find exactly which resources are set by the `STAR_ALIGN` process. The quickest way is to search for `process STAR_ALIGN` in the [nf-core/rnasplice Github repo](https://github.com/nf-core/rnasplice/search?q=process+STAR_ALIGN).
 We have standardised the structure of Nextflow DSL2 pipelines such that all module files will be present in the `modules/` directory and so, based on the search results, the file we want is `modules/nf-core/star/align/main.nf`.
@@ -286,5 +289,5 @@ In some cases, the Nextflow Java virtual machines can start to request a large a
 We recommend adding the following line to your environment to limit this (typically in `~/.bashrc` or `~./bash_profile`):
 
 ```
-NXF_OPTS=`#'-Xms1g -Xmx4g'`
+NXF_OPTS='-Xms1g -Xmx4g'
 ```
