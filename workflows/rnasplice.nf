@@ -67,6 +67,7 @@ include { DRIMSEQ_DEXSEQ_DTU as SALMON_DEXSEQ_DTU } from '../subworkflows/local/
 include { DRIMSEQ_DEXSEQ_DTU as STAR_SALMON_DEXSEQ_DTU } from '../subworkflows/local/drimseq_dexseq_dtu'
 include { RMATS             } from '../subworkflows/local/rmats'
 include { DEXSEQ_DEU        } from '../subworkflows/local/dexseq_deu'
+include { EDGER_DEU         } from '../subworkflows/local/edger_deu'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -285,6 +286,10 @@ workflow RNASPLICE {
         // Collect software version
         ch_versions = ch_versions.mix(BAM_SORT_SAMTOOLS.out.versions)
 
+        //
+        // SUBWORKFLOW: Run DEXSeq DEU branch (params.dexseq_exon = true)
+        //
+
         if (params.dexseq_exon) {
 
             ch_dexseq_gff = params.gff_dexseq ? PREPARE_GENOME.out.dexseq_gff : ""
@@ -299,7 +304,21 @@ workflow RNASPLICE {
                 read_method
             )
         }
-        
+
+        //
+        // SUBWORKFLOW: Run edgeR DEU branch (params.edger_exon = true)
+        //
+
+        if (params.edger_exon) {
+
+            EDGER_DEU(
+                PREPARE_GENOME.out.gtf,
+                ch_genome_bam,
+                ch_samplesheet
+            )
+
+        }
+
         //
         // Run rMATS subworkflow if rmats paramater true:
         //
