@@ -3,6 +3,7 @@
 //
 
 include { SUBREAD_FEATURECOUNTS } from '../../modules/nf-core/subread/featurecounts/main'
+include { EDGER_EXON            } from '../../modules/local/edger_exon'
 
 workflow EDGER_DEU {
 
@@ -30,7 +31,7 @@ workflow EDGER_DEU {
     // MODULE: EDGER_COUNTS
     //
     EDGER_EXON (
-        SUBREAD_FEATURECOUNTS.out.counts.collect(),
+        SUBREAD_FEATURECOUNTS.out.counts.collect({it[1]}),
         ch_samplesheet
     )
 
