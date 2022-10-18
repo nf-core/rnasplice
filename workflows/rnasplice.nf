@@ -327,6 +327,8 @@ workflow RNASPLICE {
 
         if (params.edger_exon) {
 
+            ch_samplesheet = Channel.fromPath(params.input)
+
             EDGER_DEU(
                 PREPARE_GENOME.out.gtf,
                 ch_genome_bam,

@@ -1,26 +1,32 @@
 process EDGER_EXON {
-    label "process_high"
+    tag "$samplesheet"
+    label "process_low"
 
-    conda     (params.enable_conda ? "conda-forge::r-base=4.0.2 bioconda::bioconductor-dexseq=1.36.0 bioconda::bioconductor-drimseq=1.18.0 bioconda::bioconductor-stager=1.12.0" : null)
-    container "quay.io/biocontainers/bioconductor-edger"
-    // need a multitool container for r-base, dexseq, stager, drimseq and on quay hub
+    conda (params.enable_conda ? "bioconda::bioconductor-edger=3.36.0" : null)
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/bioconductor-edger:3.36.0--r41hc247a5b_2' :
+        'quay.io/biocontainers/bioconductor-edger:3.36.0--r41hc247a5b_2' }"
 
     input:
-    path ("dexseq_clean_counts/*")     // path dexseq_clean_counts
-    path samplesheet                   // path: samplesheet
+    path ("featurecounts/*")
+    path samplesheet
 
     output:
-    path "dxd_exon.rds"           , emit: dexseq_exon_rds
-    path "versions.yml"           , emit: versions
+    path "DGEList.rds"  , emit: edger_exon_dge
+    path "DGEGLM.rds"   , emit: edger_exon_glm
+    path "DGELRT.*.rds" , emit: edger_exon_lrt
+    path "*.csv"        , emit: edger_exon_csv
+    path "versions.yml" , emit: versions
 
     script:
     """
-    run_edger_exon.R {} {}
+    run_edger_exon.R featurecounts $samplesheet
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         r-base: \$(echo \$(R --version 2>&1) | sed 's/^.*R version //; s/ .*\$//')
-        bioconductor-dexseq:  \$(Rscript -e "library(DEXSeq); cat(as.character(packageVersion('DEXSeq')))")
+        bioconductor-edger:  \$(Rscript -e "library(edgeR); cat(as.character(packageVersion('edgeR')))")
     END_VERSIONS
     """
+
 }
