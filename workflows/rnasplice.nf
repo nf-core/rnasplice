@@ -67,6 +67,7 @@ include { DRIMSEQ_DEXSEQ_DTU as SALMON_DEXSEQ_DTU } from '../subworkflows/local/
 include { DRIMSEQ_DEXSEQ_DTU as STAR_SALMON_DEXSEQ_DTU } from '../subworkflows/local/drimseq_dexseq_dtu'
 include { RMATS             } from '../subworkflows/local/rmats'
 include { DEXSEQ_DEU        } from '../subworkflows/local/dexseq_deu'
+include { EDGER_DEU         } from '../subworkflows/local/edger_deu'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -77,12 +78,12 @@ include { DEXSEQ_DEU        } from '../subworkflows/local/dexseq_deu'
 //
 // MODULE: Installed directly from nf-core/modules
 //
-include { SALMON_QUANT                      } from '../modules/nf-core/modules/salmon/quant/main'
-include { SALMON_QUANT as STAR_SALMON_QUANT } from '../modules/nf-core/modules/salmon/quant/main'
-include { STAR_ALIGN                        } from '../modules/nf-core/modules/star/align/main'
-include { MULTIQC                           } from '../modules/nf-core/modules/multiqc/main'
-include { CUSTOM_DUMPSOFTWAREVERSIONS       } from '../modules/nf-core/modules/custom/dumpsoftwareversions/main'
-include { CAT_FASTQ                         } from '../modules/nf-core/modules/cat/fastq/main'
+include { SALMON_QUANT                      } from '../modules/nf-core/salmon/quant/main'
+include { SALMON_QUANT as STAR_SALMON_QUANT } from '../modules/nf-core/salmon/quant/main'
+include { STAR_ALIGN                        } from '../modules/nf-core/star/align/main'
+include { MULTIQC                           } from '../modules/nf-core/multiqc/main'
+include { CUSTOM_DUMPSOFTWAREVERSIONS       } from '../modules/nf-core/custom/dumpsoftwareversions/main'
+include { CAT_FASTQ                         } from '../modules/nf-core/cat/fastq/main'
 
 //
 // SUBWORKFLOWS: Installed directly from nf-core/modules
@@ -301,20 +302,39 @@ workflow RNASPLICE {
         // Collect software version
         ch_versions = ch_versions.mix(BAM_SORT_SAMTOOLS.out.versions)
 
+        //
+        // SUBWORKFLOW: Run DEXSeq DEU branch (params.dexseq_exon = true)
+        //
+
         if (params.dexseq_exon) {
-            
+
+            ch_dexseq_gff = params.gff_dexseq ? PREPARE_GENOME.out.dexseq_gff : ""
             ch_samplesheet = Channel.fromPath(params.input)
             def read_method = "htseq"
-
+        
             DEXSEQ_DEU(
                 PREPARE_GENOME.out.gtf,
                 ch_genome_bam,
+                ch_dexseq_gff,
                 ch_samplesheet,
                 read_method
             )
+        }
+
+        //
+        // SUBWORKFLOW: Run edgeR DEU branch (params.edger_exon = true)
+        //
+
+        if (params.edger_exon) {
+
+            EDGER_DEU(
+                PREPARE_GENOME.out.gtf,
+                ch_genome_bam,
+                ch_samplesheet
+            )
 
         }
-        
+
         //
         // Run rMATS subworkflow if rmats parameter true:
         //

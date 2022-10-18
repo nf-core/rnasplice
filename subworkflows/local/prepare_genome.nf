@@ -2,24 +2,25 @@
 // Uncompress and prepare reference genome files
 //
 
-include { GUNZIP as GUNZIP_FASTA            } from '../../modules/nf-core/modules/gunzip/main'
-include { GUNZIP as GUNZIP_GTF              } from '../../modules/nf-core/modules/gunzip/main'
-include { GUNZIP as GUNZIP_GFF              } from '../../modules/nf-core/modules/gunzip/main'
-include { GUNZIP as GUNZIP_TRANSCRIPT_FASTA } from '../../modules/nf-core/modules/gunzip/main'
+include { GUNZIP as GUNZIP_FASTA            } from '../../modules/nf-core/gunzip/main'
+include { GUNZIP as GUNZIP_GTF              } from '../../modules/nf-core/gunzip/main'
+include { GUNZIP as GUNZIP_GFF              } from '../../modules/nf-core/gunzip/main'
+include { GUNZIP as GUNZIP_TRANSCRIPT_FASTA } from '../../modules/nf-core/gunzip/main'
+include { GUNZIP as GUNZIP_GFF_DEXSEQ       } from '../../modules/nf-core/gunzip/main'
 
-include { UNTAR as UNTAR_STAR_INDEX         } from '../../modules/nf-core/modules/untar/main'
-include { UNTAR as UNTAR_SALMON_INDEX       } from '../../modules/nf-core/modules/untar/main'
+include { UNTAR as UNTAR_STAR_INDEX         } from '../../modules/nf-core/untar/main'
+include { UNTAR as UNTAR_SALMON_INDEX       } from '../../modules/nf-core/untar/main'
 
-include { GFFREAD                           } from '../../modules/nf-core/modules/gffread/main'
+include { GFFREAD                           } from '../../modules/nf-core/gffread/main'
 
-include { STAR_GENOMEGENERATE               } from '../../modules/nf-core/modules/star/genomegenerate/main'
+include { STAR_GENOMEGENERATE               } from '../../modules/nf-core/star/genomegenerate/main'
 include { STAR_GENOMEGENERATE_IGENOMES      } from '../../modules/local/star_genomegenerate_igenomes'
 
-include { SALMON_INDEX                      } from '../../modules/nf-core/modules/salmon/index/main'
+include { SALMON_INDEX                      } from '../../modules/nf-core/salmon/index/main'
 
-include { RSEM_PREPAREREFERENCE as MAKE_TRANSCRIPTS_FASTA } from '../../modules/nf-core/modules/rsem/preparereference/main'
+include { RSEM_PREPAREREFERENCE as MAKE_TRANSCRIPTS_FASTA } from '../../modules/nf-core/rsem/preparereference/main'
 
-include { CUSTOM_GETCHROMSIZES              } from '../../modules/nf-core/modules/custom/getchromsizes/main'
+include { CUSTOM_GETCHROMSIZES              } from '../../modules/nf-core/custom/getchromsizes/main'
 
 include { GTF_GENE_FILTER                   } from '../../modules/local/gtf_gene_filter'
 
@@ -75,6 +76,19 @@ workflow PREPARE_GENOME {
         ch_versions = ch_versions.mix(GFFREAD.out.versions)
     }
 
+
+    //
+    // Uncompress DEXSeq GFF annotation file 
+    //
+    ch_dexseq_gff = Channel.empty()
+    if (params.gff_dexseq) {
+        if (params.gff_dexseq.endsWith('.gz')) {
+            ch_dexseq_gff = GUNZIP_GFF_DEXSEQ ( [ [:], params.gff_dexseq ] ).gunzip.map { it[1] }
+            ch_versions = ch_versions.mix(GUNZIP_GFF_DEXSEQ.out.versions)
+        } else {
+            ch_dexseq_gff = file(params.gff_dexseq)
+        }
+    }
 
     //
     // Uncompress transcript fasta file / create if required
@@ -142,6 +156,7 @@ workflow PREPARE_GENOME {
     transcript_fasta = ch_transcript_fasta //    path: transcript.fasta
     star_index       = ch_star_index       //    path: star/index/
     salmon_index     = ch_salmon_index     //    path: salmon/index/
+    dexseq_gff       = ch_dexseq_gff       //    path: dexseq.gff
 
     versions         = ch_versions.ifEmpty(null) // channel: [ versions.yml ]
 }
