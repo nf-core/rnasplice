@@ -218,6 +218,7 @@ workflow RNASPLICE {
     ch_aligner_clustering_multiqc = Channel.empty()
 
     if (!params.skip_alignment && ( params.aligner == 'star' || params.aligner == 'star_salmon')) {
+
         ALIGN_STAR (
             ch_trim_reads,
             PREPARE_GENOME.out.star_index,
@@ -252,7 +253,7 @@ workflow RNASPLICE {
             // Create channel grouped by condition: [ [condition1, [condition1_metas], [group1_bams]], [condition2, [condition2_metas], [condition2_bams]]]
             //
                 
-            BAM_SORT_SAMTOOLS
+            ALIGN_STAR
                 .out
                 .bam
                 .map { meta, bam -> [meta.condition, meta, bam] }
