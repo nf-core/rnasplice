@@ -89,5 +89,6 @@ process RMATS_POST {
         rmats: \$(echo \$(rmats.py --version) | sed -e "s/v//g")
     END_VERSIONS
     """
+    
 }
 

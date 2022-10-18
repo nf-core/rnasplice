@@ -1,4 +1,4 @@
-process RMATS_PREP {
+process RMATS_PREP_SINGLE {
     label "process_medium"
 
     conda (params.enable_conda ? 'bioconda::bioconductor-pairadise=1.10 bioconda::rmats=4.1.2' : null)
@@ -9,9 +9,7 @@ process RMATS_PREP {
     input:
     path gtf                                     // /path/to/genome.gtf
     path bam_group1                              // path("bamlist_group1.txt")
-    path bam_group2                              // path("bamlist_group2.txt")
-    tuple val(cond1), val(meta1), path(bam1)     // [condition1, [condition1_metas], [condition1_bams]]
-    tuple val(cond2), val(meta2), path(bam2)     // [condition2, [condition2_metas], [condition2_bams]]
+    tuple val(cond1), val(meta1), path(bams)     // [condition1, [condition1_metas], [condition1_bams]]
 
     output:
     path "rmats_temp/*"      , emit: rmats_temp
@@ -59,11 +57,9 @@ process RMATS_PREP {
         max_exon_len   = params.rmats_max_exon_len ? '--mel $params.rmats_max_exon_len' : '--mel 500'
     } 
 
-
     """
     rmats.py \\
         --b1 $bam_group1 \\
-        --b2 $bam_group2 \\
         -t $read_type \\
         --libType $strandedness \\
         --nthread $task.cpus \\
@@ -82,7 +78,6 @@ process RMATS_PREP {
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         rmats: \$(echo \$(rmats.py --version) | sed -e "s/v//g")
-    END_VERSIONS
+    END_VERSIONS   
     """
-
-}
+    }
