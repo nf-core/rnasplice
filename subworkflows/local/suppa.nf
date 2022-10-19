@@ -5,21 +5,15 @@
 include { GENERATE_EVENTS as IOE } from '../../modules/local/suppa_generateevents.nf'
 include { GENERATE_EVENTS as IOI } from '../../modules/local/suppa_generateevents.nf'
 
-include { PSIPEREVENT as IOE_PSI } from '../../modules/local/suppa_psiperevent.nf'
-include { PSIPEREVENT as IOI_PSI } from '../../modules/local/suppa_psiperevent.nf'
-
-include { PSIPERISOFORM as ISOFORM_PSI } from '../../modules/local/suppa_psiperisoform.nf'
+include { PSIPEREVENT   } from '../../modules/local/suppa_psiperevent.nf'
+include { PSIPERISOFORM } from '../../modules/local/suppa_psiperisoform.nf'
 
 include { SPLIT_FILES as SPLIT_TPM  } from '../../modules/local/suppa_split_files.nf'
 include { SPLIT_FILES as SPLIT_PSI_IOE  } from '../../modules/local/suppa_split_files.nf'
 include { SPLIT_FILES as SPLIT_PSI_IOI  } from '../../modules/local/suppa_split_files.nf'
-// include { SPLIT_FILES as SPLIT_PSI_ISO  } from '../../modules/local/split_files.nf' //SUPPA Check!
-
-//include { GETLIST } from '../../modules/local/suppa_getlist.nf'
 
 include { DIFFSPLICE as DIFFSPLICE_IOE } from '../../modules/local/suppa_diffsplice.nf'
 include { DIFFSPLICE as DIFFSPLICE_IOI } from '../../modules/local/suppa_diffsplice.nf'
-// include { DIFFSPLICE_ISO } from '../../modules/local/diffsplice_iso.nf' //SUPPA Check!
 
 include { CLUSTEREVENTS as CLUSTEREVENTS_IOE } from '../../modules/local/suppa_clusterevents.nf'
 include { CLUSTEREVENTS as CLUSTEREVENTS_IOI } from '../../modules/local/suppa_clusterevents.nf'
@@ -30,27 +24,19 @@ workflow SUPPA {
 
     ch_gtf           
     ch_tpm 
-    //ch_input  
-    ch_getlist_suppa_tpm  
-    ch_getlist_suppa_psi 
+    ch_samplesheet  
 
     main:
-
-    // Get Strings as needed for SPLIT_FILES module
-
-    //GETLIST( ch_input ) // Get the list of samples in each condition in a text file as per the format needed for SPLIT_FILES module
-
-    //tpm_list = GETLIST.out.tpm_list.getText() // Fetch the string in the text file 
-    //psi_list = GETLIST.out.psi_list.getText() // Fetch the string in the text file 
-    
-    SPLIT_TPM ( ch_tpm, ch_getlist_suppa_tpm ) // Split the tpm file (contains all samples) into individual files based on condition
 
     // define empty versions channel
     ch_versions = Channel.empty()
 
+    // Split the tpm file (contains all samples) into individual files based on condition
+    SPLIT_TPM ( ch_tpm, ch_samplesheet, ".tpm" ) 
+
     // If per AS local analysis: 
 
-    if (params.suppa_local_as_ioe) {
+    if (params.suppa_per_local_event) {
 
         def file_type = 'ioe'
 
@@ -61,16 +47,17 @@ workflow SUPPA {
         )
 
         // Calculate the psi values of Local events (using events file and TPM)
-        IOE_PSI ( 
+        PSIPEREVENT ( 
             IOE.out.events, 
-            ch_tpm, 
-            file_type 
+            ch_tpm
         )
 
-        // Split the PSI and TPM files between the conditions
+        // Split the PSI files between the conditions
         SPLIT_PSI_IOE ( 
-            IOE_PSI.out.psi, 
-            ch_getlist_suppa_psi 
+            PSIPEREVENT.out.psi, 
+            ch_samplesheet,
+            ".psi",
+            true 
         )
 
         // Calculate differential analysis between conditions
@@ -79,24 +66,18 @@ workflow SUPPA {
             SPLIT_TPM.out.tpms,
             SPLIT_PSI_IOE.out.psis
         )
-      /*  DIFFSPLICE_IOE
-            .out
-            .psivec
-            .withReader { line = it.readLine()}
-            .map{it -> [it.toString()]}
-            .set { ch_test }
-            ch_test.view()*/
 
         CLUSTEREVENTS_IOE(
             DIFFSPLICE_IOE.out.dpsi,
             DIFFSPLICE_IOE.out.psivec
+            SPLIT_PSI_IOE.out.ranges.getText()
         )
 
     }
 
     // If per transcript local analysis: 
 
-    if (params.suppa_local_tx_ioi) {
+    if (params.suppa_per_isoform) {
         
         def file_type = 'ioi'
 
@@ -107,16 +88,17 @@ workflow SUPPA {
         )
 
         // Get the psi values of the Transcript events (using events file and TPM)
-        IOI_PSI ( 
+        PSIPERISOFORM ( 
             IOI.out.events, 
-            ch_tpm, 
-            file_type 
+            ch_tpm
         )
 
-        // Split the PSI and TPM files between the conditions
+        // Split the PSI files between the conditions
         SPLIT_PSI_IOI ( 
-            IOI_PSI.out.psi, 
-            ch_getlist_suppa_psi 
+            PSIPERISOFORM.out.psi, 
+            ch_samplesheet,
+            ".psi",
+            true  
         )
 
         // Calculate differential analysis between conditions - Transcript events
@@ -129,22 +111,34 @@ workflow SUPPA {
         CLUSTEREVENTS_IOI(
             DIFFSPLICE_IOI.out.dpsi,
             DIFFSPLICE_IOI.out.psivec
+            SPLIT_PSI_IOI.out.ranges.getText()
         ) 
-
-    }
-    
-    // If isoform analysis required
-
-    if (params.suppa_per_isoform) {
-
-        ISOFORM_PSI (ch_gtf, ch_tpm) // Get psi per transcript Isoform (using GTF and TPM) 
-        // SPLIT_PSI_ISO (ISOFORM_PSI.out.psi,psi_list) //SUPPA Check!
-        // DIFFSPLICE_ISO(SPLIT_TPM.out.tpms,SPLIT_PSI_ISO.out.psis)
     }
 
     // Define output
 
     emit:
 
-    versions = ch_versions.ifEmpty(null) // channel: [ versions.yml ]
+    ioe_events              = IOE.out.events                     //    path: events ioe
+    ioi_events              = IOI.out.events                     //    path: events ioi
+    
+    suppa_local_psi         = PSIPEREVENT.out.psi                //    path: suppa_local.psi
+    suppa_isoform_psi       = PSIPERISOFORM.out.psi              //    path: suppa_isoform.psi
+
+    split_suppa_tpms        = SPLIT_TPM.out.tpms                 //    path: suppa_cond1.tpm, suppa_cond2.tpm
+    split_suppa_local_psi   = SPLIT_PSI_IOE.out.psis             //    path: suppa_local_cond1.psi, suppa_local_cond2.psi
+    split_suppa_isoform_psi = SPLIT_PSI_IOI.out.psis             //    path: suppa_isoform_cond1.psi, suppa_isoform_cond2.psi
+
+    dpsi_local              = DIFFSPLICE_IOE.out.dpsi            //    path: local.dpsi
+    psivec_local            = DIFFSPLICE_IOE.out.psivec          //    path: local.psivec
+    dpsi_isoform            = DIFFSPLICE_IOI.out.dpsi            //    path: isoform.dpsi
+    psivec_isoform          = DIFFSPLICE_IOI.out.psivec          //    path: isoform.psivec
+
+    cluster_vec_local       = CLUSTEREVENTS_IOE.out.clustvec     //    path: local.clustvec
+    cluster_log_local       = CLUSTEREVENTS_IOE.out.cluster_log  //    path: local.log
+    cluster_vec_isoform     = CLUSTEREVENTS_IOI.out.clustvec     //    path: isoform.clustvec
+    cluster_log_isoform     = CLUSTEREVENTS_IOI.out.cluster_log  //    path: isoform.log
+
+    versions = ch_versions.ifEmpty(null)                         // channel: [ versions.yml ]
 }
+

@@ -1,52 +1,119 @@
 #!/usr/bin/env Rscript
-#Given two pairs of lists of samples, split [1] in two files with the samples indicated in [2] and [3]
 
-#[1] First argument: input file that we want to split
-#[2] Second argument: list of samples of the first condition
-#[3] Third argument: list of samples of the second condition
-#[4] Fourth argument: output file of the first condition
-#[5] Fifth argument: output file of the second condition
+# Splits any input file (e.g. tpm) by column using samplesheet information
+# Utility script for Suppa processing 
+# Also takes note of how many samples for each condition for down stream Clustering module
 
 # Parse command line arguments
-print("Parsing samples...")
-CHARACTER_command_args <- commandArgs(trailingOnly=TRUE)
+args = commandArgs(trailingOnly=TRUE)
 
-#Load the input file
-print(paste0("Loading ",CHARACTER_command_args[1],"..."))
-input_file <- read.table(CHARACTER_command_args[1],header=TRUE)
+if (length(args) < 3) {
+  
+  stop("Usage: suppa_split_file.R <input_file> <samplesheet> <output_file_suffix> <calculate_ranges>", call.=FALSE)
+  
+} 
 
-#Load the list of samples of the first condition
-#Replace the dashes with dots
-formatted_string1 <- gsub("-",".",CHARACTER_command_args[2])
-first_condition <- unlist(strsplit(formatted_string1,","))
+######################################
+########### Collect inputs ###########
+######################################
 
-#Take the samples of first condition and generate a file with just these columns
-stopifnot(first_condition %in% colnames(input_file))
-first_output <- input_file[first_condition]
+input_file <- args[1]
+samplesheet <- args[2]
+output_file_suffix <- args[3]
+calculate_ranges <- args[4] # true if we want to return cluster ranges
 
-#Load the list of samples of the second condition
-#Replace the dashes with dots
-formatted_string2 <- gsub("-",".",CHARACTER_command_args[3])
-second_condition <- unlist(strsplit(formatted_string2,","))
+######################################
+####### Process samplesheet ##########
+######################################
 
-#Take the samples of second condition and generate a file with just these columns
-stopifnot(second_condition %in% colnames(input_file))
-second_output <- input_file[second_condition]
+# Read in samplesheet
+samplesheet <- read.csv(samplesheet, header = TRUE)
 
-#Save the output files
-path1 <- CHARACTER_command_args[4]
-path2 <- CHARACTER_command_args[5]
+# check header of sample sheet
+if (!c("sample") %in% colnames(samplesheet) | !c("condition") %in% colnames(samplesheet)) {
+  
+  stop("suppa_split_file.R Samplesheet must contain 'sample' and 'condition' column headers.", call.=FALSE)
+  
+}
 
-string <- unlist(strsplit(CHARACTER_command_args[1],"/"))
-string2 <- paste(string[-length(string)],collapse = "/")
-#path1 <- paste0(string2,"/",CHARACTER_command_args[4])
-print(paste0("Writing ",path1))
-write.table(first_output,file=path1,quote=FALSE,sep="\t")
-print(paste0("Saved ",path1))
+# Take only sample and condition columns
+samplesheet <- samplesheet[,c("sample", "condition")]
 
-#path2 <- paste0(string2,"/",CHARACTER_command_args[5])
-print(paste0("Writing ",path2))
-write.table(second_output,file=path2,quote=FALSE,sep="\t")
-print(paste0("Saved ",path2))
+# filter for unique rows based on sample name
+samplesheet <- samplesheet[!duplicated(samplesheet[,"sample"]),]
+
+# Take unique conditions
+conditions <- unique(samplesheet[,"condition"])
+
+# Function for taking all sample names associated with a given condition
+get_sample_names <- function(condition, samplesheet){
+
+  sample_names <- samplesheet[samplesheet$condition == condition,]$sample
+  return(sample_names)
+}
+
+# Loop over all unique conditions and retrieve samples for each condition
+# set as data frame
+samples_cond <- as.data.frame(sapply(conditions, get_sample_names, samplesheet = samplesheet))
+
+######################################
+####### Define output files ##########
+######################################
+
+# Ready output file names based on user suffix input and unique conditions from samplesheet
+output_files <- sapply(colnames(samples_cond), function(x, suffix){paste0(x, suffix)}, suffix = output_file_suffix)
+
+################################################################
+########## Process input and save new output files #############
+################################################################
+
+# Read in input file
+input_file <- read.csv(input_file, sep="\t", header=TRUE)
+
+# Check header of input_file contains all samples from processed samplesheet
+if (!all(samplesheet$sample %in% colnames(input_file))) {
+  
+  stop("suppa_split_file.R Input_file must contain samplesheet samples.", call.=FALSE)
+  
+}
+
+# Loop through conditions and create separate output files per unique condition
+# Also take note of sample number whilst we are here for down stream clustering module
+idx <- 0
+range <- ""
+
+for (cond in conditions) {
+  
+  # Write output files per condition (e.g. tpm and psi files)
+  sample_names <- samples_cond[,cond]
+  output_file_name <- as.character(output_files[cond])
+  write.table(input_file[,sample_names], file = output_file_name, quote = FALSE, sep = "\t")
+  
+  if (calculate_ranges){
+
+    # Get Cluster ranges which match the tpm and psi files above (1-3 4-6)
+    if (idx == 0) {
+
+        range <- paste0("1-" , as.character(length(sample_names)))
+        cat(range, file = "ranges.txt", sep = "")
+        idx <- 1
+
+    } else {
+
+        prior_group_sum <- as.numeric(substr(range, nchar(range), nchar(range)))
+        range <- paste0(as.character(prior_group_sum + 1), "-", as.character(length(sample_names) + prior_group_sum))
+        cat(c(",",range), file = "ranges.txt", sep = "", append=TRUE)
+
+    }
+  }
+
+}
+
+####################################
+########## Session info ############
+####################################
+
+# Print sessioninfo to standard out
+sessionInfo()
 
 
