@@ -6,6 +6,7 @@ include { GUNZIP as GUNZIP_FASTA            } from '../../modules/nf-core/module
 include { GUNZIP as GUNZIP_GTF              } from '../../modules/nf-core/modules/gunzip/main'
 include { GUNZIP as GUNZIP_GFF              } from '../../modules/nf-core/modules/gunzip/main'
 include { GUNZIP as GUNZIP_TRANSCRIPT_FASTA } from '../../modules/nf-core/modules/gunzip/main'
+include { GUNZIP as GUNZIP_SUPPA_TPM        } from '../../modules/nf-core/modules/gunzip/main'
 
 include { UNTAR as UNTAR_STAR_INDEX         } from '../../modules/nf-core/modules/untar/main'
 include { UNTAR as UNTAR_SALMON_INDEX       } from '../../modules/nf-core/modules/untar/main'
@@ -134,6 +135,19 @@ workflow PREPARE_GENOME {
         }
     }
 
+    //
+    // Gather Suppa tpm file 
+    //
+    ch_suppa_tpm = Channel.empty()
+    if (params.suppa_tpm) {
+        if (params.suppa_tpm.endsWith('.gz')) {
+            ch_suppa_tpm = GUNZIP_SUPPA_TPM ( [ [:], params.suppa_tpm ] ).gunzip.map { it[1] }
+            ch_versions = ch_versions.mix(GUNZIP_SUPPA_TPM.out.versions)
+        } else {
+            ch_suppa_tpm = file(params.suppa_tpm)
+        }
+    }
+
     emit:
     fasta            = ch_fasta            //    path: genome.fasta
     fai              = ch_fai              //    path: genome.fai
@@ -142,6 +156,7 @@ workflow PREPARE_GENOME {
     transcript_fasta = ch_transcript_fasta //    path: transcript.fasta
     star_index       = ch_star_index       //    path: star/index/
     salmon_index     = ch_salmon_index     //    path: salmon/index/
+    suppa_tpm        = ch_suppa_tpm        //    path: suppa.tpm
 
     versions         = ch_versions.ifEmpty(null) // channel: [ versions.yml ]
 }
