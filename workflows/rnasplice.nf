@@ -78,11 +78,11 @@ include { EDGER_DEU         } from '../subworkflows/local/edger_deu'
 //
 // MODULE: Installed directly from nf-core/modules
 //
-include { SALMON_QUANT                      } from '../modules/nf-core/modules/salmon/quant/main'
-include { SALMON_QUANT as STAR_SALMON_QUANT } from '../modules/nf-core/modules/salmon/quant/main'
-include { MULTIQC                           } from '../modules/nf-core/modules/multiqc/main'
-include { CUSTOM_DUMPSOFTWAREVERSIONS       } from '../modules/nf-core/modules/custom/dumpsoftwareversions/main'
-include { CAT_FASTQ                         } from '../modules/nf-core/modules/cat/fastq/main'
+include { SALMON_QUANT                      } from '../modules/nf-core/salmon/quant/main'
+include { SALMON_QUANT as STAR_SALMON_QUANT } from '../modules/nf-core/salmon/quant/main'
+include { MULTIQC                           } from '../modules/nf-core/multiqc/main'
+include { CUSTOM_DUMPSOFTWAREVERSIONS       } from '../modules/nf-core/custom/dumpsoftwareversions/main'
+include { CAT_FASTQ                         } from '../modules/nf-core/cat/fastq/main'
 
 //
 // SUBWORKFLOWS: Installed directly from nf-core/modules
