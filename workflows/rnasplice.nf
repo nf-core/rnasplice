@@ -212,7 +212,7 @@ workflow RNASPLICE {
     // SUBWORKFLOW: Pseudo-alignment and quantification with Salmon
     //
 
-   /* if (params.pseudo_aligner == 'salmon') {
+    if (params.pseudo_aligner == 'salmon') {
         
         alignment_mode = false
         ch_transcript_fasta = ch_dummy_file
@@ -231,22 +231,24 @@ workflow RNASPLICE {
 
         // Take software versions from subworkflow (.first() not required)
         ch_versions = ch_versions.mix(SALMON_QUANT.out.versions)
-    }*/
+    }
 
     //
     // SUBWORKFLOW: SUPPA
     //
     
-   if (params.suppa) {
+    if (params.suppa) {
 
         ch_samplesheet = Channel.fromPath(params.input)
 
-        ch_tpm = file("$projectDir/assets/tpm.txt", checkIfExists: true) /* SUPPA Check! Temporary tpm file for testing */
+        //ch_tpm = file("$projectDir/assets/tpm.txt", checkIfExists: true) /* SUPPA Check! Temporary tpm file for testing */
+        // TODO Add in SALMON_TX2GENE_TXIMPORT.out.salmon_tpm where the blank string is below:
+        ch_suppa_tpm = params.suppa_tpm ? PREPARE_GENOME.out.suppa_tpm : ""
 
         // Run SUPPA
         SUPPA (
             PREPARE_GENOME.out.gtf,
-            ch_tpm,
+            ch_suppa_tpm,
             ch_samplesheet,
         )
         
