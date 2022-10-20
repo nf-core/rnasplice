@@ -32,13 +32,19 @@ workflow SUPPA {
     ch_versions = Channel.empty()
 
     // Split the tpm file (contains all samples) into individual files based on condition
-    SPLIT_TPM ( ch_tpm, ch_samplesheet, ".tpm" ) 
+    def output_type = ".tpm"
+    def calc_ranges = true
+
+    SPLIT_TPM ( ch_tpm, ch_samplesheet, output_type, calc_ranges ) 
+
+    def file_type = ''
+    def prefix = ''
 
     // If per AS local analysis: 
 
     if (params.suppa_per_local_event) {
 
-        def file_type = 'ioe'
+        file_type = 'ioe'
 
         // Calculate the AS events on the GTF - Local events
         IOE ( 
@@ -53,24 +59,36 @@ workflow SUPPA {
         )
 
         // Split the PSI files between the conditions
+
+        output_type = ".psi"
+        calc_ranges = true
+
         SPLIT_PSI_IOE ( 
             PSIPEREVENT.out.psi, 
             ch_samplesheet,
-            ".psi",
-            true 
+            output_type,
+            calc_ranges 
         )
 
         // Calculate differential analysis between conditions
+
+        prefix = "local"
+
         DIFFSPLICE_IOE(
             IOE.out.events,
             SPLIT_TPM.out.tpms,
-            SPLIT_PSI_IOE.out.psis
+            SPLIT_PSI_IOE.out.psis,
+            prefix
         )
 
+        SPLIT_PSI_IOE.out.ranges.view()
+
+        //ranges1 = file(SPLIT_PSI_IOE.out.ranges).getText()
+        //text_ranges1 = ranges1.getText()
         CLUSTEREVENTS_IOE(
             DIFFSPLICE_IOE.out.dpsi,
-            DIFFSPLICE_IOE.out.psivec
-            SPLIT_PSI_IOE.out.ranges.getText()
+            DIFFSPLICE_IOE.out.psivec,
+            SPLIT_PSI_IOE.out.ranges
         )
 
     }
@@ -79,7 +97,7 @@ workflow SUPPA {
 
     if (params.suppa_per_isoform) {
         
-        def file_type = 'ioi'
+        file_type = 'ioi'
 
         // Calculate the AS events on the GTF - Transcript events
         IOI ( 
@@ -89,29 +107,41 @@ workflow SUPPA {
 
         // Get the psi values of the Transcript events (using events file and TPM)
         PSIPERISOFORM ( 
-            IOI.out.events, 
+            ch_gtf, 
             ch_tpm
         )
 
         // Split the PSI files between the conditions
+
+        output_type = ".psi"
+        calc_ranges = true
+
         SPLIT_PSI_IOI ( 
             PSIPERISOFORM.out.psi, 
             ch_samplesheet,
-            ".psi",
-            true  
+            output_type,
+            calc_ranges  
         )
 
         // Calculate differential analysis between conditions - Transcript events
+
+        prefix = "transcript"
+
         DIFFSPLICE_IOI(
             IOI.out.events, 
             SPLIT_TPM.out.tpms,
-            SPLIT_PSI_IOI.out.psis
+            SPLIT_PSI_IOI.out.psis,
+            prefix
         ) 
+
+        //SPLIT_PSI_IOI.out.ranges.view()
+        //ranges2 = file(SPLIT_PSI_IOI.out.ranges).getText()
+        //text_ranges2 = ranges2.getText()
 
         CLUSTEREVENTS_IOI(
             DIFFSPLICE_IOI.out.dpsi,
-            DIFFSPLICE_IOI.out.psivec
-            SPLIT_PSI_IOI.out.ranges.getText()
+            DIFFSPLICE_IOI.out.psivec,
+            SPLIT_PSI_IOI.out.ranges
         ) 
     }
 
