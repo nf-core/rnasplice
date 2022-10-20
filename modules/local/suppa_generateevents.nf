@@ -25,7 +25,6 @@ process GENERATE_EVENTS {
     // Calculate the AS events using GTF
 
     // Incase of Local Events get the list of events from nextflow.config
-    // def list_events = params.local_events ? "-e ${params.local_events}" : ''
     def list_events = params.local_events ?: 'SE SS MX RI FL' // default all possible
 
     // If pool_genes is set to true then include the -p parameter

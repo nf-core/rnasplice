@@ -11,6 +11,7 @@ process DIFFSPLICE {
     path events
     path tpms
     path psis
+    val prefix
         
     output:
     path "*.dpsi"       , emit: dpsi 
@@ -21,24 +22,33 @@ process DIFFSPLICE {
     task.ext.when == null || task.ext.when
 
     script: //  Calculate differential analysis between conditions
-    def gc = params.diffsplice_gene_correction ? "-gc" : ''
-    def pa = params.diffsplice_paired ? "-pa" : ''
+
+    def diffsplice_method = params.diffsplice_method ?: 'empirical' // empirical or classical
+
+    def gc     = params.diffsplice_gene_correction ? "-gc" : ''
+    def pa     = params.diffsplice_paired ? "-pa" : ''
     def median = params.diffsplice_median ? "-me" : ''
-        
+
+    def diffsplice_area          = params.diffsplice_area ?: '1000'       // default 1000
+    def diffsplice_lower_bound   = params.diffsplice_lower_bound ?: '0'   // default 0
+    def diffsplice_alpha         = params.diffsplice_alpha ?: '0.05'      // default 0.05
+    def diffsplice_tpm_threshold = params.diffsplice_tpm_threshold ?: '0' // default 0
+    def diffsplice_nan_threshold = params.diffsplice_nan_threshold ?: '0' // default 0
+
     """
     suppa.py \\
         diffSplice \\
-        -m ${params.diffsplice_method} \\
+        -m $diffsplice_method \\
         $gc $pa -s -c $median \\
-        -a ${params.diffsplice_area} \\
-        -l ${params.diffsplice_lower_bound} \\
-        -al ${params.diffsplice_alpha} \\
-        -th ${params.diffsplice_tpm_threshold} \\
-        -nan ${params.diffsplice_nan_threshold} \\
+        -a $diffsplice_area \\
+        -l $diffsplice_lower_bound \\
+        -al $diffsplice_alpha \\
+        -th $diffsplice_tpm_threshold \\
+        -nan $diffsplice_nan_threshold \\
         -i $events \\
         -p $psis \\
         -e $tpms \\
-        -o diffsplice
+        -o ${prefix}_diffsplice
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

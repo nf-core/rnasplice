@@ -24,7 +24,7 @@ process PSIPERISOFORM {
         psiPerIsoform \\
         -g $gtf \\
         -e $tpm \\
-        -o suppa_isoform
+        -o suppa
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

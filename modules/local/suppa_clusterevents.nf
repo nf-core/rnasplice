@@ -11,33 +11,41 @@ process CLUSTEREVENTS {
     input:
     path dpsi
     path psivec
-    val cluster_ranges // e.g. 1-3,4-6
+    path cluster_ranges // e.g. 1-3,4-6
             
     output:
     path "*.clustvec"   , emit: clustvec 
     path "*.log"        , emit: cluster_log
     path "versions.yml" , emit: versions
 
-            
     when:
     task.ext.when == null || task.ext.when
 
     script: //  Cluster events between conditions
     def st  = params.clusterevents_sigthreshold ? "-st ${params.clusterevents_sigthreshold}" : ''
     def sep = params.clusterevents_separation ? "-s ${params.clusterevents_separation}" : ''
-    //def fp = file(${params.psivec})
-    //def lines = fp.readLine()
+
+    def clusterevents_dpsithreshold = params.clusterevents_dpsithreshold ?: '0.05'  // default 0.05
+    def clusterevents_eps           = params.clusterevents_eps ?: '0.05'            // default 0.05
+    def clusterevents_metric        = params.clusterevents_metric ?: 'euclidean'    // default euclidean
+    def clusterevents_min_pts       = params.clusterevents_min_pts ?: '20'          // default 20
+    def clusterevents_method        = params.clusterevents_method ?: 'DBSCAN'       // default DBSCAN
+
+    // Get text of ranges.txt file
+    def cluster_ranges = cluster_ranges.getText()
+    println cluster_ranges
+
     """ 
     suppa.py \\
         clusterEvents \\
         --dpsi $dpsi \\
         --psivec $psivec \\
-        --dpsi-threshold ${params.clusterevents_dpsithreshold} \\
-        --eps ${params.clusterevents_eps} \\
-        --metric ${params.clusterevents_metric} \\
-        --min-pts ${params.clusterevents_min_pts} \\
+        --dpsi-threshold $clusterevents_dpsithreshold \\
+        --eps $clusterevents_eps \\
+        --metric $clusterevents_metric \\
+        --min-pts $clusterevents_min_pts \\
         --groups $cluster_ranges \\
-        -c ${params.clusterevents_method} \\
+        -c $clusterevents_method \\
         $st $sep -o cluster
 
     cat <<-END_VERSIONS > versions.yml
