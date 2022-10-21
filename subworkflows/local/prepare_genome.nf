@@ -7,6 +7,7 @@ include { GUNZIP as GUNZIP_GTF              } from '../../modules/nf-core/gunzip
 include { GUNZIP as GUNZIP_GFF              } from '../../modules/nf-core/gunzip/main'
 include { GUNZIP as GUNZIP_TRANSCRIPT_FASTA } from '../../modules/nf-core/gunzip/main'
 include { GUNZIP as GUNZIP_GFF_DEXSEQ       } from '../../modules/nf-core/gunzip/main'
+include { GUNZIP as GUNZIP_SUPPA_TPM        } from '../../modules/nf-core/gunzip/main'
 
 include { UNTAR as UNTAR_STAR_INDEX         } from '../../modules/nf-core/untar/main'
 include { UNTAR as UNTAR_SALMON_INDEX       } from '../../modules/nf-core/untar/main'
@@ -27,7 +28,7 @@ include { GTF_GENE_FILTER                   } from '../../modules/local/gtf_gene
 workflow PREPARE_GENOME {
 
     take:
-    
+
     prepare_tool_indices // list   : tools to prepare indices for
     biotype              // string : if additional fasta file is provided biotype value to use when appending entries to GTF file
     is_aws_igenome       // boolean: whether the genome files are from AWS iGenomes
@@ -78,7 +79,7 @@ workflow PREPARE_GENOME {
 
 
     //
-    // Uncompress DEXSeq GFF annotation file 
+    // Uncompress DEXSeq GFF annotation file
     //
     ch_dexseq_gff = Channel.empty()
     if (params.gff_dexseq) {
@@ -99,7 +100,7 @@ workflow PREPARE_GENOME {
             ch_versions         = ch_versions.mix(GUNZIP_TRANSCRIPT_FASTA.out.versions)
         } else {
             ch_transcript_fasta = file(params.transcript_fasta)
-        } 
+        }
     } else {
         ch_filter_gtf       = GTF_GENE_FILTER ( ch_fasta, ch_gtf ).gtf
         ch_transcript_fasta = MAKE_TRANSCRIPTS_FASTA ( ch_fasta, ch_filter_gtf ).transcript_fasta
@@ -148,6 +149,19 @@ workflow PREPARE_GENOME {
         }
     }
 
+    //
+    // Gather Suppa tpm file
+    //
+    ch_suppa_tpm = Channel.empty()
+    if (params.suppa_tpm) {
+        if (params.suppa_tpm.endsWith('.gz')) {
+            ch_suppa_tpm = GUNZIP_SUPPA_TPM ( [ [:], params.suppa_tpm ] ).gunzip.map { it[1] }
+            ch_versions = ch_versions.mix(GUNZIP_SUPPA_TPM.out.versions)
+        } else {
+            ch_suppa_tpm = file(params.suppa_tpm)
+        }
+    }
+
     emit:
     fasta            = ch_fasta            //    path: genome.fasta
     fai              = ch_fai              //    path: genome.fai
@@ -157,6 +171,7 @@ workflow PREPARE_GENOME {
     star_index       = ch_star_index       //    path: star/index/
     salmon_index     = ch_salmon_index     //    path: salmon/index/
     dexseq_gff       = ch_dexseq_gff       //    path: dexseq.gff
+    suppa_tpm        = ch_suppa_tpm        //    path: suppa.tpm
 
     versions         = ch_versions.ifEmpty(null) // channel: [ versions.yml ]
 }

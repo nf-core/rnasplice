@@ -29,7 +29,7 @@ if (params.fasta && params.gtf) {
 
     if ((file(params.fasta).getName() - '.gz' == 'genome.fa') && (file(params.gtf).getName() - '.gz' == 'genes.gtf')) {
         is_aws_igenome = true
-    }   
+    }
 }
 // Stage dummy file to be used as an optional input where required
 ch_dummy_file = file("$projectDir/assets/dummy_file.txt", checkIfExists: true)
@@ -68,6 +68,7 @@ include { DRIMSEQ_DEXSEQ_DTU as STAR_SALMON_DEXSEQ_DTU } from '../subworkflows/l
 include { RMATS             } from '../subworkflows/local/rmats'
 include { DEXSEQ_DEU        } from '../subworkflows/local/dexseq_deu'
 include { EDGER_DEU         } from '../subworkflows/local/edger_deu'
+include { SUPPA             } from '../subworkflows/local/suppa'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -125,14 +126,14 @@ workflow RNASPLICE {
 
     // Run Input check subworkflow
     INPUT_CHECK (
-	    ch_input 
-    ) 
+	    ch_input
+    )
     .reads
     .map {
         meta, fastq ->
             def meta_clone = meta.clone()
             meta_clone.id = meta_clone.id.split('_')[0..-2].join('_')
-            [ meta_clone, fastq ] 
+            [ meta_clone, fastq ]
     }
     .groupTuple(by: [0])
     .branch {
@@ -146,7 +147,7 @@ workflow RNASPLICE {
 
     // Take software versions from input check (.first() not required)
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
-    
+
     if (params.rmats) {
 
         INPUT_CHECK
@@ -197,7 +198,7 @@ workflow RNASPLICE {
     //
     // MODULE: Concatenate FastQ files from same sample if required
     //
-    
+
     CAT_FASTQ (
         ch_fastq.multiple
     )
@@ -217,7 +218,7 @@ workflow RNASPLICE {
         params.skip_fastqc || params.skip_qc,
         params.skip_trimming
     )
-    
+
     // Take software versions from subworkflow (.first() not required)
     ch_versions = ch_versions.mix(FASTQC_TRIMGALORE.out.versions)
 
@@ -272,7 +273,7 @@ workflow RNASPLICE {
             ch_dexseq_gff = params.gff_dexseq ? PREPARE_GENOME.out.dexseq_gff : ""
             ch_samplesheet = Channel.fromPath(params.input)
             def read_method = "htseq"
-        
+
             DEXSEQ_DEU(
                 PREPARE_GENOME.out.gtf,
                 ch_genome_bam,
@@ -307,7 +308,7 @@ workflow RNASPLICE {
             //
             // Create channel grouped by condition: [ [condition1, [condition1_metas], [group1_bams]], [condition2, [condition2_metas], [condition2_bams]]] if there are more than one condition
             //
-                
+
             ALIGN_STAR
                 .out
                 .bam
@@ -321,10 +322,10 @@ workflow RNASPLICE {
             //
 
             samplesheet = file(params.input)
-	    
+
             def count = 0
             def condition = []
-	    
+
             samplesheet.eachLine { line ->
                 if ( count > 0 ) {
                     condition << line.split(",")[4]
@@ -333,20 +334,20 @@ workflow RNASPLICE {
                     count++
                 }
             }
-	    
+
             def single_condition = false
-	   
+
             if ( condition.unique().size() > 1 ) {
                 single_condition = false
             } else {
                 single_condition = true
             }
-            
+
             //
             // SUBWORKFLOW: Run rMATS
             //
-            
-            RMATS ( 
+
+            RMATS (
                 ch_genome_bam_conditions,
                 PREPARE_GENOME.out.gtf,
                 single_condition
@@ -366,7 +367,7 @@ workflow RNASPLICE {
             alignment_mode = true
             ch_salmon_index = ch_dummy_file
 
-            // Run Salmon quant, Run tx2gene.py (tx2gene for Salmon txImport Quantification), then finally runs tximport 
+            // Run Salmon quant, Run tx2gene.py (tx2gene for Salmon txImport Quantification), then finally runs tximport
             STAR_SALMON_QUANT (
                 ch_transcriptome_bam,
                 ch_salmon_index,
@@ -391,7 +392,7 @@ workflow RNASPLICE {
             //
             // SUBWORKFLOW: Run Dexseq DTU
             //
-            
+
             if (params.dexseq_dtu) {
 
                 ch_samplesheet = Channel.fromPath(params.input)
@@ -421,7 +422,7 @@ workflow RNASPLICE {
     //
 
     if (params.pseudo_aligner == 'salmon') {
-        
+
         alignment_mode = false
         ch_transcript_fasta = ch_dummy_file
 
@@ -473,7 +474,7 @@ workflow RNASPLICE {
             )
         }
     }
-    
+
     //
     // MODULE: Genome-wide coverage with BEDTools
     //
@@ -483,8 +484,8 @@ workflow RNASPLICE {
             ch_genome_bam
         )
         ch_versions = ch_versions.mix(BEDTOOLS_GENOMECOV.out.versions.first())
-    
-	//
+
+	    //
         // SUBWORKFLOW: Convert bedGraph to bigWig
         //
         BEDGRAPH_TO_BIGWIG_FORWARD (
@@ -497,6 +498,27 @@ workflow RNASPLICE {
             BEDTOOLS_GENOMECOV.out.bedgraph_reverse,
             PREPARE_GENOME.out.chrom_sizes
         )
+    }
+
+    //
+    // SUBWORKFLOW: SUPPA
+    //
+
+    if (params.suppa) {
+
+        ch_samplesheet = Channel.fromPath(params.input)
+
+        //ch_tpm = file("$projectDir/assets/tpm.txt", checkIfExists: true) /* SUPPA Check! Temporary tpm file for testing */
+        // TODO Add in SALMON_TX2GENE_TXIMPORT.out.salmon_tpm where the blank string is below:
+        ch_suppa_tpm = params.suppa_tpm ? PREPARE_GENOME.out.suppa_tpm : ""
+
+        // Run SUPPA
+        SUPPA (
+            PREPARE_GENOME.out.gtf,
+            ch_suppa_tpm,
+            ch_samplesheet,
+        )
+
     }
 
     //
@@ -524,7 +546,9 @@ workflow RNASPLICE {
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC_TRIMGALORE.out.trim_log.collect{it[1]}.ifEmpty([]))
 
     if (params.pseudo_aligner == 'salmon'){
+
         ch_multiqc_files = ch_multiqc_files.mix(ch_salmon_multiqc.collect{it[1]}.ifEmpty([]))
+
     }
 
     if (!params.skip_alignment && (params.aligner == 'star_salmon' || params.aligner == "star")){
