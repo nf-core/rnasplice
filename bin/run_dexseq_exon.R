@@ -8,9 +8,9 @@ args = commandArgs(trailingOnly=TRUE)
 # Check args provided
 
 if (length(args) < 5) {
-  
+
   stop("Usage: run_dexseq_exon.R <countFiles_dir> <flattenedFile> <samplesheet> <read_method> <ncores> <denominator>", call.=FALSE)
-  
+
 }
 
 ######################################
@@ -25,11 +25,11 @@ ncores <- args[5]         # MultiCoreParam ncores
 
 if (length(args) == 6) {
 
-  denominator <- args[6]  # denominator for lfc set by user
+    denominator <- args[6]  # denominator for lfc set by user
 
 } else {
 
-  denominator <- ""       # denominator for lfc as default "" meaning is set as first sample condition
+    denominator <- ""       # denominator for lfc as default "" meaning is set as first sample condition
 
 }
 
@@ -48,9 +48,9 @@ samps <- read.csv(samplesheet, sep=",", header = TRUE)
 
 # check header of sample sheet
 if (!c("sample") %in% colnames(samps) | !c("condition") %in% colnames(samps)) {
-  
-  stop("run_dexseq_exon.R Samplesheet must contain 'sample' and 'condition' column headers.", call.=FALSE)
-  
+
+    stop("run_dexseq_exon.R Samplesheet must contain 'sample' and 'condition' column headers.", call.=FALSE)
+
 }
 
 # Take only sample and condition columns
@@ -79,15 +79,16 @@ if (read_method == "htseq"){
                                           flattenedfile = flattenedFile)
 }
 
-if (read_method == "featurecounts"){
+# TODO Implement featurecounts input option
+# if (read_method == "featurecounts"){
 
-    source("load_SubreadOutput.R")
+#     source("load_SubreadOutput.R")
 
-    dxd <- DEXSeqDataSetFromFeatureCounts(countFiles,
-                                          flattenedfile = flattenedFile,
-                                          sampleData = samps)
+#     dxd <- DEXSeqDataSetFromFeatureCounts(countFiles,
+#                                           flattenedfile = flattenedFile,
+#                                           sampleData = samps)
 
-}
+# }
 
 dxd <- DEXSeq::estimateSizeFactors(dxd)
 
