@@ -68,7 +68,8 @@ include { DRIMSEQ_DEXSEQ_DTU as STAR_SALMON_DEXSEQ_DTU } from '../subworkflows/l
 include { RMATS             } from '../subworkflows/local/rmats'
 include { DEXSEQ_DEU        } from '../subworkflows/local/dexseq_deu'
 include { EDGER_DEU         } from '../subworkflows/local/edger_deu'
-include { SUPPA             } from '../subworkflows/local/suppa'
+include { SUPPA as SALMON_SUPPA       } from '../subworkflows/local/suppa'
+include { SUPPA as STAR_SALMON_SUPPA  } from '../subworkflows/local/suppa'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -413,6 +414,28 @@ workflow RNASPLICE {
                     ch_samplesheet
                 )
             }
+
+            //
+            // SUBWORKFLOW: SUPPA
+            //
+
+            if (params.suppa) {
+
+                ch_samplesheet = Channel.fromPath(params.input)
+
+                // Get Suppa tpm either from tximport or user supplied
+                ch_suppa_tpm = params.suppa_tpm ? PREPARE_GENOME.out.suppa_tpm : STAR_SALMON_TX2GENE_TXIMPORT.out.suppa_tpm
+
+                // Run SUPPA
+                STAR_SALMON_SUPPA (
+                    PREPARE_GENOME.out.gtf,
+                    ch_suppa_tpm,
+                    ch_samplesheet,
+                )
+
+            }
+
+
         }
 
     }
@@ -473,6 +496,26 @@ workflow RNASPLICE {
                 ch_samplesheet
             )
         }
+
+        //
+        // SUBWORKFLOW: SUPPA
+        //
+
+        if (params.suppa) {
+
+            ch_samplesheet = Channel.fromPath(params.input)
+
+            // Get Suppa tpm either from tximport or user supplied
+            ch_suppa_tpm = params.suppa_tpm ? PREPARE_GENOME.out.suppa_tpm : SALMON_TX2GENE_TXIMPORT.out.suppa_tpm
+
+            // Run SUPPA
+            SALMON_SUPPA (
+                PREPARE_GENOME.out.gtf,
+                ch_suppa_tpm,
+                ch_samplesheet,
+            )
+
+        }
     }
 
     //
@@ -500,26 +543,6 @@ workflow RNASPLICE {
         )
     }
 
-    //
-    // SUBWORKFLOW: SUPPA
-    //
-
-    if (params.suppa) {
-
-        ch_samplesheet = Channel.fromPath(params.input)
-
-        //ch_tpm = file("$projectDir/assets/tpm.txt", checkIfExists: true) /* SUPPA Check! Temporary tpm file for testing */
-        // TODO Add in SALMON_TX2GENE_TXIMPORT.out.salmon_tpm where the blank string is below:
-        ch_suppa_tpm = params.suppa_tpm ? PREPARE_GENOME.out.suppa_tpm : ""
-
-        // Run SUPPA
-        SUPPA (
-            PREPARE_GENOME.out.gtf,
-            ch_suppa_tpm,
-            ch_samplesheet,
-        )
-
-    }
 
     //
     // MODULE: Collect version information across pipeline
