@@ -52,14 +52,16 @@ workflow TX2GENE_TXIMPORT {
 
     tpm_transcript                  = TXIMPORT.out.tpm_transcript                   // path: *.transcript_tpm.tsv
     counts_transcript               = TXIMPORT.out.counts_transcript                // path: *.transcript_counts.tsv
-    tpm_transcript_scaled           = TXIMPORT.out.tpm_transcript_scaled            // path: *.transcript_tpm_scaled.tsv       
-    counts_transcript_scaled        = TXIMPORT.out.counts_transcript_scaled         // path: *.transcript_counts_scaled.tsv       
-    tpm_transcript_length_scaled    = TXIMPORT.out.tpm_transcript_length_scaled     // path: *.transcript_tpm_length_scaled.tsv       
-    counts_transcript_length_scaled = TXIMPORT.out.counts_transcript_length_scaled  // path: *.transcript_counts_length_scaled.tsv      
-    tpm_transcript_dtu_scaled       = TXIMPORT.out.tpm_transcript_dtu_scaled        // path: *.transcript_tpm_dtu_scaled.tsv   
+    tpm_transcript_scaled           = TXIMPORT.out.tpm_transcript_scaled            // path: *.transcript_tpm_scaled.tsv
+    counts_transcript_scaled        = TXIMPORT.out.counts_transcript_scaled         // path: *.transcript_counts_scaled.tsv
+    tpm_transcript_length_scaled    = TXIMPORT.out.tpm_transcript_length_scaled     // path: *.transcript_tpm_length_scaled.tsv
+    counts_transcript_length_scaled = TXIMPORT.out.counts_transcript_length_scaled  // path: *.transcript_counts_length_scaled.tsv
+    tpm_transcript_dtu_scaled       = TXIMPORT.out.tpm_transcript_dtu_scaled        // path: *.transcript_tpm_dtu_scaled.tsv
     counts_transcript_dtu_scaled    = TXIMPORT.out.counts_transcript_dtu_scaled     // path: *.transcript_counts_dtu_scaled.tsv
 
-    tximport_tx2gene                = TXIMPORT.out.tximport_tx2gene                 // path: tximport.tx2gene.tsv   
+    tximport_tx2gene                = TXIMPORT.out.tximport_tx2gene                 // path: tximport.tx2gene.tsv
+
+    suppa_tpm                       = TXIMPORT.out.suppa_tpm                        // path: suppa_tpm.txt
 
     versions                        = ch_versions                                   // channel: [ versions.yml ]
 }

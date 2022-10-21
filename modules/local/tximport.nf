@@ -41,7 +41,7 @@ process TXIMPORT {
 
     path "tximport.tx2gene.tsv"                 , emit: tximport_tx2gene
 
-    path "*iso_tpm.txt"                         , emit: iso_tpm
+    path "suppa_tpm.txt"                        , emit: suppa_tpm
 
     path "versions.yml"                         , emit: versions
 
