@@ -7,9 +7,9 @@
 # Parse command line arguments
 args = commandArgs(trailingOnly=TRUE)
 
-if (length(args) < 3) {
+if (length(args) < 4) {
   
-  stop("Usage: suppa_split_file.R <input_file> <samplesheet> <output_file_suffix> <calculate_ranges>", call.=FALSE)
+  stop("Usage: suppa_split_file.R <input_file> <samplesheet> <output_file_suffix> <calculate_ranges> <prefix>", call.=FALSE)
   
 } 
 
@@ -17,10 +17,20 @@ if (length(args) < 3) {
 ########### Collect inputs ###########
 ######################################
 
-input_file <- args[1]
-samplesheet <- args[2]
+input_file         <- args[1]
+samplesheet        <- args[2]
 output_file_suffix <- args[3]
-calculate_ranges <- args[4] # TRUE if we want to return cluster ranges
+calculate_ranges   <- args[4] # TRUE if we want to return cluster ranges
+
+if (length(args) == 5){
+
+  prefix <- args[5] 
+
+} else {
+
+  prefix <- ""
+
+}
 
 ######################################
 ####### Process samplesheet ##########
@@ -50,7 +60,7 @@ conditions <- unique(samplesheet[,"condition"])
 #########################################################
 
 # Function for taking all sample names associated with a given condition
-split_files <- function(condition, samplesheet, input_file, output_file_suffix, calculate_ranges){
+split_files <- function(condition, samplesheet, input_file, output_file_suffix, prefix, calculate_ranges){
   
   # Get indices of rows which cover given condition for ranges
   indices <- which(samplesheet$condition == condition)
@@ -68,8 +78,18 @@ split_files <- function(condition, samplesheet, input_file, output_file_suffix, 
     
   }
   
+  if (prefix == ""){ 
+
+    output_file <- paste0(condition, output_file_suffix)
+
+  } else {
+
+    output_file <- paste0(prefix, "_" ,condition, output_file_suffix)
+
+  }
+
   # Subset input files and save out as new file
-  write.table(input_file[,sample_names, drop=F], file = paste0(condition, output_file_suffix), quote = FALSE, sep = "\t")
+  write.table(input_file[,sample_names, drop=F], file = output_file, quote = FALSE, sep = "\t")
   
   # Get Cluster ranges which match the tpm and psi files above (1-3 4-6)
   # Column numbers have to be continuous, with no overlapping or missing columns between them. Ex:1-3,4-6
@@ -95,7 +115,7 @@ split_files <- function(condition, samplesheet, input_file, output_file_suffix, 
 for (cond in conditions) {
 
   # Split files
-  split_files(cond, samplesheet, input_file, output_file_suffix, calculate_ranges)
+  split_files(cond, samplesheet, input_file, output_file_suffix, prefix, calculate_ranges)
 
 }
 

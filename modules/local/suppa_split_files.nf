@@ -12,6 +12,7 @@ process SPLIT_FILES {
     path samplesheet        
     val output_type  // either .tpm or .psi
     val calc_ranges  // true/false calculate ranges
+    val prefix       // output file prefix - transcript or local 
 
     output:
     path "*.tpm"        , optional : true , emit: tpms
@@ -28,7 +29,8 @@ process SPLIT_FILES {
         $tpm_psi \\
         $samplesheet \\
         $output_type \\
-        $calc_ranges
+        $calc_ranges \\
+        $prefix
         
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

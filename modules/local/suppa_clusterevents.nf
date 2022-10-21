@@ -11,7 +11,8 @@ process CLUSTEREVENTS {
     input:
     path dpsi
     path psivec
-    path cluster_ranges // e.g. 1-3,4-6
+    val cluster_ranges // e.g. 1-3,4-6
+    val prefix
             
     output:
     path "*.clustvec"   , emit: clustvec 
@@ -31,11 +32,8 @@ process CLUSTEREVENTS {
     def clusterevents_min_pts       = params.clusterevents_min_pts ?: '20'          // default 20
     def clusterevents_method        = params.clusterevents_method ?: 'DBSCAN'       // default DBSCAN
 
-    // Get text of ranges.txt file
-    def cluster_ranges = cluster_ranges.getText()
-    println cluster_ranges
-
     """ 
+
     suppa.py \\
         clusterEvents \\
         --dpsi $dpsi \\
@@ -45,8 +43,8 @@ process CLUSTEREVENTS {
         --metric $clusterevents_metric \\
         --min-pts $clusterevents_min_pts \\
         --groups $cluster_ranges \\
-        -c $clusterevents_method \\
-        $st $sep -o cluster
+        --clustering $clusterevents_method \\
+        $st $sep -o ${prefix}_cluster
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
