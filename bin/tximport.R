@@ -7,9 +7,9 @@ args = commandArgs(trailingOnly=TRUE)
 # Check args provided
 
 if (length(args) < 3) {
-  
+
   stop("Usage: tximport.R <tx2gene> <salmon_out> <sample_name>", call.=FALSE)
-  
+
 }
 
 ######################################
@@ -23,20 +23,20 @@ prefix = args[3]
 # Read in tx2gene file
 
 if (!file.exists(tx2gene)) {
-  
+
   stop("Usage: tximport.R <tx2gene> <salmon_out> <sample_name> - No tx2gene.tsv specified", call.=FALSE)
-  
+
 } else {
-  
+
   # Read in tx2gene file
   rowdata <- read.csv(tx2gene, sep="\t", header = FALSE)
-  
+
   # Set tx2gene header
   colnames(rowdata) <- c("tx", "gene_id", "gene_name")
-  
+
   # Take only first 2 cols
   tx2gene <- rowdata[,1:2]
-  
+
 }
 
 # Collect salmon quant files
@@ -84,17 +84,17 @@ gi.ls <- tximport::summarizeToGene(txi, tx2gene = tx2gene,
 missing_txids <- setdiff(rownames(txi[[1]]),  as.character(tx2gene[["tx"]]))
 
 if (length(missing_txids) > 0) {
-  
+
   message("transcripts missing from tx2gene for Tximport:dtuScaledTPM: ", length(missing_txids))
-  
+
   tx2gene_complete <- rbind(tx2gene, data.frame(tx = missing_txids, gene_id = missing_txids))
-  
+
   tx2gene_complete <- tx2gene_complete[match(rownames(txi[[1]]), as.character(tx2gene_complete[["tx"]])),]
-  
+
   txi.dtu <- tximport::tximport(fns, type = "salmon", tx2gene = tx2gene_complete,
                                 txOut = TRUE, countsFromAbundance = "dtuScaledTPM")
 } else {
-  
+
   txi.dtu <- tximport::tximport(fns, type = "salmon", tx2gene = tx2gene,
                                 txOut = TRUE, countsFromAbundance = "dtuScaledTPM")
 }
@@ -103,17 +103,20 @@ if (length(missing_txids) > 0) {
 ####### Check tx2gene tx and txis to ensure consistency prior to output ######
 ##############################################################################
 
+### The below function has been taken and modified from the tximport package and summarizeToGene function
+### citation("tximport")
+
 filter_txi <- function(txi.obj, tx2gene_tsv){
-  
+
   # unpack matrices
   abundanceMatTx <- txi.obj$abundance
   countsMatTx <- txi.obj$counts
   lengthMatTx <- txi.obj$length
-  
+
   txId <- rownames(abundanceMatTx)
   stopifnot(all(txId == rownames(countsMatTx)))
   stopifnot(all(txId == rownames(lengthMatTx)))
-  
+
   if (!any(txId %in% tx2gene_tsv$tx)) {
     txFromFile <- paste0("Example IDs (file): [", paste(head(txId,3),collapse=", "),", ...]")
     txFromTable <- paste0("Example IDs (tx2gene): [", paste(head(tx2gene_tsv$tx,3),collapse=", "),", ...]")
@@ -127,7 +130,7 @@ filter_txi <- function(txi.obj, tx2gene_tsv){
   ntx2genemissing <- sum(!tx2gene_tsv$tx %in% txId)
   if (ntx2genemissing > 0) message("Filtering transcripts from tx2gene: ", ntx2genemissing)
   tx2gene_tsv <- tx2gene_tsv[tx2gene_tsv$tx %in% txId,]
-  
+
   # subset to transcripts in the tx2gene table
   ntxmissing <- sum(!txId %in% tx2gene_tsv$tx)
   if (ntxmissing > 0) message("Filtering transcripts from txi: ", ntxmissing)
@@ -141,7 +144,7 @@ filter_txi <- function(txi.obj, tx2gene_tsv){
   txi.obj$abundance <- abundanceMatTx
   txi.obj$counts <- countsMatTx
   txi.obj$length <- lengthMatTx
-  
+
   tx2gene_tsv <- tx2gene_tsv[match(rownames(txi.obj$abundance), as.character(tx2gene_tsv[["tx"]])),]
 
   if (!all(rownames(txi.obj$abundance) == tx2gene_tsv$tx)) stop("Stop: tx2gene and txi rownames do not match - Cannot proceed with merge.")
@@ -158,7 +161,7 @@ txi.dtu <- filter_txi(txi.dtu, tx2gene)[[1]]
 tx2gene <- filter_txi(txi, tx2gene)[[2]]
 
 missing_txids <- setdiff(rownames(txi[[1]]),  as.character(tx2gene[["tx"]]))
-stopifnot(length(missing_txids) == 0) 
+stopifnot(length(missing_txids) == 0)
 
 ####################################
 ########### Save Output ############
