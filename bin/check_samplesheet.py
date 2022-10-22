@@ -129,7 +129,7 @@ class RowChecker:
         strandednesses = ["unstranded", "forward", "reverse"]
         assert any(strandedness == s for s in strandednesses), (
             f"The strandedness column has an unrecognized value: {strandedness}\n"
-            f"It should be one of: {', '.join(self.VALID_STRANDS)}"
+            f"It should be one of: {', '.join(strandednesses)}"
         )
     
     def _validate_condition_value(self, condition):
