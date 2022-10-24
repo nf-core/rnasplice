@@ -18,18 +18,16 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
   - [TrimGalore](#trimgalore) - Adapter and quality trimming
 - Alignment and quantification
   - [STAR and Salmon](#star-and-salmon) - Fast spliced aware genome alignment and transcriptome quantification
-  - [STAR via RSEM](#star-via-rsem) - Alignment and quantification of expression levels
 - Alignment post-processing
   - [SAMtools](#samtools) - Sort and index alignments
 - Other steps
   - [BEDTools and bedGraphToBigWig](#bedtools-and-bedgraphtobigwig) - Create bigWig coverage files
 - Quality control
-  - [featureCounts]() - Read counting relative to gene biotype
   - [MultiQC](#multiqc) - Aggregate report describing results and QC from the whole pipeline
 - Pseudo-alignment and quantification
-  - [Salmon]() - Wicked fast gene and isoform quantification relative to the transcriptome
+  - [Salmon](#salmon) - Wicked fast gene and isoform quantification relative to the transcriptome
 - Workflow reporting and genomes
-  - [Refernce genome files]() - Saving reference genome indices/files
+  - [Reference genome files](#reference-genome-files) - Saving reference genome indices/files
   - [Pipeline information](#pipeline-information) - Report metrics generated during the workflow execution
 
 ### cat
