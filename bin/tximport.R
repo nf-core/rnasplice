@@ -210,7 +210,7 @@ write.table(tx2gene, "tximport.tx2gene.tsv", sep="\t", quote=FALSE, row.names = 
 
 # output single tpm tsv for suppa downstream
 suppa_tpm <- txi[["abundance"]]
-write.table(suppa_tpm, paste(c(prefix, "iso_tpm.txt"), collapse="."), sep="\t", quote=FALSE, row.names = TRUE)
+write.table(suppa_tpm, "suppa_tpm.txt", sep="\t", quote=FALSE, row.names = TRUE)
 
 ####################################
 ########### Session info ###########
