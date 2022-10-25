@@ -1,6 +1,6 @@
 process EDGER_EXON {
     tag "$samplesheet"
-    label "process_low"
+    label "process_single"
 
     conda (params.enable_conda ? "bioconda::bioconductor-edger=3.36.0" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?

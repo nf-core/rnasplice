@@ -18,10 +18,10 @@ process GFFREAD_TX2GENE {
     task.ext.when == null || task.ext.when
 
     script:
-    def args   = task.ext.args   ?: 'transcript_id,gene_id,gene_name'
+    def args   = task.ext.args   ?: '--table transcript_id,gene_id,gene_name'
     def prefix = task.ext.prefix ?: "${gtf.baseName}"
     """
-    gffread $gtf --table $args | sort -u 1> ${prefix}.tx2gene.tsv
+    gffread $args $gtf | sort -u 1> ${prefix}.tx2gene.tsv
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
