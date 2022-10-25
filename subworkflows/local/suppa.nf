@@ -22,9 +22,9 @@ workflow SUPPA {
 
     take:
 
-    ch_gtf           
-    ch_tpm 
-    ch_samplesheet  
+    ch_gtf
+    ch_tpm
+    ch_samplesheet
 
     main:
 
@@ -35,11 +35,19 @@ workflow SUPPA {
     // Split the tpm file (contains all samples) into individual files based on condition
 
     def output_type = ".tpm"
-    def calc_ranges = true
+    def calc_ranges = false
     def prefix = ''
     def file_type = ''
 
-    // If per AS local analysis: 
+    SPLIT_TPM (
+        ch_tpm,
+        ch_samplesheet,
+        output_type,
+        calc_ranges,
+        prefix
+    )
+
+    // If per AS local analysis:
 
     if (params.suppa_per_local_event) {
 
@@ -47,15 +55,15 @@ workflow SUPPA {
 
         // Generate AS events on the GTF - Local events
 
-        IOE ( 
-            ch_gtf, 
-            file_type 
+        IOE (
+            ch_gtf,
+            file_type
         )
 
         // Calculate the psi values of Local events (using events file and TPM)
 
-        PSIPEREVENT ( 
-            IOE.out.events, 
+        PSIPEREVENT (
+            IOE.out.events,
             ch_tpm
         )
 
@@ -65,8 +73,8 @@ workflow SUPPA {
         calc_ranges = true
         prefix = "local"
 
-        SPLIT_PSI_IOE ( 
-            PSIPEREVENT.out.psi, 
+        SPLIT_PSI_IOE (
+            PSIPEREVENT.out.psi,
             ch_samplesheet,
             output_type,
             calc_ranges,
@@ -97,23 +105,23 @@ workflow SUPPA {
 
     }
 
-    // If per isoform analysis: 
+    // If per isoform analysis:
 
     if (params.suppa_per_isoform) {
-        
+
         file_type = 'ioi'
 
         // Generate events - transcript level
 
-        IOI ( 
-            ch_gtf, 
-            file_type 
+        IOI (
+            ch_gtf,
+            file_type
         )
 
         // Get the psi values per isoform
 
-        PSIPERISOFORM ( 
-            ch_gtf, 
+        PSIPERISOFORM (
+            ch_gtf,
             ch_tpm
         )
 
@@ -123,8 +131,8 @@ workflow SUPPA {
         calc_ranges = true
         prefix = "transcript"
 
-        SPLIT_PSI_IOI ( 
-            PSIPERISOFORM.out.psi, 
+        SPLIT_PSI_IOI (
+            PSIPERISOFORM.out.psi,
             ch_samplesheet,
             output_type,
             calc_ranges,
@@ -134,24 +142,24 @@ workflow SUPPA {
         // Calculate differential analysis between conditions - Transcript level
 
         DIFFSPLICE_IOI(
-            IOI.out.events, 
+            IOI.out.events,
             SPLIT_TPM.out.tpms,
             SPLIT_PSI_IOI.out.psis,
             prefix
-        ) 
+        )
 
         // Get ranges for cluster analysis
 
         SPLIT_PSI_IOI.out.ranges.splitText( by: 1 ){ it.trim() }.set{ ch_ranges_ioi }
 
-        // Run Clustering 
+        // Run Clustering
 
         CLUSTEREVENTS_IOI(
             DIFFSPLICE_IOI.out.dpsi,
             DIFFSPLICE_IOI.out.psivec,
             ch_ranges_ioi,
             prefix
-        ) 
+        )
     }
 
     // Define output
@@ -160,7 +168,7 @@ workflow SUPPA {
 
     ioe_events              = IOE.out.events                     //    path: events ioe
     ioi_events              = IOI.out.events                     //    path: events ioi
-    
+
     suppa_local_psi         = PSIPEREVENT.out.psi                //    path: suppa_local.psi
     suppa_isoform_psi       = PSIPERISOFORM.out.psi              //    path: suppa_isoform.psi
 
