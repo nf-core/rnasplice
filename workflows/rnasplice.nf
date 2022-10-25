@@ -20,12 +20,7 @@ def checkPathParamList = [ params.input, params.multiqc_config, params.fasta ]
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
 
 // Check mandatory parameters
-if (params.input) {
-    ch_input = file(params.input)
-    ch_samplesheet = Channel.fromPath(params.input)
-} else { 
-    exit 1, 'Input samplesheet not specified!'
-}
+if (params.input) { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
 
 // Check alignment parameters
 def prepareToolIndices  = []
@@ -155,6 +150,9 @@ workflow RNASPLICE {
                 return [ meta, fastq.flatten() ]
     }
     .set { ch_fastq }
+
+    // Create samplesheet channel (after input check)
+    ch_samplesheet = Channel.fromPath(params.input)
 
     // Take software versions from input check (.first() not required)
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
