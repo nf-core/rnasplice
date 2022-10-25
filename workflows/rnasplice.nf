@@ -151,6 +151,9 @@ workflow RNASPLICE {
     }
     .set { ch_fastq }
 
+    // Create samplesheet channel (after input check)
+    ch_samplesheet = Channel.fromPath(params.input)
+
     // Take software versions from input check (.first() not required)
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
 
@@ -277,7 +280,6 @@ workflow RNASPLICE {
         if (params.dexseq_exon) {
 
             ch_dexseq_gff = params.gff_dexseq ? PREPARE_GENOME.out.dexseq_gff : ""
-            ch_samplesheet = Channel.fromPath(params.input)
             def read_method = "htseq"
 
             DEXSEQ_DEU(
@@ -294,8 +296,6 @@ workflow RNASPLICE {
         //
 
         if (params.edger_exon) {
-
-            ch_samplesheet = Channel.fromPath(params.input)
 
             EDGER_DEU(
                 PREPARE_GENOME.out.gtf,
@@ -401,8 +401,6 @@ workflow RNASPLICE {
 
             if (params.dexseq_dtu) {
 
-                ch_samplesheet = Channel.fromPath(params.input)
-
                 if (params.dtu_txi == "dtuScaledTPM") {
 
                     ch_txi = STAR_SALMON_TX2GENE_TXIMPORT.out.txi_dtu
@@ -425,8 +423,6 @@ workflow RNASPLICE {
             //
 
             if (params.suppa) {
-
-                ch_samplesheet = Channel.fromPath(params.input)
 
                 // Get Suppa tpm either from tximport or user supplied
                 ch_suppa_tpm = params.suppa_tpm ? PREPARE_GENOME.out.suppa_tpm : STAR_SALMON_TX2GENE_TXIMPORT.out.suppa_tpm
@@ -483,8 +479,6 @@ workflow RNASPLICE {
         //
         if (params.dexseq_dtu) {
 
-            ch_samplesheet = Channel.fromPath(params.input)
-
             if (params.dtu_txi == "dtuScaledTPM") {
 
                 ch_txi = SALMON_TX2GENE_TXIMPORT.out.txi_dtu
@@ -507,8 +501,6 @@ workflow RNASPLICE {
         //
 
         if (params.suppa) {
-
-            ch_samplesheet = Channel.fromPath(params.input)
 
             // Get Suppa tpm either from tximport or user supplied
             ch_suppa_tpm = params.suppa_tpm ? PREPARE_GENOME.out.suppa_tpm : SALMON_TX2GENE_TXIMPORT.out.suppa_tpm
