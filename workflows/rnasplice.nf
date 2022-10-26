@@ -157,50 +157,14 @@ workflow RNASPLICE {
     // Take software versions from input check (.first() not required)
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
 
+    // Check rMATS input specifically
     if (params.rmats) {
 
-        INPUT_CHECK
-            .out
-            .reads
-            .map { meta, fastq -> meta.single_end }
-            .unique()
-            .collect()
-            .map {
-                if(it.size() > 1) {
-                    exit 1, "ERROR: Please check input samplesheet -> Cannot run rMats with mixed single and paired end samples"
-                } else {
-                    return it
-                }
-            }
+        WorkflowRnasplice.rmatsReadError(INPUT_CHECK.out.reads, log)
 
-        INPUT_CHECK
-            .out
-            .reads
-            .map { meta, fastq -> meta.strandedness }
-            .unique()
-            .collect()
-            .map {
-                if(it.size() > 1) {
-                    exit 1, "ERROR: Please check input samplesheet -> Cannot run rMats with mixed stranded samples"
-                } else {
-                    return it
-                }
-            }
+        WorkflowRnasplice.rmatsStrandednessError(INPUT_CHECK.out.reads, log)
 
-        INPUT_CHECK
-            .out
-            .reads
-            .map { meta, fastq -> meta.condition }
-            .unique()
-            .collect()
-            .map {
-                if(it.size() > 2) {
-                    exit 1, "ERROR: Please check input samplesheet -> Cannot run rMats with more than 2 conditions"
-                } else {
-                    return it
-                }
-            }
-
+        WorkflowRnasplice.rmatsConditionError(INPUT_CHECK.out.reads, log)
 
     }
 
