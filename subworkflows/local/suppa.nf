@@ -47,11 +47,19 @@ workflow SUPPA {
         prefix
     )
 
+    ch_split_suppa_tpms = SPLIT_TPM.out.tpms
+
     // If per AS local analysis:
 
-    ch_ioe_events              = Channel.empty()
-    ch_suppa_local_psi         = Channel.empty()
-    ch_split_suppa_local_psi   = Channel.empty()
+    ch_ioe_events             = Channel.empty()
+    ch_suppa_local_psi        = Channel.empty()
+    ch_split_suppa_local_psi  = Channel.empty()
+
+    ch_dpsi_local             = Channel.empty()
+    ch_psivec_local           = Channel.empty()
+
+    ch_cluster_vec_local      = Channel.empty()
+    ch_cluster_log_local      = Channel.empty()
 
     if (params.suppa_per_local_event) {
 
@@ -69,7 +77,7 @@ workflow SUPPA {
         // Calculate the psi values of Local events (using events file and TPM)
 
         PSIPEREVENT (
-            IOE.out.events,
+            ch_ioe_events,
             ch_tpm
         )
 
@@ -82,7 +90,7 @@ workflow SUPPA {
         prefix = "local"
 
         SPLIT_PSI_IOE (
-            PSIPEREVENT.out.psi,
+            ch_suppa_local_psi,
             ch_samplesheet,
             output_type,
             calc_ranges,
@@ -93,25 +101,19 @@ workflow SUPPA {
 
         // Calculate differential analysis between conditions
 
-        ch_dpsi_local     = Channel.empty()
-        ch_psivec_local   = Channel.empty()
-
-        ch_cluster_vec_local   = Channel.empty()
-        ch_cluster_log_local   = Channel.empty()
-
-        if (params.suppa_diffsplice_per_local_event) {
+        if (params.diffsplice_local_event) {
 
             DIFFSPLICE_IOE(
-                IOE.out.events,
-                SPLIT_TPM.out.tpms,
-                SPLIT_PSI_IOE.out.psis,
+                ch_ioe_events,
+                ch_split_suppa_tpms,
+                ch_split_suppa_local_psi,
                 prefix
             )
 
             ch_dpsi_local     = DIFFSPLICE_IOE.out.dpsi
             ch_psivec_local   = DIFFSPLICE_IOE.out.psivec
 
-            if (params.suppa_clusterevents_per_local_event) {
+            if (params.clusterevents_local_event) {
 
                 // Get ranges for cluster analysis
 
@@ -120,8 +122,8 @@ workflow SUPPA {
                 // Run Clustering
 
                 CLUSTEREVENTS_IOE(
-                    DIFFSPLICE_IOE.out.dpsi,
-                    DIFFSPLICE_IOE.out.psivec,
+                    ch_dpsi_local,
+                    ch_psivec_local,
                     ch_ranges_ioe,
                     prefix
                 )
@@ -137,6 +139,12 @@ workflow SUPPA {
     ch_ioi_events              = Channel.empty()
     ch_suppa_isoform_psi       = Channel.empty()
     ch_split_suppa_isoform_psi = Channel.empty()
+
+    ch_dpsi_isoform            = Channel.empty()
+    ch_psivec_isoform          = Channel.empty()
+
+    ch_cluster_vec_isoform     = Channel.empty()
+    ch_cluster_log_isoform     = Channel.empty()
 
     if (params.suppa_per_isoform) {
 
@@ -167,7 +175,7 @@ workflow SUPPA {
         prefix = "transcript"
 
         SPLIT_PSI_IOI (
-            PSIPERISOFORM.out.psi,
+            ch_suppa_isoform_psi,
             ch_samplesheet,
             output_type,
             calc_ranges,
@@ -178,25 +186,19 @@ workflow SUPPA {
 
         // Calculate differential analysis between conditions - Transcript level
 
-        ch_dpsi_isoform   = Channel.empty()
-        ch_psivec_isoform = Channel.empty()
-
-        ch_cluster_vec_isoform = Channel.empty()
-        ch_cluster_log_isoform = Channel.empty()
-
-        if (params.suppa_diffsplice_per_isoform) {
+        if (params.diffsplice_isoform) {
 
             DIFFSPLICE_IOI(
-                IOI.out.events,
-                SPLIT_TPM.out.tpms,
-                SPLIT_PSI_IOI.out.psis,
+                ch_ioi_events,
+                ch_split_suppa_tpms,
+                ch_split_suppa_isoform_psi,
                 prefix
             )
 
             ch_dpsi_isoform   = DIFFSPLICE_IOI.out.dpsi
             ch_psivec_isoform = DIFFSPLICE_IOI.out.psivec
 
-            if (params.suppa_clusterevents_per_isoform) {
+            if (params.clusterevents_isoform) {
 
                 // Get ranges for cluster analysis
 
@@ -205,8 +207,8 @@ workflow SUPPA {
                 // Run Clustering
 
                 CLUSTEREVENTS_IOI(
-                    DIFFSPLICE_IOI.out.dpsi,
-                    DIFFSPLICE_IOI.out.psivec,
+                    ch_dpsi_isoform,
+                    ch_psivec_isoform,
                     ch_ranges_ioi,
                     prefix
                 )
@@ -221,15 +223,15 @@ workflow SUPPA {
 
     emit:
 
-    ioe_events              = ch_ioe_events                    //    path: events ioe
-    ioi_events              = ch_ioi_events                     //    path: events ioi
+    ioe_events              = ch_ioe_events                      //    path: events ioe
+    ioi_events              = ch_ioi_events                      //    path: events ioi
 
-    suppa_local_psi         = ch_suppa_local_psi                //    path: suppa_local.psi
-    suppa_isoform_psi       = ch_suppa_isoform_psi              //    path: suppa_isoform.psi
+    suppa_local_psi         = ch_suppa_local_psi                 //    path: suppa_local.psi
+    suppa_isoform_psi       = ch_suppa_isoform_psi               //    path: suppa_isoform.psi
 
-    split_suppa_tpms        = SPLIT_TPM.out.tpms                 //    path: suppa_cond1.tpm, suppa_cond2.tpm
-    split_suppa_local_psi   = ch_split_suppa_local_psi             //    path: suppa_local_cond1.psi, suppa_local_cond2.psi
-    split_suppa_isoform_psi = ch_split_suppa_isoform_psi             //    path: suppa_isoform_cond1.psi, suppa_isoform_cond2.psi
+    split_suppa_tpms        = ch_split_suppa_tpms                //    path: suppa_cond1.tpm, suppa_cond2.tpm
+    split_suppa_local_psi   = ch_split_suppa_local_psi           //    path: suppa_local_cond1.psi, suppa_local_cond2.psi
+    split_suppa_isoform_psi = ch_split_suppa_isoform_psi         //    path: suppa_isoform_cond1.psi, suppa_isoform_cond2.psi
 
     dpsi_local              = ch_dpsi_local                      //    path: local.dpsi
     psivec_local            = ch_psivec_local                    //    path: local.psivec
