@@ -59,8 +59,8 @@ class RowChecker:
         self._sample_col = sample_col
         self._first_col = first_col
         self._second_col = second_col
-        self._strandedness_col = (strandedness_col,)
-        self._condition_col = (condition_col,)
+        self._strandedness_col = strandedness_col
+        self._condition_col = condition_col
         self._single_col = single_col
         self._seen = set()
         self.modified = []
@@ -135,8 +135,8 @@ class RowChecker:
     def _validate_condition_value(self, condition):
         regex = "^((([[:alpha:]]|[.][._[:alpha:]])[._[:alnum:]]*)|[.])$"
         assert bool(re.search(regex, condition)), (
-            f"The condition column has an invalid name: {condition}\n",
-            f"A syntactically valid name consists of letters, numbers and the dot or underline characters and starts with a letter or the dot not followed by a number.",
+            f"The condition column has an invalid name: {condition}\n"
+            f"A syntactically valid name consists of letters, numbers and the dot or underline characters and starts with a letter or the dot not followed by a number."
         )
 
     def validate_unique_samples(self):
