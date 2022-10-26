@@ -59,8 +59,8 @@ class RowChecker:
         self._sample_col = sample_col
         self._first_col = first_col
         self._second_col = second_col
-        self._strandedness_col = strandedness_col,
-        self._condition_col = condition_col,
+        self._strandedness_col = strandedness_col
+        self._condition_col = condition_col
         self._single_col = single_col
         self._seen = set()
         self.modified = []
@@ -96,7 +96,7 @@ class RowChecker:
         """Assert that the second FASTQ entry has the right format if it exists."""
         if len(row[self._second_col]) > 0:
             self._validate_fastq_format(row[self._second_col])
-    
+
     def _validate_strandedness(self, row):
         """Assert that the first stradedness entry is non-empty and has the right value."""
         assert len(row[self._strandedness_col]) > 0, "Strandedness input is required."
@@ -131,11 +131,11 @@ class RowChecker:
             f"The strandedness column has an unrecognized value: {strandedness}\n"
             f"It should be one of: {', '.join(strandednesses)}"
         )
-    
+
     def _validate_condition_value(self, condition):
         regex = "^((([[:alpha:]]|[.][._[:alpha:]])[._[:alnum:]]*)|[.])$"
         assert bool(re.search(regex, condition)), (
-            f"The condition column has an invalid name: {condition}\n",
+            f"The condition column has an invalid name: {condition}\n"
             f"A syntactically valid name consists of letters, numbers and the dot or underline characters and starts with a letter or the dot not followed by a number."
         )
 
@@ -148,7 +148,7 @@ class RowChecker:
 
         """
         assert len(self._seen) == len(self.modified), "The pair of sample name and FASTQ must be unique."
-        
+
         # if there are less unique sample names than number of rows in sample sheet (ie. multiple runs for same sample)
         # Then mark those which have been seen multiple times.
         # alternatively we can just mark every sample with _T{int} to ensure they are unique and does not break CAT_FASTQ for rnaseq
@@ -160,6 +160,7 @@ class RowChecker:
             seen[sample] += 1
             # if counts[sample] > 1: # Have removed to mark every sample with _T{int}
             row[self._sample_col] = f"{sample}_T{seen[sample]}"
+
 
 def read_head(handle, num_lines=10):
     """Read the specified number of lines from the current position in the file."""
@@ -195,17 +196,20 @@ def sniff_format(handle):
     dialect = sniffer.sniff(peek)
     return dialect
 
+
 def check_condition_replicates(samplesheet):
-        """
-        Assert that each condition has biological replicates.
-        """
-        from collections import Counter
-        conditions = [row["condition"] for row in samplesheet]
-        counter = Counter(conditions)
-        checker = all(v > 1 for k, v in counter.items())
-        groups = ",".join([k for k, v in counter.items() if v == 1])
-        message = f"Not all conditions have biological replicates ({groups})"
-        assert checker, message
+    """
+    Assert that each condition has biological replicates.
+    """
+    from collections import Counter
+
+    conditions = [row["condition"] for row in samplesheet]
+    counter = Counter(conditions)
+    checker = all(v > 1 for k, v in counter.items())
+    groups = ",".join([k for k, v in counter.items() if v == 1])
+    message = f"Not all conditions have biological replicates ({groups})"
+    assert checker, message
+
 
 def check_samplesheet(file_in, file_out):
     """
@@ -250,10 +254,10 @@ def check_samplesheet(file_in, file_out):
                 logger.critical(f"{str(error)} On line {i + 2}.")
                 sys.exit(1)
         checker.validate_unique_samples()
-        
+
         # Validate condition column
         check_condition_replicates(reader)
-    
+
     header = list(reader.fieldnames)
     header.insert(1, "single_end")
     # See https://docs.python.org/3.9/library/csv.html#id3 to read up on `newline=""`.
