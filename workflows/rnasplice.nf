@@ -66,15 +66,15 @@ include { INPUT_CHECK       } from '../subworkflows/local/input_check'
 include { PREPARE_GENOME    } from '../subworkflows/local/prepare_genome'
 include { FASTQC_TRIMGALORE } from '../subworkflows/local/fastqc_trimgalore'
 include { ALIGN_STAR        } from '../subworkflows/local/align_star'
-include { TX2GENE_TXIMPORT as SALMON_TX2GENE_TXIMPORT      } from '../subworkflows/local/tx2gene_tximport'
-include { TX2GENE_TXIMPORT as STAR_SALMON_TX2GENE_TXIMPORT } from '../subworkflows/local/tx2gene_tximport'
-include { DRIMSEQ_DEXSEQ_DTU as SALMON_DEXSEQ_DTU } from '../subworkflows/local/drimseq_dexseq_dtu'
-include { DRIMSEQ_DEXSEQ_DTU as STAR_SALMON_DEXSEQ_DTU } from '../subworkflows/local/drimseq_dexseq_dtu'
+include { TX2GENE_TXIMPORT as TX2GENE_TXIMPORT_SALMON      } from '../subworkflows/local/tx2gene_tximport'
+include { TX2GENE_TXIMPORT as TX2GENE_TXIMPORT_STAR_SALMON } from '../subworkflows/local/tx2gene_tximport'
+include { DRIMSEQ_DEXSEQ_DTU as DRIMSEQ_DEXSEQ_DTU_SALMON } from '../subworkflows/local/drimseq_dexseq_dtu'
+include { DRIMSEQ_DEXSEQ_DTU as DRIMSEQ_DEXSEQ_DTU_STAR_SALMON } from '../subworkflows/local/drimseq_dexseq_dtu'
 include { RMATS             } from '../subworkflows/local/rmats'
 include { DEXSEQ_DEU        } from '../subworkflows/local/dexseq_deu'
 include { EDGER_DEU         } from '../subworkflows/local/edger_deu'
-include { SUPPA as SALMON_SUPPA       } from '../subworkflows/local/suppa'
-include { SUPPA as STAR_SALMON_SUPPA  } from '../subworkflows/local/suppa'
+include { SUPPA as SUPPA_SALMON       } from '../subworkflows/local/suppa'
+include { SUPPA as SUPPA_STAR_SALMON  } from '../subworkflows/local/suppa'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -354,7 +354,7 @@ workflow RNASPLICE {
             // SUBWORKFLOW: Run Tximport and produce tx2gene from gtf using gffread
             //
 
-            STAR_SALMON_TX2GENE_TXIMPORT (
+            TX2GENE_TXIMPORT_STAR_SALMON (
                 STAR_SALMON_QUANT.out.results.collect{it[1]},
                 PREPARE_GENOME.out.gtf
             )
@@ -367,17 +367,17 @@ workflow RNASPLICE {
 
                 if (params.dtu_txi == "dtuScaledTPM") {
 
-                    ch_txi = STAR_SALMON_TX2GENE_TXIMPORT.out.txi_dtu
+                    ch_txi = TX2GENE_TXIMPORT_STAR_SALMON.out.txi_dtu
 
                 } else if (params.dtu_txi == "scaledTPM") {
 
-                    ch_txi = STAR_SALMON_TX2GENE_TXIMPORT.out.txi_s
+                    ch_txi = TX2GENE_TXIMPORT_STAR_SALMON.out.txi_s
 
                 }
 
-                STAR_SALMON_DEXSEQ_DTU (
+                DRIMSEQ_DEXSEQ_DTU_STAR_SALMON (
                     ch_txi,
-                    STAR_SALMON_TX2GENE_TXIMPORT.out.tximport_tx2gene,
+                    TX2GENE_TXIMPORT_STAR_SALMON.out.tximport_tx2gene,
                     ch_samplesheet
                 )
             }
@@ -389,10 +389,10 @@ workflow RNASPLICE {
             if (params.suppa) {
 
                 // Get Suppa tpm either from tximport or user supplied
-                ch_suppa_tpm = params.suppa_tpm ? PREPARE_GENOME.out.suppa_tpm : STAR_SALMON_TX2GENE_TXIMPORT.out.suppa_tpm
+                ch_suppa_tpm = params.suppa_tpm ? PREPARE_GENOME.out.suppa_tpm : TX2GENE_TXIMPORT_STAR_SALMON.out.suppa_tpm
 
                 // Run SUPPA
-                STAR_SALMON_SUPPA (
+                SUPPA_STAR_SALMON (
                     PREPARE_GENOME.out.gtf,
                     ch_suppa_tpm,
                     ch_samplesheet,
@@ -433,7 +433,7 @@ workflow RNASPLICE {
         // SUBWORKFLOW: Run Tximport and produce tx2gene from gtf using gffread
         //
 
-        SALMON_TX2GENE_TXIMPORT (
+        TX2GENE_TXIMPORT_SALMON (
             SALMON_QUANT.out.results.collect{it[1]},
             PREPARE_GENOME.out.gtf
         )
@@ -445,17 +445,17 @@ workflow RNASPLICE {
 
             if (params.dtu_txi == "dtuScaledTPM") {
 
-                ch_txi = SALMON_TX2GENE_TXIMPORT.out.txi_dtu
+                ch_txi = TX2GENE_TXIMPORT_SALMON.out.txi_dtu
 
             } else if (params.dtu_txi == "scaledTPM") {
 
-                ch_txi = SALMON_TX2GENE_TXIMPORT.out.txi_s
+                ch_txi = TX2GENE_TXIMPORT_SALMON.out.txi_s
 
             }
 
-            SALMON_DEXSEQ_DTU (
+            DRIMSEQ_DEXSEQ_DTU_SALMON (
                 ch_txi,
-                SALMON_TX2GENE_TXIMPORT.out.tximport_tx2gene,
+                TX2GENE_TXIMPORT_SALMON.out.tximport_tx2gene,
                 ch_samplesheet
             )
         }
@@ -467,10 +467,10 @@ workflow RNASPLICE {
         if (params.suppa) {
 
             // Get Suppa tpm either from tximport or user supplied
-            ch_suppa_tpm = params.suppa_tpm ? PREPARE_GENOME.out.suppa_tpm : SALMON_TX2GENE_TXIMPORT.out.suppa_tpm
+            ch_suppa_tpm = params.suppa_tpm ? PREPARE_GENOME.out.suppa_tpm : TX2GENE_TXIMPORT_SALMON.out.suppa_tpm
 
             // Run SUPPA
-            SALMON_SUPPA (
+            SUPPA_SALMON (
                 PREPARE_GENOME.out.gtf,
                 ch_suppa_tpm,
                 ch_samplesheet,
