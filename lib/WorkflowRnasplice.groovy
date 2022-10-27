@@ -122,6 +122,20 @@ class WorkflowRnasplice {
         //     System.exit(1)
         // }
 
+        //
+        //  SUPPA parameter checks
+        //
+        
+        if (params.clusterevents_local_event && !params.diffsplice_local_event) {
+            log.error "--clusterevents_local_event specified without --diffsplice_local_event... please specify e.g. --diffsplice_local_event=true"
+            System.exit(1)
+        }
+
+        if (params.clusterevents_isoform && !params.diffsplice_isoform) {
+            log.error "--clusterevents_isoform specified without diffsplice_isoform... please specify e.g. --diffsplice_isoform=true"
+            System.exit(1)
+        }
+
     }
 
     //
