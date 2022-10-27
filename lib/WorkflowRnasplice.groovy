@@ -136,6 +136,16 @@ class WorkflowRnasplice {
             System.exit(1)
         }
 
+        //
+        // Warn of duplicated analyses from aligner and pseudo_aligner
+        //
+
+        if (!params.skip_alignment) {
+            if (params.aligner == "star_salmon"  && params.pseudo_aligner == "salmon") {
+                log.warn "Both --aligner=star_salmon and --pseudo_aligner=salmon specified. Downstream analyses will be performed on both salmon output files."
+            }
+        }
+
     }
 
     //
