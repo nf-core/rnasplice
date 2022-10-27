@@ -53,11 +53,11 @@ You can find numerous talks on the [nf-core events page](https://nf-co.re/events
    1. For differential expression analysis of exons ([`DEXSeq`](https://bioconductor.org/packages/devel/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html))
    2. Differential expression analysis following quantification with featureCounts ([`edgeR`](https://bioconductor.org/packages/release/bioc/html/edgeR.html))
 10. Differential Transcript Usage (DTU):
-   1. Filtering of genes and features with low expression ([`DRIMSeq`](https://rdrr.io/bioc/DRIMSeq/man/dmFilter.html))
-   2. For differential expression analysis of transcripts ([`DEXSeq`](http://bioconductor.org/packages/release/workflows/vignettes/rnaseqDTU/inst/doc/rnaseqDTU.html))
+    1. Filtering of genes and features with low expression ([`DRIMSeq`](https://rdrr.io/bioc/DRIMSeq/man/dmFilter.html))
+    2. For differential expression analysis of transcripts ([`DEXSeq`](http://bioconductor.org/packages/release/workflows/vignettes/rnaseqDTU/inst/doc/rnaseqDTU.html))
 11. Event-based Differential Splicing analysis:
-   1. For detection of differential alternative splicing from replicate RNA-Seq data ([`rMats`](https://github.com/Xinglab/rmats-turbo))
-   2. Useing transcript abundances to estimate PSI values for each Differential Splicing event ([`SUPPA`](https://github.com/comprna/SUPPA))
+    1. For detection of differential alternative splicing from replicate RNA-Seq data ([`rMats`](https://github.com/Xinglab/rmats-turbo))
+    2. Useing transcript abundances to estimate PSI values for each Differential Splicing event ([`SUPPA`](https://github.com/comprna/SUPPA))
 
 ## Quick Start
 
