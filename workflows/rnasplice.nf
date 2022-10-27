@@ -157,7 +157,7 @@ workflow RNASPLICE {
     // Take software versions from input check (.first() not required)
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
 
-    // Check rMATS input specifically
+    // Check rMATS parameters specified correctly
     if (params.rmats) {
 
         WorkflowRnasplice.rmatsReadError(INPUT_CHECK.out.reads, log)
@@ -165,6 +165,14 @@ workflow RNASPLICE {
         WorkflowRnasplice.rmatsStrandednessError(INPUT_CHECK.out.reads, log)
 
         WorkflowRnasplice.rmatsConditionError(INPUT_CHECK.out.reads, log)
+
+    }
+
+    // Check DEXSeq parameters specified correctly
+
+    if (params.dexseq_exon || params.dexseq_dtu) {
+
+        WorkflowRnasplice.denominatorExistsError(params, log, samplesheet)
 
     }
 
