@@ -444,4 +444,20 @@ class WorkflowRnasplice {
             }
     }
 
+    //
+    // Create variable to check if samples have one condition or multiple
+    //
+
+    private static Boolean isSingleCondition(samplesheet) {
+        
+        reader = samplesheet.splitCsv(header: true)
+
+        conditions = []
+
+        reader.map { row -> conditions << ${row.condition} }
+
+        return conditions.unique.size() == 1
+
+    }
+
 }
