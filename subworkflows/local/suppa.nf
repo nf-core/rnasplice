@@ -2,15 +2,15 @@
 // SUPPA Subworkflow
 //
 
-include { GENERATE_EVENTS as IOE } from '../../modules/local/suppa_generateevents.nf'
-include { GENERATE_EVENTS as IOI } from '../../modules/local/suppa_generateevents.nf'
+include { GENERATE_EVENTS as GENERATE_EVENTS_IOE } from '../../modules/local/suppa_generateevents.nf'
+include { GENERATE_EVENTS as GENERATE_EVENTS_IOI } from '../../modules/local/suppa_generateevents.nf'
 
 include { PSIPEREVENT   } from '../../modules/local/suppa_psiperevent.nf'
 include { PSIPERISOFORM } from '../../modules/local/suppa_psiperisoform.nf'
 
-include { SPLIT_FILES as SPLIT_TPM  } from '../../modules/local/suppa_split_files.nf'
-include { SPLIT_FILES as SPLIT_PSI_IOE  } from '../../modules/local/suppa_split_files.nf'
-include { SPLIT_FILES as SPLIT_PSI_IOI  } from '../../modules/local/suppa_split_files.nf'
+include { SPLIT_FILES as SPLIT_FILES_TPM } from '../../modules/local/suppa_split_files.nf'
+include { SPLIT_FILES as SPLIT_FILES_IOE } from '../../modules/local/suppa_split_files.nf'
+include { SPLIT_FILES as SPLIT_FILES_IOI } from '../../modules/local/suppa_split_files.nf'
 
 include { DIFFSPLICE as DIFFSPLICE_IOE } from '../../modules/local/suppa_diffsplice.nf'
 include { DIFFSPLICE as DIFFSPLICE_IOI } from '../../modules/local/suppa_diffsplice.nf'
@@ -39,7 +39,7 @@ workflow SUPPA {
     def prefix = ''
     def file_type = ''
 
-    SPLIT_TPM (
+    SPLIT_FILES_TPM (
         ch_tpm,
         ch_samplesheet,
         output_type,
@@ -47,7 +47,7 @@ workflow SUPPA {
         prefix
     )
 
-    ch_split_suppa_tpms = SPLIT_TPM.out.tpms
+    ch_split_suppa_tpms = SPLIT_FILES_TPM.out.tpms
 
     // If per AS local analysis:
 
@@ -67,12 +67,12 @@ workflow SUPPA {
 
         // Generate AS events on the GTF - Local events
 
-        IOE (
+        GENERATE_EVENTS_IOE (
             ch_gtf,
             file_type
         )
 
-        ch_ioe_events  = IOE.out.events
+        ch_ioe_events  = GENERATE_EVENTS_IOE.out.events
 
         // Calculate the psi values of Local events (using events file and TPM)
 
@@ -89,7 +89,7 @@ workflow SUPPA {
         calc_ranges = true
         prefix = "local"
 
-        SPLIT_PSI_IOE (
+        SPLIT_FILES_IOE (
             ch_suppa_local_psi,
             ch_samplesheet,
             output_type,
@@ -97,7 +97,7 @@ workflow SUPPA {
             prefix
         )
 
-        ch_split_suppa_local_psi = SPLIT_PSI_IOE.out.psis
+        ch_split_suppa_local_psi = SPLIT_FILES_IOE.out.psis
 
         // Calculate differential analysis between conditions
 
@@ -117,7 +117,7 @@ workflow SUPPA {
 
                 // Get ranges for cluster analysis
 
-                SPLIT_PSI_IOE.out.ranges.splitText( by: 1 ){ it.trim() }.set{ ch_ranges_ioe }
+                SPLIT_FILES_IOE.out.ranges.splitText( by: 1 ){ it.trim() }.set{ ch_ranges_ioe }
 
                 // Run Clustering
 
@@ -152,12 +152,12 @@ workflow SUPPA {
 
         // Generate events - transcript level
 
-        IOI (
+        GENERATE_EVENTS_IOI (
             ch_gtf,
             file_type
         )
 
-        ch_ioi_events = IOI.out.events
+        ch_ioi_events = GENERATE_EVENTS_IOI.out.events
 
         // Get the psi values per isoform
 
@@ -174,7 +174,7 @@ workflow SUPPA {
         calc_ranges = true
         prefix = "transcript"
 
-        SPLIT_PSI_IOI (
+        SPLIT_FILES_IOI (
             ch_suppa_isoform_psi,
             ch_samplesheet,
             output_type,
@@ -182,7 +182,7 @@ workflow SUPPA {
             prefix
         )
 
-        ch_split_suppa_isoform_psi = SPLIT_PSI_IOI.out.psis
+        ch_split_suppa_isoform_psi = SPLIT_FILES_IOI.out.psis
 
         // Calculate differential analysis between conditions - Transcript level
 
@@ -202,7 +202,7 @@ workflow SUPPA {
 
                 // Get ranges for cluster analysis
 
-                SPLIT_PSI_IOI.out.ranges.splitText( by: 1 ){ it.trim() }.set{ ch_ranges_ioi }
+                SPLIT_FILES_IOI.out.ranges.splitText( by: 1 ){ it.trim() }.set{ ch_ranges_ioi }
 
                 // Run Clustering
 
