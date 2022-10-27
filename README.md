@@ -90,11 +90,9 @@ The nf-core/rnasplice pipeline comes with documentation about the pipeline [usag
 
 ## Credits
 
-nf-core/rnasplice was originally written by Benjamin Southgate ([@Ben-Southgate](https://github.com/bensouthgate)) and James Ashmore ([@James-Ashmore](https://github.com/james-ashmore)) from [Zifo RnD Solutions](https://www.zifornd.com/).
+nf-core/rnasplice was originally written by Benjamin Southgate ([@Ben-Southgate](https://github.com/bensouthgate)), Asma Ali ([@Asma-Ali](https://github.com/asmaali98)), Keerthana Bhaskaran ([@Keerthana-Bhaskaran](https://github.com/Keerthana-Bhaskaran-TG)), Lathika Madhan Mohan ([@Lathika-Madhan-Mohan](https://github.com/lathikaa)) and James Ashmore ([@James-Ashmore](https://github.com/james-ashmore)) from [Zifo RnD Solutions](https://www.zifornd.com/).
 
-Many thanks to other who have helped out along the way too, including (but not limited to): [@Asma-Ali](https://github.com/asmaali98), [@Keerthana-Bhaskaran](https://github.com/Keerthana-Bhaskaran-TG), [@Lathika-Madhan-Mohan](https://github.com/lathikaa) from [Zifo RnD Solutions](https://www.zifornd.com/).
-
-We thank Harshil Patel ([@drpatelh](https://github.com/drpatelh)) and everyone in the Seqera labs ([seqeralabs](https://github.com/seqeralabs)) or their extensive assistance in the development of this pipeline. 
+We thank Harshil Patel ([@drpatelh](https://github.com/drpatelh)) and everyone in the Seqera Labs ([seqeralabs](https://github.com/seqeralabs)) for their extensive assistance in the development of this pipeline.
 
 <img src="docs/images/zifo_logo.jpg" alt="Zifo RnD Solutions" width="200"/>
 
