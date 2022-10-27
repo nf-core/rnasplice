@@ -300,7 +300,7 @@ workflow RNASPLICE {
             RMATS (
                 ch_genome_bam_conditions,
                 PREPARE_GENOME.out.gtf,
-                is_single_condition
+                single_condition
             )
 
             ch_versions = ch_versions.mix(RMATS.out.versions)
