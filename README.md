@@ -96,7 +96,7 @@ Many thanks to other who have helped out along the way too, including (but not l
 
 We thank Harshil Patel ([@drpatelh](https://github.com/drpatelh)) and everyone in the Seqera labs ([seqeralabs](https://github.com/seqeralabs)) or their extensive assistance in the development of this pipeline. 
 
-![[Zifo RnD Solutions](https://www.zifornd.com/)](docs/images/zifo_logo.jpg)
+<img src="docs/images/zifo_logo.jpg" alt="Zifo RnD Solutions" width="200"/>
 
 ## Contributions and Support
 
