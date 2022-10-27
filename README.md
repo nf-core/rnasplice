@@ -21,8 +21,6 @@
 
 **nf-core/rnasplice** is a bioinformatics pipeline for Alternative splicing analysis of RNA sequencing data obtained from organisms with a reference genome and annotation.
 
-On release, automated continuous integration tests run the pipeline on a [full-sized dataset](https://github.com/nf-core/test-datasets/tree/rnaseq#full-test-dataset-origin) obtained from the ENCODE Project Consortium on the AWS cloud infrastructure. This ensures that the pipeline runs on AWS, has sensible resource allocation defaults set to run on real-world datasets, and permits the persistent storage of results to benchmark between pipeline releases and other analysis sources. The results obtained from running the full-sized tests individually for each `--aligner` option can be viewed on the [nf-core website](https://nf-co.re/rnaseq/results) e.g. the results for running the pipeline with `--aligner star_salmon` will be in a folder called `aligner_star_salmon` and so on.
-
 The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It uses Docker/Singularity containers making installation trivial and results highly reproducible. The [Nextflow DSL2](https://www.nextflow.io/docs/latest/dsl2.html) implementation of this pipeline uses one container per process which makes it much easier to maintain and update software dependencies. Where possible, these processes have been submitted to and installed from [nf-core/modules](https://github.com/nf-core/modules) in order to make them available to all nf-core pipelines, and to everyone within the Nextflow community!
 
 <!-- TODO nf-core: Add full-sized test dataset and amend the paragraph below if applicable -->
@@ -43,22 +41,25 @@ You can find numerous talks on the [nf-core events page](https://nf-co.re/events
 3. Adapter and quality trimming ([`TrimGalore`](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/))
 4. Alignment with [`STAR`](https://github.com/alexdobin/STAR)
 5. Choice of quantification depending on analysis type:
-   1. [`STAR`](https://github.com/alexdobin/STAR) -> [`Salmon`](https://combine-lab.github.io/salmon/) *DTU*
-   2. [`STAR`](https://github.com/alexdobin/STAR) -> [`featureCounts`](https://academic.oup.com/bioinformatics/article/30/7/923/232889?login=false) *DEU edgeR*
-   3. [`STAR`](https://github.com/alexdobin/STAR) -> [`HTSeq`](https://htseq.readthedocs.io/en/master/) (DEXSeq count) *DEU DEXSeq*
+   1. [`STAR`](https://github.com/alexdobin/STAR) -> [`Salmon`](https://combine-lab.github.io/salmon/) **DTU**
+   2. [`STAR`](https://github.com/alexdobin/STAR) -> [`featureCounts`](https://academic.oup.com/bioinformatics/article/30/7/923/232889?login=false) **DEU edgeR**
+   3. [`STAR`](https://github.com/alexdobin/STAR) -> [`HTSeq`](https://htseq.readthedocs.io/en/master/) (DEXSeq count) **DEU DEXSeq**
 8. Sort and index alignments ([`SAMtools`](https://sourceforge.net/projects/samtools/files/samtools/))
 9. Create bigWig coverage files ([`BEDTools`](https://github.com/arq5x/bedtools2/), [`bedGraphToBigWig`](http://hgdownload.soe.ucsc.edu/admin/exe/))
 10. Pseudo-alignment and quantification ([`Salmon`](https://combine-lab.github.io/salmon/); _optional_)
 11. Summarize QC ([`MultiQC`](http://multiqc.info/))
 12. Differential Exon Usage (DEU):
-   1. For differential expression analysis of exons ([`DEXSeq`](https://bioconductor.org/packages/devel/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html))
-   2. Differential expression analysis following quantification with featureCounts ([`edgeR`](https://bioconductor.org/packages/release/bioc/html/edgeR.html))
+    1. [`HTSeq`](https://htseq.readthedocs.io/en/master/) -> [`DEXSeq`](https://bioconductor.org/packages/devel/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html)
+    2. [`featureCounts`](https://academic.oup.com/bioinformatics/article/30/7/923/232889?login=false) -> [`edgeR`](https://bioconductor.org/packages/release/bioc/html/edgeR.html)
+    3. Quantification with [`featureCounts`](https://academic.oup.com/bioinformatics/article/30/7/923/232889?login=false) or [`HTSeq`](https://htseq.readthedocs.io/en/master/)
+    4. Differential exon usage with [`DEXSeq`](https://bioconductor.org/packages/devel/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html) or [`edgeR`](https://bioconductor.org/packages/release/bioc/html/edgeR.html)
 13. Differential Transcript Usage (DTU):
-    1. Filtering of genes and features with low expression ([`DRIMSeq`](https://rdrr.io/bioc/DRIMSeq/man/dmFilter.html))
-    2. For differential expression analysis of transcripts ([`DEXSeq`](http://bioconductor.org/packages/release/workflows/vignettes/rnaseqDTU/inst/doc/rnaseqDTU.html))
-14. Event-based Differential Splicing analysis:
-    1. For detection of differential alternative splicing from replicate RNA-Seq data ([`rMats`](https://github.com/Xinglab/rmats-turbo))
-    2. Useing transcript abundances to estimate PSI values for each Differential Splicing event ([`SUPPA`](https://github.com/comprna/SUPPA))
+    1. [`Salmon`](https://combine-lab.github.io/salmon/) -> [`DRIMSeq`](https://rdrr.io/bioc/DRIMSeq/man/dmFilter.html) -> [`DEXSeq`](http://bioconductor.org/packages/release/workflows/vignettes/rnaseqDTU/inst/doc/rnaseqDTU.html)
+    2. Filtering with [`DRIMSeq`](https://rdrr.io/bioc/DRIMSeq/man/dmFilter.html)
+    3. Differential transcript usage with [`DEXSeq`](http://bioconductor.org/packages/release/workflows/vignettes/rnaseqDTU/inst/doc/rnaseqDTU.html)
+14. Event-based splicing analysis:
+    1. [`STAR`](https://github.com/alexdobin/STAR) -> [`rMATS`](https://github.com/Xinglab/rmats-turbo)
+    2. [`Salmon`](https://combine-lab.github.io/salmon/) -> [`SUPPA2`](https://github.com/comprna/SUPPA)
 
 ## Quick Start
 
@@ -91,9 +92,9 @@ The nf-core/rnasplice pipeline comes with documentation about the pipeline [usag
 
 ## Credits
 
-nf-core/rnasplice was originally written by Benjamin Southgate ([@Ben-Southgate](https://github.com/bensouthgate)), Asma Ali ([@Asma-Ali](https://github.com/asmaali98)), Keerthana Bhaskaran ([@Keerthana-Bhaskaran](https://github.com/Keerthana-Bhaskaran-TG)), Lathika Madhan Mohan ([@Lathika-Madhan-Mohan](https://github.com/lathikaa)) and James Ashmore ([@James-Ashmore](https://github.com/james-ashmore)) from [Zifo RnD Solutions](https://www.zifornd.com/).
+nf-core/rnasplice was originally written by Benjamin Southgate ([@Ben-Southgate](https://github.com/bensouthgate)), James Ashmore ([@James-Ashmore](https://github.com/james-ashmore)), Asma Ali ([@Asma-Ali](https://github.com/asmaali98)), Keerthana Bhaskaran ([@Keerthana-Bhaskaran](https://github.com/Keerthana-Bhaskaran-TG)), and Lathika Madhan Mohan ([@Lathika-Madhan-Mohan](https://github.com/lathikaa)) from [Zifo RnD Solutions](https://www.zifornd.com/).
 
-We thank Harshil Patel ([@drpatelh](https://github.com/drpatelh)) and everyone in the Seqera Labs ([seqeralabs](https://github.com/seqeralabs)) for their extensive assistance in the development of this pipeline.
+We thank Harshil Patel ([@drpatelh](https://github.com/drpatelh)) and Seqera Labs ([seqeralabs](https://github.com/seqeralabs)) for their assistance in the development of this pipeline.
 
 <img src="docs/images/zifo_logo.jpg" alt="Zifo RnD Solutions" width="200"/>
 
