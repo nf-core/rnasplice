@@ -253,6 +253,8 @@ workflow RNASPLICE {
                 ch_samplesheet,
                 read_method
             )
+
+            ch_versions = ch_versions.mix(DEXSEQ_DEU.out.versions)
         }
 
         //
@@ -341,6 +343,8 @@ workflow RNASPLICE {
                 PREPARE_GENOME.out.gtf
             )
 
+            ch_versions = ch_versions.mix(TX2GENE_TXIMPORT_STAR_SALMON.out.versions)
+
             //
             // SUBWORKFLOW: Run Dexseq DTU
             //
@@ -362,6 +366,9 @@ workflow RNASPLICE {
                     TX2GENE_TXIMPORT_STAR_SALMON.out.tximport_tx2gene,
                     ch_samplesheet
                 )
+
+                ch_versions = ch_versions.mix(DRIMSEQ_DEXSEQ_DTU_STAR_SALMON.out.versions)
+
             }
 
             //
@@ -379,6 +386,8 @@ workflow RNASPLICE {
                     ch_suppa_tpm,
                     ch_samplesheet,
                 )
+
+                ch_versions = ch_versions.mix(SUPPA_STAR_SALMON.out.versions)
 
             }
 
@@ -420,6 +429,8 @@ workflow RNASPLICE {
             PREPARE_GENOME.out.gtf
         )
 
+        ch_versions = ch_versions.mix(TX2GENE_TXIMPORT_SALMON.out.versions)
+
         //
         // SUBWORKFLOW: Run Dexseq DTU
         //
@@ -440,6 +451,9 @@ workflow RNASPLICE {
                 TX2GENE_TXIMPORT_SALMON.out.tximport_tx2gene,
                 ch_samplesheet
             )
+
+            ch_versions = ch_versions.mix(DRIMSEQ_DEXSEQ_DTU_SALMON.out.versions)
+
         }
 
         //
@@ -457,6 +471,8 @@ workflow RNASPLICE {
                 ch_suppa_tpm,
                 ch_samplesheet,
             )
+
+            ch_versions = ch_versions.mix(SUPPA_SALMON.out.versions)
 
         }
     }
