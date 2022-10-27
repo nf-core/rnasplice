@@ -36,7 +36,7 @@ You can find numerous talks on the [nf-core events page](https://nf-co.re/events
 ## Pipeline summary
 
 <!-- TODO nf-core: Fill in short bullet-pointed list of the default steps in the pipeline -->
-<<<<<<<<<<<<<<<<<<<INSERT PIPELINE OVERVIEW IMAGE HERE>>>>>>>>>>>>>>>>>>>>>
+![nf-core/rnasplice metro map](assets/rnasplice_map.png)
 
 1. Merge re-sequenced FastQ files ([`cat`](http://www.linfo.org/cat.html))
 2. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
@@ -48,7 +48,7 @@ You can find numerous talks on the [nf-core events page](https://nf-co.re/events
 5. Sort and index alignments ([`SAMtools`](https://sourceforge.net/projects/samtools/files/samtools/))
 6. Create bigWig coverage files ([`BEDTools`](https://github.com/arq5x/bedtools2/), [`bedGraphToBigWig`](http://hgdownload.soe.ucsc.edu/admin/exe/))
 7. Pseudo-alignment and quantification ([`Salmon`](https://combine-lab.github.io/salmon/); _optional_)
-8. Present QC for raw reads, alignment and read counting ([`MultiQC`](http://multiqc.info/))
+8. Summarize QC ([`MultiQC`](http://multiqc.info/))
 9. Differential Exon Usage (DEU):
    1. For differential expression analysis of exons ([`DEXSeq`](https://bioconductor.org/packages/devel/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html))
    2. Differential expression analysis following quantification with featureCounts ([`edgeR`](https://bioconductor.org/packages/release/bioc/html/edgeR.html))
@@ -85,18 +85,18 @@ You can find numerous talks on the [nf-core events page](https://nf-co.re/events
    ```
 
 ## Documentation
-<<<<<<<<<<<<<<<<<<<<<<<<<<EDIT THE LINKS LATER>>>>>>>>>>>>>>>>>>>>>>>>>>
-The nf-core/rnasplice pipeline comes with documentation about the pipeline [usage](https://nf-co.re/rnasplice/usage), [parameters](https://nf-co.re/rnasplice/parameters) and [output](https://nf-co.re/rnasplice/output).
+
+The nf-core/rnasplice pipeline comes with documentation about the pipeline [usage](https://github.com/zifornd/rnasplice/blob/dev/docs/usage.md) and [output](https://github.com/zifornd/rnasplice/blob/dev/docs/output.md).
 
 ## Credits
 
-nf-core/rnasplice was originally written by Benjamin Southgate from [Zifo RnD Solutions](https://www.zifornd.com/).
+nf-core/rnasplice was originally written by Benjamin Southgate ([@Ben-Southgate](https://github.com/bensouthgate)) and James Ashmore ([@James-Ashmore](https://github.com/james-ashmore)) from [Zifo RnD Solutions](https://www.zifornd.com/).
 
-We thank the following people for their extensive assistance in the development of this pipeline:
+Many thanks to other who have helped out along the way too, including (but not limited to): [@Asma-Ali](https://github.com/asmaali98), [@Keerthana-Bhaskaran](https://github.com/Keerthana-Bhaskaran-TG), [@Lathika-Madhan-Mohan](https://github.com/lathikaa) from [Zifo RnD Solutions](https://www.zifornd.com/).
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!
+We thank Harshil Patel ([@drpatelh](https://github.com/drpatelh)) and everyone in the Seqera labs ([seqeralabs](https://github.com/seqeralabs)) or their extensive assistance in the development of this pipeline. 
 
-<!-- TODO nf-core: If applicable, make list of people who have also contributed -->
+![[Zifo RnD Solutions](https://www.zifornd.com/)](docs/images/zifo_logo.jpg)
 
 ## Contributions and Support
 
@@ -107,7 +107,7 @@ For further information or help, don't hesitate to get in touch on the [Slack `#
 ## Citations
 
 <!-- TODO nf-core: Add citation for pipeline after first release. Uncomment lines below and update Zenodo doi and badge at the top of this file. -->
-If you use  nf-core/rnasplice for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX)
+<!-- If you use  nf-core/rnasplice for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX) -->
 
 An extensive list of references for the tools used by the pipeline can be found in the [`CITATIONS.md`](CITATIONS.md) file.
 
