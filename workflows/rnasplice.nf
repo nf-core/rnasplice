@@ -291,7 +291,7 @@ workflow RNASPLICE {
             // Create variable to check if samples have one condition or two
             //
 
-            single_condition = isSingleCondition(samplesheet)
+            is_single_condition = WorkflowRnasplice.isSingleCondition(ch_input)
 
             //
             // SUBWORKFLOW: Run rMATS

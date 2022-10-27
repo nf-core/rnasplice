@@ -399,7 +399,7 @@ class WorkflowRnasplice {
     //
     // Exit pipeline if rMATS requested with mixed single and paired end samples
     //
-    private static void rmatsReadError(reads, log) {
+    public static void rmatsReadError(reads, log) {
         reads
             .map { meta, fastq -> meta.single_end }
             .unique()
@@ -415,7 +415,7 @@ class WorkflowRnasplice {
     //
     // Exit pipeline if rMATS requested with mixed stranded samples
     //
-    private static void rmatsStrandednessError(reads, log) {
+    public static void rmatsStrandednessError(reads, log) {
         reads
             .map { meta, fastq -> meta.strandedness }
             .unique()
@@ -431,7 +431,7 @@ class WorkflowRnasplice {
     //
     // Exit pipeline if rMATS requested with more than 2 conditions
     //
-    private static void rmatsConditionError(reads, log) {
+    public static void rmatsConditionError(reads, log) {
         reads
             .map { meta, fastq -> meta.condition }
             .unique()
@@ -448,15 +448,17 @@ class WorkflowRnasplice {
     // Create variable to check if samples have one condition or multiple
     //
 
-    private static Boolean isSingleCondition(samplesheet) {
-        
-        reader = samplesheet.splitCsv(header: true)
+    public static Boolean isSingleCondition(samplesheet) {
 
-        conditions = []
+        def reader = samplesheet.splitCsv(header: true)
 
-        reader.map { row -> conditions << ${row.condition} }
+        def conditions = []
 
-        return conditions.unique.size() == 1
+        reader.each { row -> conditions << row.condition }
+
+        def single_condition = conditions.unique().size() == 1
+
+        return single_condition
 
     }
 
