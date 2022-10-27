@@ -20,10 +20,10 @@ process DEXSEQ_EXON {
     path "versions.yml"           , emit: versions
 
     script:
-    def demoninator = params.deu_lfc_denominator ?: ""
+    def denominator = params.deu_lfc_denominator ?: ""
 
     """
-    run_dexseq_exon.R dexseq_clean_counts $gff $samplesheet $read_method ${task.cpus} $demoninator
+    run_dexseq_exon.R dexseq_clean_counts $gff $samplesheet $read_method ${task.cpus} $denominator
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

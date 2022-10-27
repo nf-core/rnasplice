@@ -3,8 +3,8 @@ process RMATS_PREP {
 
     conda (params.enable_conda ? 'bioconda::bioconductor-pairadise=1.10 bioconda::rmats=4.1.2' : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/mulled-v2-6ba811e09240983aa8bd70a9c102eb30ce520ac4:3ff669b8d4ebc6323cd5452c8a1ea4429a406757-0' :
-        'quay.io/biocontainers/mulled-v2-6ba811e09240983aa8bd70a9c102eb30ce520ac4:3ff669b8d4ebc6323cd5452c8a1ea4429a406757-0' }"
+        'https://depot.galaxyproject.org/singularity/mulled-v2-c5a18b683684b2b5cb608213a267834373186743:1c831c11c46ebe0c54bcb67918bc35fedf1c43ee-0' :
+        'quay.io/biocontainers/mulled-v2-c5a18b683684b2b5cb608213a267834373186743:1c831c11c46ebe0c54bcb67918bc35fedf1c43ee-0' }"
 
     input:
     path gtf                                     // /path/to/genome.gtf
@@ -30,10 +30,10 @@ process RMATS_PREP {
 
     // Take single/paired end information from meta
     def read_type = meta.single_end ? 'single' : 'paired'
-    
+
     // Default strandedness to fr-unstranded - also if user supplies "unstranded"
     def strandedness = 'fr-unstranded'
-    
+
     // Change strandedness based on user samplesheet input
     if (meta.strandedness == 'forward') {
         strandedness  = 'fr-secondstrand'
@@ -49,7 +49,7 @@ process RMATS_PREP {
 
     // Whether user wants to run with novel splice sites flag
     def novel_splice_sites = params.rmats_novel_splice_site ? '--novelSS' : ''
-    
+
     // Additional args for when running with --novelSS flag
     // User defined else defauls to 50, 500
     def min_intron_len = ''
@@ -57,7 +57,7 @@ process RMATS_PREP {
     if (params.rmats_novel_splice_site) {
         min_intron_len = params.rmats_min_intron_len ? '--mil $params.rmats_min_intron_len' : '--mil 50'
         max_exon_len   = params.rmats_max_exon_len ? '--mel $params.rmats_max_exon_len' : '--mel 500'
-    } 
+    }
 
 
     """
