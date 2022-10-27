@@ -267,6 +267,8 @@ workflow RNASPLICE {
                 ch_samplesheet
             )
 
+            ch_versions = ch_versions.mix(EDGER_DEU.out.versions)
+
         }
 
         //
@@ -521,6 +523,7 @@ workflow RNASPLICE {
     ch_workflow_summary = Channel.value(workflow_summary)
 
     ch_multiqc_files = Channel.empty()
+
     ch_multiqc_files = ch_multiqc_files.mix(Channel.from(ch_multiqc_config))
     ch_multiqc_files = ch_multiqc_files.mix(ch_multiqc_custom_config.collect().ifEmpty([]))
     ch_multiqc_files = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
@@ -542,6 +545,11 @@ workflow RNASPLICE {
         ch_multiqc_files = ch_multiqc_files.mix(ch_samtools_flagstat.collect{it[1]}.ifEmpty([]))
         ch_multiqc_files = ch_multiqc_files.mix(ch_samtools_idxstats.collect{it[1]}.ifEmpty([]))
 
+        if (params.edger_exon) {
+
+            ch_multiqc_files = ch_multiqc_files.mix(EDGER_DEU.out.featureCounts_summary.collect{it[1]}.ifEmpty([]))
+
+        }
     }
 
     MULTIQC (

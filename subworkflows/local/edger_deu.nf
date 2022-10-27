@@ -8,7 +8,7 @@ include { EDGER_EXON            } from '../../modules/local/edger_exon'
 workflow EDGER_DEU {
 
     take:
-    
+
     gtf                  // path: gtf
     ch_genome_bam        // channel: [ val(meta), path(bams) ]
     ch_samplesheet       // Channel.fromPath(params.input)
@@ -40,7 +40,9 @@ workflow EDGER_DEU {
     //
 
     emit:
-    
-    versions = ch_versions      // channel: [ versions.yml ]
+
+    featureCounts_summary  = SUBREAD_FEATURECOUNTS.out.summary  // path featureCounts.txt.summary
+
+    versions               = ch_versions                        // channel: [ versions.yml ]
 
 }
