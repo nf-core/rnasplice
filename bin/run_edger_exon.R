@@ -10,9 +10,17 @@ featurecounts <- argv[1]
 
 samplesheet <- argv[2]
 
+workers <- argv[3]
+
 # Load required packages
 
+library(BiocParallel)
+
 library(edgeR)
+
+# Setup parallelization
+
+BPPARAM <- MulticoreParam(workers = workers)
 
 # Read samples table
 
@@ -53,6 +61,10 @@ DGEList <- DGEList(
 
 # Normalization
 
+keep <- filterByExpr(DGEList, group = DGEList$samples$group)
+
+DGEList <- DGEList[keep, , keep.lib.sizes = FALSE]
+
 DGEList <- calcNormFactors(DGEList)
 
 # Create design matrix
@@ -85,22 +97,24 @@ DGEGLM <- glmQLFit(DGEList, design)
 
 # Test for differential exon expression
 
-DGELRT.exprs <- mapply(
+DGELRT.exprs <- bpmapply(
     FUN      = glmQLFTest,
     contrast = asplit(contrasts, MARGIN = 2),
     MoreArgs = list(glmfit = DGEGLM),
-    SIMPLIFY = FALSE
+    SIMPLIFY = FALSE,
+    BPPARAM = BPPARAM
 )
 
 results.exprs <- lapply(DGELRT.exprs, topTags, n = Inf, sort.by = "none")
 
 # Test for differential exon usage
 
-DGELRT.usage <- mapply(
+DGELRT.usage <- bpmapply(
     FUN      = diffSpliceDGE,
     contrast = asplit(contrasts, MARGIN = 2),
     MoreArgs = list(glmfit = DGEGLM, geneid = "Geneid", exonid = "Start"),
-    SIMPLIFY = FALSE
+    SIMPLIFY = FALSE,
+    BPPARAM = BPPARAM
 )
 
 results.usage <- list(

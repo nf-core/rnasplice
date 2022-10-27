@@ -20,7 +20,7 @@ process EDGER_EXON {
 
     script:
     """
-    run_edger_exon.R featurecounts $samplesheet
+    run_edger_exon.R featurecounts $samplesheet $task.cpus
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
