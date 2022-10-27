@@ -454,7 +454,7 @@ class WorkflowRnasplice {
 
         conditions = []
 
-        reader.map { row -> conditions << row.condition }
+        reader.each { row -> conditions << row.condition }
 
         return conditions.unique.size() == 1
 
