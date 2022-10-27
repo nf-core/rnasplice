@@ -291,27 +291,7 @@ workflow RNASPLICE {
             // Create variable to check if samples have one condition or two
             //
 
-            samplesheet = file(params.input)
-
-            def count = 0
-            def condition = []
-
-            samplesheet.eachLine { line ->
-                if ( count > 0 ) {
-                    condition << line.split(",")[4]
-                    count++
-                } else {
-                    count++
-                }
-            }
-
-            def single_condition = false
-
-            if ( condition.unique().size() > 1 ) {
-                single_condition = false
-            } else {
-                single_condition = true
-            }
+            single_condition = isSingleCondition(samplesheet)
 
             //
             // SUBWORKFLOW: Run rMATS
