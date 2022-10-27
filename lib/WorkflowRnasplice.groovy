@@ -125,7 +125,7 @@ class WorkflowRnasplice {
         //
         //  SUPPA parameter checks
         //
-        
+
         if (params.clusterevents_local_event && !params.diffsplice_local_event) {
             log.error "--clusterevents_local_event specified without --diffsplice_local_event... please specify e.g. --diffsplice_local_event=true"
             System.exit(1)
@@ -413,7 +413,7 @@ class WorkflowRnasplice {
     //
     // Exit pipeline if rMATS requested with mixed single and paired end samples
     //
-    private static void rmatsReadError(reads, log) {
+    public static void rmatsReadError(reads, log) {
         reads
             .map { meta, fastq -> meta.single_end }
             .unique()
@@ -429,7 +429,7 @@ class WorkflowRnasplice {
     //
     // Exit pipeline if rMATS requested with mixed stranded samples
     //
-    private static void rmatsStrandednessError(reads, log) {
+    public static void rmatsStrandednessError(reads, log) {
         reads
             .map { meta, fastq -> meta.strandedness }
             .unique()
@@ -445,7 +445,7 @@ class WorkflowRnasplice {
     //
     // Exit pipeline if rMATS requested with more than 2 conditions
     //
-    private static void rmatsConditionError(reads, log) {
+    public static void rmatsConditionError(reads, log) {
         reads
             .map { meta, fastq -> meta.condition }
             .unique()
@@ -462,15 +462,17 @@ class WorkflowRnasplice {
     // Create variable to check if samples have one condition or multiple
     //
 
-    private static Boolean isSingleCondition(samplesheet) {
-        
-        reader = samplesheet.splitCsv(header: true)
+    public static Boolean isSingleCondition(samplesheet) {
 
-        conditions = []
+        def reader = samplesheet.splitCsv(header: true)
+
+        def conditions = []
 
         reader.each { row -> conditions << row.condition }
 
-        return conditions.unique.size() == 1
+        def single_condition = conditions.unique().size() == 1
+
+        return single_condition
 
     }
 
