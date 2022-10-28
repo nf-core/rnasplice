@@ -2,7 +2,7 @@
 
 library(stageR)
 
-args = commandArgs(trailingOnly=TRUE)
+args <- commandArgs(trailingOnly=TRUE)
 
 # Check args provided
 
@@ -71,13 +71,13 @@ if (analysis_type == "dexseq"){
 # Run StageR
 
 stageRObj <- stageRTx(pScreen=pScreen, pConfirmation=pConfirmation,
-                      pScreenAdjusted=FALSE, tx2gene=tx2gene)
+                        pScreenAdjusted=FALSE, tx2gene=tx2gene)
 
 stageRObj <- stageWiseAdjustment(stageRObj, method="dtu", alpha=0.05, allowNA=TRUE)
 
 suppressWarnings({
     stageR.padj <- getAdjustedPValues(stageRObj, order=FALSE,
-                                      onlySignificantGenes=FALSE)
+                                        onlySignificantGenes=FALSE)
 })
 
 ################################

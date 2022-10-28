@@ -45,10 +45,10 @@ genes <- data[, 1:6]
 # Create DGEList object
 
 DGEList <- DGEList(
-  counts  = counts,
-  samples = samples,
-  group   = samples$condition,
-  genes   = genes,
+    counts  = counts,
+    samples = samples,
+    group   = samples$condition,
+    genes   = genes,
 )
 
 # Normalization
@@ -126,29 +126,29 @@ saveRDS(DGELRT.usage,  file = "DGELRT.usage.rds")
 # Save results to disk
 
 mapply(
-  write.csv,
-  x = results.exprs,
-  file = paste0("contrast_", names(results.exprs), ".exprs.csv"),
-  MoreArgs = list(quote = FALSE, row.names = FALSE)
+    write.csv,
+    x = results.exprs,
+    file = paste0("contrast_", names(results.exprs), ".exprs.csv"),
+    MoreArgs = list(quote = FALSE, row.names = FALSE)
 )
 
 mapply(
-  write.csv,
-  x = results.usage$simes,
-  file = paste0("contrast_", names(results.usage$simes), ".usage.simes.csv"),
-  MoreArgs = list(quote = FALSE, row.names = FALSE)
+    write.csv,
+    x = results.usage$simes,
+    file = paste0("contrast_", names(results.usage$simes), ".usage.simes.csv"),
+    MoreArgs = list(quote = FALSE, row.names = FALSE)
 )
 
 mapply(
-  write.csv,
-  x = results.usage$gene,
-  file = paste0("contrast_", names(results.usage$gene), ".usage.gene.csv"),
-  MoreArgs = list(quote = FALSE, row.names = FALSE)
+    write.csv,
+    x = results.usage$gene,
+    file = paste0("contrast_", names(results.usage$gene), ".usage.gene.csv"),
+    MoreArgs = list(quote = FALSE, row.names = FALSE)
 )
 
 mapply(
-  write.csv,
-  x = results.usage$exon,
-  file = paste0("contrast_", names(results.usage$exon), ".usage.exon.csv"),
-  MoreArgs = list(quote = FALSE, row.names = FALSE)
+    write.csv,
+    x = results.usage$exon,
+    file = paste0("contrast_", names(results.usage$exon), ".usage.exon.csv"),
+    MoreArgs = list(quote = FALSE, row.names = FALSE)
 )

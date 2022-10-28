@@ -4,8 +4,8 @@ process DEXSEQ_COUNT {
 
     conda (params.enable_conda ? "bioconda::htseq=2.0.2" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    	'https://depot.galaxyproject.org/singularity/htseq:2.0.2--py310ha14a713_0' :
-	'quay.io/biocontainers/htseq:2.0.2--py310ha14a713_0' }"
+        'https://depot.galaxyproject.org/singularity/htseq:2.0.2--py310ha14a713_0' :
+    'quay.io/biocontainers/htseq:2.0.2--py310ha14a713_0' }"
 
     input:
     tuple val(meta), path(bam), path (gff)
@@ -32,7 +32,7 @@ process DEXSEQ_COUNT {
     } else if (meta.strandedness == 'reverse') {
         strandedness = '-s reverse'
     } else if (meta.strandedness == 'unstranded') {
-	    strandedness = '-s no'
+        strandedness = '-s no'
     }
 
     """

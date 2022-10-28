@@ -4,13 +4,13 @@ library(DEXSeq)
 library(DRIMSeq)
 library(BiocParallel)
 
-args = commandArgs(trailingOnly=TRUE)
+args <- commandArgs(trailingOnly=TRUE)
 
 # Check args provided
 
 if (length(args) < 2) {
 
-  stop("Usage: run_dexseq.R <drimseq_filter_rds> <ncores> <denominator>", call.=FALSE)
+    stop("Usage: run_dexseq.R <drimseq_filter_rds> <ncores> <denominator>", call.=FALSE)
 
 }
 
@@ -23,11 +23,11 @@ ncores <- args[2]         # MultiCoreParam ncores
 
 if (length(args) == 3) {
 
-  denominator <- args[3]  # denominator for lfc set by user
+    denominator <- args[3]  # denominator for lfc set by user
 
 } else {
 
-  denominator <- ""       # denominator for lfc as default "" meaning is set as first sample condition
+    denominator <- ""       # denominator for lfc as default "" meaning is set as first sample condition
 
 }
 
@@ -63,10 +63,10 @@ reducedModel <- as.formula("~sample + exon")
 # https://f1000research.com/articles/7-952
 
 dxd <- DEXSeq::DEXSeqDataSet(countData = count.data,
-                             sampleData = sample.data,
-                             design = fullModel,
-                             featureID = counts(d)$feature_id,
-                             groupID = counts(d)$gene_id)
+                            sampleData = sample.data,
+                            design = fullModel,
+                            featureID = counts(d)$feature_id,
+                            groupID = counts(d)$gene_id)
 
 dxd <- DEXSeq::estimateSizeFactors(dxd)
 

@@ -5,11 +5,11 @@
 # Also takes note of how many samples for each condition for down stream Clustering module
 
 # Parse command line arguments
-args = commandArgs(trailingOnly=TRUE)
+args <- commandArgs(trailingOnly=TRUE)
 
 if (length(args) < 4) {
 
-  stop("Usage: suppa_split_file.R <input_file> <samplesheet> <output_file_suffix> <calculate_ranges> <prefix>", call.=FALSE)
+    stop("Usage: suppa_split_file.R <input_file> <samplesheet> <output_file_suffix> <calculate_ranges> <prefix>", call.=FALSE)
 
 }
 
@@ -24,11 +24,11 @@ calculate_ranges   <- args[4] # TRUE if we want to return cluster ranges
 
 if (length(args) == 5){
 
-  prefix <- args[5]
+    prefix <- args[5]
 
 } else {
 
-  prefix <- ""
+    prefix <- ""
 
 }
 
@@ -42,7 +42,7 @@ samplesheet <- read.csv(samplesheet, header = TRUE)
 # check header of sample sheet
 if (!c("sample") %in% colnames(samplesheet) | !c("condition") %in% colnames(samplesheet)) {
 
-  stop("suppa_split_file.R Samplesheet must contain 'sample' and 'condition' column headers.", call.=FALSE)
+    stop("suppa_split_file.R Samplesheet must contain 'sample' and 'condition' column headers.", call.=FALSE)
 
 }
 
@@ -62,50 +62,50 @@ conditions <- unique(samplesheet[,"condition"])
 # Function for taking all sample names associated with a given condition
 split_files <- function(condition, samplesheet, input_file, output_file_suffix, prefix, calculate_ranges){
 
-  # Get indices of rows which cover given condition for ranges
-  indices <- which(samplesheet$condition == condition)
+    # Get indices of rows which cover given condition for ranges
+    indices <- which(samplesheet$condition == condition)
 
-  # Get sample names for given condition
-  sample_names <- samplesheet[samplesheet$condition == condition,]$sample
+    # Get sample names for given condition
+    sample_names <- samplesheet[samplesheet$condition == condition,]$sample
 
-  # Read in input file
-  input_file <- read.csv(input_file, sep="\t", header=TRUE)
+    # Read in input file
+    input_file <- read.csv(input_file, sep="\t", header=TRUE)
 
-  # Check header of input_file contains all samples from processed samplesheet
-  if (!all(samplesheet$sample %in% colnames(input_file))) {
+    # Check header of input_file contains all samples from processed samplesheet
+    if (!all(samplesheet$sample %in% colnames(input_file))) {
 
-    stop("suppa_split_file.R Input_file must contain samplesheet samples.", call.=FALSE)
+        stop("suppa_split_file.R Input_file must contain samplesheet samples.", call.=FALSE)
 
-  }
+    }
 
-  if (prefix == ""){
+    if (prefix == ""){
 
-    output_file <- paste0(condition, output_file_suffix)
-
-  } else {
-
-    output_file <- paste0(prefix, "_" ,condition, output_file_suffix)
-
-  }
-
-  # Subset input files and save out as new file
-  write.table(input_file[,sample_names, drop=F], file = output_file, quote = FALSE, sep = "\t")
-
-  # Get Cluster ranges which match the tpm and psi files above (1-3 4-6)
-  # Column numbers have to be continuous, with no overlapping or missing columns between them. Ex:1-3,4-6
-  if(calculate_ranges) {
-
-    if (indices[1] == 1) {
-
-      range <- paste0(as.character(indices[1]), "-" , as.character(indices[length(indices)]))
-      cat(range, file = "ranges.txt", sep = "")
+        output_file <- paste0(condition, output_file_suffix)
 
     } else {
 
-      range <- paste0(as.character(indices[1]), "-", as.character(indices[length(indices)]))
-      cat(c(",",range), file = "ranges.txt", sep = "", append=TRUE)
+        output_file <- paste0(prefix, "_" ,condition, output_file_suffix)
+
     }
-  }
+
+    # Subset input files and save out as new file
+    write.table(input_file[,sample_names, drop=F], file = output_file, quote = FALSE, sep = "\t")
+
+    # Get Cluster ranges which match the tpm and psi files above (1-3 4-6)
+    # Column numbers have to be continuous, with no overlapping or missing columns between them. Ex:1-3,4-6
+    if (calculate_ranges) {
+
+        if (indices[1] == 1) {
+
+            range <- paste0(as.character(indices[1]), "-" , as.character(indices[length(indices)]))
+            cat(range, file = "ranges.txt", sep = "")
+
+        } else {
+
+            range <- paste0(as.character(indices[1]), "-", as.character(indices[length(indices)]))
+            cat(c(",",range), file = "ranges.txt", sep = "", append=TRUE)
+        }
+    }
 }
 
 ####################################################################
@@ -114,8 +114,8 @@ split_files <- function(condition, samplesheet, input_file, output_file_suffix, 
 
 for (cond in conditions) {
 
-  # Split files
-  split_files(cond, samplesheet, input_file, output_file_suffix, prefix, calculate_ranges)
+    # Split files
+    split_files(cond, samplesheet, input_file, output_file_suffix, prefix, calculate_ranges)
 
 }
 
