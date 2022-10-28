@@ -94,9 +94,11 @@ Following `DRIMSeq` filtering you can use [DEXSeq](http://bioconductor.org/packa
 
 ## RMATS
 
+[rMATS](Xinglab/rmats-turbo (github.com)) (replicate multivariate analysis of transcript splicing) is designed for detection of differential alternative splicing from replicate RNA-Seq data. If rmats is set to `true`, the samples need to have the same strandedness, same read type and the samplesheet must have only one condition or two unique conditions. `rmats_paired_stats` can be set to `true` only if there are two conditions. `rmats_read_len` has to be set by the user and if the read length is variable, an average or median read length has to be specified.
 
-## SUPPA
+## SUPPA2
 
+You can run [SUPPA](https://github.com/comprna/SUPPA) following alignment and quantification with Salmon or after STAR alignment and Salmon quantification. 
 
 ## Running the pipeline
 

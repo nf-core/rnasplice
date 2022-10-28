@@ -36,7 +36,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
   - [DEXSeq](#dexseq-1) - For differential expression analysis of transcripts
 - Event-based Differential Splicing analysis
   - [rMats](#rmats) - Designed for detection of differential alternative splicing from replicate RNA-Seq data
-  - [SUPPA](#suppa) - Uses transcript abundances to estimate PSI values for each Differential Splicing event
+  - [SUPPA2](#suppa2) - Uses transcript abundances to estimate PSI values for each Differential Splicing event
 - Workflow reporting and genomes
   - [Reference genome files](#reference-genome-files) - Saving reference genome indices/files
   - [Pipeline information](#pipeline-information) - Report metrics generated during the workflow execution
@@ -237,7 +237,7 @@ Use bias uncorrected counts: load and use the `txi$counts` matrix (or `salmon.me
 - `dexseq/`
   - `` : 
 
-[DEXSeq]()
+[DEXSeq](https://bioconductor.org/packages/devel/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html)
 
 ### edgeR
 
@@ -247,7 +247,7 @@ Use bias uncorrected counts: load and use the `txi$counts` matrix (or `salmon.me
 - `edger/`
   - `` : 
 
-[edgeR]()
+[edgeR](https://bioconductor.org/packages/release/bioc/html/edgeR.html)
 
 ## Differential Transcript Usage (DTU)
 
@@ -259,7 +259,7 @@ Use bias uncorrected counts: load and use the `txi$counts` matrix (or `salmon.me
 - `drimseq/`
   - `` : 
 
-[DRIMSeq]()
+[DRIMSeq](https://rdrr.io/bioc/DRIMSeq/man/dmFilter.html)
 
 ### DEXSeq
 
@@ -269,7 +269,7 @@ Use bias uncorrected counts: load and use the `txi$counts` matrix (or `salmon.me
 - `dexseq/`
   - `` : 
 
-[DEXSeq]()
+[DEXSeq](http://bioconductor.org/packages/release/workflows/vignettes/rnaseqDTU/inst/doc/rnaseqDTU.html)
 
 ## Event-based analysis
 
@@ -281,17 +281,17 @@ Use bias uncorrected counts: load and use the `txi$counts` matrix (or `salmon.me
 - `rmats/`
   - `` : 
 
-[rMats]()
+[rMats](https://github.com/Xinglab/rmats-turbo)
 
-### SUPPA
+### SUPPA2
 
 <details markdown="1">
 <summary>Output files</summary>
 
-- `suppa/`
+- `suppa2/`
   - `` : 
 
-[SUPPA]()
+[SUPPA2](https://github.com/comprna/SUPPA)
 
 ## Workflow reporting and genomes
 
