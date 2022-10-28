@@ -16,8 +16,8 @@ if (length(args) < 2) {
 ########### Collect inputs ###########
 ######################################
 
-results = args[1]
-analysis_type = args[2]
+results       <- args[1]
+analysis_type <- args[2]
 
 #########################################
 ####### Run stageR postprocessing #######

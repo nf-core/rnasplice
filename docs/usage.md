@@ -40,13 +40,13 @@ TREATMENT_REP3,AEG588A6_S6_L003_R1_001.fastq.gz,,reverse
 TREATMENT_REP3,AEG588A6_S6_L004_R1_001.fastq.gz,,reverse
 ```
 
-| Column    | Description                                                                                                                                                                            |
-| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sample`  | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
-| `fastq_1` | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
-| `fastq_2` | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
-| `strandedness` | Sample strand-specificity. Must be one of `unstranded`, `forward` or `reverse`.  |
-| `condition` | The `wt`/`treatment` condition of sample. |
+| Column         | Description                                                                                                                                                                            |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sample`       | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
+| `fastq_1`      | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
+| `fastq_2`      | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
+| `strandedness` | Sample strand-specificity. Must be one of `unstranded`, `forward` or `reverse`.                                                                                                        |
+| `condition`    | The `wt`/`treatment` condition of sample.                                                                                                                                              |
 
 An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline.
 
@@ -63,7 +63,7 @@ You also have the option to pseudo-align and quantify your data with [Salmon](ht
 There are 3 methods for quantification after STAR alignment.
 The first option align with STAR and quantify using Salmon (`--aligner star_salmon`). You also have the option to pseudo-align and quantify your data with Salmon by providing the `--pseudo_aligner salmon` parameter.
 The pipeline also enables quantification using [featureCounts](https://academic.oup.com/bioinformatics/article/30/7/923/232889). By default, the pipeline uses `gene_name` as the default gene identifier group. In case you need to adjust this, specify using the option `--featurecounts_feature_type` to use a different category present in your provided GTF file. Please also take care to use a suitable attribute to categorize the `biotype` of the selected features in your GTF then, using the option `--featurecounts_group_type` (default: `gene_biotype`).
-The next quantification method available in the pipeline is using [HTSeq](https://htseq.readthedocs.io/en/master/) following STAR alignment. By default HTSeq combines the overlapping genes into a single aggregate gene which is subsequently referred to with the IDs of the individual genes, joined by a plus (‘+’) sign. If you do not like this behaviour, you can disable aggregation with the `--aggregation` parameter. 
+The next quantification method available in the pipeline is using [HTSeq](https://htseq.readthedocs.io/en/master/) following STAR alignment. By default HTSeq combines the overlapping genes into a single aggregate gene which is subsequently referred to with the IDs of the individual genes, joined by a plus (‘+’) sign. If you do not like this behaviour, you can disable aggregation with the `--aggregation` parameter.
 
 ## Reference genome files
 
@@ -90,13 +90,11 @@ Differential expression analysis following quantification with featureCounts can
 ## Differential Transcript Usage
 
 Filtering of genes and features with low expression can be done using [DRIMSeq](https://rdrr.io/bioc/DRIMSeq/man/dmFilter.html). `min_samps_gene_expr` defines the minimal number of samples where genes are required to be expressed at the minimal level of `min_gene_expr` in order to be included in the downstream analysis. Similarly, `min_samps_feature_expr` and `min_samps_feature_prop` defines the minimal number of samples where features are required to be expressed at the minimal levels of counts `min_feature_expr` or proportions `min_feature_prop`. By default, all the filtering parameters equal zero which means that features with zero expression in all samples are removed as well as genes with only one non-zero feature.
-Following `DRIMSeq` filtering you can use [DEXSeq](http://bioconductor.org/packages/release/workflows/vignettes/rnaseqDTU/inst/doc/rnaseqDTU.html) for differential transcript usage if `dexseq_dtu` is kept as `true`. You can specify the `denominator` with appropriate value in `dtu_lfc_denominator` parameter. 
+Following `DRIMSeq` filtering you can use [DEXSeq](http://bioconductor.org/packages/release/workflows/vignettes/rnaseqDTU/inst/doc/rnaseqDTU.html) for differential transcript usage if `dexseq_dtu` is kept as `true`. You can specify the `denominator` with appropriate value in `dtu_lfc_denominator` parameter.
 
 ## RMATS
 
-
 ## SUPPA
-
 
 ## Running the pipeline
 
@@ -214,6 +212,7 @@ Work dir:
 
 Tip: you can replicate the issue by changing to the process work dir and entering the command `bash .command.run`
 ```
+
 To bypass this error you would need to find exactly which resources are set by the `STAR_ALIGN` process. The quickest way is to search for `process STAR_ALIGN` in the [nf-core/rnasplice Github repo](https://github.com/nf-core/rnasplice/search?q=process+STAR_ALIGN).
 We have standardised the structure of Nextflow DSL2 pipelines such that all module files will be present in the `modules/` directory and so, based on the search results, the file we want is `modules/nf-core/star/align/main.nf`.
 If you click on the link to that file you will notice that there is a `label` directive at the top of the module that is set to [`label process_high`](https://github.com/nf-core/rnaseq/blob/4c27ef5610c87db00c3c5a3eed10b1d161abf575/modules/nf-core/software/star/align/main.nf#L9).
