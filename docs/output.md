@@ -120,8 +120,9 @@ The STAR section of the MultiQC report shows a bar plot with alignment rates: go
 <details markdown="1">
 <summary>Output files</summary>
 
--`star_featurecounts/`
-  -``: 
+- `star_featurecounts/`
+  - `*featureCounts.txt`: Counts of reads mapping to features.
+  - `*featureCounts.txt.summary`: Summary log file.
 
 [featureCounts](https://academic.oup.com/bioinformatics/article/30/7/923/232889) is an accurate and fast tool which works by taking the alignment coordinates for each read and cross-referencing that to the coordinates for features described in the GTF. `featureCounts` only includes and counts those reads that map to a single location (uniquely mapping) for quantification.  
 
@@ -130,11 +131,10 @@ The STAR section of the MultiQC report shows a bar plot with alignment rates: go
 <details markdown="1">
 <summary>Output files</summary>
 
--`star_dexseqcount/`
-  -``: 
+- `star_dexseqcount/`
+  - `*.clean.count.txt`: a table with counts for each feature, followed by the special counters.
 
-[DEXSeq_Count](https://bioconductor.org/packages/release/bioc/html/DEXSeq.html) 
-This step won't be run if all of the samples in the samplesheet don't have the same FASTA and GTF reference files.
+[DEXSeq_Count](https://bioconductor.org/packages/release/bioc/html/DEXSeq.html) takes a file with aligned sequencing reads and a list of genomic features to count how many reads map to each feature. This step won't be run if all of the samples in the samplesheet don't have the same FASTA and GTF reference files.
 
 ## Alignment post-processing
 
@@ -235,9 +235,13 @@ Use bias uncorrected counts: load and use the `txi$counts` matrix (or `salmon.me
 <summary>Output files</summary>
 
 - `dexseq/`
-  - `` : 
+  - `dxd_exon.rds`: 
+  - `dxr_exon.rds`: 
+  - `dxr_exon.tsv`: 
+  - `qval_exon.rds`: 
+  - `dxr_exon.g.tsv`:  
 
-[DEXSeq](https://bioconductor.org/packages/devel/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html)
+[DEXSeq](https://bioconductor.org/packages/devel/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html) 
 
 ### edgeR
 
@@ -245,7 +249,10 @@ Use bias uncorrected counts: load and use the `txi$counts` matrix (or `salmon.me
 <summary>Output files</summary>
 
 - `edger/`
-  - `` : 
+  - `DGEList.rds`: 
+  - `DGEGLM.rds`: 
+  - `DGELRT.*.rds`:
+  - `*.csv`:  
 
 [edgeR](https://bioconductor.org/packages/release/bioc/html/edgeR.html)
 
@@ -257,7 +264,7 @@ Use bias uncorrected counts: load and use the `txi$counts` matrix (or `salmon.me
 <summary>Output files</summary>
 
 - `drimseq/`
-  - `` : 
+  - `d.rds`: 
 
 [DRIMSeq](https://rdrr.io/bioc/DRIMSeq/man/dmFilter.html)
 
@@ -267,7 +274,11 @@ Use bias uncorrected counts: load and use the `txi$counts` matrix (or `salmon.me
 <summary>Output files</summary>
 
 - `dexseq/`
-  - `` : 
+  - `dxd.rds`: 
+  - `dxr.rds`: 
+  - `dxr.tsv`: 
+  - `qval.rds`: 
+  - `dxr.g.tsv`: 
 
 [DEXSeq](http://bioconductor.org/packages/release/workflows/vignettes/rnaseqDTU/inst/doc/rnaseqDTU.html)
 
@@ -279,9 +290,12 @@ Use bias uncorrected counts: load and use the `txi$counts` matrix (or `salmon.me
 <summary>Output files</summary>
 
 - `rmats/`
-  - `` : 
+  - `rmats_temp/*`: 
+  - `rmats_prep.log`: 
+  - `rmats_post/*`: 
+  - `rmats_post.log`:  
 
-[rMats](https://github.com/Xinglab/rmats-turbo)
+[rMats](https://github.com/Xinglab/rmats-turbo) is designed for detection of differential alternative splicing from replicate RNA-Seq data. To run rmats, the samples need to have the same strandedness, same read type and the samplesheet must have only one condition or two unique conditions. 
 
 ### SUPPA2
 
@@ -289,8 +303,18 @@ Use bias uncorrected counts: load and use the `txi$counts` matrix (or `salmon.me
 <summary>Output files</summary>
 
 - `suppa2/`
-  - `` : 
-
+  - `*.tpm`: 
+  - `*.psi`: 
+  - `ranges.txt`: 
+  - `suppa_isoform.psi`:
+  - `suppa_local.psi`: 
+  - `events.*`: 
+  - `events_*.*`: 
+  - `*.dpsi`: 
+  - `*.psivec`: 
+  - `*.clustvec`: 
+  - `*.log`: 
+  
 [SUPPA2](https://github.com/comprna/SUPPA)
 
 ## Workflow reporting and genomes

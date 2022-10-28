@@ -18,11 +18,13 @@
 
 - [featureCounts](https://academic.oup.com/bioinformatics/article/30/7/923/232889?login=false)
 
-  > Yang Liao, Gordon K. Smyth, Wei Shi, featureCounts: an efficient general purpose program for assigning sequence reads to genomic features, Bioinformatics, Volume 30, Issue 7, 1 April 2014, Pages 923–930, https://doi.org/10.1093/bioinformatics/btt656 
+  > Yang Liao, Gordon K. Smyth, Wei Shi, featureCounts: an efficient general purpose program for assigning sequence reads to genomic features, Bioinformatics, Volume 30, Issue 7, 1 April 2014, Pages 923–930.
+
+- [gffread](https://github.com/gpertea/gffread)
 
 - [HTSeq](https://htseq.readthedocs.io/en/master/)
 
-  > Givanna H Putri, Simon Anders, Paul Theodor Pyl, John E Pimanda, Fabio Zanini, Analysing high-throughput sequencing data in Python with HTSeq 2.0, Bioinformatics, Volume 38, Issue 10, 15 May 2022, Pages 2943–2945, https://doi.org/10.1093/bioinformatics/btac166
+  > Givanna H Putri, Simon Anders, Paul Theodor Pyl, John E Pimanda, Fabio Zanini, Analysing high-throughput sequencing data in Python with HTSeq 2.0, Bioinformatics, Volume 38, Issue 10, 15 May 2022, Pages 2943–2945.
 
 - [MultiQC](https://pubmed.ncbi.nlm.nih.gov/27312411/)
   
@@ -50,7 +52,7 @@
 
 - [SUPPA2](https://github.com/comprna/SUPPA)
 
-  > Trincado, J.L., Entizne, J.C., Hysenaj, G. et al. SUPPA2: fast, accurate, and uncertainty-aware differential splicing analysis across multiple conditions. Genome Biol 19, 40 (2018). https://doi.org/10.1186/s13059-018-1417-1
+  > Trincado, J.L., Entizne, J.C., Hysenaj, G. et al. SUPPA2: fast, accurate, and uncertainty-aware differential splicing analysis across multiple conditions. Genome Biol 19, 40 (2018).
 
 - [Trim Galore!](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/)
 
@@ -71,7 +73,7 @@
 
 - [DRIMSeq](https://rdrr.io/bioc/DRIMSeq/man/dmFilter.html)
 
-  > Nowicka M, Robinson MD (2016). “DRIMSeq: a Dirichlet-multinomial framework for multivariate count outcomes in genomics [version 2; referees: 2 approved].” F1000Research, 5(1356). doi: 10.12688/f1000research.8900.2, https://f1000research.com/articles/5-1356/v2.
+  > Nowicka M, Robinson MD (2016). “DRIMSeq: a Dirichlet-multinomial framework for multivariate count outcomes in genomics [version 2; referees: 2 approved].” F1000Research, 5(1356). doi: 10.12688/f1000research.8900.2.
 
 - [edgeR](https://bioconductor.org/packages/release/bioc/html/edgeR.html)
 
