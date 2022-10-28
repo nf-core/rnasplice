@@ -53,6 +53,10 @@ DGEList <- DGEList(
 
 # Normalization
 
+keep <- filterByExpr(DGEList, group = DGEList$samples$group)
+
+DGEList <- DGEList[keep, , keep.lib.sizes = FALSE]
+
 DGEList <- calcNormFactors(DGEList)
 
 # Create design matrix
