@@ -17,7 +17,7 @@ if (length(args) < 3) {
 ######################################
 
 d = args[1]  # d.rds object from run_drimseq_filter.R
-samplesheet = args[2] # samplesheet 
+samplesheet = args[2] # samplesheet
 coef = args[3] # coefficient for comparison
 
 ######################################

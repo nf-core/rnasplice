@@ -6,7 +6,7 @@ process DEXSEQ_ANNOTATION {
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
     'https://depot.galaxyproject.org/singularity/htseq:2.0.2--py310ha14a713_0' :
     'quay.io/biocontainers/htseq:2.0.2--py310ha14a713_0' }"
-	
+
     input:
     path gtf
 
@@ -26,7 +26,7 @@ process DEXSEQ_ANNOTATION {
 
     """
     dexseq_prepare_annotation.py $gtf ${prefix}.gff $aggregation
-    
+
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         htseq: \$(python -c "import pkg_resources; print(pkg_resources.get_distribution('htseq').version)")

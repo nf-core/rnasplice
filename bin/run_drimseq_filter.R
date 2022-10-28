@@ -7,9 +7,9 @@ args = commandArgs(trailingOnly=TRUE)
 # Check args provided
 
 if (length(args) < 3) {
-  
+
   stop("Usage: run_drimseq_filter.R <txi> <tximport_tx2gene> <samplesheet>", call.=FALSE)
-  
+
 }
 
 ######################################
@@ -50,9 +50,9 @@ samps <- read.csv(samplesheet, sep=",", header = TRUE)
 
 # check header of sample sheet
 if (!c("sample") %in% colnames(samps) | !c("condition") %in% colnames(samps)) {
-  
+
   stop("run_drimseq_filter.R Samplesheet must contain 'sample' and 'condition' column headers.", call.=FALSE)
-  
+
 }
 
 # Take only sample and condition columns
@@ -61,7 +61,7 @@ samps <- samps[,c("sample", "condition")]
 # filter for unique rows based on sample name
 samps <- samps[!duplicated(samps[,"sample"]),]
 
-# Change name of cols for DRIMseq 
+# Change name of cols for DRIMseq
 colnames(samps) <- c("sample_id", "condition")
 
 ######################################
@@ -79,9 +79,9 @@ tx2gene <- tx2gene[match(rownames(cts),tx2gene$tx),]
 
 # check header of sample sheet
 if (!all(rownames(cts) == tx2gene$tx)) {
-  
+
   stop("run_drimseq_filter.R Tx2gene rownames and txi rownames must match.", call.=FALSE)
-  
+
 }
 
 # Create counts data frame used downstream
@@ -100,11 +100,11 @@ counts <- counts[rowSums(counts[,(3:ncol(counts))]) > 0,]
 d <- DRIMSeq::dmDSdata(counts = counts, samples = samps)
 
 d <- DRIMSeq::dmFilter(d,
-                min_samps_feature_expr = min_samps_feature_expr, 
+                min_samps_feature_expr = min_samps_feature_expr,
                 min_feature_expr = min_feature_expr,
-                min_samps_feature_prop = min_samps_feature_prop, 
+                min_samps_feature_prop = min_samps_feature_prop,
                 min_feature_prop = min_feature_prop,
-                min_samps_gene_expr = min_samps_gene_expr, 
+                min_samps_gene_expr = min_samps_gene_expr,
                 min_gene_expr = min_gene_expr)
 
 ################################

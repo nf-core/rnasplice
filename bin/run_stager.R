@@ -17,7 +17,7 @@ if (length(args) < 2) {
 ######################################
 
 results = args[1]
-analysis_type = args[2]  
+analysis_type = args[2]
 
 #########################################
 ####### Run stageR postprocessing #######
@@ -28,7 +28,7 @@ strp <- function(x) substr(x,1,15)
 if (analysis_type == "dexseq"){
 
     dxr <- readRDS(results)
-    
+
     qval <- args[3]
 
     qval <- readRDS(qval)
@@ -68,7 +68,7 @@ if (analysis_type == "dexseq"){
     res_pval <- as.data.frame(res[,1:6])
 }
 
-# Run StageR 
+# Run StageR
 
 stageRObj <- stageRTx(pScreen=pScreen, pConfirmation=pConfirmation,
                       pScreenAdjusted=FALSE, tx2gene=tx2gene)

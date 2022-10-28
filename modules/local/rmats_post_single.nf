@@ -22,9 +22,9 @@ process RMATS_POST_SINGLE {
 
     script:
 
-    // Only need to take meta1 as samples have same strand and read type info 
+    // Only need to take meta1 as samples have same strand and read type info
     // - see rnasplice.nf input check for rmats
-    def meta = meta1[0]   
+    def meta = meta1[0]
     def args = task.ext.args ?: ''
 
     // Take single/paired end information from meta

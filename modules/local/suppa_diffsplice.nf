@@ -12,9 +12,9 @@ process DIFFSPLICE {
     path tpms
     path psis
     val prefix
-        
+
     output:
-    path "*.dpsi"       , emit: dpsi 
+    path "*.dpsi"       , emit: dpsi
     path "*.psivec"     , emit: psivec
     path "versions.yml" , emit: versions
 

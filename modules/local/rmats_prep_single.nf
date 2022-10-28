@@ -21,9 +21,9 @@ process RMATS_PREP_SINGLE {
 
     script:
 
-    // Only need to take meta1 as samples have same strand and read type info 
+    // Only need to take meta1 as samples have same strand and read type info
     // - see rnasplice.nf input check for rmats
-    def meta = meta1[0]   
+    def meta = meta1[0]
     def args = task.ext.args ?: ''
 
     // Take single/paired end information from meta
@@ -78,6 +78,6 @@ process RMATS_PREP_SINGLE {
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         rmats: \$(echo \$(rmats.py --version) | sed -e "s/v//g")
-    END_VERSIONS   
+    END_VERSIONS
     """
     }

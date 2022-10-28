@@ -9,9 +9,9 @@ args = commandArgs(trailingOnly=TRUE)
 # Check args provided
 
 if (length(args) < 2) {
-  
+
   stop("Usage: run_dexseq.R <drimseq_filter_rds> <ncores> <denominator>", call.=FALSE)
-  
+
 }
 
 ######################################

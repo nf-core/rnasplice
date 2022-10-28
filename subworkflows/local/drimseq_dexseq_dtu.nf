@@ -31,8 +31,8 @@ workflow DRIMSEQ_DEXSEQ_DTU {
     ch_versions = ch_versions.mix(DEXSEQ_DTU.out.versions)
 
     def analysis_type = 'dexseq'
-    
-    STAGER ( 
+
+    STAGER (
         DEXSEQ_DTU.out.dexseq_results_rds,
         analysis_type,
         DEXSEQ_DTU.out.qval_rds

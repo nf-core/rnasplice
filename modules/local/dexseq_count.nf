@@ -6,7 +6,7 @@ process DEXSEQ_COUNT {
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
     	'https://depot.galaxyproject.org/singularity/htseq:2.0.2--py310ha14a713_0' :
 	'quay.io/biocontainers/htseq:2.0.2--py310ha14a713_0' }"
-	
+
     input:
     tuple val(meta), path(bam), path (gff)
 
@@ -22,7 +22,7 @@ process DEXSEQ_COUNT {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
 
-    def read_type = meta.single_end ? '' : '-p yes'    
+    def read_type = meta.single_end ? '' : '-p yes'
 
     def alignment_quality = "-a ${params.alignment_quality}"
 

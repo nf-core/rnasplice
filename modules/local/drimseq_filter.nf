@@ -15,7 +15,7 @@ process DRIMSEQ_FILTER {
     path "versions.yml"         , emit: versions
 
     script:
-    def args = task.ext.args ?: '' 
+    def args = task.ext.args ?: ''
 
     def min_samps_gene_expr = params.min_samps_gene_expr ?: 0
     def min_samps_feature_expr = params.min_samps_feature_expr ?: 0

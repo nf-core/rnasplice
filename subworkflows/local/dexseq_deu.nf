@@ -13,7 +13,7 @@ workflow DEXSEQ_DEU {
     ch_genome_bam      // bam channel
     ch_dexseq_gff      // path dexseq gff
     ch_samplesheet     // Channel.fromPath(params.input)
-    read_method        // val: htseq or featurecounts       
+    read_method        // val: htseq or featurecounts
 
     main:
 
@@ -35,7 +35,7 @@ workflow DEXSEQ_DEU {
 
         ch_dexseq_gff = DEXSEQ_ANNOTATION.out.gff
 
-    } 
+    }
 
     ch_genome_bam_gff = ch_genome_bam.combine(ch_dexseq_gff)
 
@@ -64,7 +64,7 @@ workflow DEXSEQ_DEU {
 
     emit:
 
-    dexseq_clean_txt           = DEXSEQ_COUNT.out.dexseq_clean_txt.collect()  
+    dexseq_clean_txt           = DEXSEQ_COUNT.out.dexseq_clean_txt.collect()
 
     dexseq_exon_rds            = DEXSEQ_EXON.out.dexseq_exon_rds              // path: dxd.rds
     dexseq_exon_results_rds    = DEXSEQ_EXON.out.dexseq_exon_results_rds      // path: dxr.rds

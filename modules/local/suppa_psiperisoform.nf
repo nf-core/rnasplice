@@ -10,7 +10,7 @@ process PSIPERISOFORM {
     input:
     path gtf
     path tpm
- 
+
     output:
     path "suppa_isoform.psi"  , emit: psi
     path "versions.yml"       , emit: versions
