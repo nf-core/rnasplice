@@ -1,9 +1,10 @@
 process DRIMSEQ_FILTER {
     label "process_medium"
 
-    conda     (params.enable_conda ? "conda-forge::r-base=4.0.2 bioconda::bioconductor-dexseq=1.36.0 bioconda::bioconductor-drimseq=1.18.0 bioconda::bioconductor-stager=1.12.0" : null)
-    container "docker.io/yuukiiwa/nanoseq:dexseq"
-    // need a multitool container for r-base, dexseq, stager, drimseq and on quay hub
+    conda (params.enable_conda ? "bioconda::bioconductor-drimseq=1.18.0" : null)
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/bioconductor-drimseq:1.18.0--r40_0' :
+        'quay.io/biocontainers/bioconductor-drimseq:1.18.0--r40_0' }"
 
     input:
     path txi                  // path: *.txi*.rds (either txi.s.rds or txi.dtu.rds)
@@ -12,6 +13,8 @@ process DRIMSEQ_FILTER {
 
     output:
     path "d.rds"                , emit: drimseq_filter_rds
+    path "sample.data.tsv"      , emit: drimseq_sample_data
+    path "d.counts.tsv"         , emit: drimseq_d_counts
     path "versions.yml"         , emit: versions
 
     script:

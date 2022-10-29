@@ -6,9 +6,9 @@ args <- commandArgs(trailingOnly=TRUE)
 
 # Check args provided
 
-if (length(args) < 3) {
+if (length(args) < 9) {
 
-    stop("Usage: run_drimseq_filter.R <txi> <tximport_tx2gene> <samplesheet>", call.=FALSE)
+    stop("Usage: run_drimseq_filter.R <txi> <tximport_tx2gene> <samplesheet> <drimseq filtering params>", call.=FALSE)
 
 }
 
@@ -21,12 +21,12 @@ tximport_tx2gene <- args[2] # tx2gene information
 samplesheet      <- args[3] # samplesheet
 
 # Filter params
-min_samps_gene_expr    <- args[4] # Default: 12
-min_samps_feature_expr <- args[5] # Default: 6
-min_samps_feature_prop <- args[6] # Default: 6
-min_feature_expr       <- args[7] # Default: 10
-min_feature_prop       <- args[8] # Default: 0.1
-min_gene_expr          <- args[9] # Default: 10
+min_samps_gene_expr    <- args[4]
+min_samps_feature_expr <- args[5]
+min_samps_feature_prop <- args[6]
+min_feature_expr       <- args[7]
+min_feature_prop       <- args[8]
+min_gene_expr          <- args[9]
 
 ######################################
 ########## Process tx2gene ###########
@@ -101,11 +101,23 @@ d <- DRIMSeq::dmFilter(d,
                         min_samps_gene_expr = min_samps_gene_expr,
                         min_gene_expr = min_gene_expr)
 
+# Take pre-filtered sample data from DRIMSeq object
+sample.data <- DRIMSeq::samples(d)
+
+# Take count data
+d.counts <- counts(d)
+
 ################################
 ######### Save outputs #########
 ################################
 
 saveRDS(d, "d.rds")
+
+# sample.data
+write.table(sample.data, "sample.data.tsv", sep="\t", quote=FALSE, row.names = FALSE)
+
+# count data
+write.table(d.counts, "d.counts.tsv", sep="\t", quote=FALSE, row.names = FALSE)
 
 ####################################
 ########### Session info ###########

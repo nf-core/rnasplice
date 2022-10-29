@@ -1,16 +1,15 @@
 #!/usr/bin/env Rscript
 
 library(DEXSeq)
-library(DRIMSeq)
 library(BiocParallel)
 
 args <- commandArgs(trailingOnly=TRUE)
 
 # Check args provided
 
-if (length(args) < 2) {
+if (length(args) < 3) {
 
-    stop("Usage: run_dexseq.R <drimseq_filter_rds> <ncores> <denominator>", call.=FALSE)
+    stop("Usage: run_dexseq.R <sample.data> <d.counts> <ncores> <denominator>", call.=FALSE)
 
 }
 
@@ -18,12 +17,13 @@ if (length(args) < 2) {
 ########### Collect inputs ###########
 ######################################
 
-d <- args[1]              # d.rds object from run_drimseq_filter.R
-ncores <- args[2]         # MultiCoreParam ncores
+sample.data <- args[1] # sample.data from DRIMSeq run_drimseq_filter.R
+d.counts    <- args[2] # d.counts from DRIMSeq run_drimseq_filter.R
+ncores      <- args[3] # MultiCoreParam ncores
 
-if (length(args) == 3) {
+if (length(args) == 4) {
 
-    denominator <- args[3]  # denominator for lfc set by user
+    denominator <- args[4]  # denominator for lfc set by user
 
 } else {
 
@@ -41,17 +41,15 @@ BPPARAM <- BiocParallel::MulticoreParam(ncores, stop.on.error = TRUE)
 ######## Run DEXseq analysis #########
 ######################################
 
-# Read r object
-d <- readRDS(d)
-
-# Take pre-filtered sample data from DRIMSeq object
-sample.data <- DRIMSeq::samples(d)
+# Read DRIMSeq sample data and counts
+sample.data <- read.table(sample.data, sep = "\t", header = TRUE)
+d.counts <- read.table(d.counts, sep = "\t", header = TRUE)
 
 # set colnames of sample.data
 colnames(sample.data) <- c("sample", "condition")
 
-# Take count data from same filtered DRIMSeq object
-count.data <- round(DRIMSeq::counts(d)[,(3:ncol(DRIMSeq::counts(d)))])
+# Take count data from same filtered DRIMSeq
+count.data <- round(d.counts[,(3:ncol(d.counts))])
 
 # Define models
 fullModel <- as.formula("~sample + exon + condition:exon")
@@ -65,8 +63,8 @@ reducedModel <- as.formula("~sample + exon")
 dxd <- DEXSeq::DEXSeqDataSet(countData = count.data,
                             sampleData = sample.data,
                             design = fullModel,
-                            featureID = counts(d)$feature_id,
-                            groupID = counts(d)$gene_id)
+                            featureID = d.counts$feature_id,
+                            groupID = d.counts$gene_id)
 
 dxd <- DEXSeq::estimateSizeFactors(dxd)
 
