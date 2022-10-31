@@ -73,7 +73,7 @@ process RMATS_POST {
         --nthread $task.cpus \\
         --gtf $gtf \\
         --allow-clipping \\
-        --readLength 40 \\
+        --readLength $read_len \\
         --variable-read-length \\
         --cstat $splice_cutoff \\
         --task post \\
