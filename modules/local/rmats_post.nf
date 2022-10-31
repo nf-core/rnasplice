@@ -60,8 +60,8 @@ process RMATS_POST {
     def min_intron_len = ''
     def max_exon_len   = ''
     if (params.rmats_novel_splice_site) {
-        min_intron_len = params.rmats_min_intron_len ? '--mil $params.rmats_min_intron_len' : '--mil 50'
-        max_exon_len   = params.rmats_max_exon_len ? '--mel $params.rmats_max_exon_len' : '--mel 500'
+        min_intron_len = params.rmats_min_intron_len ? "--mil ${params.rmats_min_intron_len}" : '--mil 50'
+        max_exon_len   = params.rmats_max_exon_len ? "--mel ${params.rmats_max_exon_len}" : '--mel 500'
     }
 
     """
