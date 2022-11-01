@@ -238,10 +238,10 @@ Use bias uncorrected counts: load and use the `txi$counts` matrix (or `salmon.me
   - `dxd_exon.rds`: 
   - `dxr_exon.rds`: 
   - `dxr_exon.tsv`: 
-  - `qval_exon.rds`: 
+  - `qval_exon.rds`: Summarize per-exon p-values into per-gene q-values. ?
   - `dxr_exon.g.tsv`:  
 
-[DEXSeq](https://bioconductor.org/packages/devel/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html) 
+[DEXSeq](https://bioconductor.org/packages/devel/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html) is used to find differential exon usage using RNA-seq exon counts between samples with different experimental designs. For each gene, [DEXSeq](https://bioconductor.org/packages/devel/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html) fits a generalized linear model with the formula `~sample + exon + condition:exon` and compare it to the smaller model (the null model) `~ sample + exon`.
 
 ### edgeR
 
@@ -249,12 +249,12 @@ Use bias uncorrected counts: load and use the `txi$counts` matrix (or `salmon.me
 <summary>Output files</summary>
 
 - `edger/`
-  - `DGEList.rds`: 
-  - `DGEGLM.rds`: 
-  - `DGELRT.*.rds`:
-  - `*.csv`:  
+  - `DGEList.rds`: A list-based S4 class for storing read counts and associated information from digital gene expression or sequencing technologies.
+  - `DGEGLM.rds`: A list-based S4 class for storing results of a GLM fit to each gene in a DGE dataset.
+  - `DGELRT.*.rds`: A list-based S4 class for storing results of a GLM-based differential expression analysis for DGE data.
+  - `*.csv`: Collection of features with corresponding false discovery rate and p-value.
 
-[edgeR](https://bioconductor.org/packages/release/bioc/html/edgeR.html)
+[edgeR](https://bioconductor.org/packages/release/bioc/html/edgeR.html) is used for differential expression analysis of RNA-seq expression profiles with biological replication. edgeR stores data in a simple list-based data object called a `DGEList`. The main components of an DGEList object are a matrix counts containing the integer counts, a data.frame samples containing information about the samples or libraries, and a optional data.frame genes containing annotation for the genes or genomic features. The data.frame samples contains a column lib.size for the library size or sequencing depth for each sample. If not specified by the user, the library sizes will be computed from the column sums of the counts. A `DGEGLM` object contains the estimated values of the GLM coefficients for each gene, as well as the fitted mean-QL dispersion trend, the squeezed QL estimates and the prior degrees of freedom (df).
 
 ## Differential Transcript Usage (DTU)
 
@@ -264,9 +264,9 @@ Use bias uncorrected counts: load and use the `txi$counts` matrix (or `salmon.me
 <summary>Output files</summary>
 
 - `drimseq/`
-  - `d.rds`: 
+  - `d.rds`: A DRIMSeq RObject containing filtered normalised counts table used as input for DEXSeq analysis.
 
-[DRIMSeq](https://rdrr.io/bioc/DRIMSeq/man/dmFilter.html)
+[DRIMSeq](https://rdrr.io/bioc/DRIMSeq/man/dmFilter.html) is used for differential transcript usage analysis between different conditions.It is based on modeling the counts of genomic features (i.e., transcripts) with the Dirichlet-multinomial distribution. The `dmFilter` in [DRIMSeq](https://rdrr.io/bioc/DRIMSeq/man/dmFilter.html) remove genes which had expression too low to have very much statistical power for detecting DTU, and transcripts which were very lowly expressed in both conditions, and so not contributing useful information for DTU. As these filters are intuitive, they greatly speed up the analysis, and such filtering is beneficial in FDR control.
 
 ### DEXSeq
 
@@ -280,7 +280,7 @@ Use bias uncorrected counts: load and use the `txi$counts` matrix (or `salmon.me
   - `qval.rds`: 
   - `dxr.g.tsv`: 
 
-[DEXSeq](http://bioconductor.org/packages/release/workflows/vignettes/rnaseqDTU/inst/doc/rnaseqDTU.html)
+[DEXSeq](http://bioconductor.org/packages/release/workflows/vignettes/rnaseqDTU/inst/doc/rnaseqDTU.html) detects differential transcript usage (DTU) from RNA-seq data for differential gene expression analysis. Using the [DRIMSeq](https://rdrr.io/bioc/DRIMSeq/man/dmFilter.html) filtering procedure dramatically increase the speed of [DEXSeq](http://bioconductor.org/packages/release/workflows/vignettes/rnaseqDTU/inst/doc/rnaseqDTU.html). 
 
 ## Event-based analysis
 
@@ -290,10 +290,10 @@ Use bias uncorrected counts: load and use the `txi$counts` matrix (or `salmon.me
 <summary>Output files</summary>
 
 - `rmats/`
-  - `rmats_temp/*`: 
-  - `rmats_prep.log`: 
-  - `rmats_post/*`: 
-  - `rmats_post.log`:  
+  - `rmats_temp/*`: Folder containing .txt and .rmats files which are input for rmats_post step.
+  - `rmats_prep.log`: Log file generated for rmats_prep step.
+  - `rmats_post/*`: Folder containing results of differential alternative splicing in .txt files.
+  - `rmats_post.log`: Log file generated for rmats_post step.
 
 [rMats](https://github.com/Xinglab/rmats-turbo) is designed for detection of differential alternative splicing from replicate RNA-Seq data. To run rmats, the samples need to have the same strandedness, same read type and the samplesheet must have only one condition or two unique conditions. 
 
@@ -303,19 +303,19 @@ Use bias uncorrected counts: load and use the `txi$counts` matrix (or `salmon.me
 <summary>Output files</summary>
 
 - `suppa2/`
-  - `*.tpm`: 
-  - `*.psi`: 
-  - `ranges.txt`: 
-  - `suppa_isoform.psi`:
-  - `suppa_local.psi`: 
-  - `events.*`: 
-  - `events_*.*`: 
-  - `*.dpsi`: 
-  - `*.psivec`: 
-  - `*.clustvec`: 
-  - `*.log`: 
+  - `events.*`: Shows the relationship between each event and the transcripts that define that particular event.
+  - `events_*.*`: Shows the relationship between each individual event type and the transcripts that define that particular event.
+  - `*.psi`: Contains relative abundance value per sample for each event.
+  - `suppa_isoform.psi`: Contains relative abundance value per sample for transcript isoforms.
+  - `suppa_local.psi`: Contains relative abundance value per sample for local events.
+  - `*.dpsi`: Contains the information about which events are significantly differentially spliced in each pairwise comparison. 
+  - `*.psivec`: Contains the PSI values for all samples, either per replicate or the average PSI value per condition, averaging over the replicates.
+  - `*.clustvec`: Contains the events, their mean psi values per condition, and the clusters association. If an event has no associated cluster, it will be assigned to -1.
+  - `*.log`: Containing information of the clusters found. 
   
-[SUPPA2](https://github.com/comprna/SUPPA)
+[SUPPA2](https://github.com/comprna/SUPPA) is used for analyzing the splicing events across conditions. Both local and transcript events are calculated from the annotation. 
+Local events outputs `ioe` files that shows the relationship between each event and the transcripts that define that particular event and GTF files to load into the UCSC genome browser to visualize the different local alternative splicing events. 
+Transcript events outputs an `ioi` file that shows the transcript events in each gene. 
 
 ## Workflow reporting and genomes
 
