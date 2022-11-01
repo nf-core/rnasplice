@@ -98,7 +98,33 @@ Following `DRIMSeq` filtering you can use [DEXSeq](http://bioconductor.org/packa
 
 ## SUPPA2
 
-You can run [SUPPA](https://github.com/comprna/SUPPA) following alignment and quantification with Salmon or after STAR alignment and Salmon quantification.
+You can run [SUPPA](https://github.com/comprna/SUPPA) for analyzing the splicing events across conditions following alignment and quantification with Salmon or after STAR alignment and Salmon quantification. When `suppa_per_local_event` is set to `true`, local AS events are calculated and analyzed. When `suppa_per_isoform` is set to `true`, transcript isoform events are calculated and analyzed.
+
+### Event Calculation
+
+Events are calculated from the annotation. `pool_genes` should be set to `true` when creating ioe/ioi from annotations that are not loci-based, and it is also advisable to use with Ensembl and Gencode annotations.
+
+The `local_events` parameter requires a space separated list of events to generate from the following list:
+
+- SE: Skipping exon (SE) events
+- SS: Alternative 5' (A5) and 3' (A3) splice sites (it generates both)
+- MX: Mutually Exclusive (MX) exons
+- RI: Retained intron (RI)
+- FL: Alternative first (AF) and last (AL) exons (it generates both)
+
+### PSI Calculation
+
+For `local events`, SUPPA reads the `ioe` file generated in the event calculation step and a transcript expression file with the transcript abundances (TPM units) to calculate the relative abundance (PSI) value per sample for each event. It generates a psi file.
+For `transcript isoform events`, SUPPA reads the annotation file and a transcript expression file with the transcript abundances (TPM units) to calculate the relative abundance (PSI) value per sample for each event. It generates a psi file.
+
+### Differential Splicing Analysis
+
+`PSI` files and `TPM` files are split based on the condition specified in metadata. e.g., condition1.psi, condition2.psi, condition1.tpm, condition2.tpm
+SUPPA reads the `PSI` for the events and the transcript expression values from multiple samples, grouped by condition,  and the `ioe`/`ioi` file, to calculate the events that are differentially spliced between a pair of conditions.
+
+### Cluster Analysis 
+
+Using `dpsi` file and `psivec` file, events are clustered according to `PSI` values across conditions. 
 
 ## Running the pipeline
 
