@@ -19,11 +19,15 @@ process PSIPEREVENT {
     task.ext.when == null || task.ext.when
 
     script: // Calculate the psi values of local events
+
+    def psiperevent_total_filter = params.psiperevent_total_filter ?: '0' // default 0
+
     """
     suppa.py \\
         psiPerEvent \\
         -i $ioe \\
         -e $tpm \\
+        -f $psiperevent_total_filter \\
         -o suppa_local
 
     cat <<-END_VERSIONS > versions.yml

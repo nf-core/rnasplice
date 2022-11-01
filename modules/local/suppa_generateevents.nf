@@ -25,10 +25,14 @@ process GENERATE_EVENTS {
     // Calculate the AS events using GTF
 
     // Incase of Local Events get the list of events from nextflow.config
-    def list_events = params.local_events ?: 'SE SS MX RI FL' // default all possible
+    def list_events = params.generateevents_localevents ?: 'SE SS MX RI FL' // default all possible
 
     // If pool_genes is set to true then include the -p parameter
-    def poolgenes = params.pool_genes ? "-p" : ''
+    def poolgenes = params.generateevents_pool_genes ? "-p" : ''
+
+    def generateevents_boundary = params.generateevents_boundary ?: 'S' // default S
+    def generateevents_threshold = params.generateevents_threshold ?: '10' // default 10
+    def generateevents_exon_length = params.generateevents_exon_length ?: '100' //default 100
 
     // Calculate local events and combine all the ioe events files
     if (file_type == 'ioe') {
@@ -39,6 +43,9 @@ process GENERATE_EVENTS {
             -f $file_type \\
             -o events \\
             -e $list_events \\
+            -b $generateevents_boundary \\
+            -t $generateevents_threshold \\
+            -l $generateevents_exon_length \\
             $poolgenes
 
         awk 'FNR==1 && NR!=1 { while (/^seqname/) getline; }  1 {print}' *.ioe > events.ioe
