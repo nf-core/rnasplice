@@ -66,7 +66,7 @@ Already discussed above is quantification using Salmon by providing the `--align
 
 The pipeline also enables quantification using [featureCounts](https://academic.oup.com/bioinformatics/article/30/7/923/232889). This is associated with differential exon usage analysis using edgeR and is activated when the parameter `--edger_exon` is enabled. Please note that as this is aimed at differential exon usage feature type is set as `exon` and cannot be changed. Please take care to use a suitable attribute to categorize the `biotype` of the selected features in your GTF using the option `--featurecounts_group_type` (default: `gene_biotype`). By default, the pipeline uses `gene_name` as the default gene identifier group.
 
-The final quantification method following STAR alignment is [HTSeq](https://htseq.readthedocs.io/en/master/) which is implemented as part of the [DEXSeq](https://bioconductor.org/packages/release/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html#3_Counting_reads) package. This is associated with differential exon usage analysis using DEXSeq and is activated when the parameter `--dexseq_exon` is enabled. Using the `--aggregation` parameter the pipeline will combine overlapping genes into a single aggregate gene. This approach can alternatively be skipped and any exons that overlap other exons from different genes will be skipped.
+The final quantification method following STAR alignment is [HTSeq](https://htseq.readthedocs.io/en/master/) which is implemented as part of the [DEXSeq](https://bioconductor.org/packages/release/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html#3_Counting_reads) package. This is associated with differential exon usage analysis using DEXSeq and is activated when the parameter `--dexseq_exon` is enabled. Using the `--aggregation` parameter the pipeline will combine overlapping genes into a single aggregate gene. This approach can alternatively be skipped and any exons that overlap other exons from different genes will be skipped. Other important options to take note of are the `--alignment_quality` parameter which can be set by the user and defines the minimum alignment quality required for reads to be included (defined in 5th column of a given SAM file) (default: 10). Prior to quantification with HTSeq DEXSeq provides an annotation preparation script which takes a GTF file as input and returns a GFF file. Users may instead wish to define their own GFF file and skip this annotation preparation skip by supplying it using the `--gff_dexseq` parameter.
 
 ## Reference genome files
 
@@ -80,31 +80,57 @@ If a GTF is not available a GFF may be used by specifying the `--gff` parameter.
 
 As in [nf-core/rnaseq](https://github.com/nf-core/rnaseq) if you are using a genome downloaded from AWS iGenomes and using `--aligner star_salmon` (default) the version of STAR to use for the alignment will be auto-detected (see [#808](https://github.com/nf-core/rnaseq/issues/808)).
 
-Please not if you are using [GENCODE](https://www.gencodegenes.org/) reference genome files please specify the `--gencode` parameter. This is because reference files which come from GENCODE are different to ENSEMBL reference files and this can impact the running of the pipeline. Specifying this parameter can help to mitigate these differences. Furthermore it should be noted that when using GENCODE reference files if you are running Salmon, the `--gencode` flag will also be passed to the index building step (see [this issue](https://github.com/COMBINE-lab/salmon/issues/15)).
+Please note if you are using [GENCODE](https://www.gencodegenes.org/) reference genome files please specify the `--gencode` parameter. This is because reference files which come from GENCODE are different to ENSEMBL reference files and this can impact the running of the pipeline. Specifying this parameter can help to mitigate these differences. Furthermore it should be noted that when using GENCODE reference files if you are running Salmon, the `--gencode` flag will also be passed to the index building step (see [this issue](https://github.com/COMBINE-lab/salmon/issues/15)).
 
 ## Differential Exon Usage
 
-Following HTSeq quantification you can estimate the differential exon usage using [DEXSeq](https://bioconductor.org/packages/devel/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html). The source of quanitification can be specified using `read_method` and it can take either one of the following two values `htseq` or `featurecounts`.
-Differential expression analysis following quantification with featureCounts can be done with [edgeR](https://bioconductor.org/packages/release/bioc/html/edgeR.html).
+Differential exon usage (**DEU**) can be completed by two different branches of the pipeline:
+### DEXSeq DEU
+
+Following HTSeq quantification you can estimate the differential exon usage using [DEXSeq](https://bioconductor.org/packages/devel/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html). This can be chosen by specifying the `--aligner star` or `--aligner star_salmon` followed by the `--dexseq_exon` parameter. Other important options to consider at this point for **DEU** with DEXSeq is the `--deu_lfc_denominator` parameter which defines the denominator of interest which DEXSeq will use to produce log2FoldChange calculations internally - the name of this denominator should match the name of one of the conditions from the samplesheet provided. If a user has multiple conditions a log2FoldChange will be calculated for each condition against this denominator.
+
+### edgeR
+
+Following featureCounts quantification differential exon usage can also be completed with [edgeR](https://bioconductor.org/packages/release/bioc/html/edgeR.html).This can be chosen by specifying the `--aligner star` or `--aligner star_salmon` followed by the `--edger_exon` parameter. This DEU module will produce results for all possible comparisons of each condition against one another and you do not need to specify a denominator.
+
+This module also produces differential exon expression results for each comparison.
 
 ## Differential Transcript Usage
 
-Filtering of genes and features with low expression can be done using [DRIMSeq](https://rdrr.io/bioc/DRIMSeq/man/dmFilter.html). `min_samps_gene_expr` defines the minimal number of samples where genes are required to be expressed at the minimal level of `min_gene_expr` in order to be included in the downstream analysis. Similarly, `min_samps_feature_expr` and `min_samps_feature_prop` defines the minimal number of samples where features are required to be expressed at the minimal levels of counts `min_feature_expr` or proportions `min_feature_prop`. By default, all the filtering parameters equal zero which means that features with zero expression in all samples are removed as well as genes with only one non-zero feature.
-Following `DRIMSeq` filtering you can use [DEXSeq](http://bioconductor.org/packages/release/workflows/vignettes/rnaseqDTU/inst/doc/rnaseqDTU.html) for differential transcript usage if `dexseq_dtu` is kept as `true`. You can specify the `denominator` with appropriate value in `dtu_lfc_denominator` parameter.
+### DEXSeq DTU
 
-## RMATS
+Differential transcript Usage (**DTU**) has been implemented from the workflow by [Love et al., 2018](https://f1000research.com/articles/7-952). This analysis can be chosen by specifying the `--aligner star_salmon` or `--pseudo_aligner salmon` followed by the `--dexseq_dtu` parameter. The parameter `--dtu_txi` should either be set as `--dtu_txi scaledTPM` or `--dtu_txi dtuScaledTPM` for successful **DTU** analysis.
 
-[rMATS](Xinglab/rmats-turbo (github.com)) (replicate multivariate analysis of transcript splicing) is designed for detection of differential alternative splicing from replicate RNA-Seq data. If rmats is set to `true`, the samples need to have the same strandedness, same read type and the samplesheet must have only one condition or two unique conditions. `rmats_paired_stats` can be set to `true` only if there are two conditions. `rmats_read_len` has to be set by the user and if the read length is variable, an average or median read length has to be specified.
+Other important options to consider at this point for **DTU** with DEXSeq is the `--dtu_lfc_denominator` parameter which defines the denominator of interest which DEXSeq will use to produce log2FoldChange calculations internally - the name of this denominator should match the name of one of the conditions from the samplesheet provided.
 
-## SUPPA2
+Prior to DEXSeq DTU analysis filtering of genes and features with low expression is completed using [DRIMSeq](https://rdrr.io/bioc/DRIMSeq/man/dmFilter.html) which comes with a number of parameters which should be set by the user. By default these are all set to 0. For example, `--min_samps_gene_expr` defines the minimal number of samples where genes are required to be expressed, and `--min_gene_expr` defines the minimal level of gene expression for genes to be included in the downstream analysis. Similarly, `--min_samps_feature_expr` and `--min_samps_feature_prop` defines the minimal number of samples where features are required to be expressed at a minimal expression or proportion. This minimum level is further defined by additional filtering parameters `--min_feature_expr` and `--min_feature_prop` respectively. Further details of this filtering process can be see within the **DTU** workflow [here](https://f1000research.com/articles/7-952).
 
-You can run [SUPPA](https://github.com/comprna/SUPPA) for analyzing the splicing events across conditions following alignment and quantification with Salmon or after STAR alignment and Salmon quantification. When `suppa_per_local_event` is set to `true`, local AS events are calculated and analyzed. When `suppa_per_isoform` is set to `true`, transcript isoform events are calculated and analyzed.
+## Event based approaches
 
-### Event Calculation
+Two predominant event-based approaches have been implemented ([rMATS](Xinglab/rmats-turbo (github.com)) and [SUPPA](https://github.com/comprna/SUPPA)) in this pipeline and can be accessed through `--aligner` or `--pseudo_aligner` options:
 
-Events are calculated from the annotation. `pool_genes` should be set to `true` when creating ioe/ioi from annotations that are not loci-based, and it is also advisable to use with Ensembl and Gencode annotations.
+### rMATS
 
-The `local_events` parameter requires a space separated list of events to generate from the following list:
+[rMATS](Xinglab/rmats-turbo (github.com)) (replicate multivariate analysis of transcript splicing) is designed for detection of differential alternative splicing from replicate RNA-Seq data. If  If `--aligner` is set to `--aligner star` or `--aligner star_salmon` then rMATS can be accessed with the `--rmats` parameter.
+
+At current, however, there are some restrictions to running an rMATS analysis:
+
+- Samples need to have the same strandedness, read type (single-end/paired-end) and the samplesheet must have only one condition or two unique conditions. The rnasplice pipeline will automatically detect if you have a single condition and rMATS will run in single condition mode, otherwise a standard comparison will be run.
+- The `--rmats_paired_stats` can be set to `true` only if there are two conditions and should not be run in single condition mode.
+
+Furthermore, `--rmats_read_len` has to be set by the user and if the read length is variable, an average or median read length has to be specified.
+
+### SUPPA2
+
+You can run [SUPPA](https://github.com/comprna/SUPPA) for analyzing the splicing events across conditions following pseudo alignment and quantification with Salmon `--pseudo_aligner salmon` or after STAR alignment and Salmon quantification `--aligner star_salmon`, and when the `--suppa` parameter is supplied.
+
+There are two main options for running an analysis with SUPPA - `--suppa_per_local_event` and  `--suppa_per_isoform` (the latter is a DTU approach). When `--suppa_per_local_event` is set to `true`, local AS events are calculated and analyzed. When `--suppa_per_isoform` is set to `true`, transcript isoform events are calculated and analyzed.
+
+#### Event Calculation
+
+Events are calculated from the annotation. `--pool_genes` should be set to `true` when creating ioe/ioi from annotations that are not loci-based, and it is also advisable to use with Ensembl and Gencode annotations.
+
+The `--local_events` parameter requires a space separated list of events to generate from the following list:
 
 - SE: Skipping exon (SE) events
 - SS: Alternative 5' (A5) and 3' (A3) splice sites (it generates both)
@@ -112,19 +138,19 @@ The `local_events` parameter requires a space separated list of events to genera
 - RI: Retained intron (RI)
 - FL: Alternative first (AF) and last (AL) exons (it generates both)
 
-### PSI Calculation
+#### PSI Calculation
 
 For `local events`, SUPPA reads the `ioe` file generated in the event calculation step and a transcript expression file with the transcript abundances (TPM units) to calculate the relative abundance (PSI) value per sample for each event. It generates a psi file.
 For `transcript isoform events`, SUPPA reads the annotation file and a transcript expression file with the transcript abundances (TPM units) to calculate the relative abundance (PSI) value per sample for each event. It generates a psi file.
 
-### Differential Splicing Analysis
+#### Differential Splicing Analysis
 
 `PSI` files and `TPM` files are split based on the condition specified in metadata. e.g., condition1.psi, condition2.psi, condition1.tpm, condition2.tpm
 SUPPA reads the `PSI` for the events and the transcript expression values from multiple samples, grouped by condition,  and the `ioe`/`ioi` file, to calculate the events that are differentially spliced between a pair of conditions.
 
-### Cluster Analysis 
+#### Cluster Analysis
 
-Using `dpsi` file and `psivec` file, events are clustered according to `PSI` values across conditions. 
+Using `dpsi` file and `psivec` file, events are clustered according to `PSI` values across conditions.
 
 ## Running the pipeline
 
