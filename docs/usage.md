@@ -107,11 +107,11 @@ Prior to DEXSeq DTU analysis filtering of genes and features with low expression
 
 ## Event based approaches
 
-Two predominant event-based approaches have been implemented ([rMATS](Xinglab/rmats-turbo (github.com)) and [SUPPA](https://github.com/comprna/SUPPA)) in this pipeline and can be accessed through `--aligner` or `--pseudo_aligner` options:
+Two predominant event-based approaches have been implemented ([rMATS](https://github.com/Xinglab/rmats-turbo/blob/v4.1.2/README.md) and [SUPPA](https://github.com/comprna/SUPPA)) in this pipeline and can be accessed through `--aligner` or `--pseudo_aligner` options:
 
 ### rMATS
 
-[rMATS](Xinglab/rmats-turbo (github.com)) (replicate multivariate analysis of transcript splicing) is designed for detection of differential alternative splicing from replicate RNA-Seq data. If  If `--aligner` is set to `--aligner star` or `--aligner star_salmon` then rMATS can be accessed with the `--rmats` parameter.
+[rMATS](https://github.com/Xinglab/rmats-turbo/blob/v4.1.2/README.md) (replicate multivariate analysis of transcript splicing) is designed for detection of differential alternative splicing from replicate RNA-Seq data. If `--aligner` is set to `--aligner star` or `--aligner star_salmon` then rMATS can be accessed with the `--rmats` parameter.
 
 At current, however, there are some restrictions to running an rMATS analysis:
 
@@ -128,9 +128,9 @@ There are two main options for running an analysis with SUPPA - `--suppa_per_loc
 
 #### Event Calculation
 
-Events are calculated from the annotation. `--pool_genes` should be set to `true` when creating ioe/ioi from annotations that are not loci-based, and it is also advisable to use with Ensembl and Gencode annotations.
+Events are calculated from user specified annotation files (e.g. GTF files). The parameter `--pool_genes` should be specified when creating ioe/ioi from annotations that are not loci-based. It should be noted that SUPPA advises users to utilse Ensembl and Gencode annotations to reduce errors at this stage of the analysis.
 
-The `--local_events` parameter requires a space separated list of events to generate from the following list:
+The `--local_events` parameter requires users to choose the type of events to focus analysis on. They can be any (or all) from the following list (e.g. `--local_events SE SS MX RI FL`):
 
 - SE: Skipping exon (SE) events
 - SS: Alternative 5' (A5) and 3' (A3) splice sites (it generates both)
@@ -145,8 +145,8 @@ For `transcript isoform events`, SUPPA reads the annotation file and a transcrip
 
 #### Differential Splicing Analysis
 
-`PSI` files and `TPM` files are split based on the condition specified in metadata. e.g., condition1.psi, condition2.psi, condition1.tpm, condition2.tpm
-SUPPA reads the `PSI` for the events and the transcript expression values from multiple samples, grouped by condition,  and the `ioe`/`ioi` file, to calculate the events that are differentially spliced between a pair of conditions.
+`PSI` files and `TPM` files are split based on the condition specified in metadata. e.g., condition1.psi, condition2.psi, condition1.tpm, condition2.tpm.
+SUPPA then reads the `PSI` for the events and the transcript expression values from multiple samples, grouped by condition, and the `ioe`/`ioi` file, to calculate the events that are differentially spliced between a pair of conditions.
 
 #### Cluster Analysis
 
