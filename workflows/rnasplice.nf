@@ -121,11 +121,8 @@ workflow RNASPLICE {
     // SUBWORKFLOW: Uncompress and prepare reference genome files
     //
 
-    def biotype = params.gencode ? "gene_type" : params.featurecounts_group_type
-
     PREPARE_GENOME (
         prepareToolIndices,
-        biotype,
         is_aws_igenome
     )
 
