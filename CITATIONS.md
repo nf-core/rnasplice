@@ -14,7 +14,7 @@
 
   > Quinlan AR, Hall IM. BEDTools: a flexible suite of utilities for comparing genomic features. Bioinformatics. 2010 Mar 15;26(6):841-2. doi: 10.1093/bioinformatics/btq033. Epub 2010 Jan 28. PubMed PMID: 20110278; PubMed Central PMCID: PMC2832824.
 
-- [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/) 
+- [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
 
 - [featureCounts](https://academic.oup.com/bioinformatics/article/30/7/923/232889?login=false)
 
@@ -27,11 +27,11 @@
   > Givanna H Putri, Simon Anders, Paul Theodor Pyl, John E Pimanda, Fabio Zanini, Analysing high-throughput sequencing data in Python with HTSeq 2.0, Bioinformatics, Volume 38, Issue 10, 15 May 2022, Pages 2943–2945.
 
 - [MultiQC](https://pubmed.ncbi.nlm.nih.gov/27312411/)
-  
+
   > Ewels P, Magnusson M, Lundin S, Käller M. MultiQC: summarize analysis results for multiple tools and samples in a single report. Bioinformatics. 2016 Oct 1;32(19):3047-8. doi: 10.1093/bioinformatics/btw354. Epub 2016 Jun 16. PubMed PMID: 27312411; PubMed Central PMCID: PMC5039924.
 
 - [rMats](https://github.com/Xinglab/rmats-turbo)
- 
+
   > Shen S, Park JW, Lu ZX, Lin L, Henry MD, Wu YN, Zhou Q, Xing Y. rMATS: robust and flexible detection of differential alternative splicing from replicate RNA-Seq data. Proc Natl Acad Sci U S A. 2014 Dec 23;111(51):E5593-601. doi: 10.1073/pnas.1419161111. Epub 2014 Dec 5. PMID: 25480548; PMCID: PMC4280593.
 
 - [RSEM](https://pubmed.ncbi.nlm.nih.gov/21816040/)
@@ -57,7 +57,7 @@
 - [Trim Galore!](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/)
 
 - [UCSC tools](https://pubmed.ncbi.nlm.nih.gov/20639541/)
-  
+
   > Kent WJ, Zweig AS, Barber G, Hinrichs AS, Karolchik D. BigWig and BigBed: enabling browsing of large distributed datasets. Bioinformatics. 2010 Sep 1;26(17):2204-7. doi: 10.1093/bioinformatics/btq351. Epub 2010 Jul 17. PubMed PMID: 20639541; PubMed Central PMCID: PMC2922891.
 
 ## R packages
@@ -69,7 +69,7 @@
 - [DEXSeq](https://bioconductor.org/packages/devel/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html#References)
 
   > Anders S, Reyes A, Huber W (2012). “Detecting differential usage of exons from RNA-seq data.” Genome Research, 22, 4025. doi: 10.1101/gr.133744.111.
-  Reyes A, Anders S, Weatheritt R, Gibson T, Steinmetz L, Huber W (2013). “Drift and conservation of differential exon usage across tissues in primate species.” PNAS, 110, -5. doi: 10.1073/pnas.1307202110.
+  > Reyes A, Anders S, Weatheritt R, Gibson T, Steinmetz L, Huber W (2013). “Drift and conservation of differential exon usage across tissues in primate species.” PNAS, 110, -5. doi: 10.1073/pnas.1307202110.
 
 - [DRIMSeq](https://rdrr.io/bioc/DRIMSeq/man/dmFilter.html)
 
@@ -78,8 +78,8 @@
 - [edgeR](https://bioconductor.org/packages/release/bioc/html/edgeR.html)
 
   > Robinson MD, McCarthy DJ, Smyth GK (2010). “edgeR: a Bioconductor package for differential expression analysis of digital gene expression data.” Bioinformatics, 26(1), 139-140. doi: 10.1093/bioinformatics/btp616.
-  McCarthy DJ, Chen Y, Smyth GK (2012). “Differential expression analysis of multifactor RNA-Seq experiments with respect to biological variation.” Nucleic Acids Research, 40(10), 4288-4297. doi: 10.1093/nar/gks042.
-  Chen Y, Lun AAT, Smyth GK (2016). “From reads to genes to pathways: differential expression analysis of RNA-Seq experiments using Rsubread and the edgeR quasi-likelihood pipeline.” F1000Research, 5, 1438. doi: 10.12688/f1000research.8987.2.
+  > McCarthy DJ, Chen Y, Smyth GK (2012). “Differential expression analysis of multifactor RNA-Seq experiments with respect to biological variation.” Nucleic Acids Research, 40(10), 4288-4297. doi: 10.1093/nar/gks042.
+  > Chen Y, Lun AAT, Smyth GK (2016). “From reads to genes to pathways: differential expression analysis of RNA-Seq experiments using Rsubread and the edgeR quasi-likelihood pipeline.” F1000Research, 5, 1438. doi: 10.12688/f1000research.8987.2.
 
 - [StageR](bioconductor.org/packages/release/bioc/html/stageR.html)
 

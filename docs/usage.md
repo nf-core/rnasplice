@@ -40,13 +40,13 @@ TREATMENT_REP3,AEG588A6_S6_L003_R1_001.fastq.gz,,reverse,treatment
 TREATMENT_REP3,AEG588A6_S6_L004_R1_001.fastq.gz,,reverse,treatment
 ```
 
-| Column    | Description                                                                                                                                                                            |
-| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sample`  | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
-| `fastq_1` | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
-| `fastq_2` | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
-| `strandedness` | Sample strand-specificity. Must be one of `unstranded`, `forward` or `reverse`.  |
-| `condition` | The name of the condition a sample belongs to (e.g. 'control', or 'treatment') - these labels will be used for downstream analysis. |
+| Column         | Description                                                                                                                                                                            |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sample`       | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
+| `fastq_1`      | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
+| `fastq_2`      | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
+| `strandedness` | Sample strand-specificity. Must be one of `unstranded`, `forward` or `reverse`.                                                                                                        |
+| `condition`    | The name of the condition a sample belongs to (e.g. 'control', or 'treatment') - these labels will be used for downstream analysis.                                                    |
 
 An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline.
 
@@ -85,6 +85,7 @@ Please note if you are using [GENCODE](https://www.gencodegenes.org/) reference 
 ## Differential Exon Usage
 
 Differential exon usage (**DEU**) can be completed by two different branches of the pipeline:
+
 ### DEXSeq DEU
 
 Following HTSeq quantification you can estimate the differential exon usage using [DEXSeq](https://bioconductor.org/packages/devel/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html). This can be chosen by specifying the `--aligner star` or `--aligner star_salmon` followed by the `--dexseq_exon` parameter. Other important options to consider at this point for **DEU** with DEXSeq is the `--deu_lfc_denominator` parameter which defines the denominator of interest which DEXSeq will use to produce log2FoldChange calculations internally - the name of this denominator should match the name of one of the conditions from the samplesheet provided. If a user has multiple conditions a log2FoldChange will be calculated for each condition against this denominator.
@@ -124,7 +125,7 @@ Furthermore, `--rmats_read_len` has to be set by the user and if the read length
 
 You can run [SUPPA](https://github.com/comprna/SUPPA) for analyzing the splicing events across conditions following pseudo alignment and quantification with Salmon `--pseudo_aligner salmon` or after STAR alignment and Salmon quantification `--aligner star_salmon`, and when the `--suppa` parameter is supplied.
 
-There are two main options for running an analysis with SUPPA - `--suppa_per_local_event` and  `--suppa_per_isoform` (the latter is a DTU approach). When `--suppa_per_local_event` is set to `true`, local AS events are calculated and analyzed. When `--suppa_per_isoform` is set to `true`, transcript isoform events are calculated and analyzed.
+There are two main options for running an analysis with SUPPA - `--suppa_per_local_event` and `--suppa_per_isoform` (the latter is a DTU approach). When `--suppa_per_local_event` is set to `true`, local AS events are calculated and analyzed. When `--suppa_per_isoform` is set to `true`, transcript isoform events are calculated and analyzed.
 
 #### Event Calculation
 
