@@ -2,41 +2,39 @@
 
 ## Introduction
 
-This document describes the output produced by the pipeline. Most of the plots are taken from the MultiQC report, which summarises results at the end of the pipeline.
+This document describes the output produced by the pipeline.
 
-The directories listed below will be created in the results directory after the pipeline has finished. All paths are relative to the top-level results directory.
-
-<!-- TODO nf-core: Write this documentation describing your workflow's output -->
+The directories listed below will be created in the results directory after the pipeline has finished specified by the `--outdir`. All paths are relative to the top-level results directory.
 
 ## Pipeline overview
 
 The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes data using the following steps:
 
 - Preprocessing
-  - [cat](#cat) - Merge re-sequenced FastQ files
-  - [FastQC](#fastqc) - Raw read QC
+  - [cat](#cat) - Merge re-sequenced FastQ files.
+  - [FastQC](#fastqc) - Raw read QC.
   - [TrimGalore](#trimgalore) - Adapter and quality trimming
-- Alignment and quantification
-  - [STAR and Salmon](#star-and-salmon) - Fast spliced aware genome alignment and transcriptome quantification
-  - [STAR and featureCounts](#star-and-featurecounts) - Memory efficient quantification
+- Alignment and quantification.
+  - [STAR and Salmon](#star-and-salmon) - Fast spliced aware genome alignment and transcriptome quantification.
+  - [STAR and featureCounts](#star-and-featurecounts) - Memory efficient quantification.
   - [STAR and DEXSeq Count](#star-and-dexseq-count) - Alignment and quantification of expression levels
-- Alignment post-processing
+- Alignment post-processing.
   - [SAMtools](#samtools) - Sort and index alignments
-- Other steps
+- Other steps.
   - [BEDTools and bedGraphToBigWig](#bedtools-and-bedgraphtobigwig) - Create bigWig coverage files
-- Quality control
+- Quality control.
   - [MultiQC](#multiqc) - Aggregate report describing results and QC from the whole pipeline
-- Pseudo-alignment and quantification
+- Pseudo-alignment and quantification.
   - [Salmon](#salmon) - Wicked fast gene and isoform quantification relative to the transcriptome
-- Differential Exon Usage (DEU)
-  - [DEXSeq](#dexseq) - For differential expression analysis of exons
-  - [edgeR](#edger) - Differential expression analysis following quantification with featureCounts
-- Differential Transcript Usage (DTU)
-  - [DRIMSeq](#drimseq) - Filtering of genes and features with low expression
-  - [DEXSeq](#dexseq-1) - For differential expression analysis of transcripts
-- Event-based Differential Splicing analysis
-  - [rMats](#rmats) - Designed for detection of differential alternative splicing from replicate RNA-Seq data
-  - [SUPPA](#suppa) - Uses transcript abundances to estimate PSI values for each Differential Splicing event
+- Differential Exon Usage (DEU).
+  - [DEXSeq](#dexseq) - For differential exon usage analysis following quantification with HTSeq.
+  - [edgeR](#edger) - For differential exon usage (includes differential exon expression) following quantification with featureCounts
+- Differential Transcript Usage (DTU).
+  - [DRIMSeq](#drimseq) - Filtering of genes and features prior to DTU.
+  - [DEXSeq](#dexseq-1) - For differential transcript usage analysis following Salmon pseudo-alignment and quantification.
+- Event-based Differential Splicing analysis.
+  - [rMats](#rmats) - Designed for detection of differential alternative splicing from replicate RNA-Seq data.
+  - [SUPPA2](#suppa2) - Differential splicing analysis across multiple conditions at local event based and transcript isoform level following Salmon pseuodo-alignment and quantification.
 - Workflow reporting and genomes
   - [Reference genome files](#reference-genome-files) - Saving reference genome indices/files
   - [Pipeline information](#pipeline-information) - Report metrics generated during the workflow execution
@@ -53,7 +51,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 
 </details>
 
-If multiple libraries/runs have been provided for the same sample in the input samplesheet (e.g. to increase sequencing depth) then these will be merged at the very beginning of the pipeline in order to have consistent sample naming throughout the pipeline. Please refer to the [usage documentation](https://nf-co.re/rnasplice/usage#samplesheet-input) to see how to specify these samples in the input samplesheet.
+As in the [nf-core/rnaseq](https://github.com/nf-core/rnaseq) pipeline users are able to specify samples with multiple runs/libraries - for example if users wish to increase sequencing depth. To ensure naming consistency these samples will automatically be merged at the beginning of the pipeline using the `cat` module. Please refer to the [usage documentation](https://nf-co.re/rnasplice/usage#samplesheet-input) to see how to specify these samples in the input samplesheet correctly.
 
 ### FastQC
 
@@ -66,15 +64,7 @@ If multiple libraries/runs have been provided for the same sample in the input s
 
 </details>
 
-[FastQC](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/) gives general quality metrics about your sequenced reads. It provides information about the quality score distribution across your reads, per base sequence content (%A/T/G/C), adapter contamination and overrepresented sequences. For further reading and documentation see the [FastQC help pages](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/Help/).
-
-![MultiQC - FastQC sequence counts plot](images/mqc_fastqc_counts.png)
-
-![MultiQC - FastQC mean quality scores plot](images/mqc_fastqc_quality.png)
-
-![MultiQC - FastQC adapter content plot](images/mqc_fastqc_adapter.png)
-
-> **NB:** The FastQC plots displayed in the MultiQC report shows _untrimmed_ reads. They may contain adapter sequence and potentially regions with low quality.
+[FastQC](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/) is a general QC standard for any sequencing workflow and nf-core/rnasplice runs this at the beginning of the pipeline to generate general quality metrics about your sequenced reads. For example, FASTQC provides numerous quality control scores such as quality score distribution across reads, per base sequence content (%A/T/G/C), adapter contamination and overrepresented sequences [FastQC help pages](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/Help/).
 
 ### TrimGalore
 
@@ -88,9 +78,11 @@ If multiple libraries/runs have been provided for the same sample in the input s
   - `*_fastqc.html`: FastQC report containing quality metrics for read 1 (_and read2 if paired-end_) **after** adapter trimming.
   - `*_fastqc.zip`: Zip archive containing the FastQC report, tab-delimited data file and plot images.
 
-[Trim Galore!](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/) is a wrapper tool around Cutadapt and FastQC to peform quality and adapter trimming on FastQ files. By default, Trim Galore! will automatically detect and trim the appropriate adapter sequence.
+</details>
 
-> **NB:** TrimGalore! will only run using multiple cores if you are able to use more than > 5 and > 6 CPUs for single- and paired-end data, respectively. The total cores available to TrimGalore! will also be capped at 4 (7 and 8 CPUs in total for single- and paired-end data, respectively) because there is no longer a run-time benefit. See [release notes](https://github.com/FelixKrueger/TrimGalore/blob/master/Changelog.md#version-060-release-on-1-mar-2019) and [discussion whilst adding this logic to the nf-core/atacseq pipeline](https://github.com/nf-core/atacseq/pull/65).
+[Trim Galore!](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/) is a commonly used pre-processing tool which wraps [Cutadapt](https://cutadapt.readthedocs.io/en/stable/). This allows it to perform read trimming (quality and adapter) on FastQ sequencing files. By default, Trim Galore! will attempt to automatically detect adapter sequences before trimming. In addition Trim Galore! wraps FastQC so can perform a subsequent QC step on downstream trimmed reads to get a before and after QC picture.
+
+> **NB:** Please note, as highlighted by the [nf-core/rnaseq](https://github.com/nf-core/rnaseq) pipeline: "TrimGalore! will only run using multiple cores if you are able to use more than > 5 and > 6 CPUs for single- and paired-end data, respectively. The total cores available to TrimGalore! will also be capped at 4 (7 and 8 CPUs in total for single- and paired-end data, respectively) because there is no longer a run-time benefit. See [release notes](https://github.com/FelixKrueger/TrimGalore/blob/master/Changelog.md#version-060-release-on-1-mar-2019) and [discussion whilst adding this logic to the nf-core/atacseq pipeline](https://github.com/nf-core/atacseq/pull/65)".
 
 ## Alignment and quantification
 
@@ -99,60 +91,68 @@ If multiple libraries/runs have been provided for the same sample in the input s
 <details markdown="1">
 <summary>Output files</summary>
 
-- `star_salmon/`
+- `star_salmon/` or `star/`
   - `*.Aligned.out.bam`: If `--save_align_intermeds` is specified the original BAM file containing read alignments to the reference genome will be placed in this directory.
   - `*.Aligned.toTranscriptome.out.bam`: If `--save_align_intermeds` is specified the original BAM file containing read alignments to the transcriptome will be placed in this directory.
-- `star_salmon/log/`
+- `star_salmon/log/` or `star/log/`
   - `*.SJ.out.tab`: File containing filtered splice junctions detected after mapping the reads.
   - `*.Log.final.out`: STAR alignment report containing the mapping results summary.
   - `*.Log.out` and `*.Log.progress.out`: STAR log files containing detailed information about the run. Typically only useful for debugging purposes.
-- `star_salmon/unmapped/`
+- `star_salmon/unmapped/` or or `star/unmapped/`
   - `*.fastq.gz`: If `--save_unaligned` is specified, FastQ files containing unmapped reads will be placed in this directory.
 
-[STAR](https://github.com/alexdobin/STAR) is a read aligner designed for splice aware mapping typical of RNA sequencing data. STAR stands for Spliced Transcripts Alignment to a Reference, and has been shown to have high accuracy and outperforms other aligners by more than a factor of 50 in mapping speed, but it is memory intensive. Using `--aligner star_salmon` is the default alignment and quantification option.
+</details>
 
-[Salmon](https://salmon.readthedocs.io/en/latest/salmon.html) from [Ocean Genomics](https://www.oceangenomics.com/) is a tool for wicked-fast transcript quantification from RNA-seq data. It requires a set of target transcripts (either from a reference or de-novo assembly) in order to perform quantification. All you need to run Salmon is a FASTA file containing your reference transcripts and a set of FASTA/FASTQ/BAM file(s) containing your reads. The transcriptome-level BAM files generated by STAR are provided to Salmon for downstream quantification. You can of course also provide FASTQ files directly as input to Salmon in order to pseudo-align and quantify your data by providing the `--pseudo_aligner salmon` parameter. The results generated by the pipeline are exactly the same whether you provide BAM or FASTQ input so please see the [Salmon](#salmon) results section for more details.
+[STAR](https://github.com/alexdobin/STAR) is a highly accurate splice aware read aligner used frequently for RNA-seq. Although STAR has a high memory usage it has been shown to be far quicker than other aligners whilst maintaining accuracy. Using `--aligner star` or `--aligner star_salmon` allows the user to choose either STAR aligner alone, or STAR with salmon quantification and will define the output directory as `star/` or `star_salmon/` respectively.
 
-The STAR section of the MultiQC report shows a bar plot with alignment rates: good samples should have most reads as _Uniquely mapped_ and few _Unmapped_ reads.
+[Salmon](https://salmon.readthedocs.io/en/latest/salmon.html) from [Ocean Genomics](https://www.oceangenomics.com/) is a pseudo-aligner tool for "wicked-fast" transcript quantification for RNA-seq data. It requires a set of target transcripts (either from a reference or de-novo assembly) in order to perform quantification. To run Salmon all that is required is a FASTA reference file, and a set of sequencing files containing your reads in FASTA, FASTQ, or BAM file format. Importantly, Salmon is also able to act as a quantification tool, and as such transcriptome-level BAMs output from STAR can be supplied to Salmon for downstream quantification. If users supply a FASTQ file only, then they are able to run Salmon as a pure pseudo-aligner for very fast alignment and also quantification. This can be specified by providing the `--pseudo_aligner salmon` parameter.
 
-### STAR and featureCounts
+A useful section of the MultiQC output is in the STAR section which shows a bar plot with alignment rates. As in the [nf-core/rnaseq](https://github.com/nf-core/rnaseq) pipeline: "good samples should have most reads as *Uniquely mapped* and few *Unmapped* reads".
 
-<details markdown="1">
-<summary>Output files</summary>
-
--`star_featurecounts/`
--``:
-
-[featureCounts](https://academic.oup.com/bioinformatics/article/30/7/923/232889) is an accurate and fast tool which works by taking the alignment coordinates for each read and cross-referencing that to the coordinates for features described in the GTF. `featureCounts` only includes and counts those reads that map to a single location (uniquely mapping) for quantification.
-
-### STAR and DEXSeq Count
+### featureCounts
 
 <details markdown="1">
 <summary>Output files</summary>
 
--`star_dexseqcount/`
--``:
+- `subread/featurecounts/`
+  - `*featureCounts.txt`: Counts of reads mapping to features.
+  - `*featureCounts.txt.summary`: Summary log file for MultiQC.
 
-[DEXSeq_Count](https://bioconductor.org/packages/release/bioc/html/DEXSeq.html)
-This step won't be run if all of the samples in the samplesheet don't have the same FASTA and GTF reference files.
+</details>
+
+This workflow uses [featureCounts](https://academic.oup.com/bioinformatics/article/30/7/923/232889) following STAR alignment if users choose edgeR for differential exon usage with the `--aligner star` or `--aligner star_salmon` and `--edger_exon` parameters. [featureCounts](https://academic.oup.com/bioinformatics/article/30/7/923/232889) from the Subread package is a quantification tool used to summarise reads over genomic features. In this case we count the number of reads overlapping each exon for each each gene before using edgeR for differential exon usage.
+
+### DEXSeq Count (HTSeq)
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `dexseq_exon/counts/`
+  - `*.clean.count.txt`: Counts of reads mapping to features.
+
+</details>
+
+This workflow uses DEXSeq count which under the hood uses some functionality from [HTSeq](https://htseq.readthedocs.io/en/master/) following STAR alignment if users choose DEXSeq Exon for differential exon usage with the `--aligner star` or `--aligner star_salmon` and `--dexseq_exon` parameters. DEXSeq count is a python script shipped with the [DEXSeq](https://bioconductor.org/packages/devel/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html) package which uses parts of the [HTSeq](https://htseq.readthedocs.io/en/master/) Python package functionality to count the number of reads which overlap with exon counting bins.
 
 ## Alignment post-processing
 
-The pipeline has been written in a way where all the files generated downstream of the alignment are placed in the same directory as specified by `--aligner` e.g. if `--aligner star_salmon` is specified then all the downstream results will be placed in the `star_salmon/` directory. This helps with organising the directory structure and more importantly, allows the end-user to get the results from multiple aligners by simply re-running the pipeline with a different `--aligner` option along the `-resume` parameter. It also means that results won't be overwritten when resuming the pipeline and can be used for benchmarking between alignment algorithms if required.
+The pipeline has been written in a way where all the files generated downstream of the alignment are placed in the same directory as specified by `--aligner` e.g. if `--aligner star_salmon` is specified then all the downstream results will be placed in the `star_salmon/` directory. If  `--aligner star` is specified then all the downstream results will be placed in the `star` directory. And if `--pseudo-aligner salmon` is provided all tools downstream of Salmon will be placed in the `salmon` directory. This means that results won't be overwritten if portions of the pipeline are specified which duplicate downstream analysis (e.g. if `--aligner star_salmon` and `--pseudo-aligner salmon` are both specified). The pipeline can therefore be used for benchmarking between alignment algorithms if required.
 
 ### SAMtools
 
 <details markdown="1">
 <summary>Output files</summary>
 
-- `<ALIGNER>/`
+- `star_salmon/` or `star/`
   - `<SAMPLE>.sorted.bam`: If `--save_align_intermeds` is specified the original coordinate sorted BAM file containing read alignments will be placed in this directory.
   - `<SAMPLE>.sorted.bam.bai`: If `--save_align_intermeds` is specified the BAI index file for the original coordinate sorted BAM file will be placed in this directory.
   - `<SAMPLE>.sorted.bam.csi`: If `--save_align_intermeds --bam_csi_index` is specified the CSI index file for the original coordinate sorted BAM file will be placed in this directory.
-- `<ALIGNER>/samtools_stats/`
+- `star_salmon/samtools_stats/` or `star/samtools_stats/`
   - SAMtools `<SAMPLE>.sorted.bam.flagstat`, `<SAMPLE>.sorted.bam.idxstats` and `<SAMPLE>.sorted.bam.stats` files generated from the alignment files.
 
-The original BAM files generated by the selected alignment algorithm are further processed with [SAMtools](http://samtools.sourceforge.net/) to sort them by coordinate, for indexing, as well as to generate read mapping statistics.
+</details>
+
+Following STAR alignment BAM files are next processed with [SAMtools](http://samtools.sourceforge.net/) to sort and index them, as well as generate read mapping statistics.
 
 ## Other steps
 
@@ -161,11 +161,13 @@ The original BAM files generated by the selected alignment algorithm are further
 <details markdown="1">
 <summary>Output files</summary>
 
-- `<ALIGNER>/bigwig/`
+- `star_salmon/bigwig/` or `star/bigwig/`
   - `*.forward.bigWig`: bigWig coverage file relative to genes on the forward DNA strand.
   - `*.reverse.bigWig`: bigWig coverage file relative to genes on the reverse DNA strand.
 
-The [bigWig](https://genome.ucsc.edu/goldenpath/help/bigWig.html) format is an indexed binary format useful for displaying dense, continuous data in Genome Browsers such as the [UCSC](https://genome.ucsc.edu/cgi-bin/hgTracks) and [IGV](https://software.broadinstitute.org/software/igv/). This mitigates the need to load the much larger BAM files for data visualisation purposes which will be slower and result in memory issues. The bigWig format is also supported by various bioinformatics software for downstream processing such as meta-profile plotting.
+</details>
+
+A common requirement in splicing analysis is the need to visualise alignments using a genome browser. To facilitate this process nf-core/rnasplice will output [bigWig](https://genome.ucsc.edu/goldenpath/help/bigWig.html) files, if required, which are an indexed binary format which can display dense, continuous data. Examples of genomes browsers users may wish to use are [IGV](https://software.broadinstitute.org/software/igv/) or [UCSC](https://genome.ucsc.edu/cgi-bin/hgTracks) which both accept bigWig files as input. Furthermore, bigwig files can be used downstream for meta-profile plotting with tools such as [deepTools](https://deeptools.readthedocs.io/en/develop/).
 
 ## Quality control
 
@@ -192,18 +194,30 @@ Results generated by MultiQC collate pipeline QC from supported tools e.g. FastQ
 <details markdown="1">
 <summary>Output files</summary>
 
-- `salmon/`
+- `salmon/tximport/`
   - `salmon.merged.gene_counts.tsv`: Matrix of gene-level raw counts across all samples.
   - `salmon.merged.gene_tpm.tsv`: Matrix of gene-level TPM values across all samples.
-  - `salmon.merged.gene_counts.rds`: RDS object that can be loaded in R that contains a [SummarizedExperiment](https://bioconductor.org/packages/release/bioc/html/SummarizedExperiment.html) container with the TPM (`abundance`), estimated counts (`counts`) and transcript length (`length`) in the assays slot for genes.
   - `salmon.merged.gene_counts_scaled.tsv`: Matrix of gene-level scaled counts across all samples.
-  - `salmon.merged.gene_counts_scaled.rds`: RDS object that can be loaded in R that contains a [SummarizedExperiment](https://bioconductor.org/packages/release/bioc/html/SummarizedExperiment.html) container with the TPM (`abundance`), estimated counts (`counts`) and transcript length (`length`) in the assays slot for genes.
   - `salmon.merged.gene_counts_length_scaled.tsv`: Matrix of gene-level length-scaled counts across all samples.
-  - `salmon.merged.gene_counts_length_scaled.rds`: RDS object that can be loaded in R that contains a [SummarizedExperiment](https://bioconductor.org/packages/release/bioc/html/SummarizedExperiment.html) container with the TPM (`abundance`), estimated counts (`counts`) and transcript length (`length`) in the assays slot for genes.
+  - `salmon.merged.gene_tpm_scaled.tsv`: Matrix of gene-level scaled TPM across all samples.
+  - `salmon.merged.gene_tpm_length_scaled.tsv`: Matrix of gene-level length-scaled TPM across all samples.
   - `salmon.merged.transcript_counts.tsv`: Matrix of isoform-level raw counts across all samples.
   - `salmon.merged.transcript_tpm.tsv`: Matrix of isoform-level TPM values across all samples.
-  - `salmon.merged.transcript_counts.rds`: RDS object that can be loaded in R that contains a [SummarizedExperiment](https://bioconductor.org/packages/release/bioc/html/SummarizedExperiment.html) container with the TPM (`abundance`), estimated counts (`counts`) and transcript length (`length`) in the assays slot for transcripts.
-  - `salmon_tx2gene.tsv`: Tab-delimited file containing gene to transcripts ids mappings.
+  - `salmon.merged.transcript_counts_scaled.tsv`: Matrix of isoform-level scaled raw counts across all samples.
+  - `salmon.merged.transcript_counts_length_scaled.tsv`: Matrix of isoform-level length-scaled raw counts across all samples.
+  - `salmon.merged.transcript_counts_dtu_scaled.tsv`: Matrix of isoform-level dtu scaled raw counts across all samples.
+  - `salmon.merged.transcript_tpm_scaled.tsv`: Matrix of isoform-level scaled TPM values across all samples.
+  - `salmon.merged.transcript_tpm_length_scaled.tsv`: Matrix of isoform-level length-scaled TPM values across all samples.
+  - `salmon.merged.transcript_tpm_dtu_scaled.tsv`: Matrix of isoform-level dtu scaled TPM values across all samples.
+  - `salmon.merged.gi.rds`: Tximport R object following tximport::summarizeToGene with countsFromAbundance = "no"
+  - `salmon.merged.gi.s.rds`: Tximport R object following tximport::summarizeToGene with countsFromAbundance = "scaledTPM"
+  - `salmon.merged.gi.ls.rds`: Tximport R object following tximport::summarizeToGene with countsFromAbundance = "lengthScaledTPM"
+  - `salmon.merged.txi.rds`: Tximport R object following tximport::tximport with countsFromAbundance = "no"
+  - `salmon.merged.txi.s.rds`: Tximport R object following tximport::tximport with countsFromAbundance = "scaledTPM"
+  - `salmon.merged.txi.ls.rds`: Tximport R object following tximport::tximport with countsFromAbundance = "lengthScaledTPM"
+  - `salmon.merged.txi.dtu.rds`: Tximport R object following tximport::tximport with countsFromAbundance = "dtuScaledTPM"
+  - `tximport.tx2gene.tsv`: Filtered Tab-delimited file containing gene to transcripts ids mappings.
+  - `suppa_tpm.txt`: Tab-delimited file containing TPM normalised counts formatted for SUPPA downstream analysis
 - `salmon/<SAMPLE>/`
   - `aux_info/`: Auxiliary info e.g. versions and number of mapped reads.
   - `cmd_info.json`: Information about the Salmon quantification command, version and options.
@@ -213,19 +227,19 @@ Results generated by MultiQC collate pipeline QC from supported tools e.g. FastQ
   - `quant.genes.sf`: Salmon _gene-level_ quantification of the sample, including feature length, effective length, TPM, and number of reads.
   - `quant.sf`: Salmon _transcript-level_ quantification of the sample, including feature length, effective length, TPM, and number of reads.
 
-As described in the [STAR and Salmon section](https://github.com/nf-core/rnasplice/blob/master/docs/output.md#star-and-salmon), you can choose to pseudo-align and quantify your data with [Salmon](https://salmon.readthedocs.io/en/latest/salmon.html) by providing the `--pseudo_aligner salmon` parameter. By default, Salmon is run in addition to the standard alignment workflow defined by `--aligner`, mainly because it allows you to obtain QC metrics with respect to the genomic alignments. However, you can provide the `--skip_alignment` parameter if you would like to run Salmon in isolation.
+</details>
 
-Transcripts with large inferential uncertainty won't be assigned the exact number of reads reproducibly, every time Salmon is run. Read more about this on the [nf-core/rnaseq](https://github.com/nf-core/rnaseq/issues/585) and [salmon](https://github.com/COMBINE-lab/salmon/issues/613) Github repos.
+As described in the [STAR and Salmon section](https://github.com/nf-core/rnasplice/blob/master/docs/output.md#star-and-salmon), you can choose to pseudo-align and quantify your data with [Salmon](https://salmon.readthedocs.io/en/latest/salmon.html) by providing the `--pseudo_aligner salmon` parameter.
 
-The [tximport](https://bioconductor.org/packages/release/bioc/html/tximport.html) package is used in this pipeline to summarise the results generated by Salmon into matrices for use with downstream differential analysis packages. We use tximport with different options to summarize count and TPM quantifications at the gene- and transcript-level. Please see [#499](https://github.com/nf-core/rnaseq/issues/499) for discussion and links regarding which counts are suitable for different types of analysis.
+To summarise Salmon results and produce gene and transcript level counts and normalised (TPM) values we use the [tximport](https://bioconductor.org/packages/release/bioc/html/tximport.html) R package. Like the [nf-core/rnaseq](https://github.com/nf-core/rnaseq) pipeline this workflow produces counts, as well as TPM normalised values at gene and transcript level, however it also provides scaled, length-scaled, and dtu-scaled values which may be used for downstream splicing analysis. In particular, scaled, and dtu-scaled TPMs (see the `--dtu_txi dtuScaledTPM` or  `--dtu_txi scaledTPM` parameter) can be chosen by users for DTU analysis with DRIMSeq filtering and DEXSeq as seen in this [workflow](https://f1000research.com/articles/7-952). These files can be accessed as TSVs or as their original R object for ease of use with additional downstream R analysis.
 
-According to the `txtimport` documentation you can do one of the following:
+Although this workflow does not deal in differential gene expression we also produce gene level summarisations in TSV format, as well as R objects following tximport::summarizeToGene if users wish to progress to differential gene expression independently. Furthermore, the pipeline will produce a `tximport.tx2gene.tsv` file which has been filtered and matched with the incoming Salmon quant.sf files which can be used for any additional downstream analysis.
 
-Use bias corrected counts with an offset: import all the salmon files with `tximport` and then use `DESeq2` with `dds <- DESeqDataSetFromTximport(txi, sampleTable, ~condition)` to correct for changes to the average transcript length across samples.
-Use bias corrected counts without an offset: load and use `salmon.merged.gene_counts_length_scaled.tsv` or `salmon.merged.gene_counts_scaled.tsv` directly as you would with a regular counts matrix.
-Use bias uncorrected counts: load and use the `txi$counts` matrix (or `salmon.merged.gene_counts.tsv`) with `DESeq2`. This does not correct for potential differential isoform usage. Alternatively, if you have 3’ tagged RNA-seq data this is the most suitable method.
+This workflow will also produce a `suppa_tpm.txt` which is a tab delimitated text file of TPM normalised counts formatted for SUPPA analysis.
 
-**NB:** The default Salmon parameters and a k-mer size of 31 are used to create the index. As [documented here](https://salmon.readthedocs.io/en/latest/salmon.html#preparing-transcriptome-indices-mapping-based-mode) and [discussed here](https://github.com/COMBINE-lab/salmon/issues/482#issuecomment-583799668), a k-mer size off 31 works well with reads that are 75bp or longer.
+**NB:** As described by the [nf-core/rnaseq](https://github.com/nf-core/rnaseq) pipeline: "The default Salmon parameters and a k-mer size of 31 are used to create the index. As [documented here](https://salmon.readthedocs.io/en/latest/salmon.html#preparing-transcriptome-indices-mapping-based-mode) and [discussed here](https://github.com/COMBINE-lab/salmon/issues/482#issuecomment-583799668), a k-mer size off 31 works well with reads that are 75bp or longer".
+
+**NB:** As described by the [nf-core/rnaseq](https://github.com/nf-core/rnaseq) pipeline: "Transcripts with large inferential uncertainty won't be assigned the exact number of reads reproducibly, every time Salmon is run. Read more about this on the [nf-core/rnaseq](https://github.com/nf-core/rnaseq/issues/585) and [salmon](https://github.com/COMBINE-lab/salmon/issues/613) Github repos".
 
 ## Differential Exon Usage (DEU)
 
@@ -234,10 +248,24 @@ Use bias uncorrected counts: load and use the `txi$counts` matrix (or `salmon.me
 <details markdown="1">
 <summary>Output files</summary>
 
-- `dexseq/`
-  - `` :
+- `dexseq_exon/results/`
+  - `dxd_exon.rds`: DEXSeqDataSet R object.
+  - `dxr_exon.rds`: DEXSeqResults R object following DEXSeq::DEXSeqResults containing results.
+  - `dxr_exon.tsv`: TSV results table of DEXSeq DEU analysis featuring log2foldchanges and p-values etc.
+  - `qval_exon.rds`: DEXSeq R Object following DEXSeq::perGeneQValue containing q-values per gene.
+  - `dxr_exon.g.tsv`: TSV file of q-values for qval_exon.rds R Object.
+- `dexseq_exon/annotation/`
+  - `DEXSeq.gff`: GFF file used for DEXSeq DEU analysis converted from GTF input.
+- `dexseq_exon/counts/`
+  - `*.clean.count.txt`: Counts of reads mapping to features. (See DEXSeq Count (HTSeq) section above)
 
-[DEXSeq]()
+</details>
+
+[DEXSeq](https://bioconductor.org/packages/devel/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html) is used to find differential exon usage. For each gene, [DEXSeq](https://bioconductor.org/packages/devel/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html) fits a generalized linear model with the formula `~sample + exon + condition:exon` and compares it to the smaller null model `~ sample + exon` and this pipeline utilises these models as default. The `dxd_exon.rds` is a DEXSeqDataSet R object which contains slots with information regarding the tests DEXSeq performs internally for differential exon usage using these models. Please see [this](https://bioconductor.org/packages/release/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html#5_Testing_for_differential_exon_usage) for further details. The `dxr_exon.rds` output is a DEXSeqResults R object which summarize the full results contained within the DEXSeqDataSet object. The `dxr_exon.tsv` output is the `dxr_exon.rds` object saved out in TSV format for ease of access. It is also sometimes useful to understand what the FDR is at the gene level as `dxr_exon.tsv` and `dxr_exon.rds` results output only contain p-values and q-values on a per-exon level. Situations where this may be useful are when you may need to know the number of genes with at least one differentially used exon whilst controlling for FDR. Please see [this](https://bioconductor.org/packages/release/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html#101_Controlling_FDR_at_the_gene_level) for further details regarding controlling FDR at the gene level. Users can therefore download `qval_exon.rds` which is an R object of gene level q-values - aggregating evidence from multiple tests to a gene level. `dxr_exon.g.tsv` is this same `qval_exon.rds` object in TSV format.
+
+Users may also wish to inspect the GFF file that DEXSeq creates prior to running DEXSeq count. This is completed using a python script which is shipped with DEXSeq. This GFF file `DEXSeq.gff` is saved with the `dexseq_exon/annotation/` folder.
+
+Finally, as discussed above in the DEXSeq count section, users can inspect counts of reads mapping to features within the `dexseq_exon/counts/` folder used downstream as input to DEXSeq.
 
 ### edgeR
 
@@ -245,9 +273,20 @@ Use bias uncorrected counts: load and use the `txi$counts` matrix (or `salmon.me
 <summary>Output files</summary>
 
 - `edger/`
-  - `` :
+  - `DGEList.rds`: DGEList R object following filtering, normalisation, and dispersion estimation.
+  - `DGEGLM.rds`: DGEGLM R object following edgeR::glmQLFit
+  - `DGELRT.exprs.rds`: DGELRT R object following differential exon expression analysis with edgeR::glmQLFTest
+  - `DGELRT.usage.rds`: DGELRT R object following differential exon usage analysis with edgeR::diffSpliceDGE
+  - `*.usage.usage.csv`: CSV file output of differential exon usage results per pairwise condition for top spliced results at the exon level.
+  - `*.usage.gene.csv`: CSV file output of differential exon usage results per pairwise condition for top spliced genes identified with F-tests.
+  - `*.usage.simes.csv`: CSV file output of differential exon usage results per pairwise condition for top spliced genes identified with the Simes method.
+  - `*.exprs.csv`: CSV file output of differential exon expression results per pairwise condition.
 
-[edgeR]()
+</details>
+
+[edgeR](https://bioconductor.org/packages/release/bioc/html/edgeR.html) is a bioconductor R package typically used for differential gene expression, however, it contains numerous additional functions which make it useful for splicing analysis. In particular, edgeR can perform differential exon usage analysis, and we leverage this functionality here. As output users can retrieve `DGEList.rds`, and `DGEGLM.rds` R objects which contain the first steps of the edgeR analysis. Users can also find `DGELRT.exprs.rds` and `DGELRT.usage.rds` R objects which provide R objects following differential exon expression and differential exon usage steps respectively. Results CSV files are also output per comparison as `*.usage.usage.csv` which contain the differential exon usage results, `*.usage.gene.csv` which contain results at a gene level identified with F-tests, and `*.usage.simes.csv` which contain results at a gene level using the Simes adjustment.
+
+It was felt that users may wish to retrieve differential exon results at this point on top of differential exon usage results as edgeR is able to calculate them without difficulty. By default, this workflow will calculate all possible pairwise comparisons between conditions.
 
 ## Differential Transcript Usage (DTU)
 
@@ -256,42 +295,84 @@ Use bias uncorrected counts: load and use the `txi$counts` matrix (or `salmon.me
 <details markdown="1">
 <summary>Output files</summary>
 
-- `drimseq/`
-  - `` :
+- `salmon/dexseq_dtu/`
+  - `filter/drimseq/`
+    - `d.rds`: A DRIMSeq R Object containing filtered normalised counts table used as input for DEXSeq analysis.
 
-[DRIMSeq]()
+</details>
+
+[DRIMSeq](https://rdrr.io/bioc/DRIMSeq/man/dmFilter.html) is a standalone DTU analysis tool, however, we only use it as a filtering step within this workflow. It initially takes as input counts table from tximport, and returns a DRIMSeq R Object (following DRIMSeq::dmFilter function) containing filtered normalised counts table used as input for DEXSeq analysis.
 
 ### DEXSeq
 
 <details markdown="1">
 <summary>Output files</summary>
 
-- `dexseq/`
-  - `` :
+- `salmon/dexseq_dtu/`
+  - `results/dexseq/`
+    - `dxd.rds`: DEXSeqDataSet R object.
+    - `dxr.rds`: DEXSeqResults R object following DEXSeq::DEXSeqResults containing results.
+    - `dxr.tsv`: TSV results table of DEXSeq DEU analysis featuring log2foldchanges and p-values etc.
+    - `qval.rds`: DEXSeq R Object following DEXSeq::perGeneQValue containing q-values per gene.
+    - `dxr.g.tsv`: TSV file of q-values for qval_exon.rds R Object.
+  - `stager/`
+    - `dexseq.stageRObj.rds`: stageRTx R object.
+    - `dexseq.stageR.padj.rds`: R object following stageR::getAdjustedPValues - transcript and gene level adjusted p-values.
+    - `dexseq.stageR.padj.tsv`: TSV with transcript and gene level adjusted p-values.
+    - `dexseq.combined.stageR.padj.tsv`: Results from `dexseq.stageR.padj.rds` combined with the results from DEXSeq `dxr.tsv`.
 
-[DEXSeq]()
+</details>
+
+[DEXSeq](https://bioconductor.org/packages/devel/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html). As described above in the DEU section, DEXSeq is a tool created for differential exon usage. However, it can also be run on estimated transcript counts for differential transcript usage. This pipeline follows the following [workflow](https://f1000research.com/articles/7-952) which you can read for more details. As in the DEU DEXSeq we utilise the following default models: `~sample + exon + condition:exon` comparing to the smaller null model `~ sample + exon`. We use the word `exon` here as DEXSeq was designed originally for DEU, however users can read this instead as `transcript` for this DTU analysis.
+
+The `dxd.rds` is a DEXSeqDataSet R object which contains slots with information regarding the tests DEXSeq performs internally for differential transcript usage using these models. The `dxr.rds` output is a DEXSeqResults R object which summarize the full results contained within the DEXSeqDataSet object. The `dxr.tsv` output is the `dxr.rds` object saved out in TSV format for ease of access. It is also sometimes useful to understand what the FDR is at the gene level as `dxr.tsv` and `dxr.rds` results output only contain p-values and q-values on a per-transcript level. Users can therefore download `qval.rds` which is an R object of gene level q-values - aggregating evidence from multiple tests to a gene level. `dxr.g.tsv` is this same `qval.rds` object in TSV format.
+
+Finally, this portion of the pipeline will run [stageR](https://bioconductor.org/packages/release/bioc/html/stageR.html), a tool for stage wise analysis of high throughput expression data, following DEXSeq. This allows us to answer a two stage set of questions - the first is "Which set of genes show some evidence of DTU?" which we ask by running the DEXSeq screening step and the second "Which transcripts in those identified genes participate in DTU?" a secondary confirmation step. Outputs for stageR include `dexseq.stageRObj.rds` an stageRTx R object which has p-value correction with stageWiseAdjustment with 5% target Overall FDR (alpha=0.05) and method="dtu" as default. The `dexseq.stageR.padj.rds` is an R object of results - a matrix with transcript and gene level adjusted p-values with gene and respective transcript level gene identifiers in the first two columns. `dexseq.stageR.padj.tsv` is a TSV file identical to `dexseq.stageR.padj.rds`. Finally, `dexseq.combined.stageR.padj.tsv`, is the results from `dexseq.stageR.padj.rds` combined with the results from DEXSeq `dxr.tsv`.
 
 ## Event-based analysis
 
-### rMats
+### rMATS
 
 <details markdown="1">
 <summary>Output files</summary>
 
 - `rmats/`
-  - `` :
+  - `rmats_temp/*`: Folder containing .txt and .rmats files which are input for rmats_post step.
+  - `rmats_prep.log`: Log file generated for rmats_prep step.
+  - `rmats_post/*`: Folder containing results of differential alternative splicing in .txt files.
+  - `rmats_post.log`: Log file generated for rmats_post step.
 
-[rMats]()
+</details>
 
-### SUPPA
+[rMATS](https://github.com/Xinglab/rmats-turbo) is a tool which runs differential alternative splicing analysis on RNA-seq data. We implement the tool from BAM files after STAR alignment. At current, we allow only two sample comparisons, or single sample processing. Further details regarding rMATS output can be found [here](https://github.com/Xinglab/rmats-turbo/blob/v4.1.2/README.md#output), and these files are saved within the `rmats_post/` folder.
+
+### SUPPA2
 
 <details markdown="1">
 <summary>Output files</summary>
 
-- `suppa/`
-  - `` :
+- `salmon/suppa/`
+  - `generate_events/per_isoform/` or `generate_events/per_local_event/`
+    - `events.*`: Shows the relationship between each event and the transcripts that define that particular event.
+    - `events_*.*`: Shows the relationship between each individual event type and the transcripts that define that particular event.
+  - `psi_per_isoform/`
+    - `suppa_isoform.psi`: Contains relative abundance value per sample for transcript isoforms.
+  - `psi_per_local_event/`
+    - `suppa_local.psi`: Contains relative abundance value per sample for local events.
+  - `split_files/per_isoform/` or `split_files/per_local_event/`
+    -`*.psi`: Contains relative abundance value per sample for each event (split by sample group)
+  - `split_files/tpms/`
+    - `*.tpm`: Contains normalised TPM per sample (split by sample group)
+  - `diffsplice/per_isoform/` or `diffsplice/per_local_event/`
+    - `*.dpsi`: Contains the information about which events are significantly differentially spliced in each pairwise comparison.
+    - `*.psivec`: Contains the PSI values for all samples, either per replicate or the average PSI value per condition, averaging over the replicates.
+  - `clusterevents/per_isoform/` or `clusterevents/per_local_event/`
+    - `*.clustvec`: Contains the events, their mean psi values per condition, and the clusters association. If an event has no associated cluster, it will be assigned to -1.
+    - `*.log`: Containing information of the clusters found.
 
-[SUPPA]()
+</details>
+
+[SUPPA2](https://github.com/comprna/SUPPA) is a tool for studying splicing events at a local and transcript level. There are numerous outputs for SUPPA and these will be saved in the folder of the aligner or pseudo aligner setting used. If `--pseudo_aligner salmon` is used they will be saved in the `salmon/suppa/` folder and if `--aligner star_salmon` has been used they will be saved in the `star_salmon/suppa/` folder. The subsequent results are separated into folders depending on the stage and type of analysis. `events.*` output is saved within the `generate_events/` folder under `per_isoform/` or `per_local_event/` depending on the type of analysis (transcript level or local). PSI values `suppa_isoform.psi` and `suppa_local.psi` are saved within `psi_per_isoform/` and `psi_per_local_event/` respectively. For more details on PSI calculation please see the SUPPA [documentation](https://github.com/comprna/SUPPA#psi-calculation-for-transcripts-and-events). Split files used for differential splicing analysis (PSI and TPM files split by condition), can also be accessed as output in the following folders - `split_files/per_isoform/` or `split_files/per_local_event/` and `split_files/tpms/`. Output from differential splicing analysis at a transcript isoform and local level can also be accessed (`*.dpsi`, `*.psivec`) within  `diffsplice/per_isoform/` and `diffsplice/per_local_event/` respectively. Finally, clustering analysis output (`*.clustvec`, `*.log`) can be accessed within `clusterevents/per_isoform/` or `clusterevents/per_local_event/` folders.
 
 ## Workflow reporting and genomes
 
@@ -301,12 +382,12 @@ Use bias uncorrected counts: load and use the `txi$counts` matrix (or `salmon.me
 <summary>Output files</summary>
 
 - `genome/`
-  - `*.fa`, `*.gtf`, `*.gff`, `*.bed`, `.tsv`: If the `--save_reference` parameter is provided then all of the genome reference files will be placed in this directory.
+  - `*.fa`, `*.gtf`, `*.gff`: If the `--save_reference` parameter is provided then all of the genome reference files will be placed in this directory.
 - `genome/index/`
   - `star/`: Directory containing STAR indices.
-  - `hisat2/`: Directory containing HISAT2 indices.
-  - `rsem/`: Directory containing STAR and RSEM indices.
   - `salmon/`: Directory containing Salmon indices.
+
+</details>
 
 A number of genome-specific files are generated by the pipeline because they are required for the downstream processing of the results. If the `--save_reference` parameter is provided then these will be saved in the `genome/` directory. It is recommended to use the `--save_reference` parameter if you are using the pipeline to build new indices so that you can save them somewhere locally. The index building step can be quite a time-consuming process and it permits their reuse for future runs of the pipeline to save disk space.
 

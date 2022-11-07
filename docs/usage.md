@@ -18,83 +18,139 @@ The `sample` identifiers have to be the same when you have re-sequenced the same
 
 ```console
 sample,fastq_1,fastq_2,strandedness,condition
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
-CONTROL_REP1,AEG588A1_S1_L003_R1_001.fastq.gz,AEG588A1_S1_L003_R2_001.fastq.gz
-CONTROL_REP1,AEG588A1_S1_L004_R1_001.fastq.gz,AEG588A1_S1_L004_R2_001.fastq.gz
+CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz,unstranded,control
+CONTROL_REP1,AEG588A1_S1_L003_R1_001.fastq.gz,AEG588A1_S1_L003_R2_001.fastq.gz,unstranded,control
+CONTROL_REP1,AEG588A1_S1_L004_R1_001.fastq.gz,AEG588A1_S1_L004_R2_001.fastq.gz,unstranded,control
 ```
 
 ### Full samplesheet
 
-The pipeline will auto-detect whether a sample is single- or paired-end using the information provided in the samplesheet. The samplesheet can have as many columns as you desire, however, there is a strict requirement for the first 4 columns to match those defined in the table below.
+The pipeline will auto-detect whether a sample is single- or paired-end using the information provided in the samplesheet. The samplesheet can have as many columns as you desire, however, there is a strict requirement for the first 5 columns to match those defined in the table below.
 
-A final samplesheet file consisting of both single- and paired-end data may look something like the one below. This is for 6 samples, where `TREATMENT_REP3` has been sequenced twice.
+A final samplesheet file consisting of both single- and paired-end data may look something like the one below. This is for 6 samples, where `TREATMENT_REP3` has been sequenced twice and will therefore be automatically concatenated before further downstream analysis.
 
 ```console
-sample,fastq_1,fastq_2,strandedness
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz,forward
-CONTROL_REP2,AEG588A2_S2_L002_R1_001.fastq.gz,AEG588A2_S2_L002_R2_001.fastq.gz,forward
-CONTROL_REP3,AEG588A3_S3_L002_R1_001.fastq.gz,AEG588A3_S3_L002_R2_001.fastq.gz,forward
-TREATMENT_REP1,AEG588A4_S4_L003_R1_001.fastq.gz,,reverse
-TREATMENT_REP2,AEG588A5_S5_L003_R1_001.fastq.gz,,reverse
-TREATMENT_REP3,AEG588A6_S6_L003_R1_001.fastq.gz,,reverse
-TREATMENT_REP3,AEG588A6_S6_L004_R1_001.fastq.gz,,reverse
+sample,fastq_1,fastq_2,strandedness,condition
+CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz,forward,control
+CONTROL_REP2,AEG588A2_S2_L002_R1_001.fastq.gz,AEG588A2_S2_L002_R2_001.fastq.gz,forward,control
+CONTROL_REP3,AEG588A3_S3_L002_R1_001.fastq.gz,AEG588A3_S3_L002_R2_001.fastq.gz,forward,control
+TREATMENT_REP1,AEG588A4_S4_L003_R1_001.fastq.gz,,reverse,treatment
+TREATMENT_REP2,AEG588A5_S5_L003_R1_001.fastq.gz,,reverse,treatment
+TREATMENT_REP3,AEG588A6_S6_L003_R1_001.fastq.gz,,reverse,treatment
+TREATMENT_REP3,AEG588A6_S6_L004_R1_001.fastq.gz,,reverse,treatment
 ```
 
-| Column         | Description                                                                                                                                                                            |
-| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sample`       | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
-| `fastq_1`      | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
-| `fastq_2`      | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
-| `strandedness` | Sample strand-specificity. Must be one of `unstranded`, `forward` or `reverse`.                                                                                                        |
-| `condition`    | The `wt`/`treatment` condition of sample.                                                                                                                                              |
+| Column    | Description                                                                                                                                                                            |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sample`  | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
+| `fastq_1` | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
+| `fastq_2` | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
+| `strandedness` | Sample strand-specificity. Must be one of `unstranded`, `forward` or `reverse`.  |
+| `condition` | The name of the condition a sample belongs to (e.g. 'control', or 'treatment') - these labels will be used for downstream analysis. |
 
 An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline.
 
-> **NB:** The `group` and `replicate` columns were replaced with a single `sample` column as of v3.1 of the pipeline. The `sample` column is essentially a concatenation of the `group` and `replicate` columns, however it now also offers more flexibility in instances where replicate information is not required e.g. when sequencing clinical samples. If all values of `sample` have the same number of underscores, fields defined by these underscore-separated names may be used in the PCA plots produced by the pipeline, to regain the ability to represent different groupings.
-
 ## Alignment options
 
-By default, the pipeline uses [STAR](https://github.com/alexdobin/STAR) (i.e. `--aligner star_salmon`) to map the raw FastQ reads to the reference genome, project the alignments onto the transcriptome and to perform the downstream BAM-level quantification with [Salmon](https://salmon.readthedocs.io/en/latest/salmon.html). STAR is fast but requires a lot of memory to run, typically around 38GB for the Human GRCh37 reference genome. The initial SAM alignment files created are not saved by default to be more storage space efficient. You can override this behaviour by using the `--save_align_intermeds` parameter.
+The pipeline offers the use of [STAR](https://github.com/alexdobin/STAR) (i.e. `--aligner star`) to map raw FastQ reads to a reference genome and to project the alignments onto the transcriptome. Downstream quantification can also be performed following [STAR](https://github.com/alexdobin/STAR) alignment with [Salmon](https://salmon.readthedocs.io/en/latest/salmon.html) when `--aligner star_salmon` is chosen. Users may which to perform [STAR](https://github.com/alexdobin/STAR) alignment without [Salmon](https://salmon.readthedocs.io/en/latest/salmon.html) quantification when certain downstream tools (e.g. [rMATS](https://github.com/Xinglab/rmats-turbo/blob/v4.1.2/README.md)) only require BAM files as input. By default intermediate SAM alignment files are not saved for space efficiency reasons. This behaviour can be overriden with the `--save_align_intermeds` parameter. Users should take note that STAR requires a lot of memory (~38GB Human GRch37).
 
-You also have the option to pseudo-align and quantify your data with [Salmon](https://salmon.readthedocs.io/en/latest/salmon.html) by providing the `--pseudo_aligner salmon` parameter. Salmon will then be run in addition to the standard alignment workflow defined by `--aligner`, mainly because it allows you to obtain QC metrics with respect to the genomic alignments. However, you can provide the `--skip_alignment` parameter if you would like to run Salmon in isolation. By default, the pipeline will use the genome fasta and gtf file to generate the transcripts fasta file, and then to build the Salmon index. You can override these parameters using the `--transcript_fasta` and `--salmon_index` parameters, respectively. The library preparation protocol (library type) used by Salmon quantification is inferred by the pipeline based on the information provided in the samplesheet, however, you can override it using the `--salmon_quant_libtype` parameter. You can find the available options in the [Salmon documentation](https://salmon.readthedocs.io/en/latest/library_type.html).
+Although [STAR](https://github.com/alexdobin/STAR) is fast, users may wish to choose an even faster option by choosing to psuedo-align and quantify with [Salmon](https://salmon.readthedocs.io/en/latest/salmon.html) alone by providing the `--pseudo_aligner salmon` parameter. This may be a good option if users do not need to generate BAM files and downstream tools are compatible with this process (e.g. Differential transcript usage using [DEXSeq](https://f1000research.com/articles/7-952), or Event-based approach [SUPPA](https://github.com/comprna/SUPPA)). It should be noted, however, that by defining the parameter `--pseudo_aligner salmon`, users will run [Salmon](https://salmon.readthedocs.io/en/latest/salmon.html) in addition to the standard workflow defined by the `--aligner` parameter. This is in keeping with the [nf-core/rnaseq](https://github.com/nf-core/rnaseq) approach, and Salmon can be run in isolation with the addition of the `--skip_alignment` parameter. Furthermore, the pipeline, like [nf-core/rnaseq](https://github.com/nf-core/rnaseq) will generate transcript fasta and Salmon index files from gtf and genome fasta files by default. Users can supply these files, however, if they wish to override this auto-generation using using the `--transcript_fasta` and `--salmon_index` parameters. Additional Salmon paramaters can be specified at run-time if users wish. For example, library preparation protocol (library type) by default is inferred from samplesheet information, but can also be specified using the `--salmon_quant_libtype` parameter. You can find additional library type details in the [Salmon documentation](https://salmon.readthedocs.io/en/latest/library_type.html).
 
 ## Quantification options
 
-There are 3 methods for quantification after STAR alignment.
-The first option align with STAR and quantify using Salmon (`--aligner star_salmon`). You also have the option to pseudo-align and quantify your data with Salmon by providing the `--pseudo_aligner salmon` parameter.
-The pipeline also enables quantification using [featureCounts](https://academic.oup.com/bioinformatics/article/30/7/923/232889). By default, the pipeline uses `gene_name` as the default gene identifier group. In case you need to adjust this, specify using the option `--featurecounts_feature_type` to use a different category present in your provided GTF file. Please also take care to use a suitable attribute to categorize the `biotype` of the selected features in your GTF then, using the option `--featurecounts_group_type` (default: `gene_biotype`).
-The next quantification method available in the pipeline is using [HTSeq](https://htseq.readthedocs.io/en/master/) following STAR alignment. By default HTSeq combines the overlapping genes into a single aggregate gene which is subsequently referred to with the IDs of the individual genes, joined by a plus (‘+’) sign. If you do not like this behaviour, you can disable aggregation with the `--aggregation` parameter.
+As discussed above users may wish align with STAR by providing the `--aligner` parameter, or pseudo-align with Salmon by providing the `--pseudo_aligner salmon` parameter.
+
+There are 3 methods for quantification after STAR alignment:
+
+Already discussed above is quantification using Salmon by providing the `--aligner star_salmon` parameter. This enables access to tools which required Salmon for quantification (e.g. Differential transcript usage using [DEXSeq](https://f1000research.com/articles/7-952), or Event-based approach [SUPPA](https://github.com/comprna/SUPPA))
+
+The pipeline also enables quantification using [featureCounts](https://academic.oup.com/bioinformatics/article/30/7/923/232889). This is associated with differential exon usage analysis using edgeR and is activated when the parameter `--edger_exon` is enabled. Please note that as this is aimed at differential exon usage feature type is set as `exon` and cannot be changed. Please take care to use a suitable attribute to categorize the featureCounts group type in your GTF using the option `--featurecounts_group_type` (default: `gene_id`).
+
+The final quantification method following STAR alignment is [HTSeq](https://htseq.readthedocs.io/en/master/) which is implemented as part of the [DEXSeq](https://bioconductor.org/packages/release/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html#3_Counting_reads) package. This is associated with differential exon usage analysis using DEXSeq and is activated when the parameter `--dexseq_exon` is enabled. Using the `--aggregation` parameter the pipeline will combine overlapping genes into a single aggregate gene. This approach can alternatively be skipped and any exons that overlap other exons from different genes will be skipped. Other important options to take note of are the `--alignment_quality` parameter which can be set by the user and defines the minimum alignment quality required for reads to be included (defined in 5th column of a given SAM file) (default: 10). Prior to quantification with HTSeq DEXSeq provides an annotation preparation script which takes a GTF file as input and returns a GFF file. Users may instead wish to define their own GFF file and skip this annotation preparation skip by supplying it using the `--gff_dexseq` parameter.
 
 ## Reference genome files
 
-The minimum reference genome requirements are a FASTA and GTF file, all other files required to run the pipeline can be generated from these files. However, it is more storage and compute friendly if you are able to re-use reference genome files as efficiently as possible. It is recommended to use the `--save_reference` parameter if you are using the pipeline to build new indices (e.g. those unavailable on [AWS iGenomes](https://nf-co.re/usage/reference_genomes)) so that you can save them somewhere locally. The index building step can be quite a time-consuming process and it permits their reuse for future runs of the pipeline to save disk space. You can then either provide the appropriate reference genome files on the command-line via the appropriate parameters (e.g. `--star_index '/path/to/STAR/index/'`) or via a custom config file.
+Like [nf-core/rnaseq](https://github.com/nf-core/rnaseq) the minimum reference genome requirements are a FASTA and GTF file. All other files required to run the pipeline can be generated from these files. If you wish to build new indices and save the output then the `--save_reference` parameter is required. It should be noted, however, that the sequence files and indices of many common species are available for download from [AWS iGenomes](https://nf-co.re/usage/reference_genomes)). Local copies of reference files may also be provided on the command line or via config files (e.g. `--salmon_index '/path/to/salmon_index.tar.gz'`). Where reference files are compressed (e.g. standard files with the `.gz` extension and indices folders with the `tar.gz` extension) these will be automatically uncompressed prior to use.
 
-- If `--genome` is provided then the FASTA and GTF files (and existing indices) will be automatically obtained from AWS-iGenomes unless these have already been downloaded locally in the path specified by `--igenomes_base`.
-- If `--gff` is provided as input then this will be converted to a GTF file, or the latter will be used if both are provided.
-- If `--additional_fasta` is provided then the features in this file (e.g. ERCC spike-ins) will be automatically concatenated onto both the reference FASTA file as well as the GTF annotation before building the appropriate indices.
+For nf-core/rnasplice to run it requires a FASTA file and GTF file. These can be specified manually, however users may wish to specify the more simple [AWS iGenomes](https://nf-co.re/usage/reference_genomes)) approach:
 
-> **NB:** Compressed reference files are also supported by the pipeline i.e. standard files with the `.gz` extension and indices folders with the `tar.gz` extension.
+- Using the `--genome` parameter followed by the genome build (e.g. GRCh37) will mean the FASTA and GTF file will be pulled from AWS-iGenomes, along with available indices required for a given analysis. Furthermore, a local download of AWS genomes from a previous run can also be used by changing the igenomes path with the `--igenomes_base` parameter.
 
-If you are using a genome downloaded from AWS iGenomes and using `--aligner star_salmon` (default) the version of STAR to use for the alignment will be auto-detected (see [#808](https://github.com/nf-core/rnaseq/issues/808)).
+If a GTF is not available a GFF may be used by specifying the `--gff` parameter. This will covert the GFF file into a GTF.
 
-If you are using [GENCODE](https://www.gencodegenes.org/) reference genome files please specify the `--gencode` parameter because the format of these files is slightly different to ENSEMBL genome files:
+As in [nf-core/rnaseq](https://github.com/nf-core/rnaseq) if you are using a genome downloaded from AWS iGenomes and using `--aligner star_salmon` (default) the version of STAR to use for the alignment will be auto-detected (see [#808](https://github.com/nf-core/rnaseq/issues/808)).
 
-- The `--gtf_group_features` parameter will automatically be set to `gene_type` as opposed to `gene_biotype`, respectively.
-- If you are running Salmon, the `--gencode` flag will also be passed to the index building step to overcome parsing issues resulting from the transcript IDs in GENCODE fasta files being separated by vertical pipes (`|`) instead of spaces (see [this issue](https://github.com/COMBINE-lab/salmon/issues/15)).
+Please note if you are using [GENCODE](https://www.gencodegenes.org/) reference genome files please specify the `--gencode` parameter. This is because reference files which come from GENCODE are different to ENSEMBL reference files and this can impact the running of the pipeline. Specifying this parameter can help to mitigate these differences. Furthermore it should be noted that when using GENCODE reference files if you are running Salmon, the `--gencode` flag will also be passed to the index building step (see [this issue](https://github.com/COMBINE-lab/salmon/issues/15)).
 
 ## Differential Exon Usage
 
-Following HTSeq quantification you can estimate the differential exon usage using [DEXSeq](https://bioconductor.org/packages/devel/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html). The source of quanitification can be specified using `read_method` and it can take either one of the following two values `htseq` or `featurecounts`.
-Differential expression analysis following quantification with featureCounts can be done with [edgeR](https://bioconductor.org/packages/release/bioc/html/edgeR.html).
+Differential exon usage (**DEU**) can be completed by two different branches of the pipeline:
+### DEXSeq DEU
+
+Following HTSeq quantification you can estimate the differential exon usage using [DEXSeq](https://bioconductor.org/packages/devel/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html). This can be chosen by specifying the `--aligner star` or `--aligner star_salmon` followed by the `--dexseq_exon` parameter. Other important options to consider at this point for **DEU** with DEXSeq is the `--deu_lfc_denominator` parameter which defines the denominator of interest which DEXSeq will use to produce log2FoldChange calculations internally - the name of this denominator should match the name of one of the conditions from the samplesheet provided. If a user has multiple conditions a log2FoldChange will be calculated for each condition against this denominator.
+
+### edgeR
+
+Following featureCounts quantification differential exon usage can also be completed with [edgeR](https://bioconductor.org/packages/release/bioc/html/edgeR.html).This can be chosen by specifying the `--aligner star` or `--aligner star_salmon` followed by the `--edger_exon` parameter. This DEU module will produce results for all possible comparisons of each condition against one another and you do not need to specify a denominator.
+
+This module also produces differential exon expression results for each comparison.
 
 ## Differential Transcript Usage
 
-Filtering of genes and features with low expression can be done using [DRIMSeq](https://rdrr.io/bioc/DRIMSeq/man/dmFilter.html). `min_samps_gene_expr` defines the minimal number of samples where genes are required to be expressed at the minimal level of `min_gene_expr` in order to be included in the downstream analysis. Similarly, `min_samps_feature_expr` and `min_samps_feature_prop` defines the minimal number of samples where features are required to be expressed at the minimal levels of counts `min_feature_expr` or proportions `min_feature_prop`. By default, all the filtering parameters equal zero which means that features with zero expression in all samples are removed as well as genes with only one non-zero feature.
-Following `DRIMSeq` filtering you can use [DEXSeq](http://bioconductor.org/packages/release/workflows/vignettes/rnaseqDTU/inst/doc/rnaseqDTU.html) for differential transcript usage if `dexseq_dtu` is kept as `true`. You can specify the `denominator` with appropriate value in `dtu_lfc_denominator` parameter.
+### DEXSeq DTU
 
-## RMATS
+Differential transcript Usage (**DTU**) has been implemented from the workflow by [Love et al., 2018](https://f1000research.com/articles/7-952). This analysis can be chosen by specifying the `--aligner star_salmon` or `--pseudo_aligner salmon` followed by the `--dexseq_dtu` parameter. The parameter `--dtu_txi` should either be set as `--dtu_txi scaledTPM` or `--dtu_txi dtuScaledTPM` for successful **DTU** analysis.
 
-## SUPPA
+Other important options to consider at this point for **DTU** with DEXSeq is the `--dtu_lfc_denominator` parameter which defines the denominator of interest which DEXSeq will use to produce log2FoldChange calculations internally - the name of this denominator should match the name of one of the conditions from the samplesheet provided.
+
+Prior to DEXSeq DTU analysis filtering of genes and features with low expression is completed using [DRIMSeq](https://rdrr.io/bioc/DRIMSeq/man/dmFilter.html) which comes with a number of parameters which should be set by the user. By default these are all set to 0. For example, `--min_samps_gene_expr` defines the minimal number of samples where genes are required to be expressed, and `--min_gene_expr` defines the minimal level of gene expression for genes to be included in the downstream analysis. Similarly, `--min_samps_feature_expr` and `--min_samps_feature_prop` defines the minimal number of samples where features are required to be expressed at a minimal expression or proportion. This minimum level is further defined by additional filtering parameters `--min_feature_expr` and `--min_feature_prop` respectively. Further details of this filtering process can be see within the **DTU** workflow [here](https://f1000research.com/articles/7-952).
+
+## Event based approaches
+
+Two predominant event-based approaches have been implemented ([rMATS](https://github.com/Xinglab/rmats-turbo/blob/v4.1.2/README.md) and [SUPPA](https://github.com/comprna/SUPPA)) in this pipeline and can be accessed through `--aligner` or `--pseudo_aligner` options:
+
+### rMATS
+
+[rMATS](https://github.com/Xinglab/rmats-turbo/blob/v4.1.2/README.md) (replicate multivariate analysis of transcript splicing) is designed for detection of differential alternative splicing from replicate RNA-Seq data. If `--aligner` is set to `--aligner star` or `--aligner star_salmon` then rMATS can be accessed with the `--rmats` parameter.
+
+At current, however, there are some restrictions to running an rMATS analysis:
+
+- Samples need to have the same strandedness, read type (single-end/paired-end) and the samplesheet must have only one condition or two unique conditions. The rnasplice pipeline will automatically detect if you have a single condition and rMATS will run in single condition mode, otherwise a standard comparison will be run.
+- The `--rmats_paired_stats` can be set to `true` only if there are two conditions and should not be run in single condition mode.
+
+Furthermore, `--rmats_read_len` has to be set by the user and if the read length is variable, an average or median read length has to be specified.
+
+### SUPPA2
+
+You can run [SUPPA](https://github.com/comprna/SUPPA) for analyzing the splicing events across conditions following pseudo alignment and quantification with Salmon `--pseudo_aligner salmon` or after STAR alignment and Salmon quantification `--aligner star_salmon`, and when the `--suppa` parameter is supplied.
+
+There are two main options for running an analysis with SUPPA - `--suppa_per_local_event` and  `--suppa_per_isoform` (the latter is a DTU approach). When `--suppa_per_local_event` is set to `true`, local AS events are calculated and analyzed. When `--suppa_per_isoform` is set to `true`, transcript isoform events are calculated and analyzed.
+
+#### Event Calculation
+
+Events are calculated from user specified annotation files (e.g. GTF files). The parameter `--pool_genes` should be specified when creating ioe/ioi from annotations that are not loci-based. It should be noted that SUPPA advises users to utilse Ensembl and Gencode annotations to reduce errors at this stage of the analysis.
+
+The `--local_events` parameter requires users to choose the type of events to focus analysis on. They can be any (or all) from the following list (e.g. `--local_events SE SS MX RI FL`):
+
+- SE: Skipping exon (SE) events
+- SS: Alternative 5' (A5) and 3' (A3) splice sites (it generates both)
+- MX: Mutually Exclusive (MX) exons
+- RI: Retained intron (RI)
+- FL: Alternative first (AF) and last (AL) exons (it generates both)
+
+#### PSI Calculation
+
+For `local events`, SUPPA reads the `ioe` file generated in the event calculation step and a transcript expression file with the transcript abundances (TPM units) to calculate the relative abundance (PSI) value per sample for each event. It generates a psi file.
+For `transcript isoform events`, SUPPA reads the annotation file and a transcript expression file with the transcript abundances (TPM units) to calculate the relative abundance (PSI) value per sample for each event. It generates a psi file.
+
+#### Differential Splicing Analysis
+
+`PSI` files and `TPM` files are split based on the condition specified in metadata. e.g., condition1.psi, condition2.psi, condition1.tpm, condition2.tpm.
+SUPPA then reads the `PSI` for the events and the transcript expression values from multiple samples, grouped by condition, and the `ioe`/`ioi` file, to calculate the events that are differentially spliced between a pair of conditions.
+
+#### Cluster Analysis
+
+Using `dpsi` file and `psivec` file, events are clustered according to `PSI` values across conditions.
 
 ## Running the pipeline
 
@@ -182,7 +238,7 @@ Specify the path to a specific config file (this is a core Nextflow command). Se
 
 Whilst the default requirements set within the pipeline will hopefully work for most people and with most input data, you may find that you want to customise the compute resources that the pipeline requests. Each step in the pipeline has a default set of requirements for number of CPUs, memory and time. For most of the steps in the pipeline, if the job exits with any of the error codes specified [here](https://github.com/nf-core/rnaseq/blob/4c27ef5610c87db00c3c5a3eed10b1d161abf575/conf/base.config#L18) it will automatically be resubmitted with higher requests (2 x original, then 3 x original). If it still fails after the third attempt then the pipeline execution is stopped.
 
-For example, if the nf-core/rnaseq pipeline is failing after multiple re-submissions of the `STAR_ALIGN` process due to an exit code of `137` this would indicate that there is an out of memory issue:
+For example, if the nf-core/rnasplice pipeline is failing after multiple re-submissions of the `STAR_ALIGN` process due to an exit code of `137` this would indicate that there is an out of memory issue:
 
 ```console
 [62/149eb0] NOTE: Process `NFCORE_RNASPLICE:RNASPLICE:ALIGN_STAR:STAR_ALIGN (WT_REP1)` terminated with an error exit status (137) -- Execution is retried (1)
