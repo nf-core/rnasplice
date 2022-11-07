@@ -3,13 +3,13 @@
 library(DEXSeq)
 library(BiocParallel)
 
-args = commandArgs(trailingOnly=TRUE)
+args <- commandArgs(trailingOnly=TRUE)
 
 # Check args provided
 
 if (length(args) < 5) {
 
-  stop("Usage: run_dexseq_exon.R <countFiles_dir> <flattenedFile> <samplesheet> <read_method> <ncores> <denominator>", call.=FALSE)
+    stop("Usage: run_dexseq_exon.R <countFiles_dir> <flattenedFile> <samplesheet> <read_method> <ncores> <denominator>", call.=FALSE)
 
 }
 
@@ -18,10 +18,10 @@ if (length(args) < 5) {
 ######################################
 
 countFiles_dir <- args[1] # count files
-flattenedFile <- args[2]  # gff
-samplesheet <- args[3]    # samplesheet
-read_method <- args[4]    # either HTSeq or featurecounts
-ncores <- args[5]         # MultiCoreParam ncores
+flattenedFile  <- args[2] # gff
+samplesheet    <- args[3] # samplesheet
+read_method    <- args[4] # either HTSeq or featurecounts
+ncores         <- args[5] # MultiCoreParam ncores
 
 if (length(args) == 6) {
 
@@ -74,9 +74,9 @@ reducedModel <- as.formula("~sample + exon")
 if (read_method == "htseq"){
 
     dxd <- DEXSeq::DEXSeqDataSetFromHTSeq(countfiles = countFiles,
-                                          sampleData = samps,
-                                          design = fullModel,
-                                          flattenedfile = flattenedFile)
+                                        sampleData = samps,
+                                        design = fullModel,
+                                        flattenedfile = flattenedFile)
 }
 
 # TODO Implement featurecounts input option

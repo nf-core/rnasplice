@@ -24,9 +24,9 @@ process RMATS_POST {
 
     script:
 
-    // Only need to take meta1 as samples have same strand and read type info 
+    // Only need to take meta1 as samples have same strand and read type info
     // - see rnasplice.nf input check for rmats
-    def meta = meta1[0]   
+    def meta = meta1[0]
     def args = task.ext.args ?: ''
 
     // Take single/paired end information from meta
@@ -60,8 +60,8 @@ process RMATS_POST {
     def min_intron_len = ''
     def max_exon_len   = ''
     if (params.rmats_novel_splice_site) {
-        min_intron_len = params.rmats_min_intron_len ? '--mil $params.rmats_min_intron_len' : '--mil 50'
-        max_exon_len   = params.rmats_max_exon_len ? '--mel $params.rmats_max_exon_len' : '--mel 500'
+        min_intron_len = params.rmats_min_intron_len ? "--mil ${params.rmats_min_intron_len}" : '--mil 50'
+        max_exon_len   = params.rmats_max_exon_len ? "--mel ${params.rmats_max_exon_len}" : '--mel 500'
     }
 
     """
@@ -73,7 +73,7 @@ process RMATS_POST {
         --nthread $task.cpus \\
         --gtf $gtf \\
         --allow-clipping \\
-        --readLength 40 \\
+        --readLength $read_len \\
         --variable-read-length \\
         --cstat $splice_cutoff \\
         --task post \\
@@ -89,5 +89,5 @@ process RMATS_POST {
         rmats: \$(echo \$(rmats.py --version) | sed -e "s/v//g")
     END_VERSIONS
     """
-    
+
 }

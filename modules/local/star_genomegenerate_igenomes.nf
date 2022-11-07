@@ -1,7 +1,7 @@
 process STAR_GENOMEGENERATE_IGENOMES {
     tag "$fasta"
     label 'process_high'
-    
+
     // See https://github.com/nf-core/rnaseq/pull/835 for more details on different versions
 
     conda (params.enable_conda ? "bioconda::star=2.6.1d bioconda::samtools=1.10 conda-forge::gawk=5.1.0" : null)

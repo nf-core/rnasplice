@@ -1,7 +1,7 @@
 process CLUSTEREVENTS {
     tag "$dpsi"
     label 'process_high'
-    stageInMode = 'copy' 
+    stageInMode = 'copy'
 
     conda (params.enable_conda ? "bioconda::suppa" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -13,9 +13,9 @@ process CLUSTEREVENTS {
     path psivec
     val cluster_ranges // e.g. 1-3,4-6
     val prefix
-            
+
     output:
-    path "*.clustvec"   , emit: clustvec 
+    path "*.clustvec"   , emit: clustvec
     path "*.log"        , emit: cluster_log
     path "versions.yml" , emit: versions
 
@@ -32,7 +32,7 @@ process CLUSTEREVENTS {
     def clusterevents_min_pts       = params.clusterevents_min_pts ?: '20'          // default 20
     def clusterevents_method        = params.clusterevents_method ?: 'DBSCAN'       // default DBSCAN
 
-    """ 
+    """
 
     suppa.py \\
         clusterEvents \\
@@ -51,5 +51,5 @@ process CLUSTEREVENTS {
         suppa: \$(python -c "import pkg_resources; print(pkg_resources.get_distribution('suppa').version)")
     END_VERSIONS
     """
-    
+
 }

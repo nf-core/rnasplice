@@ -3,8 +3,8 @@
 //
 
 include { DRIMSEQ_FILTER  } from '../../modules/local/drimseq_filter'
-include { DEXSEQ_DTU         } from '../../modules/local/dexseq_dtu'
-include { STAGER         } from '../../modules/local/stager'
+include { DEXSEQ_DTU      } from '../../modules/local/dexseq_dtu'
+include { STAGER          } from '../../modules/local/stager'
 
 workflow DRIMSEQ_DEXSEQ_DTU {
 
@@ -26,14 +26,17 @@ workflow DRIMSEQ_DEXSEQ_DTU {
 
     ch_versions = ch_versions.mix(DRIMSEQ_FILTER.out.versions)
 
-    DEXSEQ_DTU ( DRIMSEQ_FILTER.out.drimseq_filter_rds )
+    DEXSEQ_DTU (
+        DRIMSEQ_FILTER.out.drimseq_sample_data,
+        DRIMSEQ_FILTER.out.drimseq_d_counts
+    )
 
     ch_versions = ch_versions.mix(DEXSEQ_DTU.out.versions)
 
     def analysis_type = 'dexseq'
-    
-    STAGER ( 
-        DEXSEQ_DTU.out.dexseq_results_rds,
+
+    STAGER (
+        DEXSEQ_DTU.out.dexseq_results_tsv,
         analysis_type,
         DEXSEQ_DTU.out.qval_rds
     )
@@ -43,6 +46,8 @@ workflow DRIMSEQ_DEXSEQ_DTU {
     emit:
 
     drimseq_filter_rds    = DRIMSEQ_FILTER.out.drimseq_filter_rds        // path: d.rds
+    drimseq_sample_data   = DRIMSEQ_FILTER.out.drimseq_sample_data       // path: sample.data.tsv
+    drimseq_d_counts      = DRIMSEQ_FILTER.out.drimseq_d_counts          // path: d.counts.tsv
 
     dexseq_rds            = DEXSEQ_DTU.out.dexseq_rds                    // path: dxd.rds
     dexseq_results_rds    = DEXSEQ_DTU.out.dexseq_results_rds            // path: dxr.rds

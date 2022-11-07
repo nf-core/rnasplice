@@ -14,9 +14,14 @@ def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
 // Validate input parameters
 WorkflowRnasplice.initialise(params, log, valid_params)
 
-// TODO nf-core: Add all file path parameters for the pipeline to the list below
 // Check input path parameters to see if they exist
-def checkPathParamList = [ params.input, params.multiqc_config, params.fasta ]
+def checkPathParamList = [
+    params.input, params.multiqc_config,
+    params.fasta, params.transcript_fasta,
+    params.gtf, params.gff,
+    params.star_index, params.salmon_index
+]
+
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
 
 // Check mandatory parameters
@@ -116,11 +121,8 @@ workflow RNASPLICE {
     // SUBWORKFLOW: Uncompress and prepare reference genome files
     //
 
-    def biotype = params.gencode ? "gene_type" : params.featurecounts_group_type
-
     PREPARE_GENOME (
         prepareToolIndices,
-        biotype,
         is_aws_igenome
     )
 
@@ -172,7 +174,7 @@ workflow RNASPLICE {
 
     if (params.dexseq_exon || params.dexseq_dtu) {
 
-        WorkflowRnasplice.denominatorExistsError(params, log, samplesheet)
+        WorkflowRnasplice.denominatorExistsError(params, log, ch_input)
 
     }
 
@@ -312,7 +314,7 @@ workflow RNASPLICE {
             RMATS (
                 ch_genome_bam_conditions,
                 PREPARE_GENOME.out.gtf,
-                single_condition
+                is_single_condition
             )
 
             ch_versions = ch_versions.mix(RMATS.out.versions)

@@ -10,7 +10,7 @@ process GENERATE_EVENTS {
     input:
     path gtf
     val file_type
-        
+
     output:
     path "events.*"     , emit: events
     path "versions.yml" , emit: versions
@@ -20,8 +20,8 @@ process GENERATE_EVENTS {
     when:
     task.ext.when == null || task.ext.when
 
-    script: 
-    
+    script:
+
     // Calculate the AS events using GTF
 
     // Incase of Local Events get the list of events from nextflow.config
@@ -42,7 +42,7 @@ process GENERATE_EVENTS {
             $poolgenes
 
         awk 'FNR==1 && NR!=1 { while (/^seqname/) getline; }  1 {print}' *.ioe > events.ioe
-        
+
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
             suppa: \$(pip show suppa| sed -e '/Version/!d'| sed 's/Version: //g')

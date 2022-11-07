@@ -46,7 +46,7 @@ workflow FASTQC_TRIMGALORE {
 
         // Run TRIMGALORE module on reads channel [ val(meta), [ reads ] ]
         TRIMGALORE ( reads )
-        
+
         // take TRIMGALORE output and set as separate channels
         trim_reads    = TRIMGALORE.out.reads
         trim_unpaired = TRIMGALORE.out.unpaired

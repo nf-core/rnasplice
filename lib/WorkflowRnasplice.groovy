@@ -50,7 +50,6 @@ class WorkflowRnasplice {
         //     System.exit(1)
         // }
 
-
         // if (params.with_umi && !params.skip_umi_extract) {
         //     if (!params.umitools_bc_pattern && !params.umitools_bc_pattern2) {
         //         log.error "UMI-tools requires a barcode pattern to extract barcodes from the reads."
@@ -499,7 +498,7 @@ class WorkflowRnasplice {
         reader.each { row -> conditions << row.condition }
 
         if (params.dexseq_exon) {
-            
+
             if (!conditions.contains(params.deu_lfc_denominator)) {
                 log.error "Invalid option: '${params.deu_lfc_denominator}'. Valid options for '--deu_lfc_denominator': ${conditions.join(', ')}."
                 System.exit(1)
@@ -508,11 +507,11 @@ class WorkflowRnasplice {
         }
 
         if (params.dexseq_dtu) {
-            
+
             if (!conditions.contains(params.dtu_lfc_denominator)) {
                 log.error "Invalid option: '${params.dtu_lfc_denominator}'. Valid options for '--dtu_lfc_denominator': ${conditions.join(', ')}."
                 System.exit(1)
-            } 
+            }
         }
 
     }

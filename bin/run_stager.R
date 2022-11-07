@@ -2,11 +2,11 @@
 
 library(stageR)
 
-args = commandArgs(trailingOnly=TRUE)
+args <- commandArgs(trailingOnly=TRUE)
 
 # Check args provided
 
-if (length(args) < 2) {
+if (length(args) < 3) {
 
     stop("Usage: run_stager.R <dexseq_results_rds/drimseq_results_rds> <analysis_type> <qvals>|<res.txp>", call.=FALSE)
 
@@ -16,24 +16,28 @@ if (length(args) < 2) {
 ########### Collect inputs ###########
 ######################################
 
-results = args[1]
-analysis_type = args[2]  
+results       <- args[1]
+analysis_type <- args[2]
 
 #########################################
 ####### Run stageR postprocessing #######
 #########################################
 
+# Scripts adjusted from F1000 workflow
+# Please see following for details:
+# https://f1000research.com/articles/7-952
+
 strp <- function(x) substr(x,1,15)
 
 if (analysis_type == "dexseq"){
 
-    dxr <- readRDS(results)
-    
+    dxr <- read.table(results, sep="\t", header = TRUE)
+
+    dxr <- as.data.frame(dxr)
+
     qval <- args[3]
 
     qval <- readRDS(qval)
-
-    dxr <- as.data.frame(dxr)
 
     pConfirmation <- matrix(dxr$pvalue,ncol=1)
     dimnames(pConfirmation) <- list(strp(dxr$featureID),"transcript")
@@ -48,13 +52,13 @@ if (analysis_type == "dexseq"){
 
 } else if (analysis_type == "drimseq"){
 
-    res <- readRDS(results)
+    res <- read.table(results, sep="\t", header = TRUE)
+
+    res <- as.data.frame(res)
 
     res.txp <- args[3]
 
     res.txp <- readRDS(res.txp)
-
-    res <- as.data.frame(res)
 
     pConfirmation <- matrix(res.txp$pvalue, ncol=1)
     rownames(pConfirmation) <- strp(res.txp$feature_id)
@@ -68,16 +72,16 @@ if (analysis_type == "dexseq"){
     res_pval <- as.data.frame(res[,1:6])
 }
 
-# Run StageR 
+# Run StageR
 
 stageRObj <- stageRTx(pScreen=pScreen, pConfirmation=pConfirmation,
-                      pScreenAdjusted=FALSE, tx2gene=tx2gene)
+                        pScreenAdjusted=FALSE, tx2gene=tx2gene)
 
 stageRObj <- stageWiseAdjustment(stageRObj, method="dtu", alpha=0.05, allowNA=TRUE)
 
 suppressWarnings({
     stageR.padj <- getAdjustedPValues(stageRObj, order=FALSE,
-                                      onlySignificantGenes=FALSE)
+                                        onlySignificantGenes=FALSE)
 })
 
 ################################

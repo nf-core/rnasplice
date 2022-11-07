@@ -1,9 +1,10 @@
 process DEXSEQ_EXON {
     label "process_high"
 
-    conda     (params.enable_conda ? "conda-forge::r-base=4.0.2 bioconda::bioconductor-dexseq=1.36.0 bioconda::bioconductor-drimseq=1.18.0 bioconda::bioconductor-stager=1.12.0" : null)
-    container "docker.io/yuukiiwa/nanoseq:dexseq"
-    // need a multitool container for r-base, dexseq, stager, drimseq and on quay hub
+    conda (params.enable_conda ? "bioconda::bioconductor-dexseq=1.36.0" : null)
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/bioconductor-dexseq:1.36.0--r40_0' :
+        'quay.io/biocontainers/bioconductor-dexseq:1.36.0--r40_0' }"
 
     input:
     path ("dexseq_clean_counts/*")     // path dexseq_clean_counts
