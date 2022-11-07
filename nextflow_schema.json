@@ -384,7 +384,7 @@
             "default": 0.0001
         },
         "rmats_paired_stats": {
-            "type": "string",
+            "type": "boolean",
             "default": "true"
         },
         "rmats_read_len": {
@@ -415,7 +415,7 @@
             "default": 10
         },
         "aggregation": {
-            "type": "string",
+            "type": "boolean",
             "default": "true"
         },
         "deu_lfc_denominator": {

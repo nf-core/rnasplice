@@ -36,7 +36,7 @@ workflow FASTQC_TRIMGALORE {
     }
 
     // define trimgalore output channels
-    trim_reads    = Channel.empty()
+    trim_reads    = reads // if skip_trimming set to true - raw reads returned
     trim_unpaired = Channel.empty()
     trim_html     = Channel.empty()
     trim_zip      = Channel.empty()
@@ -56,20 +56,21 @@ workflow FASTQC_TRIMGALORE {
 
         // Add software versions to versions channel
         ch_versions   = ch_versions.mix(TRIMGALORE.out.versions.first())
+
     }
 
     // Define output
     emit:
 
-    reads = trim_reads // channel: [ val(meta), [ reads ] ]
+    reads = trim_reads    // channel: [ val(meta), [ reads ] ]
 
-    fastqc_html        // channel: [ val(meta), [ html ] ]
-    fastqc_zip         // channel: [ val(meta), [ zip ] ]
+    fastqc_html           // channel: [ val(meta), [ html ] ]
+    fastqc_zip            // channel: [ val(meta), [ zip ] ]
 
-    trim_unpaired      // channel: [ val(meta), [ reads ] ]
-    trim_html          // channel: [ val(meta), [ html ] ]
-    trim_zip           // channel: [ val(meta), [ zip ] ]
-    trim_log           // channel: [ val(meta), [ txt ] ]
+    trim_unpaired         // channel: [ val(meta), [ reads ] ]
+    trim_html             // channel: [ val(meta), [ html ] ]
+    trim_zip              // channel: [ val(meta), [ zip ] ]
+    trim_log              // channel: [ val(meta), [ txt ] ]
 
     versions = ch_versions.ifEmpty(null) // channel: [ versions.yml ]
 }
