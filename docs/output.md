@@ -78,11 +78,11 @@ As in the [nf-core/rnaseq](https://github.com/nf-core/rnaseq) pipeline users are
   - `*_fastqc.html`: FastQC report containing quality metrics for read 1 (*and read2 if paired-end*) **after** adapter trimming.
   - `*_fastqc.zip`: Zip archive containing the FastQC report, tab-delimited data file and plot images.
 
+</details>
+
 [Trim Galore!](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/) is a commonly used pre-processing tool which wraps [Cutadapt](https://cutadapt.readthedocs.io/en/stable/). This allows it to perform read trimming (quality and adapter) on FastQ sequencing files. By default, Trim Galore! will attempt to automatically detect adapter sequences before trimming. In addition Trim Galore! wraps FastQC so can perform a subsequent QC step on downstream trimmed reads to get a before and after QC picture.
 
 > **NB:** Please note, as highlighted by the [nf-core/rnaseq](https://github.com/nf-core/rnaseq) pipeline: "TrimGalore! will only run using multiple cores if you are able to use more than > 5 and > 6 CPUs for single- and paired-end data, respectively. The total cores available to TrimGalore! will also be capped at 4 (7 and 8 CPUs in total for single- and paired-end data, respectively) because there is no longer a run-time benefit. See [release notes](https://github.com/FelixKrueger/TrimGalore/blob/master/Changelog.md#version-060-release-on-1-mar-2019) and [discussion whilst adding this logic to the nf-core/atacseq pipeline](https://github.com/nf-core/atacseq/pull/65)".
-
-</details>
 
 ## Alignment and quantification
 
