@@ -253,10 +253,10 @@ This workflow will also produce a `suppa_tpm.txt` which is a tab delimitated tex
 <summary>Output files</summary>
 
 - `dexseq_exon/results/`
-  - `dxd_exon.rds`: DEXSeq R Object following DEXSeq::estimateExonFoldChanges.
-  - `dxr_exon.rds`: DEXSeq R Object following DEXSeq::DEXSeqResults containing results.
+  - `dxd_exon.rds`: DEXSeqDataSet R object.
+  - `dxr_exon.rds`: DEXSeqResults R object following DEXSeq::DEXSeqResults containing results.
   - `dxr_exon.tsv`: TSV results table of DEXSeq DEU analysis featuring log2foldchanges and p-values etc.
-  - `qval_exon.rds`: DEXSeq R Object following DEXSeq::perGeneQValue containing q-values for results table.
+  - `qval_exon.rds`: DEXSeq R Object following DEXSeq::perGeneQValue containing q-values per gene.
   - `dxr_exon.g.tsv`: TSV file of q-values for qval_exon.rds R Object.
 - `dexseq_exon/annotation/`
   - `DEXSeq.gff`: GFF file used for DEXSeq DEU analysis converted from GTF input.
@@ -265,26 +265,32 @@ This workflow will also produce a `suppa_tpm.txt` which is a tab delimitated tex
 
 </details>
 
-[DEXSeq](https://bioconductor.org/packages/devel/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html) is used to find differential exon usage. For each gene, [DEXSeq](https://bioconductor.org/packages/devel/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html) fits a generalized linear model with the formula `~sample + exon + condition:exon` and compares it to the smaller null model `~ sample + exon` and this pipeline utilises these models as default. The `dxd_exon.rds` is a DEXSeqDataSet R object which contains slots with information regarding the tests DEXSeq performs internally for differential exon usage using these models. Please see [this](https://bioconductor.org/packages/release/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html#5_Testing_for_differential_exon_usage) for further details. The `dxr_exon.rds` output is a DEXSeqResults R object which summarize the full results contained within the DEXSeqDataSet object. The `dxr_exon.tsv` output is the `dxr_exon.rds` object saved out in TSV format for ease of access. It is also sometimes useful to understand what the FDR is at the gene level - `dxr_exon.tsv` and `dxr_exon.rds` results output contain p-values and q-values on a per-exon level. Situations where this may be useful are when you may need to...
-Please see [this](https://bioconductor.org/packages/release/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html#101_Controlling_FDR_at_the_gene_level) for further details regarding controlling FDR at the gene level.
+[DEXSeq](https://bioconductor.org/packages/devel/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html) is used to find differential exon usage. For each gene, [DEXSeq](https://bioconductor.org/packages/devel/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html) fits a generalized linear model with the formula `~sample + exon + condition:exon` and compares it to the smaller null model `~ sample + exon` and this pipeline utilises these models as default. The `dxd_exon.rds` is a DEXSeqDataSet R object which contains slots with information regarding the tests DEXSeq performs internally for differential exon usage using these models. Please see [this](https://bioconductor.org/packages/release/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html#5_Testing_for_differential_exon_usage) for further details. The `dxr_exon.rds` output is a DEXSeqResults R object which summarize the full results contained within the DEXSeqDataSet object. The `dxr_exon.tsv` output is the `dxr_exon.rds` object saved out in TSV format for ease of access. It is also sometimes useful to understand what the FDR is at the gene level - `dxr_exon.tsv` and `dxr_exon.rds` results output contain p-values and q-values on a per-exon level. Situations where this may be useful are when you may need to know the number of genes with at least one differentially used exon whilst controlling for FDR. Please see [this](https://bioconductor.org/packages/release/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html#101_Controlling_FDR_at_the_gene_level) for further details regarding controlling FDR at the gene level. `qval_exon.rds` is an R object of gene level q-values - aggregating evidence from multiple tests to a gene level. `dxr_exon.g.tsv` is this same `qval_exon.rds` object in TSV format.
 
 Users may also wish to inspect the GFF file that DEXSeq creates prior to running DEXSeq count. This is completed using a python script which is shipped with DEXSeq. This GFF file `DEXSeq.gff` is saved with the `dexseq_exon/annotation/` folder.
 
 Finally, as discussed above in the DEXSeq count section, users can inspect counts of reads mapping to features within the `dexseq_exon/counts/` folder used downstream as input to DEXSeq.
+
 ### edgeR
 
 <details markdown="1">
 <summary>Output files</summary>
 
 - `edger/`
-  - `DGEList.rds`:
-  - `DGEGLM.rds`:
-  - `DGELRT.*.rds`:
-  - `*.csv`:
+  - `DGEList.rds`: DGEList R object following filtering, normalisation, and dispersion estimation.
+  - `DGEGLM.rds`: DGEGLM R object following edgeR::glmQLFit
+  - `DGELRT.exprs.rds`: DGELRT R object following differential exon expression analysis with edgeR::glmQLFTest
+  - `DGELRT.usage.rds`: DGELRT R object following differential exon usage analysis with edgeR::diffSpliceDGE
+  - `*.usage.usage.csv`: CSV file output of differential exon usage results per pairwise condition for top spliced results at the exon level.
+  - `*.usage.gene.csv`: CSV file output of differential exon usage results per pairwise condition for top spliced genes identified with F-tests.
+  - `*.usage.simes.csv`: CSV file output of differential exon usage results per pairwise condition for top spliced genes identified with the Simes method.
+  - `*.exprs.csv`: CSV file output of differential exon expression results per pairwise condition.
 
 </details>
 
-[edgeR](https://bioconductor.org/packages/release/bioc/html/edgeR.html).
+[edgeR](https://bioconductor.org/packages/release/bioc/html/edgeR.html) is a bioconductor R package typically used for differential gene expression, however, it contains numerous additional functions which make it useful for splicing analysis. In particular, edgeR can perform differential exon usage analysis, and we leverage this functionality here. As output users can retrieve `DGEList.rds`, and `DGEGLM.rds` R objects which contain the first steps of the edgeR analysis. Users can also find `DGELRT.exprs.rds` and `DGELRT.usage.rds` R objects which provide R objects following differential exon expression and differential exon usage steps respectively. Results CSV files are also output per comparison as `*.usage.usage.csv` which contain the differential exon usage results, `*.usage.gene.csv` which contain results at a gene level identified with F-tests, and `*.usage.simes.csv` which contain results at a gene level using the Simes adjustment.
+
+It was felt that users may wish to retrieve differential exon results at this point on top of differential exon usage results as edgeR is able to calculate them without difficulty. By default, this workflow will calculate all possible pairwise comparisons between conditions.
 
 ## Differential Transcript Usage (DTU)
 
@@ -299,7 +305,7 @@ Finally, as discussed above in the DEXSeq count section, users can inspect count
 
 </details>
 
-[DRIMSeq](https://rdrr.io/bioc/DRIMSeq/man/dmFilter.html).
+[DRIMSeq](https://rdrr.io/bioc/DRIMSeq/man/dmFilter.html) is a standalone DTU analysis tool, however, we only use it as a filtering step within this workflow. It initially takes as input counts table from tximport, and returns a DRIMSeq R Object (following DRIMSeq::dmFilter function) containing filtered normalised counts table used as input for DEXSeq analysis.
 
 ### DEXSeq
 
@@ -308,19 +314,28 @@ Finally, as discussed above in the DEXSeq count section, users can inspect count
 
 - `salmon/dexseq_dtu/`
   - `results/dexseq/`
-    - `dxd.rds`: DEXSeq R Object following DEXSeq::estimateExonFoldChanges.
-    - `dxr.rds`: DEXSeq R Object following DEXSeq::DEXSeqResults containing results.
+    - `dxd.rds`: DEXSeqDataSet R object.
+    - `dxr.rds`: DEXSeqResults R object following DEXSeq::DEXSeqResults containing results.
     - `dxr.tsv`: TSV results table of DEXSeq DEU analysis featuring log2foldchanges and p-values etc.
-    - `qval.rds`: DEXSeq R Object following DEXSeq::perGeneQValue containing q-values for results table.
+    - `qval.rds`: DEXSeq R Object following DEXSeq::perGeneQValue containing q-values per gene.
     - `dxr.g.tsv`: TSV file of q-values for qval_exon.rds R Object.
+  - `stager/`
+    - `dexseq.stageRObj.rds`: stageRTx R object.
+    - `dexseq.stageR.padj.rds`: R object following stageR::getAdjustedPValues - transcript and gene level adjusted p-values.
+    - `dexseq.stageR.padj.tsv`: TSV with transcript and gene level adjusted p-values.
+    - `dexseq.combined.stageR.padj.tsv`: Results from `dexseq.stageR.padj.rds` combined with the results from DEXSeq `dxr.tsv`.
 
 </details>
 
-[DEXSeq](http://bioconductor.org/packages/release/workflows/vignettes/rnaseqDTU/inst/doc/rnaseqDTU.html).
+[DEXSeq](https://bioconductor.org/packages/devel/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html). As described above in the DEU section, DEXSeq is a tool created for differential exon usage. However, it can also be run on estimated transcript counts for differential transcript usage. This pipeline follows the following [workflow](https://f1000research.com/articles/7-952) which you can read for more details. As in the DEU DEXSeq we utilise the following default models: `~sample + exon + condition:exon` comparing to the smaller null model `~ sample + exon`. We use the word `exon` here as DEXSeq was designed originally for DEU, however users can read this instead as `transcript` for this DTU analysis.
+
+The `dxd.rds` is a DEXSeqDataSet R object which contains slots with information regarding the tests DEXSeq performs internally for differential transcript usage using these models. The `dxr.rds` output is a DEXSeqResults R object which summarize the full results contained within the DEXSeqDataSet object. The `dxr.tsv` output is the `dxr.rds` object saved out in TSV format for ease of access. It is also sometimes useful to understand what the FDR is at the gene level - `dxr.tsv` and `dxr.rds` results output contain p-values and q-values on a per-transcript level. `qval.rds` is an R object of gene level q-values - aggregating evidence from multiple tests to a gene level. `dxr.g.tsv` is this same `qval.rds` object in TSV format.
+
+Finally, this portion of the pipeline will run [stageR](https://bioconductor.org/packages/release/bioc/html/stageR.html), a tool for stage wise analysis of high throughput expression data, following DEXSeq. This allows us to answer a two stage set of questions - the first is "Which set of genes show some evidence of DTU?" which we ask by running the DEXSeq screening step and the second "Which transcripts in those identified genes participate in DTU?" a secondary confirmation step. Outputs for stageR include `dexseq.stageRObj.rds` an stageRTx R object which has p-value correction with stageWiseAdjustment with 5% target Overall FDR (alpha=0.05) and method="dtu" as default. The `dexseq.stageR.padj.rds` is an R object of results - a matrix with transcript and gene level adjusted p-values with gene and respective transcript level gene identifiers in the first two columns. `dexseq.stageR.padj.tsv` is a TSV file identical to `dexseq.stageR.padj.rds`. Finally, `dexseq.combined.stageR.padj.tsv`, is the results from `dexseq.stageR.padj.rds` combined with the results from DEXSeq `dxr.tsv`.
 
 ## Event-based analysis
 
-### rMats
+### rMATS
 
 <details markdown="1">
 <summary>Output files</summary>
@@ -333,7 +348,7 @@ Finally, as discussed above in the DEXSeq count section, users can inspect count
 
 </details>
 
-[rMats](https://github.com/Xinglab/rmats-turbo).
+[rMATS](https://github.com/Xinglab/rmats-turbo) is a tool which runs differential alternative splicing analysis on RNA-seq data. We implement the tool from BAM files after STAR alignment. At current, we allow only two sample comparisons, or single sample processing. Further details regarding rMATS output can be found [here](https://github.com/Xinglab/rmats-turbo/blob/v4.1.2/README.md#output), and these files are saved within the `rmats_post/` folder.
 
 ### SUPPA2
 
@@ -361,7 +376,7 @@ Finally, as discussed above in the DEXSeq count section, users can inspect count
 
 </details>
 
-[SUPPA2](https://github.com/comprna/SUPPA).
+[SUPPA2](https://github.com/comprna/SUPPA) is a tool for studying splicing events at a local and transcript level. There are numerous outputs for SUPPA and these will be saved in the folder of the aligner or pseudo aligner setting used. If `--pseudo_aligner salmon` is used they will be saved in the `salmon/suppa/` folder and if `--aligner star_salmon` has been used they will be saved in the `star_salmon/suppa/` folder. The subsequent results are separated into folders depending on the stage and type of analysis. `events.*` output is saved within the `generate_events/` folder under `per_isoform/` or `per_local_event/` depending on the type of analysis (transcript level or local). PSI values `suppa_isoform.psi` and `suppa_local.psi` are saved within `psi_per_isoform/` and `psi_per_local_event/` respectively. For more details on PSI calculation please see the SUPPA [documentation](https://github.com/comprna/SUPPA#psi-calculation-for-transcripts-and-events). Split files used for differential splicing analysis (PSI and TPM files split by condition), can also be accessed as output in the following folders - `split_files/per_isoform/` or `split_files/per_local_event/` and `split_files/tpms/`. Output from differential splicing analysis at a transcript isoform and local level can also be accessed (`*.dpsi`, `*.psivec`) within  `diffsplice/per_isoform/` and `diffsplice/per_local_event/` respectively. Finally, clustering analysis output (`*.clustvec`, `*.log`) can be accessed within `clusterevents/per_isoform/` or `clusterevents/per_local_event/` folders.
 
 ## Workflow reporting and genomes
 
@@ -371,7 +386,7 @@ Finally, as discussed above in the DEXSeq count section, users can inspect count
 <summary>Output files</summary>
 
 - `genome/`
-  - `*.fa`, `*.gtf`, `*.gff`, `*.bed`, `.tsv`: If the `--save_reference` parameter is provided then all of the genome reference files will be placed in this directory.
+  - `*.fa`, `*.gtf`, `*.gff`: If the `--save_reference` parameter is provided then all of the genome reference files will be placed in this directory.
 - `genome/index/`
   - `star/`: Directory containing STAR indices.
   - `salmon/`: Directory containing Salmon indices.
