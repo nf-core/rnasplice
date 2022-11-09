@@ -17,13 +17,9 @@
 
 ## Introduction
 
-<!-- TODO nf-core: Write a 1-2 sentence summary of what data the pipeline is for and what it does -->
-
 **nf-core/rnasplice** is a bioinformatics pipeline for Alternative splicing analysis of RNA sequencing data obtained from organisms with a reference genome and annotation.
 
 The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It uses Docker/Singularity containers making installation trivial and results highly reproducible. The [Nextflow DSL2](https://www.nextflow.io/docs/latest/dsl2.html) implementation of this pipeline uses one container per process which makes it much easier to maintain and update software dependencies. Where possible, these processes have been submitted to and installed from [nf-core/modules](https://github.com/nf-core/modules) in order to make them available to all nf-core pipelines, and to everyone within the Nextflow community!
-
-<!-- TODO nf-core: Add full-sized test dataset and amend the paragraph below if applicable -->
 
 On release, automated continuous integration tests run the pipeline on a full-sized dataset on the AWS cloud infrastructure. This ensures that the pipeline runs on AWS, has sensible resource allocation defaults set to run on real-world datasets, and permits the persistent storage of results to benchmark between pipeline releases and other analysis sources. The results obtained from the full-sized test can be viewed on the [nf-core website](https://nf-co.re/rnasplice/results).
 
@@ -32,8 +28,6 @@ On release, automated continuous integration tests run the pipeline on a full-si
 You can find numerous talks on the [nf-core events page](https://nf-co.re/events) from various topics including writing pipelines/modules in Nextflow DSL2, using nf-core tooling, running nf-core pipelines as well as more generic content like contributing to Github. Please check them out!
 
 ## Pipeline summary
-
-<!-- TODO nf-core: Fill in short bullet-pointed list of the default steps in the pipeline -->
 
 ![nf-core/rnasplice metro map](assets/rnasplice_map.png)
 
@@ -93,7 +87,7 @@ The nf-core/rnasplice pipeline comes with documentation about the pipeline [usag
 
 ## Credits
 
-nf-core/rnasplice was originally written by Benjamin Southgate ([@Ben-Southgate](https://github.com/bensouthgate)), James Ashmore ([@James-Ashmore](https://github.com/james-ashmore)), Asma Ali ([@Asma-Ali](https://github.com/asmaali98)), Keerthana Bhaskaran ([@Keerthana-Bhaskaran](https://github.com/Keerthana-Bhaskaran-TG)), and Lathika Madhan Mohan ([@Lathika-Madhan-Mohan](https://github.com/lathikaa)) from [Zifo RnD Solutions](https://www.zifornd.com/).
+nf-core/rnasplice was originally written by Benjamin Southgate ([@Ben-Southgate](https://github.com/bensouthgate)), James Ashmore ([@James-Ashmore](https://github.com/jma1991)), Asma Ali ([@Asma-Ali](https://github.com/asmaali98)), Keerthana Bhaskaran ([@Keerthana-Bhaskaran](https://github.com/Keerthana-Bhaskaran-TG)), and Lathika Madhan Mohan ([@Lathika-Madhan-Mohan](https://github.com/lathikaa)) from [Zifo RnD Solutions](https://www.zifornd.com/).
 
 We thank Harshil Patel ([@drpatelh](https://github.com/drpatelh)) and Seqera Labs ([seqeralabs](https://github.com/seqeralabs)) for their assistance in the development of this pipeline.
 
