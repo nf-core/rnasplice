@@ -328,10 +328,6 @@
             "type": "boolean",
             "description": "Skip FastQC."
         },
-        "skip_qc": {
-            "type": "boolean",
-            "description": "Skip all QC steps except for MultiQC."
-        },
         "skip_bigwig": {
             "type": "boolean",
             "default": true,

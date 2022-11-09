@@ -198,7 +198,7 @@ workflow RNASPLICE {
     // Run FastQC and TrimGalore
     FASTQC_TRIMGALORE (
         ch_cat_fastq,
-        params.skip_fastqc || params.skip_qc,
+        params.skip_fastqc,
         params.skip_trimming
     )
 

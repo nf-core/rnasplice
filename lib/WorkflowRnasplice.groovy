@@ -96,20 +96,6 @@ class WorkflowRnasplice {
         //     }
         // }
 
-        // Warn if --additional_fasta provided with aligner index
-        if (!params.skip_alignment && params.additional_fasta) {
-            def index = ''
-            if (params.aligner == 'star' && params.star_index) {
-                index = 'star'
-            }
-            if (params.aligner == 'star_salmon' && params.star_index) {
-                index = 'star'
-            }
-            if (index) {
-                additionaFastaIndexWarn(index, log)
-            }
-        }
-
         //
         // TODO: Include RSeQC code for future release
         //
@@ -401,23 +387,6 @@ class WorkflowRnasplice {
     //         "  https://github.com/nf-core/rnaseq/issues/568\n" +
     //         "==================================================================================="
     // }
-
-    //
-    // Print a warning if using '--additional_fasta' and '--<ALIGNER>_index'
-    //
-    private static void additionaFastaIndexWarn(index, log) {
-        log.warn "=============================================================================\n" +
-            "  When using '--additional_fasta <FASTA_FILE>' the aligner index will not\n" +
-            "  be re-built with the transgenes incorporated by default since you have \n" +
-            "  already provided an index via '--${index}_index <INDEX>'.\n\n" +
-            "  Set '--additional_fasta <FASTA_FILE> --${index}_index false --save_reference' to\n" +
-            "  re-build the index with transgenes included and the index will be saved in\n" +
-            "  'results/genome/index/${index}/' for re-use with '--${index}_index'.\n\n" +
-            "  Ignore this warning if you know that the index already contains transgenes.\n\n" +
-            "  Please see:\n" +
-            "  https://github.com/nf-core/rnaseq/issues/556\n" +
-            "==================================================================================="
-    }
 
     //
     // Exit pipeline if rMATS requested with mixed single and paired end samples
