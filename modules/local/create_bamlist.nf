@@ -1,6 +1,6 @@
 process CREATE_BAMLIST {
     //tag "$meta.id"
-    label "process_medium"
+    label "process_low"
 
     conda (params.enable_conda ? "conda-forge::sed=4.7" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -13,7 +13,8 @@ process CREATE_BAMLIST {
     output:
     path("*_bamlist.txt"), emit:bam_text
 
-    exec:
-    task.workDir.resolve("${cond}_bamlist.txt").text = bam.join(',')
-
+    script:
+    """
+    echo $bam | sed 's: :,:g' > ${cond}_bamlist.txt
+    """
 }
