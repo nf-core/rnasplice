@@ -79,16 +79,16 @@ if (read_method == "htseq"){
                                         flattenedfile = flattenedFile)
 }
 
-# TODO Implement featurecounts input option
-# if (read_method == "featurecounts"){
+if (read_method == "featurecounts"){
 
-#     source("load_SubreadOutput.R")
+     source("load_SubreadOutput.R")
 
-#     dxd <- DEXSeqDataSetFromFeatureCounts(countFiles,
-#                                           flattenedfile = flattenedFile,
-#                                           sampleData = samps)
+     dxd <- DEXSeqDataSetFromFeatureCounts(countfiles = countFiles,
+                                           sampleData = samps,
+                                           design = fullModel,
+                                           flattenedfile = flattenedFile)
 
-# }
+ }
 
 dxd <- DEXSeq::estimateSizeFactors(dxd)
 
