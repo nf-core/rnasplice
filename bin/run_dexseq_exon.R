@@ -2,8 +2,6 @@
 
 library(DEXSeq)
 library(BiocParallel)
-library(dplyr)
-library(purrr)
 
 args <- commandArgs(trailingOnly=TRUE)
 
@@ -25,7 +23,7 @@ samplesheet    <- args[3] # samplesheet
 read_method    <- args[4] # either HTSeq or featurecounts
 ncores         <- args[5] # MultiCoreParam ncores
 
-if (length(args) == 7) {
+if (length(args) == 6) {
 
     denominator <- args[6]  # denominator for lfc set by user
 
