@@ -6,7 +6,8 @@
 
 def valid_params = [
     aligners       : ['star', 'star_salmon'],
-    pseudoaligners : ['salmon']
+    pseudoaligners : ['salmon'],
+    dexseq_read_methods : ['htseq', 'featurecounts']
 ]
 
 def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
