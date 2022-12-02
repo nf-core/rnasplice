@@ -146,19 +146,19 @@ reducedModel <- as.formula("~sample + exon")
 
 if (read_method == "htseq"){
 
-    dxd <- DEXSeq::DEXSeqDataSetFromHTSeq(countfiles = countFiles,
+  dxd <- DEXSeq::DEXSeqDataSetFromHTSeq(countfiles = countFiles,
                                         sampleData = samps,
                                         design = fullModel,
                                         flattenedfile = flattenedFile)
-}
+  }
 
 if (read_method == "featurecounts"){
 
-    dxd <- DEXSeqDataSetFromFeatureCounts(countfile = countFiles,
+  dxd <- DEXSeqDataSetFromFeatureCounts(countfile = countFiles,
                                         sampleData = samps,
-                                        design = fullModel,   
+                                        design = fullModel,
                                         flattenedfile = flattenedFile)
- }
+  }
 
 dxd <- DEXSeq::estimateSizeFactors(dxd)
 
