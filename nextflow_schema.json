@@ -485,6 +485,10 @@
                     "type": "string",
                     "default": "None"
                 },
+                "dexseq_read_method": {
+                    "type": "string",
+                    "default": "htseq"
+                },
                 "alignment_quality": {
                     "type": "integer",
                     "default": 10
