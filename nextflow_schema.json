@@ -481,6 +481,10 @@
                 "dexseq_exon": {
                     "type": "boolean"
                 },
+                "save_dexseq_annotation": {
+                    "type": "boolean",
+                    "default": "true"
+                },
                 "gff_dexseq": {
                     "type": "string",
                     "default": "None"
