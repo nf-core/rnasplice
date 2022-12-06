@@ -82,6 +82,13 @@ class WorkflowRnasplice {
             }
         }
 
+        if (!params.skip_alignment && params.dexseq_exon) {
+            if (!valid_params['dexseq_read_methods'].contains(params.dexseq_read_method)) {
+                log.error "Invalid option: '${params.dexseq_read_method}'. Valid options for '--dexseq_read_method': ${valid_params['dexseq_read_methods'].join(', ')}."
+                System.exit(1)
+            }
+        }
+
         //
         // TODO: Include star_rsem code for future release.
         //
