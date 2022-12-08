@@ -9,6 +9,7 @@ process DEXSEQ_EXON {
     input:
     path ("dexseq_clean_counts/*")     // path dexseq_clean_counts
     path gff                           // path dexseq_gff
+    path gtf                           // path featurecounts_gtf
     path samplesheet                   // path samplesheet
     val read_method                    // htseq or featurecounts
 
@@ -24,7 +25,7 @@ process DEXSEQ_EXON {
     def denominator = params.deu_lfc_denominator ?: ""
 
     """
-    run_dexseq_exon.R dexseq_clean_counts $gff $samplesheet $read_method ${task.cpus} $denominator
+    run_dexseq_exon.R dexseq_clean_counts $gff $gtf $samplesheet $read_method ${task.cpus} $denominator
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

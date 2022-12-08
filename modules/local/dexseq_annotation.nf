@@ -11,8 +11,9 @@ process DEXSEQ_ANNOTATION {
     path gtf
 
     output:
-    path "*.gff"        , emit: gff
-    path "versions.yml" , emit: versions
+    path "*.gff"                , emit: gff
+    path "featurecounts.gtf"    , emit: featurecounts_gtf
+    path "versions.yml"         , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -25,7 +26,7 @@ process DEXSEQ_ANNOTATION {
     def aggregation = params.aggregation ? '' : '-r no'
 
     """
-    dexseq_prepare_annotation.py $gtf ${prefix}.gff $aggregation
+    dexseq_prepare_annotation2.py -f featurecounts.gtf $gtf ${prefix}.gff $aggregation
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
