@@ -92,11 +92,11 @@ include { SUPPA as SUPPA_STAR_SALMON  } from '../subworkflows/local/suppa'
 //
 // MODULE: Installed directly from nf-core/modules
 //
-include { SALMON_QUANT                      } from '../modules/nf-core/salmon/quant/main'
-include { SALMON_QUANT as STAR_SALMON_QUANT } from '../modules/nf-core/salmon/quant/main'
-include { MULTIQC                           } from '../modules/nf-core/multiqc/main'
-include { CUSTOM_DUMPSOFTWAREVERSIONS       } from '../modules/nf-core/custom/dumpsoftwareversions/main'
-include { CAT_FASTQ                         } from '../modules/nf-core/cat/fastq/main'
+include { SALMON_QUANT as SALMON_QUANT_SALMON } from '../modules/nf-core/salmon/quant/main'
+include { SALMON_QUANT as SALMON_QUANT_STAR   } from '../modules/nf-core/salmon/quant/main'
+include { MULTIQC                             } from '../modules/nf-core/multiqc/main'
+include { CUSTOM_DUMPSOFTWAREVERSIONS         } from '../modules/nf-core/custom/dumpsoftwareversions/main'
+include { CAT_FASTQ                           } from '../modules/nf-core/cat/fastq/main'
 
 //
 // SUBWORKFLOWS: Installed directly from nf-core/modules
@@ -334,7 +334,7 @@ workflow RNASPLICE {
             ch_salmon_index = ch_dummy_file
 
             // Run Salmon quant, Run tx2gene.py (tx2gene for Salmon txImport Quantification), then finally runs tximport
-            STAR_SALMON_QUANT (
+            SALMON_QUANT_STAR (
                 ch_transcriptome_bam,
                 ch_salmon_index,
                 PREPARE_GENOME.out.gtf,
@@ -343,7 +343,7 @@ workflow RNASPLICE {
                 params.salmon_quant_libtype ?: ''
             )
 
-            ch_versions = ch_versions.mix(STAR_SALMON_QUANT.out.versions)
+            ch_versions = ch_versions.mix(SALMON_QUANT_STAR.out.versions)
 
 
             //
@@ -351,7 +351,7 @@ workflow RNASPLICE {
             //
 
             TX2GENE_TXIMPORT_STAR_SALMON (
-                STAR_SALMON_QUANT.out.results.collect{it[1]},
+                SALMON_QUANT_STAR.out.results.collect{it[1]},
                 PREPARE_GENOME.out.gtf
             )
 
@@ -417,7 +417,7 @@ workflow RNASPLICE {
         alignment_mode = false
         ch_transcript_fasta = ch_dummy_file
 
-        SALMON_QUANT (
+        SALMON_QUANT_SALMON (
             ch_trim_reads,
             PREPARE_GENOME.out.salmon_index,
             PREPARE_GENOME.out.gtf,
@@ -427,17 +427,17 @@ workflow RNASPLICE {
         )
 
         // Collect Salmon quant output
-        ch_salmon_multiqc = SALMON_QUANT.out.results
+        ch_salmon_multiqc = SALMON_QUANT_SALMON.out.results
 
         // Take software versions from subworkflow (.first() not required)
-        ch_versions = ch_versions.mix(SALMON_QUANT.out.versions)
+        ch_versions = ch_versions.mix(SALMON_QUANT_SALMON.out.versions)
 
         //
         // SUBWORKFLOW: Run Tximport and produce tx2gene from gtf using gffread
         //
 
         TX2GENE_TXIMPORT_SALMON (
-            SALMON_QUANT.out.results.collect{it[1]},
+            SALMON_QUANT_SALMON.out.results.collect{it[1]},
             PREPARE_GENOME.out.gtf
         )
 
