@@ -1,7 +1,7 @@
 process DEXSEQ_EXON {
     label "process_high"
 
-    conda (params.enable_conda ? "bioconda::bioconductor-dexseq=1.36.0" : null)
+    conda "bioconda::bioconductor-dexseq=1.36.0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/bioconductor-dexseq:1.36.0--r40_0' :
         'quay.io/biocontainers/bioconductor-dexseq:1.36.0--r40_0' }"

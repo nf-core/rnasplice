@@ -2,7 +2,7 @@ process DEXSEQ_COUNT {
     tag "$meta.id"
     label 'process_medium'
 
-    conda (params.enable_conda ? "bioconda::htseq=2.0.2" : null)
+    conda "bioconda::htseq=2.0.2"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/htseq:2.0.2--py310ha14a713_0' :
     'quay.io/biocontainers/htseq:2.0.2--py310ha14a713_0' }"
