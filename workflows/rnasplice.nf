@@ -50,8 +50,10 @@ ch_dummy_file = file("$projectDir/assets/dummy_file.txt", checkIfExists: true)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-ch_multiqc_config        = file("$projectDir/assets/multiqc_config.yml", checkIfExists: true)
-ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multiqc_config) : Channel.empty()
+ch_multiqc_config          = Channel.fromPath("$projectDir/assets/multiqc_config.yml", checkIfExists: true)
+ch_multiqc_custom_config   = params.multiqc_config ? Channel.fromPath( params.multiqc_config, checkIfExists: true ) : Channel.empty()
+ch_multiqc_logo            = params.multiqc_logo   ? Channel.fromPath( params.multiqc_logo, checkIfExists: true ) : Channel.empty()
+ch_multiqc_custom_methods_description = params.multiqc_methods_description ? file(params.multiqc_methods_description, checkIfExists: true) : file("$projectDir/assets/methods_description_template.yml", checkIfExists: true)
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -90,11 +92,11 @@ include { SUPPA as SUPPA_STAR_SALMON  } from '../subworkflows/local/suppa'
 //
 // MODULE: Installed directly from nf-core/modules
 //
-include { SALMON_QUANT                      } from '../modules/nf-core/salmon/quant/main'
-include { SALMON_QUANT as STAR_SALMON_QUANT } from '../modules/nf-core/salmon/quant/main'
-include { MULTIQC                           } from '../modules/nf-core/multiqc/main'
-include { CUSTOM_DUMPSOFTWAREVERSIONS       } from '../modules/nf-core/custom/dumpsoftwareversions/main'
-include { CAT_FASTQ                         } from '../modules/nf-core/cat/fastq/main'
+include { SALMON_QUANT as SALMON_QUANT_SALMON } from '../modules/nf-core/salmon/quant/main'
+include { SALMON_QUANT as SALMON_QUANT_STAR   } from '../modules/nf-core/salmon/quant/main'
+include { MULTIQC                             } from '../modules/nf-core/multiqc/main'
+include { CUSTOM_DUMPSOFTWAREVERSIONS         } from '../modules/nf-core/custom/dumpsoftwareversions/main'
+include { CAT_FASTQ                           } from '../modules/nf-core/cat/fastq/main'
 
 //
 // SUBWORKFLOWS: Installed directly from nf-core/modules
@@ -332,7 +334,7 @@ workflow RNASPLICE {
             ch_salmon_index = ch_dummy_file
 
             // Run Salmon quant, Run tx2gene.py (tx2gene for Salmon txImport Quantification), then finally runs tximport
-            STAR_SALMON_QUANT (
+            SALMON_QUANT_STAR (
                 ch_transcriptome_bam,
                 ch_salmon_index,
                 PREPARE_GENOME.out.gtf,
@@ -341,7 +343,7 @@ workflow RNASPLICE {
                 params.salmon_quant_libtype ?: ''
             )
 
-            ch_versions = ch_versions.mix(STAR_SALMON_QUANT.out.versions)
+            ch_versions = ch_versions.mix(SALMON_QUANT_STAR.out.versions)
 
 
             //
@@ -349,7 +351,7 @@ workflow RNASPLICE {
             //
 
             TX2GENE_TXIMPORT_STAR_SALMON (
-                STAR_SALMON_QUANT.out.results.collect{it[1]},
+                SALMON_QUANT_STAR.out.results.collect{it[1]},
                 PREPARE_GENOME.out.gtf
             )
 
@@ -415,7 +417,7 @@ workflow RNASPLICE {
         alignment_mode = false
         ch_transcript_fasta = ch_dummy_file
 
-        SALMON_QUANT (
+        SALMON_QUANT_SALMON (
             ch_trim_reads,
             PREPARE_GENOME.out.salmon_index,
             PREPARE_GENOME.out.gtf,
@@ -425,17 +427,17 @@ workflow RNASPLICE {
         )
 
         // Collect Salmon quant output
-        ch_salmon_multiqc = SALMON_QUANT.out.results
+        ch_salmon_multiqc = SALMON_QUANT_SALMON.out.results
 
         // Take software versions from subworkflow (.first() not required)
-        ch_versions = ch_versions.mix(SALMON_QUANT.out.versions)
+        ch_versions = ch_versions.mix(SALMON_QUANT_SALMON.out.versions)
 
         //
         // SUBWORKFLOW: Run Tximport and produce tx2gene from gtf using gffread
         //
 
         TX2GENE_TXIMPORT_SALMON (
-            SALMON_QUANT.out.results.collect{it[1]},
+            SALMON_QUANT_SALMON.out.results.collect{it[1]},
             PREPARE_GENOME.out.gtf
         )
 
@@ -528,11 +530,14 @@ workflow RNASPLICE {
     workflow_summary    = WorkflowRnasplice.paramsSummaryMultiqc(workflow, summary_params)
     ch_workflow_summary = Channel.value(workflow_summary)
 
+    methods_description    = WorkflowRnasplice.methodsDescriptionText(workflow, ch_multiqc_custom_methods_description)
+    ch_methods_description = Channel.value(methods_description)
+
     ch_multiqc_files = Channel.empty()
 
-    ch_multiqc_files = ch_multiqc_files.mix(Channel.from(ch_multiqc_config))
     ch_multiqc_files = ch_multiqc_files.mix(ch_multiqc_custom_config.collect().ifEmpty([]))
     ch_multiqc_files = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
+    ch_multiqc_files = ch_multiqc_files.mix(ch_methods_description.collectFile(name: 'methods_description_mqc.yaml'))
     ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC_TRIMGALORE.out.fastqc_zip.collect{it[1]}.ifEmpty([]))
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC_TRIMGALORE.out.trim_zip.collect{it[1]}.ifEmpty([]))
@@ -559,10 +564,12 @@ workflow RNASPLICE {
     }
 
     MULTIQC (
-        ch_multiqc_files.collect()
+        ch_multiqc_files.collect(),
+        ch_multiqc_config.toList(),
+        ch_multiqc_custom_config.toList(),
+        ch_multiqc_logo.toList()
     )
     multiqc_report = MULTIQC.out.report.toList()
-    ch_versions    = ch_versions.mix(MULTIQC.out.versions)
 }
 
 /*
@@ -576,6 +583,9 @@ workflow.onComplete {
         NfcoreTemplate.email(workflow, params, summary_params, projectDir, log, multiqc_report)
     }
     NfcoreTemplate.summary(workflow, params, log)
+    if (params.hook_url) {
+        NfcoreTemplate.IM_notification(workflow, params, summary_params, projectDir, log)
+    }
 }
 
 /*
