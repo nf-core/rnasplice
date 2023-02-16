@@ -4,6 +4,7 @@
     nf-core/rnasplice
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Github : https://github.com/nf-core/rnasplice
+
     Website: https://nf-co.re/rnasplice
     Slack  : https://nfcore.slack.com/channels/rnasplice
 ----------------------------------------------------------------------------------------
