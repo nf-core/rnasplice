@@ -1,7 +1,7 @@
 process STAGER {
     label "process_medium"
 
-    conda (params.enable_conda ? "bioconda::bioconductor-stager=1.12.0" : null)
+    conda "bioconda::bioconductor-stager=1.12.0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/bioconductor-stager:1.12.0--r40_0' :
         'quay.io/biocontainers/bioconductor-stager:1.12.0--r40_0' }"

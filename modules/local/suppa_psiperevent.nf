@@ -2,7 +2,7 @@ process PSIPEREVENT {
     tag "$tpm"
     label 'process_medium'
 
-    conda (params.enable_conda ? "bioconda::suppa" : null)
+    conda "bioconda::suppa"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/suppa%3A2.3--py36_0' :
         'quay.io/biocontainers/suppa:2.3--py36_0' }"

@@ -1,7 +1,7 @@
 process DRIMSEQ_FILTER {
     label "process_medium"
 
-    conda (params.enable_conda ? "bioconda::bioconductor-drimseq=1.18.0" : null)
+    conda "bioconda::bioconductor-drimseq=1.18.0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/bioconductor-drimseq:1.18.0--r40_0' :
         'quay.io/biocontainers/bioconductor-drimseq:1.18.0--r40_0' }"
