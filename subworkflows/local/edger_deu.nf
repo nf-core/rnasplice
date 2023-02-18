@@ -2,6 +2,7 @@
 // edgeR DEU subworkflow
 //
 
+include { SUBREAD_FLATTENGTF    } from '../../modules/local/flattengtf'
 include { SUBREAD_FEATURECOUNTS } from '../../modules/nf-core/subread/featurecounts/main'
 include { EDGER_EXON            } from '../../modules/local/edger_exon'
 
@@ -17,11 +18,16 @@ workflow EDGER_DEU {
 
     ch_versions = Channel.empty()
 
+
+    // MODULE: SUBREAD_FLATTENGTF
+
+    SUBREAD_FLATTENGTF(gtf)
+
     //
     // MODULE: SUBREAD_FEATURECOUNTS
     //
 
-    ch_feature_counts = ch_genome_bam.combine(gtf)
+    ch_feature_counts = ch_genome_bam.combine(SUBREAD_FLATTENGTF.out.saf)
 
     SUBREAD_FEATURECOUNTS(ch_feature_counts)
 
