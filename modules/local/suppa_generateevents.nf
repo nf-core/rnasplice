@@ -2,9 +2,9 @@ process GENERATE_EVENTS {
     tag "$gtf"
     label 'process_low'
 
-    conda "bioconda::suppa"
+    conda "bioconda::suppa=2.3"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/suppa%3A2.3--py36_0' :
+        'https://depot.galaxyproject.org/singularity/suppa:2.3--py36_0' :
         'quay.io/biocontainers/suppa:2.3--py36_0' }"
 
     input:
@@ -15,7 +15,7 @@ process GENERATE_EVENTS {
     path "events.*"     , emit: events
     path "versions.yml" , emit: versions
     path "events_*.*"   , emit: eventstype, optional : true
-    /* Declaring as optional as these are produced only in local events and not transcript events */
+    // Declaring as optional as these are produced only in local events and not transcript events
 
     when:
     task.ext.when == null || task.ext.when

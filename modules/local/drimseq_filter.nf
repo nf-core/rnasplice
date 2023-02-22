@@ -17,6 +17,9 @@ process DRIMSEQ_FILTER {
     path "d.counts.tsv"         , emit: drimseq_d_counts
     path "versions.yml"         , emit: versions
 
+    when:
+    task.ext.when == null || task.ext.when
+
     script:
     def args = task.ext.args ?: ''
 

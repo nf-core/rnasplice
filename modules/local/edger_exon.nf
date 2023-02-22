@@ -18,6 +18,9 @@ process EDGER_EXON {
     path "*.csv"        , emit: edger_exon_csv
     path "versions.yml" , emit: versions
 
+    when:
+    task.ext.when == null || task.ext.when
+
     script:
     """
     run_edger_exon.R featurecounts $samplesheet
