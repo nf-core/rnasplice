@@ -2,7 +2,7 @@ process SPLIT_FILES {
     tag "$tpm_psi"
     label 'process_low'
 
-    conda "pkgs/r::r-base=3.4.2"
+    conda "conda-forge::r-base=4.2.2"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/r-base:3.4.2':
         'quay.io/biocontainers/r-base:3.4.2' }"
