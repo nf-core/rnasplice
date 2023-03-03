@@ -20,6 +20,9 @@ process DEXSEQ_EXON {
     path "dxr_exon.g.tsv"         , emit: dexseq_exon_results_q_tsv
     path "versions.yml"           , emit: versions
 
+    when:
+    task.ext.when == null || task.ext.when
+
     script:
     def denominator = params.deu_lfc_denominator ?: ""
 

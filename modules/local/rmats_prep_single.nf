@@ -1,7 +1,7 @@
 process RMATS_PREP_SINGLE {
     label "process_medium"
 
-    conda 'bioconda::bioconductor-pairadise=1.10 bioconda::rmats=4.1.2'
+    conda 'bioconda::r-pairadise=1.0.0 bioconda::rmats=4.1.2'
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/mulled-v2-c5a18b683684b2b5cb608213a267834373186743:1c831c11c46ebe0c54bcb67918bc35fedf1c43ee-0' :
         'quay.io/biocontainers/mulled-v2-c5a18b683684b2b5cb608213a267834373186743:1c831c11c46ebe0c54bcb67918bc35fedf1c43ee-0' }"

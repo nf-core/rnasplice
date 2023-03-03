@@ -12,16 +12,12 @@ include { GUNZIP as GUNZIP_SUPPA_TPM        } from '../../modules/nf-core/gunzip
 include { UNTAR as UNTAR_STAR_INDEX         } from '../../modules/nf-core/untar/main'
 include { UNTAR as UNTAR_SALMON_INDEX       } from '../../modules/nf-core/untar/main'
 
+include { CUSTOM_GETCHROMSIZES              } from '../../modules/nf-core/custom/getchromsizes/main'
 include { GFFREAD                           } from '../../modules/nf-core/gffread/main'
-
 include { STAR_GENOMEGENERATE               } from '../../modules/nf-core/star/genomegenerate/main'
 include { STAR_GENOMEGENERATE_IGENOMES      } from '../../modules/local/star_genomegenerate_igenomes'
-
 include { SALMON_INDEX                      } from '../../modules/nf-core/salmon/index/main'
-
 include { RSEM_PREPAREREFERENCE as MAKE_TRANSCRIPTS_FASTA } from '../../modules/nf-core/rsem/preparereference/main'
-
-include { CUSTOM_GETCHROMSIZES              } from '../../modules/nf-core/custom/getchromsizes/main'
 
 include { GTF_GENE_FILTER                   } from '../../modules/local/gtf_gene_filter'
 
@@ -47,15 +43,6 @@ workflow PREPARE_GENOME {
     }
 
     //
-    // Create chromosome sizes file
-    //
-    CUSTOM_GETCHROMSIZES ( ch_fasta )
-    ch_fai         = CUSTOM_GETCHROMSIZES.out.fai
-    ch_chrom_sizes = CUSTOM_GETCHROMSIZES.out.sizes
-    ch_versions    = ch_versions.mix(CUSTOM_GETCHROMSIZES.out.versions)
-
-
-    //
     // Uncompress GTF annotation file or create from GFF3 if required
     //
     if (params.gtf) {
@@ -76,20 +63,6 @@ workflow PREPARE_GENOME {
         ch_versions = ch_versions.mix(GFFREAD.out.versions)
     }
 
-
-    //
-    // Uncompress DEXSeq GFF annotation file
-    //
-    ch_dexseq_gff = Channel.empty()
-    if (params.gff_dexseq) {
-        if (params.gff_dexseq.endsWith('.gz')) {
-            ch_dexseq_gff = GUNZIP_GFF_DEXSEQ ( [ [:], params.gff_dexseq ] ).gunzip.map { it[1] }
-            ch_versions = ch_versions.mix(GUNZIP_GFF_DEXSEQ.out.versions)
-        } else {
-            ch_dexseq_gff = file(params.gff_dexseq)
-        }
-    }
-
     //
     // Uncompress transcript fasta file / create if required
     //
@@ -106,6 +79,14 @@ workflow PREPARE_GENOME {
         ch_versions         = ch_versions.mix(GTF_GENE_FILTER.out.versions)
         ch_versions         = ch_versions.mix(MAKE_TRANSCRIPTS_FASTA.out.versions)
     }
+
+    //
+    // Create chromosome sizes file
+    //
+    CUSTOM_GETCHROMSIZES ( ch_fasta )
+    ch_fai         = CUSTOM_GETCHROMSIZES.out.fai
+    ch_chrom_sizes = CUSTOM_GETCHROMSIZES.out.sizes
+    ch_versions    = ch_versions.mix(CUSTOM_GETCHROMSIZES.out.versions)
 
     //
     // Uncompress STAR index or generate from scratch if required
@@ -149,7 +130,20 @@ workflow PREPARE_GENOME {
     }
 
     //
-    // Gather Suppa tpm file
+    // Uncompress DEXSeq GFF annotation file if required
+    //
+    ch_dexseq_gff = Channel.empty()
+    if (params.gff_dexseq) {
+        if (params.gff_dexseq.endsWith('.gz')) {
+            ch_dexseq_gff = GUNZIP_GFF_DEXSEQ ( [ [:], params.gff_dexseq ] ).gunzip.map { it[1] }
+            ch_versions = ch_versions.mix(GUNZIP_GFF_DEXSEQ.out.versions)
+        } else {
+            ch_dexseq_gff = file(params.gff_dexseq)
+        }
+    }
+
+    //
+    // Uncompress SUPPA TPM file if required
     //
     ch_suppa_tpm = Channel.empty()
     if (params.suppa_tpm) {

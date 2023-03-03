@@ -18,6 +18,9 @@ process DEXSEQ_DTU {
     path "dxr.g.tsv"              , emit: dexseq_results_q_tsv
     path "versions.yml"           , emit: versions
 
+    when:
+    task.ext.when == null || task.ext.when
+
     script:
     def denominator = params.dtu_lfc_denominator ?: ""
 

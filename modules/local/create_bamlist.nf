@@ -2,16 +2,19 @@ process CREATE_BAMLIST {
     //tag "$meta.id"
     label "process_low"
 
-    conda "conda-forge::sed=4.7"
+    conda "conda-forge::sed=4.7.0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://containers.biocontainers.pro/s3/SingImgsRepo/biocontainers/v1.2.0_cv1/biocontainers_v1.2.0_cv1.img' :
-        'biocontainers/biocontainers:v1.2.0_cv1' }"
+        'https://depot.galaxyproject.org/singularity/sed:4.7.0' :
+        'quay.io/biocontainers/sed:4.7.0' }"
 
     input:
     tuple val(cond), val(meta), path(bam)
 
     output:
-    path("*_bamlist.txt"), emit:bam_text
+    path("*_bamlist.txt"), emit: bam_text
+
+    when:
+    task.ext.when == null || task.ext.when
 
     script:
     """
