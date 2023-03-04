@@ -79,7 +79,8 @@
                     "type": "string",
                     "default": "None",
                     "fa_icon": "fas fa-code-branch",
-                    "help_text": "This parameter must be specified if --genome or --gtf are not specified."
+                    "help_text": "This parameter must be specified if --genome or --gtf are not specified.",
+                    "description": "Path to GFF annotation file."
                 },
                 "transcript_fasta": {
                     "type": "string",
@@ -462,30 +463,37 @@
             "default": "",
             "properties": {
                 "rmats": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "description": "Run rMATS workflow."
                 },
                 "rmats_splice_diff_cutoff": {
                     "type": "number",
-                    "default": 0.0001
+                    "default": 0.0001,
+                    "description": "The cutoff used in the null hypothesis test for differential splicing."
                 },
                 "rmats_paired_stats": {
                     "type": "boolean",
-                    "default": true
+                    "default": true,
+                    "description": "Use paired statistical model."
                 },
                 "rmats_read_len": {
                     "type": "integer",
-                    "default": 40
+                    "default": 40,
+                    "description": "The length of each read."
                 },
                 "rmats_novel_splice_site": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "description": "Detect splicing events that involve an unannotated splice site."
                 },
                 "rmats_min_intron_len": {
                     "type": "integer",
-                    "default": 50
+                    "default": 50,
+                    "description": "Minimum Intron Length."
                 },
                 "rmats_max_exon_len": {
                     "type": "integer",
-                    "default": 500
+                    "default": 500,
+                    "description": "Maximum exon length."
                 }
             },
             "fa_icon": "far fa-chart-bar"
@@ -497,27 +505,28 @@
             "default": "",
             "properties": {
                 "dexseq_exon": {
-                    "type": "boolean"
-                },
-                "save_dexseq_annotation": {
                     "type": "boolean",
-                    "default": "true"
+                    "description": "Run DEXSeq differential exon usage workflow."
                 },
                 "gff_dexseq": {
                     "type": "string",
-                    "default": "None"
+                    "default": "None",
+                    "description": "Path to GFF annotation file."
                 },
                 "alignment_quality": {
                     "type": "integer",
-                    "default": 10
+                    "default": 10,
+                    "description": "Minimum alignment quality required for reads to be counted."
                 },
                 "aggregation": {
                     "type": "boolean",
-                    "default": true
+                    "default": true,
+                    "description": "Combine overlapping genes into a single aggregate gene."
                 },
                 "deu_lfc_denominator": {
                     "type": "string",
-                    "default": "wt"
+                    "default": "wt",
+                    "description": "A value of the sample annotation (e.g. condition) to use as a denominator in the log2 fold change."
                 }
             },
             "fa_icon": "far fa-chart-bar"
@@ -529,7 +538,8 @@
             "default": "",
             "properties": {
                 "edger_exon": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "description": "Run edgeR workflow."
                 }
             },
             "fa_icon": "far fa-chart-bar"
@@ -541,40 +551,49 @@
             "default": "",
             "properties": {
                 "dexseq_dtu": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "description": "Run DEXSeq differential transcript usage workflow."
                 },
                 "dtu_txi": {
                     "type": "string",
                     "default": "dtuScaledTPM",
-                    "enum": ["dtuScaledTPM", "scaledTPM"]
+                    "enum": ["dtuScaledTPM", "scaledTPM"],
+                    "description": "Generate estimated counts using dtuScaledTPM or scaledTPM abundance estimates."
                 },
                 "dtu_lfc_denominator": {
                     "type": "string",
-                    "default": "pc3e"
-                },
-                "min_samps_feature_expr": {
-                    "type": "integer",
-                    "default": 3
-                },
-                "min_samps_feature_prop": {
-                    "type": "integer",
-                    "default": 3
+                    "default": "pc3e",
+                    "description": "A value of the sample annotation (e.g. condition) to use as a denominator in the log2 fold change."
                 },
                 "min_samps_gene_expr": {
                     "type": "integer",
-                    "default": 6
+                    "default": 6,
+                    "description": "Minimal number of samples where genes should be expressed."
                 },
-                "min_feature_expr": {
+                "min_samps_feature_expr": {
                     "type": "integer",
-                    "default": 10
+                    "default": 0,
+                    "description": "Minimal number of samples where features should be expressed."
                 },
-                "min_feature_prop": {
-                    "type": "number",
-                    "default": 0.1
+                "min_samps_feature_prop": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Minimal proportion of samples where features should be expressed."
                 },
                 "min_gene_expr": {
                     "type": "integer",
-                    "default": 10
+                    "default": 10,
+                    "description": "Minimal gene expression."
+                },
+                "min_feature_expr": {
+                    "type": "integer",
+                    "default": 10,
+                    "description": "Minimal feature expression."
+                },
+                "min_feature_prop": {
+                    "type": "number",
+                    "default": 0.1,
+                    "description": "Minimal proportion for feature expression. This value should be between 0 and 1."
                 }
             },
             "fa_icon": "far fa-chart-bar"
@@ -587,125 +606,155 @@
             "properties": {
                 "suppa": {
                     "type": "boolean",
-                    "default": "true"
+                    "default": true,
+                    "description": "Run SUPPA workflow."
                 },
                 "suppa_per_local_event": {
                     "type": "boolean",
-                    "default": "true"
+                    "default": true,
+                    "description": "Quantify event inclusion levels (PSIs) from multiple samples."
                 },
                 "suppa_per_isoform": {
                     "type": "boolean",
-                    "default": "true"
+                    "default": true,
+                    "description": "Quantify isoform inclusion levels (PSIs) from multiple samples."
                 },
                 "suppa_tpm": {
                     "type": "string",
                     "default": "None",
-                    "help_text": "And example can be found at \"${projectDir}/assets/tpm.txt\""
+                    "help_text": "And example can be found at \"${projectDir}/assets/tpm.txt\"",
+                    "description": "Expression file containing the abundances of all transcripts (ideally in TPM units)."
                 },
                 "generateevents_pool_genes": {
                     "type": "boolean",
-                    "default": "true"
+                    "default": true,
+                    "description": "Redefine genes by clustering together transcripts by genomic stranded overlap and sharing at least one exon."
                 },
-                "generateevents_localevents": {
+                "generateevents_event_type": {
                     "type": "string",
-                    "default": "SE SS MX RI FL"
+                    "default": "SE SS MX RI FL",
+                    "description": "Space separated list of events to generate."
                 },
                 "generateevents_boundary": {
                     "type": "string",
-                    "default": "S"
+                    "default": "S",
+                    "description": "Boundary type (only used for local AS events).",
+                    "enum": ["S", "V"]
                 },
                 "generateevents_threshold": {
                     "type": "integer",
-                    "default": 10
+                    "default": 10,
+                    "description": "Variability treshold."
                 },
                 "generateevents_exon_length": {
                     "type": "integer",
-                    "default": 100
+                    "default": 100,
+                    "description": "Defines the number of nucleotides to display in the output GTF."
                 },
                 "psiperevent_total_filter": {
                     "type": "integer",
-                    "default": 0
+                    "default": 0,
+                    "description": "Minimum total expression of the transcripts involved in the event."
                 },
                 "diffsplice_local_event": {
                     "type": "boolean",
-                    "default": "true"
+                    "default": true,
+                    "description": "Calculate differential splicing for AS events across multiple conditions with replicates."
                 },
                 "diffsplice_isoform": {
                     "type": "boolean",
-                    "default": "true"
+                    "default": true,
+                    "description": "Calculate differential splicing for differential transcript usage across multiple conditions with replicates"
                 },
                 "diffsplice_method": {
                     "type": "string",
                     "default": "empirical",
-                    "enum": ["empirical", "classical"]
+                    "enum": ["empirical", "classical"],
+                    "description": "The method to use to calculate the significance."
                 },
                 "diffsplice_area": {
                     "type": "integer",
-                    "default": 1000
+                    "default": 1000,
+                    "description": "Integer indicating the number of points in the local area of the delta PSI - average TPM distribution."
                 },
                 "diffsplice_lower_bound": {
                     "type": "integer",
-                    "default": 0
+                    "default": 0,
+                    "description": "Lower-bound for the absolute delta PSI value to test for significance."
                 },
                 "diffsplice_gene_correction": {
                     "type": "boolean",
-                    "default": "true"
+                    "default": true,
+                    "description": "Correct the p-values by gene."
                 },
                 "diffsplice_paired": {
                     "type": "boolean",
-                    "default": "true"
+                    "default": true,
+                    "description": "Indicates if replicates across conditions are paired."
                 },
                 "diffsplice_alpha": {
                     "type": "number",
-                    "default": 0.05
+                    "default": 0.05,
+                    "description": "Family-wise error rate to use for the multiple test correction."
                 },
                 "diffsplice_median": {
                     "type": "boolean",
-                    "default": "false"
+                    "description": "Use the median to calculate the Delta PSI, instead of the mean."
                 },
                 "diffsplice_tpm_threshold": {
                     "type": "integer",
-                    "default": 0
+                    "default": 0,
+                    "description": "Minimum expression (calculated as average TPM value within-replicates and between-conditions) to be included in the analysis."
                 },
                 "diffsplice_nan_threshold": {
                     "type": "integer",
-                    "default": 0
+                    "default": 0,
+                    "description": "Proportion of samples with nan values allowed per condition to calculate a DeltaPSI ."
                 },
                 "clusterevents_local_event": {
                     "type": "boolean",
-                    "default": "true"
+                    "default": true,
+                    "description": "Cluster events according to PSI values across conditions"
                 },
                 "clusterevents_isoform": {
                     "type": "boolean",
-                    "default": "true"
+                    "default": true,
+                    "description": "Cluster transcripts according to PSI values across conditions"
                 },
                 "clusterevents_sigthreshold": {
-                    "type": "number"
+                    "type": "number",
+                    "description": "P-value threshold to consider an event significant from the dpsi file."
                 },
                 "clusterevents_dpsithreshold": {
                     "type": "number",
-                    "default": 0.05
+                    "default": 0.05,
+                    "description": "Lower-bound for the absolute delta PSI value to cluster."
                 },
                 "clusterevents_eps": {
                     "type": "number",
-                    "default": 0.05
+                    "default": 0.05,
+                    "description": "Maximum distance (between 0 and 1) to consider two events as members of the same cluster."
                 },
                 "clusterevents_metric": {
                     "type": "string",
                     "default": "euclidean",
-                    "enum": ["euclidean", "manhattan", "cosine"]
+                    "enum": ["euclidean", "manhattan", "cosine"],
+                    "description": "Distance metric."
                 },
                 "clusterevents_separation": {
-                    "type": "integer"
+                    "type": "integer",
+                    "description": "Maximum distance in PSI space of an event to a cluster."
                 },
                 "clusterevents_min_pts": {
                     "type": "integer",
-                    "default": 20
+                    "default": 20,
+                    "description": "Minimum number of events required per cluster."
                 },
                 "clusterevents_method": {
                     "type": "string",
                     "default": "DBSCAN",
-                    "enum": ["OPTICS", "DBSCAN"]
+                    "enum": ["OPTICS", "DBSCAN"],
+                    "description": "Clustering method to use (DBSCAN, OPTICS)."
                 }
             },
             "fa_icon": "far fa-chart-bar"

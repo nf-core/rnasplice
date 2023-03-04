@@ -1,6 +1,5 @@
 process CREATE_BAMLIST {
-    //tag "$meta.id"
-    label "process_low"
+    label "process_single"
 
     conda "conda-forge::sed=4.7.0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -11,7 +10,8 @@ process CREATE_BAMLIST {
     tuple val(cond), val(meta), path(bam)
 
     output:
-    path("*_bamlist.txt"), emit: bam_text
+    tuple val(meta), path ("*_bamlist.txt"), emit: bam_text
+    path "versions.yml",   emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -19,5 +19,10 @@ process CREATE_BAMLIST {
     script:
     """
     echo $bam | sed 's: :,:g' > ${cond}_bamlist.txt
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        sed: \$(sed --version | head -n1 | sed 's/[^0-9.]*\([0-9.]*\).*/\1/')
+    END_VERSIONS
     """
 }
