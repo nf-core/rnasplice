@@ -22,7 +22,7 @@ process CREATE_BAMLIST {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        sed: \$(sed --version | head -n1 | sed 's/[^0-9.]*\([0-9.]*\).*/\1/')
+        sed: \$(sed --version | head -n 1 | sed 's/[^0-9.]*\\$([0-9.]*\).*/\1/')
     END_VERSIONS
     """
 }
