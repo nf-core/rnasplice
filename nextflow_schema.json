@@ -508,6 +508,11 @@
                     "type": "boolean",
                     "description": "Run DEXSeq differential exon usage workflow."
                 },
+                "save_dexseq_annotation": {
+                    "type": "boolean",
+                    "description": "Save pre-processed GFF annotation file.",
+                    "default": true
+                },
                 "gff_dexseq": {
                     "type": "string",
                     "default": "None",
