@@ -155,8 +155,6 @@ workflow PREPARE_GENOME {
         }
     }
 
-    println "hello"
-
     emit:
     fasta            = ch_fasta            //    path: genome.fasta
     fai              = ch_fai              //    path: genome.fai
