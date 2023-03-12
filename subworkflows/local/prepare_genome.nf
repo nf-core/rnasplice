@@ -35,32 +35,43 @@ workflow PREPARE_GENOME {
     //
     // Uncompress genome fasta file if required
     //
-    ch_fasta = Channel.empty()
     if (params.fasta.endsWith('.gz')) {
-        ch_fasta    = GUNZIP_FASTA ( [ [:], params.fasta ] ).gunzip.map{ it[1] }
+        GUNZIP_FASTA ( [ [:], params.fasta ] )
+        ch_fasta    = GUNZIP_FASTA.out.gunzip.map { it[1] }
         ch_versions = ch_versions.mix(GUNZIP_FASTA.out.versions)
     } else {
-        ch_fasta = file(params.fasta)
+        ch_fasta = Channel.fromPath(params.fasta)
     }
+
+    //
+    // Create chromosome sizes file
+    //
+    CUSTOM_GETCHROMSIZES ( [ [:], ch_fasta ] )
+    ch_chrom_sizes = CUSTOM_GETCHROMSIZES.out.sizes.map { it[1] }
+    ch_fai         = CUSTOM_GETCHROMSIZES.out.fai.map { it[1] }
+    ch_versions    = ch_versions.mix(CUSTOM_GETCHROMSIZES.out.versions)
 
     //
     // Uncompress GTF annotation file or create from GFF3 if required
     //
     if (params.gtf) {
         if (params.gtf.endsWith('.gz')) {
-            ch_gtf      = GUNZIP_GTF ( [ [:], params.gtf ] ).gunzip.map{ it[1] }
+            GUNZIP_GTF ( [ [:], params.gtf ] )
+            ch_gtf      = GUNZIP_GTF.outgunzip.map{ it[1] }
             ch_versions = ch_versions.mix(GUNZIP_GTF.out.versions)
         } else {
-            ch_gtf = file(params.gtf)
+            ch_gtf = Channel.fromPath(params.gtf)
         }
     } else if (params.gff) {
         if (params.gff.endsWith('.gz')) {
-            ch_gff      = GUNZIP_GFF ( [ [:], params.gff ] ).gunzip.map{ it[1] }
+            GUNZIP_GFF ( [ [:], params.gff ] )
+            ch_gff      = GUNZIP_GFF.out.gunzip.map{ it[1] }
             ch_versions = ch_versions.mix(GUNZIP_GFF.out.versions)
         } else {
-            ch_gff = file(params.gff)
+            ch_gff = Channel.fromPath(params.gff)
         }
-        ch_gtf      = GFFREAD ( ch_gff ).gtf
+        GFFREAD ( ch_gff )
+        ch_gtf      = GFFREAD.out.gtf
         ch_versions = ch_versions.mix(GFFREAD.out.versions)
     }
 
@@ -69,24 +80,28 @@ workflow PREPARE_GENOME {
     //
     if (params.transcript_fasta) {
         if (params.transcript_fasta.endsWith('.gz')) {
-            ch_transcript_fasta = GUNZIP_TRANSCRIPT_FASTA ( [ [:], params.transcript_fasta ] ).gunzip.map { it[1] }
+            GUNZIP_TRANSCRIPT_FASTA ( [ [:], params.transcript_fasta ] )
+            ch_transcript_fasta = GUNZIP_TRANSCRIPT_FASTA.out.gunzip.map { it[1] }
             ch_versions         = ch_versions.mix(GUNZIP_TRANSCRIPT_FASTA.out.versions)
         } else {
-            ch_transcript_fasta = file(params.transcript_fasta)
+            ch_transcript_fasta = Channel.fromPath(params.transcript_fasta)
         }
     } else {
-        ch_filter_gtf       = GTF_GENE_FILTER ( ch_fasta, ch_gtf ).gtf
-        ch_transcript_fasta = MAKE_TRANSCRIPTS_FASTA ( ch_fasta, ch_filter_gtf ).transcript_fasta
+        GTF_GENE_FILTER ( ch_fasta, ch_gtf )
+        ch_filter_gtf       = GTF_GENE_FILTER.out.gtf
         ch_versions         = ch_versions.mix(GTF_GENE_FILTER.out.versions)
+        MAKE_TRANSCRIPTS_FASTA ( ch_fasta, ch_filter_gtf )
+        ch_transcript_fasta = MAKE_TRANSCRIPTS_FASTA.out.transcript_fasta
         ch_versions         = ch_versions.mix(MAKE_TRANSCRIPTS_FASTA.out.versions)
     }
 
-    //
-    // Create chromosome sizes file
-    //
-    ch_chrom_sizes = CUSTOM_GETCHROMSIZES ( [ [:], ch_fasta ] ).sizes.map{ it[1] }
-    ch_fai         = CUSTOM_GETCHROMSIZES.out.fai.map{ it[1] }
-    ch_versions    = ch_versions.mix(CUSTOM_GETCHROMSIZES.out.versions)
+    // //
+    // // Create chromosome sizes file
+    // //
+    // CUSTOM_GETCHROMSIZES ( [ [:], ch_fasta ] )
+    // ch_chrom_sizes = CUSTOM_GETCHROMSIZES.out.sizes.map { it[1] }
+    // ch_fai         = CUSTOM_GETCHROMSIZES.out.fai.map { it[1] }
+    // ch_versions    = ch_versions.mix(CUSTOM_GETCHROMSIZES.out.versions)
 
     //
     // Uncompress STAR index or generate from scratch if required
@@ -98,7 +113,7 @@ workflow PREPARE_GENOME {
                 ch_star_index = UNTAR_STAR_INDEX ( [ [:], params.star_index ] ).untar.map { it[1] }
                 ch_versions   = ch_versions.mix(UNTAR_STAR_INDEX.out.versions)
             } else {
-                ch_star_index = file(params.star_index)
+                ch_star_index = Channel.fromPath(params.star_index)
             }
         } else {
             if (is_aws_igenome) {
@@ -118,13 +133,15 @@ workflow PREPARE_GENOME {
     if ('salmon' in prepare_tool_indices || 'star_salmon' in prepare_tool_indices) {
         if (params.salmon_index) {
             if (params.salmon_index.endsWith('.tar.gz')) {
-                ch_salmon_index = UNTAR_SALMON_INDEX ( [ [:], params.salmon_index ] ).untar.map { it[1] }
+                UNTAR_SALMON_INDEX ( [ [:], params.salmon_index ] )
+                ch_salmon_index = UNTAR_SALMON_INDEX.out.untar.map { it[1] }
                 ch_versions     = ch_versions.mix(UNTAR_SALMON_INDEX.out.versions)
             } else {
-                ch_salmon_index = file(params.salmon_index)
+                ch_salmon_index = Channel.fromPath(params.salmon_index)
             }
         } else {
-            ch_salmon_index = SALMON_INDEX ( ch_fasta, ch_transcript_fasta ).index
+            SALMON_INDEX ( ch_fasta, ch_transcript_fasta )
+            ch_salmon_index = SALMON_INDEX.out.index
             ch_versions     = ch_versions.mix(SALMON_INDEX.out.versions)
         }
     }
@@ -135,10 +152,11 @@ workflow PREPARE_GENOME {
     ch_dexseq_gff = Channel.empty()
     if (params.gff_dexseq) {
         if (params.gff_dexseq.endsWith('.gz')) {
-            ch_dexseq_gff = GUNZIP_GFF_DEXSEQ ( [ [:], params.gff_dexseq ] ).gunzip.map { it[1] }
+            GUNZIP_GFF_DEXSEQ ( [ [:], params.gff_dexseq ] )
+            ch_dexseq_gff = GUNZIP_GFF_DEXSEQ.out.gunzip.map { it[1] }
             ch_versions = ch_versions.mix(GUNZIP_GFF_DEXSEQ.out.versions)
         } else {
-            ch_dexseq_gff = file(params.gff_dexseq)
+            ch_dexseq_gff = Channel.fromPath(params.gff_dexseq)
         }
     }
 
@@ -148,10 +166,11 @@ workflow PREPARE_GENOME {
     ch_suppa_tpm = Channel.empty()
     if (params.suppa_tpm) {
         if (params.suppa_tpm.endsWith('.gz')) {
-            ch_suppa_tpm = GUNZIP_SUPPA_TPM ( [ [:], params.suppa_tpm ] ).gunzip.map { it[1] }
+            GUNZIP_SUPPA_TPM ( [ [:], params.suppa_tpm ] )
+            ch_suppa_tpm = GUNZIP_SUPPA_TPM.out.gunzip.map { it[1] }
             ch_versions = ch_versions.mix(GUNZIP_SUPPA_TPM.out.versions)
         } else {
-            ch_suppa_tpm = file(params.suppa_tpm)
+            ch_suppa_tpm = Channel.fromPath(params.suppa_tpm)
         }
     }
 
