@@ -135,6 +135,7 @@ for iv, s in features.steps():
     for f in s:
         counts[f] = 0
 
+
 # We need this little helper below:
 def reverse_strand(s):
     if s == "+":
