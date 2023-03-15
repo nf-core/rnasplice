@@ -28,9 +28,9 @@ for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true
 if (params.input) { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
 
 // Check alignment parameters
-def prepareToolIndices  = []
-if (!params.skip_alignment) { prepareToolIndices << params.aligner        }
-if (params.pseudo_aligner)  { prepareToolIndices << params.pseudo_aligner }
+def prepare_tool_indices  = []
+if (!params.skip_alignment) { prepare_tool_indices << params.aligner        }
+if (params.pseudo_aligner)  { prepare_tool_indices << params.pseudo_aligner }
 
 // Check if an AWS iGenome has been provided to use the appropriate version of STAR
 def is_aws_igenome = false
@@ -124,8 +124,16 @@ workflow RNASPLICE {
     //
 
     PREPARE_GENOME (
-        prepareToolIndices,
-        is_aws_igenome
+        params.fasta,
+        params.gtf,
+        params.gff,
+        params.transcript_fasta,
+        params.star_index,
+        params.salmon_index,
+        params.gff_dexseq,
+        params.suppa_tpm,
+        is_aws_igenome,
+        prepare_tool_indices
     )
 
     ch_versions = ch_versions.mix(PREPARE_GENOME.out.versions)
