@@ -11,8 +11,8 @@ process DEXSEQ_COUNT {
     tuple val(meta), path(bam), path (gff)
 
     output:
-    path "*.clean.count.txt"        , emit: dexseq_clean_txt
-    path  "versions.yml"            , emit: versions
+    tuple val(meta), path("*.clean.count.txt"), emit: dexseq_clean_txt
+    path  "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when

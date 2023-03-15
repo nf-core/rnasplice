@@ -1,6 +1,7 @@
 //
-// Dexseq DEU subworkflow
+// DEXSeq DEU subworkflow
 //
+
 include { DEXSEQ_ANNOTATION   } from '../../modules/local/dexseq_annotation'
 include { DEXSEQ_COUNT        } from '../../modules/local/dexseq_count'
 include { DEXSEQ_EXON         } from '../../modules/local/dexseq_exon'
@@ -54,7 +55,7 @@ workflow DEXSEQ_DEU {
     //
 
     DEXSEQ_EXON (
-        DEXSEQ_COUNT.out.dexseq_clean_txt.collect(),
+        DEXSEQ_COUNT.out.dexseq_clean_txt.map{ it[1] }.collect(),
         ch_dexseq_gff,
         ch_samplesheet,
         read_method
@@ -64,7 +65,7 @@ workflow DEXSEQ_DEU {
 
     emit:
 
-    dexseq_clean_txt           = DEXSEQ_COUNT.out.dexseq_clean_txt.collect()
+    dexseq_clean_txt           = DEXSEQ_COUNT.out.dexseq_clean_txt.map{ it[1] }.collect()
 
     dexseq_exon_rds            = DEXSEQ_EXON.out.dexseq_exon_rds              // path: dxd.rds
     dexseq_exon_results_rds    = DEXSEQ_EXON.out.dexseq_exon_results_rds      // path: dxr.rds

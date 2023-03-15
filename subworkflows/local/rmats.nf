@@ -53,8 +53,8 @@ workflow RMATS {
 
         RMATS_PREP (
             gtf,
-            CREATE_BAMLIST_COND1.out.bam_text,
-            CREATE_BAMLIST_COND2.out.bam_text,
+            CREATE_BAMLIST_COND1.out.bam_text.map{ it[1] },
+            CREATE_BAMLIST_COND2.out.bam_text.map{ it[1] },
             ch_genome_bam_conditions.bam1,
             ch_genome_bam_conditions.bam2
         )
@@ -65,8 +65,8 @@ workflow RMATS {
 
         RMATS_POST (
             gtf,
-            CREATE_BAMLIST_COND1.out.bam_text,
-            CREATE_BAMLIST_COND2.out.bam_text,
+            CREATE_BAMLIST_COND1.out.bam_text.map{ it[1] },
+            CREATE_BAMLIST_COND2.out.bam_text.map{ it[1] },
             ch_genome_bam_conditions.bam1,
             ch_genome_bam_conditions.bam2,
             RMATS_PREP.out.rmats_temp
@@ -96,7 +96,7 @@ workflow RMATS {
 
         RMATS_PREP_SINGLE (
             gtf,
-            CREATE_BAMLIST_COND1.out.bam_text,
+            CREATE_BAMLIST_COND1.out.bam_text.map{ it[1] },
             ch_genome_bam_conditions.bam1
         )
 
@@ -106,7 +106,7 @@ workflow RMATS {
 
         RMATS_POST_SINGLE (
             gtf,
-            CREATE_BAMLIST_COND1.out.bam_text,
+            CREATE_BAMLIST_COND1.out.bam_text.map{ it[1] },
             ch_genome_bam_conditions.bam1,
             RMATS_PREP_SINGLE.out.rmats_temp
         )
