@@ -19,7 +19,7 @@
                     "pattern": "^\\S+\\.csv$",
                     "schema": "assets/schema_input.json",
                     "description": "Path to comma-separated file containing information about the samples in the experiment.",
-                    "help_text": "You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row. See [usage docs](https://nf-co.re/rnasplice/usage#samplesheet-input).",
+                    "help_text": "You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 4 columns, and a header row. See [usage docs](https://nf-co.re/rnaseq/usage#samplesheet-input).",
                     "fa_icon": "fas fa-file-csv"
                 },
                 "outdir": {
@@ -70,34 +70,38 @@
                 },
                 "gtf": {
                     "type": "string",
-                    "default": "None",
-                    "fa_icon": "fas fa-code-branch",
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.gtf(\\.gz)?$",
                     "description": "Path to GTF annotation file.",
-                    "help_text": "This parameter is mandatory if --genome is not specified."
+                    "fa_icon": "fas fa-code-branch",
+                    "help_text": "This parameter is *mandatory* if `--genome` is not specified."
                 },
                 "gff": {
                     "type": "string",
-                    "default": "None",
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.gff(\\.gz)?$",
                     "fa_icon": "fas fa-code-branch",
-                    "help_text": "This parameter must be specified if --genome or --gtf are not specified.",
-                    "description": "Path to GFF annotation file."
+                    "description": "Path to GFF3 annotation file.",
+                    "help_text": "This parameter must be specified if `--genome` or `--gtf` are not specified."
                 },
                 "transcript_fasta": {
                     "type": "string",
-                    "default": "None",
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.fn?a(sta)?(\\.gz)?$",
                     "fa_icon": "far fa-file-code",
                     "description": "Path to FASTA transcriptome file."
                 },
                 "star_index": {
                     "type": "string",
-                    "default": "None",
                     "format": "path",
                     "fa_icon": "fas fa-bezier-curve",
                     "description": "Path to directory or tar.gz archive for pre-built STAR index."
                 },
                 "salmon_index": {
                     "type": "string",
-                    "default": "None",
                     "format": "path",
                     "fa_icon": "fas fa-bezier-curve",
                     "description": "Path to directory or tar.gz archive for pre-built Salmon index."
@@ -431,16 +435,14 @@
                 },
                 "salmon_quant_libtype": {
                     "type": "string",
-                    "default": "None",
-                    "help_text": "See [Salmon docs](https://salmon.readthedocs.io/en/latest/library_type.html).",
-                    "description": "Override Salmon library type inferred based on strandedness defined in meta object.",
-                    "fa_icon": "fas fa-fast-forward"
+                    "fa_icon": "fas fa-fast-forward",
+                    "description": " Override Salmon library type inferred based on strandedness defined in meta object.",
+                    "help_text": "See [Salmon docs](https://salmon.readthedocs.io/en/latest/library_type.html)."
                 },
                 "seq_center": {
                     "type": "string",
-                    "default": "None",
                     "description": "Sequencing center information to be added to read group of BAM files.",
-                    "fa_icon": "fas fa-hospital-alt"
+                    "fa_icon": "fas fa-synagogue"
                 },
                 "skip_alignment": {
                     "type": "boolean",
@@ -515,8 +517,11 @@
                 },
                 "gff_dexseq": {
                     "type": "string",
-                    "default": "None",
-                    "description": "Path to GFF annotation file."
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.gff(\\.gz)?$",
+                    "fa_icon": "fas fa-code-branch",
+                    "description": "Path to GFF3 annotation file."
                 },
                 "alignment_quality": {
                     "type": "integer",
@@ -626,8 +631,9 @@
                 },
                 "suppa_tpm": {
                     "type": "string",
-                    "default": "None",
-                    "help_text": "And example can be found at \"${projectDir}/assets/tpm.txt\"",
+                    "format": "path",
+                    "fa_icon": "fas fa-bezier-curve",
+                    "help_text": "An example can be found at \"${projectDir}/assets/tpm.txt\"",
                     "description": "Expression file containing the abundances of all transcripts (ideally in TPM units)."
                 },
                 "generateevents_pool_genes": {
