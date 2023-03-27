@@ -1,0 +1,72 @@
+
+SUMMARISING RUN PARAMETERS
+==========================
+Input filename: ERR188383_1.fastq.gz
+Trimming mode: paired-end
+Trim Galore version: 0.6.7
+Cutadapt version: 3.4
+Python version: could not detect
+Number of cores used for trimming: 8
+Quality Phred score cutoff: 20
+Quality encoding type selected: ASCII+33
+Using Illumina adapter for trimming (count: 6). Second best hit was smallRNA (count: 0)
+Adapter sequence: 'AGATCGGAAGAGC' (Illumina TruSeq, Sanger iPCR; auto-detected)
+Maximum trimming error rate: 0.1 (default)
+Minimum required adapter overlap (stringency): 1 bp
+Minimum required sequence length for both reads before a sequence pair gets removed: 20 bp
+Running FastQC on the data once trimming has completed
+Output file will be GZIP compressed
+
+
+This is cutadapt 3.4 with Python 3.9.6
+Command line parameters: -j 8 -e 0.1 -q 20 -O 1 -a AGATCGGAAGAGC ERR188383_1.fastq.gz
+Processing reads on 8 cores in single-end mode ...
+Finished in 0.22 s (4 µs/read; 13.94 M reads/minute).
+
+=== Summary ===
+
+Total reads processed:                  50,000
+Reads with adapters:                    17,379 (34.8%)
+Reads written (passing filters):        50,000 (100.0%)
+
+Total basepairs processed:     3,750,000 bp
+Quality-trimmed:                  31,697 bp (0.8%)
+Total written (filtered):      3,693,609 bp (98.5%)
+
+=== Adapter 1 ===
+
+Sequence: AGATCGGAAGAGC; Type: regular 3'; Length: 13; Trimmed: 17379 times
+
+No. of allowed errors:
+1-9 bp: 0; 10-13 bp: 1
+
+Bases preceding removed adapters:
+  A: 33.8%
+  C: 30.5%
+  G: 19.1%
+  T: 16.6%
+  none/other: 0.0%
+
+Overview of removed sequences
+length	count	expect	max.err	error counts
+1	12253	12500.0	0	12253
+2	3709	3125.0	0	3709
+3	972	781.2	0	972
+4	266	195.3	0	266
+5	142	48.8	0	142
+6	20	12.2	0	20
+7	2	3.1	0	2
+8	2	0.8	0	2
+9	3	0.2	0	1 2
+10	3	0.0	1	1 2
+13	1	0.0	1	1
+14	1	0.0	1	1
+15	1	0.0	1	1
+16	2	0.0	1	2
+20	1	0.0	1	0 1
+32	1	0.0	1	1
+
+RUN STATISTICS FOR INPUT FILE: ERR188383_1.fastq.gz
+=============================================
+50000 sequences processed in total
+

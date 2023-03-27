@@ -1,0 +1,5 @@
+Sample	Assigned	Unassigned: Singleton	Unassigned: Multi Mapping	Unassigned: No Features
+ERR188383_sorted	46634.0	64.0	1861.0	1853.0
+ERR188428_sorted	46114.0	36.0	1701.0	2183.0
+ERR188454_sorted	46060.0	26.0	2027.0	2428.0
+ERR204916_sorted	45945.0	57.0	1878.0	2167.0

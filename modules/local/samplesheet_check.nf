@@ -18,14 +18,23 @@ process SAMPLESHEET_CHECK {
     task.ext.when == null || task.ext.when
 
     script: // This script is bundled with the pipeline, in nf-core/rnasplice/bin/
-    """
-    check_samplesheet.py \\
-        $samplesheet \\
-        samplesheet.valid.csv
 
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        python: \$(python --version | sed 's/Python //g')
-    END_VERSIONS
-    """
+    if( params.step == 'all' )
+        """
+        check_samplesheet.py $samplesheet samplesheet.valid.csv
+        cat <<-END_VERSIONS > versions.yml
+        "${task.process}":
+            python: \$(python --version | sed 's/Python //g')
+        END_VERSIONS
+        """
+
+    else if( params.step == 'bam' || params.step == 'transcriptome' )
+        """
+        check_samplesheet_bam_transcriptome.py $samplesheet
+
+        cat <<-END_VERSIONS > versions.yml
+        "${task.process}":
+            python: \$(python --version | sed 's/Python //g')
+        END_VERSIONS
+        """
 }

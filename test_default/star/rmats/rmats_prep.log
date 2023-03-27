@@ -1,0 +1,29 @@
+gtf: 0.26486706733703613
+There are 2392 distinct gene ID in the gtf file
+There are 6001 distinct transcript ID in the gtf file
+There are 1606 one-transcript genes in the gtf file
+There are 35083 exons in the gtf file
+There are 1248 one-exon transcripts in the gtf file
+There are 1135 one-transcript genes with only one exon in the transcript
+Average number of transcripts per gene is 2.508779
+Average number of exons per transcript is 5.846192
+Average number of exons per transcript excluding one-exon tx is 7.118662
+Average number of gene per geneGroup is 1.073259
+statistic: 0.0008647441864013672
+
+read outcome totals across all BAMs
+USED: 374699
+NOT_PAIRED: 183
+NOT_NH_1: 14934
+NOT_EXPECTED_CIGAR: 2363
+NOT_EXPECTED_READ_LENGTH: 0
+NOT_EXPECTED_STRAND: 0
+EXON_NOT_MATCHED_TO_ANNOTATION: 9055
+JUNCTION_NOT_MATCHED_TO_ANNOTATION: 651
+CLIPPED: 0
+total: 401885
+outcomes by BAM written to: rmats_temp/2023-03-27-11_58_32_576358_read_outcomes_by_bam.txt
+
+novel: 0.23105645179748535
+The splicing graph and candidate read have been saved into rmats_temp/2023-03-27-11_58_32_576358_*.rmats
+save: 0.020722627639770508

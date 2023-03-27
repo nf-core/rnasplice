@@ -1,0 +1,5 @@
+sample,condition,bam,transcriptome
+ERR188383,GBR,BAM/ERR188383.sorted.bam,Transcriptome/ERR188383.Aligned.toTranscriptome.out.bam
+ERR188428,GBR,BAM/ERR188428.sorted.bam,Transcriptome/ERR188428.Aligned.toTranscriptome.out.bam
+ERR188454,YRI,BAM/ERR188454.sorted.bam,Transcriptome/ERR188454.Aligned.toTranscriptome.out.bam
+ERR204916,YRI,BAM/ERR204916.sorted.bam,Transcriptome/ERR204916.Aligned.toTranscriptome.out.bam
