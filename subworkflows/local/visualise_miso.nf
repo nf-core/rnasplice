@@ -85,7 +85,6 @@ workflow VISUALISE_MISO {
     if (params.miso_genes_file && params.miso_genes) {
         ch_miso_genes_file = Channel.fromPath(params.miso_genes_file)
             .splitCsv()
-
         ch_miso_genes_list.concat( ch_miso_genes_file )
         .set{ ch_miso_genes }
     } else if (params.miso_genes_file) {
@@ -95,8 +94,7 @@ workflow VISUALISE_MISO {
         } else {
         ch_miso_genes = ch_miso_genes_list
     }
-    ch_miso_genes.view()
-    ch_miso_input = MISO_SETTINGS.out.miso_settings.combine(ch_miso_genes).view()
+    ch_miso_input = MISO_SETTINGS.out.miso_settings.combine(ch_miso_genes)
 
     MISO_SASHIMI (
         ch_miso_index,

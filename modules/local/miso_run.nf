@@ -1,5 +1,5 @@
 process MISO_RUN {
-    label "process_high"
+    label "process_medium"
 
     conda (params.enable_conda ? "conda-forge::python=2.7 bioconda::misopy=0.5.4" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -18,7 +18,7 @@ process MISO_RUN {
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    miso --run ${miso_index} $bams --output-dir miso_data/${prefix} --read-len $miso_read_len 
+    miso --run ${miso_index} $bams --output-dir miso_data/${prefix} --read-len $miso_read_len
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
