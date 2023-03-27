@@ -1,2 +1,0 @@
-ID	GeneID	geneSymbol	chr	strand	riExonStart_0base	riExonEnd	upstreamES	upstreamEE	downstreamES	downstreamEE
-76	"ENSG00000102225"	"CDK16"	chrX	+	47085363	47086102	47085363	47085426	47085981	47086102

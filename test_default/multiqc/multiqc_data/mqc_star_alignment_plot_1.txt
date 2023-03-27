@@ -1,5 +1,0 @@
-Sample	Uniquely mapped	Mapped to multiple loci	Mapped to too many loci	Unmapped: too short
-ERR188383	48542.0	792.0	1.0	453.0
-ERR188428	48333.0	731.0	2.0	653.0
-ERR188454	48509.0	830.0	11.0	440.0
-ERR204916	48165.0	830.0	12.0	678.0
