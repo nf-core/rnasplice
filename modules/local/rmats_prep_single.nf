@@ -1,5 +1,5 @@
 process RMATS_PREP_SINGLE {
-    label "process_medium"
+    label "process_high"
 
     conda 'bioconda::r-pairadise=1.0.0 bioconda::rmats=4.1.2'
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
