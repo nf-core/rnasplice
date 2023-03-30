@@ -73,6 +73,7 @@ workflow PREPARE_GENOME {
     //
     // Uncompress transcript fasta file / create if required
     //
+
     if (transcript_fasta) {
         if (transcript_fasta.endsWith('.gz')) {
             ch_transcript_fasta = GUNZIP_TRANSCRIPT_FASTA ( [ [:], transcript_fasta ] ).gunzip.map { it[1] }
@@ -104,7 +105,7 @@ workflow PREPARE_GENOME {
     // Uncompress STAR index or generate from scratch if required
     //
     ch_star_index = Channel.empty()
-    if ('star' in prepare_tool_indices || 'star_salmon' in prepare_tool_indices) {
+    if (('star' in prepare_tool_indices || 'star_salmon' in prepare_tool_indices) && !params.step == 'bam') {
         if (star_index) {
             if (star_index.endsWith('.tar.gz')) {
                 ch_star_index = UNTAR_STAR_INDEX ( [ [:], star_index ] ).untar.map { it[1] }
@@ -127,7 +128,7 @@ workflow PREPARE_GENOME {
     // Uncompress Salmon index or generate from scratch if required
     //
     ch_salmon_index = Channel.empty()
-    if ('salmon' in prepare_tool_indices || 'star_salmon' in prepare_tool_indices) {
+    if (('salmon' in prepare_tool_indices || 'star_salmon' in prepare_tool_indices) && !params.step == 'bam') {
         if (salmon_index) {
             if (salmon_index.endsWith('.tar.gz')) {
                 ch_salmon_index = UNTAR_SALMON_INDEX ( [ [:], salmon_index ] ).untar.map { it[1] }

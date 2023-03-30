@@ -173,7 +173,7 @@ workflow RNASPLICE {
     }
     .set { ch_fastq }
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
-    } else if (params.step == 'bam' || params.step =='transcriptome' ) {
+    } else if (params.step =='transcriptome' ) {
     INPUT_CHECK_BAM (
 	    ch_input
     )
@@ -187,6 +187,14 @@ workflow RNASPLICE {
     .transcriptome
     .set { ch_start_transcriptome }
     ch_versions = ch_versions.mix(INPUT_CHECK_TRANSCRIPTOME.out.versions)
+    } else if (params.step == 'bam') {
+    INPUT_CHECK_BAM (
+	    ch_input
+    )
+    .bam
+    .set { ch_start_bam }
+    ch_versions = ch_versions.mix(INPUT_CHECK_BAM.out.versions)
+
     }
 
     // Create samplesheet channel (after input check)
@@ -266,7 +274,7 @@ workflow RNASPLICE {
 
         ch_genome_bam        = BAM_SORT_SAMTOOLS.out.bam
         ch_genome_bam_index  = BAM_SORT_SAMTOOLS.out.bai
-        ch_transcriptome_bam = ch_start_transcriptome
+//        ch_transcriptome_bam = ch_start_transcriptome
         ch_samtools_stats    = BAM_SORT_SAMTOOLS.out.stats
         ch_samtools_flagstat = BAM_SORT_SAMTOOLS.out.flagstat
         ch_samtools_idxstats = BAM_SORT_SAMTOOLS.out.idxstats
@@ -275,7 +283,9 @@ workflow RNASPLICE {
         ch_versions = ch_versions.mix(BAM_SORT_SAMTOOLS.out.versions)
     }
 
-
+    if (params.step == 'transcriptome') {
+        ch_transcriptome_bam = ch_start_transcriptome
+    }
 
 
     if (!params.skip_alignment && ( params.aligner == 'star' || params.aligner == 'star_salmon') && (params.step == 'all')) {
@@ -573,7 +583,7 @@ workflow RNASPLICE {
     //
     // MODULE: Genome-wide coverage with BEDTools
     //
-    if ((params.step == 'bam' || params.step == 'transriptome' ) || (!params.skip_alignment && !params.skip_bigwig && params.step == 'all')) {
+    if (((params.step == 'bam' || params.step == 'transriptome' ) && !params.skip_bigwig) || (!params.skip_alignment && !params.skip_bigwig && params.step == 'all')) {
 
         BEDTOOLS_GENOMECOV (
             ch_genome_bam

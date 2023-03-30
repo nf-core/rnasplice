@@ -20,9 +20,9 @@ DexTranscripts: --
 SUPPA: --
 
 The typical command for running the pipeline from this configuration is as follows:
-(#nextflow run nf-core/rnasplice --input samplesheet.csv --outdir <OUTDIR> --fasta fasta.fasta –step all --edger_exon -profile docker)
 nextflow run main.nf --input samplesheet.csv --fasta X.fa.gz --gtf genes_chrX.gtf --outdir test \\
--profile docker -work-dir work --step all --edger_exon true
+-profile docker -work-dir work --step all --edger_exon true \\
+--skip_alignment false --rmats false --dexseq_exon false --dexseq_dtu false --suppa false --sashimi_plot false --skip_bigwig true
 
 This will launch the pipeline starting from fastq files and applying the edgeR algorithm for rna splicing analysis.
 
@@ -45,9 +45,9 @@ rMATS: --
 
 
 The typical command for running the pipeline is as follows:
-#nextflow run nf-core/rnasplice --input samplesheet.csv --outdir <OUTDIR> --fasta fasta.fasta –step bam –edgeRexon -profile docker
 nextflow run main.nf --input samplesheet_bam.csv --fasta X.fa.gz --gtf genes_chrX.gtf --outdir test_bam \\
--profile docker -work-dir work --step bam --edger_exon
+-profile docker -work-dir work --step bam --edger_exon true \\
+--rmats false --dexseq_exon false --dexseq_dtu false --suppa false --sashimi_plot false --skip_bigwig true
 
 This will launch the pipeline starting from bam files and execute the analysis using edgeR tool.
 
@@ -74,8 +74,8 @@ SUPPA: --
 
 
 The typical command for running the pipeline is as follows:
-#nextflow run nf-core/rnasplice --input samplesheet.csv --outdir <OUTDIR> --fasta fasta.fasta –step transcriptome --SUPPA -profile docker
-nextflow run main.nf --input samplesheet_bam.csv --fasta X.fa.gz --gtf genes_chrX.gtf --outdir test_transcriptome \\
--profile docker -work-dir work --step transcriptome --rmats false --suppa true
+nextflow run main.nf --input samplesheet_bam_transcriptome.csv --fasta X.fa.gz --gtf genes_chrX.gtf --outdir test_transcriptome \\
+-profile docker -work-dir work --step transcriptome \\
+--rmats false --dexseq_exon false --edger_exon false --dexseq_dtu false --suppa true --sashimi_plot false --skip_bigwig true
 
 This will launch the pipeline starting from bam + transcriptome files and execute the analysis using SUPPA2 tool.
