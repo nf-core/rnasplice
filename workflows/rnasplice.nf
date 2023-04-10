@@ -150,7 +150,7 @@ workflow RNASPLICE {
     switch(ch_format) {
         case '[FASTQ]':
             println("Starting from 'fastq'");
-            params.step = 'all';
+            params.step = 'fastq';
             ch_input_type = SAMPLESHEET_REFORMAT.out.fastq;
             break;
         case '[BAM]':
@@ -199,7 +199,7 @@ workflow RNASPLICE {
     //
 
     // Run Input check subworkflow
-    if (params.step == 'all') {
+    if (params.step == 'fastq') {
     INPUT_CHECK (
 	    '[FASTQ]',
         ch_input_type
@@ -256,7 +256,7 @@ workflow RNASPLICE {
     // Take software versions from input check (.first() not required)
 
     // Check rMATS parameters specified correctly
-    if (params.rmats && params.step == 'all') {
+    if (params.rmats && params.step == 'fastq') {
 
         WorkflowRnasplice.rmatsReadError(INPUT_CHECK.out.out, log)
 
@@ -278,7 +278,7 @@ workflow RNASPLICE {
     // MODULE: Concatenate FastQ files from same sample if required
     //
 
-    if (params.step == 'all') {
+    if (params.step == 'fastq') {
     CAT_FASTQ (
         ch_fastq.multiple
     )
@@ -293,7 +293,7 @@ workflow RNASPLICE {
     //
 
     // Run FastQC and TrimGalore
-    if (params.step == 'all') {
+    if (params.step == 'fastq') {
     FASTQC_TRIMGALORE (
         ch_cat_fastq,
         params.skip_fastqc,
@@ -343,7 +343,7 @@ workflow RNASPLICE {
     }
 
 
-    if (!params.skip_alignment && ( params.aligner == 'star' || params.aligner == 'star_salmon') && (params.step == 'all')) {
+    if (!params.skip_alignment && ( params.aligner == 'star' || params.aligner == 'star_salmon') && (params.step == 'fastq')) {
 
         ALIGN_STAR (
             ch_trim_reads,
@@ -370,7 +370,7 @@ workflow RNASPLICE {
         ch_versions = ch_versions.mix(ALIGN_STAR.out.versions)
     }
 
-    if ((params.step == 'bam' || params.step == 'transcriptome') || (!params.skip_alignment && ( params.aligner == 'star' || params.aligner == 'star_salmon') && (params.step == 'all'))) {
+    if ((params.step == 'bam' || params.step == 'transcriptome') || (!params.skip_alignment && ( params.aligner == 'star' || params.aligner == 'star_salmon') && (params.step == 'fastq'))) {
         //
         // SUBWORKFLOW: Run DEXSeq DEU branch (params.dexseq_exon = true)
         //
@@ -416,7 +416,7 @@ workflow RNASPLICE {
             //
             // Create channel grouped by condition: [ [condition1, [condition1_metas], [group1_bams]], [condition2, [condition2_metas], [condition2_bams]]] if there are more than one condition
             //
-            if (!params.skip_alignment && ( params.aligner == 'star' || params.aligner == 'star_salmon') && (params.step == 'all')) {
+            if (!params.skip_alignment && ( params.aligner == 'star' || params.aligner == 'star_salmon') && (params.step == 'fastq')) {
             ALIGN_STAR
                 .out
                 .bam
@@ -558,7 +558,7 @@ workflow RNASPLICE {
     // SUBWORKFLOW: Pseudo-alignment and quantification with Salmon
     //
 
-    if (params.pseudo_aligner == 'salmon' && params.step == 'all') {
+    if (params.pseudo_aligner == 'salmon' && params.step == 'fastq') {
 
         alignment_mode = false
         ch_transcript_fasta = ch_dummy_file
@@ -638,7 +638,7 @@ workflow RNASPLICE {
     //
     // MODULE: Genome-wide coverage with BEDTools
     //
-    if (((params.step == 'bam' || params.step == 'transriptome' ) && !params.skip_bigwig) || (!params.skip_alignment && !params.skip_bigwig && params.step == 'all')) {
+    if (((params.step == 'bam' || params.step == 'transriptome' ) && !params.skip_bigwig) || (!params.skip_alignment && !params.skip_bigwig && params.step == 'fastq')) {
 
         BEDTOOLS_GENOMECOV (
             ch_genome_bam
@@ -685,22 +685,22 @@ workflow RNASPLICE {
     ch_multiqc_files = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
     ch_multiqc_files = ch_multiqc_files.mix(ch_methods_description.collectFile(name: 'methods_description_mqc.yaml'))
     ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
-    if (params.step == 'all') {
+    if (params.step == 'fastq') {
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC_TRIMGALORE.out.fastqc_zip.collect{it[1]}.ifEmpty([]))
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC_TRIMGALORE.out.trim_zip.collect{it[1]}.ifEmpty([]))
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC_TRIMGALORE.out.trim_log.collect{it[1]}.ifEmpty([]))
     }
-    if (params.pseudo_aligner == 'salmon' && params.step == 'all'){
+    if (params.pseudo_aligner == 'salmon' && params.step == 'fastq'){
 
         ch_multiqc_files = ch_multiqc_files.mix(ch_salmon_multiqc.collect{it[1]}.ifEmpty([]))
 
     }
 
-    if (!params.skip_alignment && params.step == 'all' && (params.aligner == 'star_salmon' || params.aligner == "star")){
+    if (!params.skip_alignment && params.step == 'fastq' && (params.aligner == 'star_salmon' || params.aligner == "star")){
 
         ch_multiqc_files = ch_multiqc_files.mix(ch_star_multiqc.collect{it[1]}.ifEmpty([]))
     }
-        if ((params.step == 'bam' || params.step == 'transcriptome') || (!params.skip_alignment && params.step == 'all' && (params.aligner == 'star_salmon' || params.aligner == "star"))){
+        if ((params.step == 'bam' || params.step == 'transcriptome') || (!params.skip_alignment && params.step == 'fastq' && (params.aligner == 'star_salmon' || params.aligner == "star"))){
         ch_multiqc_files = ch_multiqc_files.mix(ch_samtools_stats.collect{it[1]}.ifEmpty([]))
         ch_multiqc_files = ch_multiqc_files.mix(ch_samtools_flagstat.collect{it[1]}.ifEmpty([]))
         ch_multiqc_files = ch_multiqc_files.mix(ch_samtools_idxstats.collect{it[1]}.ifEmpty([]))
