@@ -6,19 +6,37 @@ include { SAMPLESHEET_CHECK } from '../../modules/local/samplesheet_check'
 
 workflow INPUT_CHECK {
     take:
-    samplesheet // file: /path/to/samplesheet.csv
+    format // value, get the format type of the samplesheet
+    samplesheet_reformatted // channel for getting the re-formatted samplesheet as input
 
     main:
-    SAMPLESHEET_CHECK ( samplesheet )
-        .csv
-        .splitCsv ( header:true, sep:',' )
-        .map { create_fastq_channel(it) }
-        .set { reads }
+
+    switch(format) {
+        case '[FASTQ]':
+//            println("Input_check from 'fastq'");
+            SAMPLESHEET_CHECK ( samplesheet_reformatted, format ).csv.splitCsv ( header:true, sep:',' ).map { create_fastq_channel(it) }.set { out }
+            break;
+        case '[TRANSCRIPTOME]':
+//            println("Input_check from 'transcriptome_bam'");
+            SAMPLESHEET_CHECK ( samplesheet_reformatted, format  ).csv.splitCsv ( header:true, sep:',' ).map { create_transcriptome_channel(it) }.set { out }
+            break;
+        case '[BAM]':
+//            println("Input_check from 'bam'");
+            SAMPLESHEET_CHECK ( samplesheet_reformatted, format ).csv.splitCsv ( header:true, sep:',' ).map { create_bam_channel(it) }.set { out }
+            break;
+        case '[SALMON]':
+//            println("Input_check from 'salmon'");
+            SAMPLESHEET_CHECK ( samplesheet_reformatted, format  ).csv.splitCsv ( header:true, sep:',' ).map { create_transcriptome_channel(it) }.set { out }
+            break;
+        default: log.info("Doesn't work!!!!")
+    }
 
     emit:
-    reads                                     // channel: [ val(meta), [ reads ] ]
+    out                                     // channel: [ val(meta), [ reads ] ]
     versions = SAMPLESHEET_CHECK.out.versions // channel: [ versions.yml ]
+
 }
+
 
 // Function to get list of [ meta, [ fastq_1, fastq_2 ] ]
 def create_fastq_channel(LinkedHashMap row) {
@@ -44,3 +62,41 @@ def create_fastq_channel(LinkedHashMap row) {
     }
     return fastq_meta
 }
+
+
+// Function to get list of [ meta, bam ]
+def create_bam_channel(LinkedHashMap row) {
+    // create meta map
+    def meta = [:]
+    meta.id         = row.sample
+    meta.condition = row.condition
+    meta.bam = row.bam
+
+    // add path(s) of the bam file(s) to the meta map
+    def bam_meta = []
+    if (!file(row.bam).exists()) {
+        exit 1, "ERROR: Please check input samplesheet -> bam file does not exist!\n${row.bam}"
+    }
+        bam_meta = [ meta, [ file(row.bam) ] ]
+    return bam_meta
+}
+
+// Function to get list of [ meta, bam ]
+def create_transcriptome_channel(LinkedHashMap row) {
+    // create meta map
+    def meta = [:]
+    meta.id         = row.sample
+    meta.condition = row.condition
+    meta.bam = row.bam
+    meta.transcriptome = row.transcriptome
+
+    // add path(s) of the bam file(s) to the meta map
+    def transcriptome_meta = []
+    if (!file(row.transcriptome).exists()) {
+        exit 1, "ERROR: Please check input samplesheet -> bam file does not exist!\n${row.transcriptome}"
+    }
+        transcriptome_meta = [ meta, [ file(row.transcriptome) ] ]
+    return transcriptome_meta
+}
+
+// Function to get list of [ meta, salmon ] TODO

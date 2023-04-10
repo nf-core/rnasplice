@@ -9,6 +9,7 @@ process SAMPLESHEET_CHECK {
 
     input:
     path samplesheet
+    val format
 
     output:
     path '*.csv'       , emit: csv
@@ -19,7 +20,7 @@ process SAMPLESHEET_CHECK {
 
     script: // This script is bundled with the pipeline, in nf-core/rnasplice/bin/
 
-    if( params.step == 'all' )
+    if ( format.contains('FASTQ'))
         """
         check_samplesheet.py $samplesheet samplesheet.valid.csv
         cat <<-END_VERSIONS > versions.yml
@@ -28,7 +29,7 @@ process SAMPLESHEET_CHECK {
         END_VERSIONS
         """
 
-    else if( params.step == 'bam' || params.step == 'transcriptome' )
+    else if ( format.contains('BAM') || format.contains('TRANSCRIPTOME'))
         """
         check_samplesheet_bam_transcriptome.py $samplesheet
 

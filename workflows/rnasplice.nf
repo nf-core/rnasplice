@@ -70,13 +70,14 @@ ch_multiqc_custom_methods_description = params.multiqc_methods_description ? fil
 // MODULE: Loaded from modules/local/
 //
 include { BEDTOOLS_GENOMECOV      } from '../modules/local/bedtools_genomecov'
+include { SAMPLESHEET_REFORMAT    } from '../modules/local/samplesheet_reformat.nf' // added module
+include { GET_INPUT_TYPE          } from '../modules/local/get_input_type.nf'  // added module
 
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
 include { INPUT_CHECK       } from '../subworkflows/local/input_check'
-include { INPUT_CHECK  as INPUT_CHECK_BAM} from '../subworkflows/local/input_check_bam.nf' // added
-include { INPUT_CHECK  as INPUT_CHECK_TRANSCRIPTOME} from '../subworkflows/local/input_check_transcriptome.nf' // added
+include { INPUT_CHECK  as INPUT_CHECK_BAM} from '../subworkflows/local/input_check' // added
 include { PREPARE_GENOME    } from '../subworkflows/local/prepare_genome'
 include { FASTQC_TRIMGALORE } from '../subworkflows/local/fastqc_trimgalore'
 include { ALIGN_STAR        } from '../subworkflows/local/align_star'
@@ -128,6 +129,51 @@ workflow RNASPLICE {
     // Create channel for software versions (will be added to throughout pipeline)
     ch_versions = Channel.empty()
 
+
+    // Module Input_check_Val: Re-format the input dataset according to the header (printing only the necessaries columns )
+    SAMPLESHEET_REFORMAT (
+        ch_input
+    )
+//    ch_type_fastq = SAMPLESHEET_REFORMAT.out.fastq
+//    ch_type_bam = SAMPLESHEET_REFORMAT.out.bam
+//    ch_type_transcriptome = SAMPLESHEET_REFORMAT.out.transcriptome
+//    ch_type_salmon = SAMPLESHEET_REFORMAT.out.salmon
+
+
+    // Module - Automatically get the input type: Figure out if the input type is fastq, bam, transcriptome o salmon count and activate the corresponding switch
+        // TODO: remove the println lines once completed
+
+    GET_INPUT_TYPE (
+        ch_input
+    )
+    ch_format = GET_INPUT_TYPE.out.value
+    switch(ch_format) {
+        case '[FASTQ]':
+            println("Starting from 'fastq'");
+            params.step = 'all';
+            ch_input_type = SAMPLESHEET_REFORMAT.out.fastq;
+            break;
+        case '[BAM]':
+            println("Starting from 'bam'");
+            params.step = 'bam';
+            ch_input_type = SAMPLESHEET_REFORMAT.out.bam;
+            break;
+        case '[TRANSCRIPTOME]':
+            println("Starting from 'transcriptome_bam'");
+            params.step = 'transcriptome';
+            ch_input_type = SAMPLESHEET_REFORMAT.out.transcriptome;
+            break;
+        case '[SALMON]':
+            println("Starting from 'salmon'");
+            params.step = 'salmon';
+            ch_input_type = SAMPLESHEET_REFORMAT.out.salmon;
+            break;
+        default: log.info("Doesn't work!!")
+    }
+//        println ch_input  // check if the original samplesheet is different from the reformatted one. To delete
+//        ch_input_type.view()  /// check if ch_input after switch contains the correct file. To delete
+
+
     //
     // SUBWORKFLOW: Uncompress and prepare reference genome files
     //
@@ -142,7 +188,8 @@ workflow RNASPLICE {
         params.gff_dexseq,
         params.suppa_tpm,
         is_aws_igenome,
-        prepare_tool_indices
+        prepare_tool_indices,
+        ch_format
     )
 
     ch_versions = ch_versions.mix(PREPARE_GENOME.out.versions)
@@ -154,9 +201,10 @@ workflow RNASPLICE {
     // Run Input check subworkflow
     if (params.step == 'all') {
     INPUT_CHECK (
-	    ch_input
-    )
-    .reads
+	    '[FASTQ]',
+        ch_input_type
+        )
+    .out
     .map {
         meta, fastq ->
             def meta_clone = meta.clone()
@@ -174,42 +222,47 @@ workflow RNASPLICE {
     .set { ch_fastq }
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
     } else if (params.step =='transcriptome' ) {
-    INPUT_CHECK_BAM (
-	    ch_input
+    INPUT_CHECK (
+	    '[TRANSCRIPTOME]',
+        ch_input_type
     )
-    .bam
-    .set { ch_start_bam }
-    ch_versions = ch_versions.mix(INPUT_CHECK_BAM.out.versions)
-
-    INPUT_CHECK_TRANSCRIPTOME (
-	    ch_input
-    )
-    .transcriptome
+    .out
     .set { ch_start_transcriptome }
-    ch_versions = ch_versions.mix(INPUT_CHECK_TRANSCRIPTOME.out.versions)
-    } else if (params.step == 'bam') {
+    ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
+//    ch_start_transcriptome.view()
+
     INPUT_CHECK_BAM (
-	    ch_input
+        '[BAM]',
+        ch_input
     )
-    .bam
+    .out
     .set { ch_start_bam }
     ch_versions = ch_versions.mix(INPUT_CHECK_BAM.out.versions)
 
+    } else if (params.step == 'bam') {
+    INPUT_CHECK (
+	    '[BAM]',
+        ch_input_type
+    )
+    .out
+    .set { ch_start_bam }
+    ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
+//    ch_start_bam.view()
     }
 
-    // Create samplesheet channel (after input check)
-    ch_samplesheet = Channel.fromPath(params.input)
+    ch_samplesheet = ch_input_type
+//    ch_samplesheet.view()
 
     // Take software versions from input check (.first() not required)
 
     // Check rMATS parameters specified correctly
     if (params.rmats && params.step == 'all') {
 
-        WorkflowRnasplice.rmatsReadError(INPUT_CHECK.out.reads, log)
+        WorkflowRnasplice.rmatsReadError(INPUT_CHECK.out.out, log)
 
-        WorkflowRnasplice.rmatsStrandednessError(INPUT_CHECK.out.reads, log)
+        WorkflowRnasplice.rmatsStrandednessError(INPUT_CHECK.out.out, log)
 
-        WorkflowRnasplice.rmatsConditionError(INPUT_CHECK.out.reads, log)
+        WorkflowRnasplice.rmatsConditionError(INPUT_CHECK.out.out, log)
 
     }
 
@@ -253,6 +306,8 @@ workflow RNASPLICE {
     // Collect trimmed reads from Trimgalore
     ch_trim_reads = FASTQC_TRIMGALORE.out.reads
     }
+
+//    ch_trim_reads.view()
     //
     // SUBWORKFLOW: Alignment with STAR
     //
