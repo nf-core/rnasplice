@@ -385,7 +385,8 @@ workflow RNASPLICE {
                 ch_genome_bam,
                 ch_dexseq_gff,
                 ch_samplesheet,
-                read_method
+                read_method,
+                params.n_dexseq_plot
             )
 
             ch_versions = ch_versions.mix(DEXSEQ_DEU.out.versions)
