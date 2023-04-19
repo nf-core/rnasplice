@@ -229,8 +229,6 @@ workflow RNASPLICE {
     .out
     .set { ch_start_transcriptome }
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
-//    ch_start_transcriptome.view()
-
     INPUT_CHECK_BAM (
         '[BAM]',
         ch_input_type
@@ -247,11 +245,16 @@ workflow RNASPLICE {
     .out
     .set { ch_start_bam }
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
-//    ch_start_bam.view()
+    } else if (params.step == 'salmon') {
+    INPUT_CHECK (
+	    '[SALMON]',
+        ch_input_type
+    )
+    .out
+    .set { ch_start_salmon }
     }
 
     ch_samplesheet = ch_input_type
-//    ch_samplesheet.view()
 
     // Take software versions from input check (.first() not required)
 
@@ -559,8 +562,16 @@ workflow RNASPLICE {
     //
     // SUBWORKFLOW: Pseudo-alignment and quantification with Salmon
     //
+        // Starting from salmon
+    if (params.step == 'salmon') {
+        ch_from_salmon  = ch_start_salmon.collect{it[1]}
 
-    if (params.pseudo_aligner == 'salmon' && params.step == 'fastq') {
+        TX2GENE_TXIMPORT_SALMON (
+            ch_from_salmon,
+            PREPARE_GENOME.out.gtf
+        )
+
+    } else if (params.pseudo_aligner == 'salmon' && params.step == 'fastq') {
 
         alignment_mode = false
         ch_transcript_fasta = ch_dummy_file
@@ -590,10 +601,13 @@ workflow RNASPLICE {
         )
 
         ch_versions = ch_versions.mix(TX2GENE_TXIMPORT_SALMON.out.versions)
-
+        }
+//        test_out = SALMON_QUANT_SALMON.out.results.collect{it[1]}
         //
         // SUBWORKFLOW: Run Dexseq DTU
         //
+    if ((params.step == 'salmon') || (params.pseudo_aligner == 'salmon' && params.step == 'fastq')) {
+
         if (params.dexseq_dtu) {
 
             if (params.dtu_txi == "dtuScaledTPM") {
@@ -636,6 +650,7 @@ workflow RNASPLICE {
 
         }
     }
+
 
     //
     // MODULE: Genome-wide coverage with BEDTools

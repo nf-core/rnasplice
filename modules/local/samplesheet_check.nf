@@ -38,4 +38,14 @@ process SAMPLESHEET_CHECK {
             python: \$(python --version | sed 's/Python //g')
         END_VERSIONS
         """
+
+    else if ( format.contains('SALMON') )
+        """
+        cp $samplesheet samplesheet.valid.csv
+
+        cat <<-END_VERSIONS > versions.yml
+        "${task.process}":
+            python: \$(python --version | sed 's/Python //g')
+        END_VERSIONS
+        """
 }

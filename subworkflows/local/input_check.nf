@@ -26,7 +26,7 @@ workflow INPUT_CHECK {
             break;
         case '[SALMON]':
 //            println("Input_check from 'salmon'");
-            SAMPLESHEET_CHECK ( samplesheet_reformatted, format  ).csv.splitCsv ( header:true, sep:',' ).map { create_transcriptome_channel(it) }.set { out }
+            SAMPLESHEET_CHECK ( samplesheet_reformatted, format ).csv.splitCsv ( header:true, sep:',' ).map { create_salmon_channel(it) }.set { out }
             break;
         default: log.info("Doesn't work!!!!")
     }
@@ -99,4 +99,19 @@ def create_transcriptome_channel(LinkedHashMap row) {
     return transcriptome_meta
 }
 
-// Function to get list of [ meta, salmon ] TODO
+// Function to get list of [ meta, salmon ]
+def create_salmon_channel(LinkedHashMap row) {
+    // create meta map
+    def meta = [:]
+    meta.id         = row.sample
+    meta.condition = row.condition
+    meta.bam = row.salmon
+
+    // add path(s) of the bam file(s) to the meta map
+    def salon_meta = []
+    if (!file(row.salmon).exists()) {
+        exit 1, "ERROR: Please check input samplesheet -> salon path does not exist!\n${row.salmon}"
+    }
+        salmon_meta = [ meta, [ file(row.salmon) ] ]
+    return salmon_meta
+}
