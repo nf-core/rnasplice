@@ -233,7 +233,7 @@ workflow RNASPLICE {
 
     INPUT_CHECK_BAM (
         '[BAM]',
-        ch_input
+        ch_input_type
     )
     .out
     .set { ch_start_bam }
@@ -401,7 +401,8 @@ workflow RNASPLICE {
             EDGER_DEU(
                 PREPARE_GENOME.out.gtf,
                 ch_genome_bam,
-                ch_samplesheet
+                ch_samplesheet,
+                params.n_edger_plot
             )
 
             ch_versions = ch_versions.mix(EDGER_DEU.out.versions)

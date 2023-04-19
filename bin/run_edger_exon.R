@@ -10,6 +10,8 @@ featurecounts <- argv[1]
 
 samplesheet <- argv[2]
 
+n  <- argv[3]
+
 # Load required packages
 
 library(edgeR)
@@ -152,3 +154,17 @@ mapply(
     file = paste0("contrast_", names(results.usage$exon), ".usage.exon.csv"),
     MoreArgs = list(quote = FALSE, row.names = FALSE)
 )
+
+
+### Plot
+lrt=readRDS("DGELRT.usage.rds")
+print(head(lrt))
+for (i in 1:length(lrt)) {
+  topsp <- topSpliceDGE(lrt[[i]], test="Simes", n=10)
+
+  pdf(file= paste0(names(lrt[i]), "_edger_plot.pdf"), width=11.7, height=8.3)
+
+  for (j in topsp$Geneid)
+    plotSpliceDGE(lrt[[i]], geneid=j)
+  dev.off()
+}
