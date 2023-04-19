@@ -2,10 +2,10 @@ process SAMPLESHEET_REFORMAT {
     tag "$params.input"
     label 'process_single'
 
-    conda "anaconda::pandas=1.5.0"
+    conda "conda-forge::pandas=1.4.3"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'https://depot.galaxyproject.org/singularity/python:3.9--1' :
-        'quay.io/wslh-bioinformatics/pandas:1.5.0-wslh-signed' }"
+        'https://depot.galaxyproject.org/singularity/pandas:1.4.3' :
+        'quay.io/biocontainers/pandas:1.4.3' }"
 
     input:
     path input

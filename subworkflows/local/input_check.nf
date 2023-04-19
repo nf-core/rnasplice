@@ -108,9 +108,9 @@ def create_salmon_channel(LinkedHashMap row) {
     meta.bam = row.salmon
 
     // add path(s) of the bam file(s) to the meta map
-    def salon_meta = []
+    def salmon_meta = []
     if (!file(row.salmon).exists()) {
-        exit 1, "ERROR: Please check input samplesheet -> salon path does not exist!\n${row.salmon}"
+        exit 1, "ERROR: Please check input samplesheet -> salmon path does not exist!\n${row.salmon}"
     }
         salmon_meta = [ meta, [ file(row.salmon) ] ]
     return salmon_meta
