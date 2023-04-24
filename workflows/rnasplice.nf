@@ -134,11 +134,6 @@ workflow RNASPLICE {
     SAMPLESHEET_REFORMAT (
         ch_input
     )
-//    ch_type_fastq = SAMPLESHEET_REFORMAT.out.fastq
-//    ch_type_bam = SAMPLESHEET_REFORMAT.out.bam
-//    ch_type_transcriptome = SAMPLESHEET_REFORMAT.out.transcriptome
-//    ch_type_salmon = SAMPLESHEET_REFORMAT.out.salmon
-
 
     // Module - Automatically get the input type: Figure out if the input type is fastq, bam, transcriptome o salmon count and activate the corresponding switch
         // TODO: remove the println lines once completed
@@ -170,8 +165,6 @@ workflow RNASPLICE {
             break;
         default: log.info("Doesn't work!!")
     }
-//        println ch_input  // check if the original samplesheet is different from the reformatted one. To delete
-//        ch_input_type.view()  /// check if ch_input after switch contains the correct file. To delete
 
 
     //
@@ -310,7 +303,6 @@ workflow RNASPLICE {
     ch_trim_reads = FASTQC_TRIMGALORE.out.reads
     }
 
-//    ch_trim_reads.view()
     //
     // SUBWORKFLOW: Alignment with STAR
     //
@@ -332,7 +324,6 @@ workflow RNASPLICE {
 
         ch_genome_bam        = BAM_SORT_SAMTOOLS.out.bam
         ch_genome_bam_index  = BAM_SORT_SAMTOOLS.out.bai
-//        ch_transcriptome_bam = ch_start_transcriptome
         ch_samtools_stats    = BAM_SORT_SAMTOOLS.out.stats
         ch_samtools_flagstat = BAM_SORT_SAMTOOLS.out.flagstat
         ch_samtools_idxstats = BAM_SORT_SAMTOOLS.out.idxstats
@@ -564,10 +555,9 @@ workflow RNASPLICE {
     //
         // Starting from salmon
     if (params.step == 'salmon') {
-        ch_from_salmon  = ch_start_salmon.collect{it[1]}
 
         TX2GENE_TXIMPORT_SALMON (
-            ch_from_salmon,
+            ch_start_salmon,
             PREPARE_GENOME.out.gtf
         )
 

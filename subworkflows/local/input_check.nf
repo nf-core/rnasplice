@@ -105,7 +105,7 @@ def create_salmon_channel(LinkedHashMap row) {
     def meta = [:]
     meta.id         = row.sample
     meta.condition = row.condition
-    meta.bam = row.salmon
+    meta.salmon = row.salmon
 
     // add path(s) of the bam file(s) to the meta map
     def salmon_meta = []

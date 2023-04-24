@@ -4,17 +4,40 @@
 
 include { GFFREAD_TX2GENE  } from '../../modules/local/gffread_tx2gene'
 include { TXIMPORT         } from '../../modules/local/tximport'
+include { UNTAR            } from '../../modules/nf-core/untar'
 
 workflow TX2GENE_TXIMPORT {
 
     take:
 
-    salmon_results   // path: "salmon/*" (SALMON_QUANT.out.results.collect{it[1]})
+    salmon_results   // tuple [meta, salmon path] when starting from salmon or path: "salmon/*" (SALMON_QUANT.out.results.collect{it[1]}) other cases
     gtf              // channel: /path/to/genome.gtf
 
     main:
 
     ch_versions = Channel.empty()
+
+    //
+    // Checking if Salmon results are compressed or not when starting from "salmon results"
+    //
+
+    myFile    = file(params.input)
+    allLines  = myFile.readLines()
+    header    = allLines.get(0)
+    firstLine = allLines.get(1)
+
+    if ((header.contains('salmon')) && (firstLine.contains('.tar.gz'))) {
+        UNTAR (
+            salmon_results
+        )
+        .untar
+        .collect{it[1]}
+        .set { salmon_results }
+    } else if (header.contains('salmon')) {
+        salmon_results = salmon_results.collect{it[1]}
+    }
+
+
 
     //
     // Quantify and merge counts across samples
