@@ -149,22 +149,22 @@ workflow RNASPLICE {
     ch_format = GET_INPUT_TYPE.out.value
     switch(ch_format) {
         case '[FASTQ]':
-            println("Starting from 'fastq'");
+            log.warn("Starting from 'fastq'");
             params.step = 'fastq';
             ch_input_type = SAMPLESHEET_REFORMAT.out.fastq;
             break;
         case '[BAM]':
-            println("Starting from 'bam'");
+            log.warn("Starting from 'bam'");
             params.step = 'bam';
             ch_input_type = SAMPLESHEET_REFORMAT.out.bam;
             break;
         case '[TRANSCRIPTOME]':
-            println("Starting from 'transcriptome_bam'");
+            log.warn("Starting from 'transcriptome_bam'");
             params.step = 'transcriptome';
             ch_input_type = SAMPLESHEET_REFORMAT.out.transcriptome;
             break;
         case '[SALMON]':
-            println("Starting from 'salmon'");
+            log.warn("Starting from 'salmon'");
             params.step = 'salmon';
             ch_input_type = SAMPLESHEET_REFORMAT.out.salmon;
             break;
