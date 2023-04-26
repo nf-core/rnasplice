@@ -29,7 +29,7 @@ workflow TX2GENE_TXIMPORT {
 
     tx2gene = GFFREAD_TX2GENE.out.tx2gene
 
-    TXIMPORT ( UNTAR_SALMON.out.untar, tx2gene )
+    TXIMPORT ( UNTAR_SALMON.out.untar.collect{ it[1] }, tx2gene )
 
     ch_versions = ch_versions.mix(TXIMPORT.out.versions)
 
