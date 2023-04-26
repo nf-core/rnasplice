@@ -512,8 +512,7 @@
                 },
                 "save_dexseq_annotation": {
                     "type": "boolean",
-                    "description": "Save pre-processed GFF annotation file.",
-                    "default": true
+                    "description": "Save pre-processed GFF annotation file."
                 },
                 "gff_dexseq": {
                     "type": "string",
@@ -537,6 +536,14 @@
                     "type": "string",
                     "default": "wt",
                     "description": "A value of the sample annotation (e.g. condition) to use as a denominator in the log2 fold change."
+                },
+                "save_dexseq_plot": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "n_dexseq_plot": {
+                    "type": "integer",
+                    "default": 10
                 }
             },
             "fa_icon": "far fa-chart-bar"
@@ -550,6 +557,14 @@
                 "edger_exon": {
                     "type": "boolean",
                     "description": "Run edgeR workflow."
+                },
+                "save_edger_plot": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "n_edger_plot": {
+                    "type": "integer",
+                    "default": 10
                 }
             },
             "fa_icon": "far fa-chart-bar"
@@ -607,6 +622,37 @@
                 }
             },
             "fa_icon": "far fa-chart-bar"
+        },
+        "miso": {
+            "title": "Miso",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "sashimi_plot": {
+                    "type": "boolean"
+                },
+                "miso_genes": {
+                    "type": "string",
+                    "default": "ENSG00000004961, ENSG00000005302"
+                },
+                "miso_genes_file": {
+                    "type": "string",
+                    "default": "None"
+                },
+                "miso_read_len": {
+                    "type": "integer",
+                    "default": 75
+                },
+                "fig_height": {
+                    "type": "integer",
+                    "default": 7
+                },
+                "fig_width": {
+                    "type": "integer",
+                    "default": 7
+                }
+            }
         },
         "suppa_options": {
             "title": "SUPPA options",
@@ -807,6 +853,9 @@
         },
         {
             "$ref": "#/definitions/dexseq_dtu_options"
+        },
+        {
+            "$ref": "#/definitions/miso"
         },
         {
             "$ref": "#/definitions/suppa_options"
