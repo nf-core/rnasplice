@@ -4,7 +4,7 @@
 
 include { GFFREAD_TX2GENE  } from '../../modules/local/gffread_tx2gene'
 include { TXIMPORT         } from '../../modules/local/tximport'
-include { UNTAR            } from '../../modules/nf-core/untar'
+include { UNTAR_SALMON     } from '../../modules/local/untar_salmon'
 
 workflow TX2GENE_TXIMPORT {
 
@@ -18,30 +18,10 @@ workflow TX2GENE_TXIMPORT {
     ch_versions = Channel.empty()
 
     //
-    // Checking if Salmon results are compressed or not when starting from "salmon results"
-    //
-
-    myFile    = file(params.input)
-    allLines  = myFile.readLines()
-    header    = allLines.get(0)
-    firstLine = allLines.get(1)
-
-    if ((header.contains('salmon')) && (firstLine.contains('.tar.gz'))) {
-        UNTAR (
-            salmon_results
-        )
-        .untar
-        .collect{it[1]}
-        .set { salmon_results }
-    } else if (header.contains('salmon')) {
-        salmon_results = salmon_results.collect{it[1]}
-    }
-
-
-
-    //
     // Quantify and merge counts across samples
     //
+
+    UNTAR_SALMON( salmon_results )
 
     GFFREAD_TX2GENE ( gtf )
 
@@ -49,7 +29,7 @@ workflow TX2GENE_TXIMPORT {
 
     tx2gene = GFFREAD_TX2GENE.out.tx2gene
 
-    TXIMPORT ( salmon_results, tx2gene )
+    TXIMPORT ( UNTAR_SALMON.out.untar, tx2gene )
 
     ch_versions = ch_versions.mix(TXIMPORT.out.versions)
 

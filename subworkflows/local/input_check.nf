@@ -90,7 +90,7 @@ def create_transcriptome_channel(LinkedHashMap row) {
     meta.bam = row.bam
     meta.transcriptome = row.transcriptome
 
-    // add path(s) of the bam file(s) to the meta map
+    // add path(s) of the bam and transcriptome file(s) to the meta map
     def transcriptome_meta = []
     if (!file(row.transcriptome).exists()) {
         exit 1, "ERROR: Please check input samplesheet -> bam file does not exist!\n${row.transcriptome}"
@@ -107,7 +107,7 @@ def create_salmon_channel(LinkedHashMap row) {
     meta.condition = row.condition
     meta.salmon = row.salmon
 
-    // add path(s) of the bam file(s) to the meta map
+    // add path(s) of the salmon file(s) to the meta map
     def salmon_meta = []
     if (!file(row.salmon).exists()) {
         exit 1, "ERROR: Please check input samplesheet -> salmon path does not exist!\n${row.salmon}"
