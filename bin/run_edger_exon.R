@@ -155,16 +155,46 @@ mapply(
     MoreArgs = list(quote = FALSE, row.names = FALSE)
 )
 
+# Save plots to disk
 
-### Plot
-lrt=readRDS("DGELRT.usage.rds")
-print(head(lrt))
-for (i in 1:length(lrt)) {
-  topsp <- topSpliceDGE(lrt[[i]], test="Simes", n=10)
+write.plotSpliceDGE <- function(results, file, lrt, n = 10) {
 
-  pdf(file= paste0(names(lrt[i]), "_edger_plot.pdf"), width=11.7, height=8.3)
+    ids <- head(results$Geneid, n = n)
 
-  for (j in topsp$Geneid)
-    plotSpliceDGE(lrt[[i]], geneid=j)
-  dev.off()
+    pdf(file = file, width = 11.7, height = 8.3)
+
+    for (i in ids) { plotSpliceDGE(lrt, geneid = i) }
+
+    dev.off()
+
 }
+
+mapply(
+    write.plotSpliceDGE,
+    results = results.usage$simes,
+    file = paste0("contrast_", names(results.usage$simes), ".usage.simes.pdf"),
+    lrt = DGELRT.usage,
+    MoreArgs = list(n = n)
+)
+
+mapply(
+    write.plotSpliceDGE,
+    results = results.usage$gene,
+    file = paste0("contrast_", names(results.usage$gene), ".usage.gene.pdf"),
+    lrt = DGELRT.usage,
+    MoreArgs = list(n = n)
+)
+
+mapply(
+    write.plotSpliceDGE,
+    results = results.usage$exon,
+    file = paste0("contrast_", names(results.usage$exon), ".usage.exon.pdf"),
+    lrt = DGELRT.usage,
+    MoreArgs = list(n = n)
+)
+
+# Print session information
+
+citation("edgeR")
+
+sessionInfo()
