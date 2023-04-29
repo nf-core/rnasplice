@@ -10,15 +10,15 @@ argc <- length(argv)
 
 library(DEXSeq)
 
-file <- args[1]
+file <- argv[1]
 
-n <- args[2]
+n <- argv[2]
 
 # Plot read count data, expression and exon usage
 
 object <- readRDS(file)
 
-top_dxr <- unique(object$groupID[order(object$padj)])[1:n]
+top_dxr <- unique(object$groupID[order(object$padj)])[seq_len(n)]
 
 pdf(file = "dexseq_plot.pdf", width = 11.7, height = 8.3)
 
