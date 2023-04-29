@@ -1,7 +1,7 @@
 process MISO_SETTINGS {
     label "process_high"
 
-    conda (params.enable_conda ? "conda-forge::parsimonious" : null)
+    conda "conda-forge::parsimonious"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/parsimonious:0.10.0' :
         'quay.io/biocontainers/parsimonious:0.10.0' }"

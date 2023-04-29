@@ -9,7 +9,6 @@ process SAMPLESHEET_CHECK {
 
     input:
     path samplesheet
-    val format
 
     output:
     path '*.csv'       , emit: csv
@@ -20,32 +19,43 @@ process SAMPLESHEET_CHECK {
 
     script: // This script is bundled with the pipeline, in nf-core/rnasplice/bin/
 
-    if ( format.contains('FASTQ'))
-        """
-        check_samplesheet.py $samplesheet samplesheet.valid.csv
-        cat <<-END_VERSIONS > versions.yml
-        "${task.process}":
-            python: \$(python --version | sed 's/Python //g')
-        END_VERSIONS
-        """
+    switch (params.source) {
+        case 'fastq':
+            """
+            check_samplesheet_fastq.py $samplesheet samplesheet.valid.csv
+            cat <<-END_VERSIONS > versions.yml
+            "${task.process}":
+                python: \$(python --version | sed 's/Python //g')
+            END_VERSIONS
+            """
+            break;
+        case 'genome_bam':
+            """
+            check_samplesheet_genome_bam.py $samplesheet samplesheet.valid.csv
+            cat <<-END_VERSIONS > versions.yml
+            "${task.process}":
+                python: \$(python --version | sed 's/Python //g')
+            END_VERSIONS
+            """
+            break;
+        case 'transcriptome_bam':
+            """
+            check_samplesheet_transcriptome_bam.py $samplesheet samplesheet.valid.csv
+            cat <<-END_VERSIONS > versions.yml
+            "${task.process}":
+                python: \$(python --version | sed 's/Python //g')
+            END_VERSIONS
+            """
+            break;
+        case 'salmon_results':
+            """
+            check_samplesheet_salmon_results.py $samplesheet samplesheet.valid.csv
+            cat <<-END_VERSIONS > versions.yml
+            "${task.process}":
+                python: \$(python --version | sed 's/Python //g')
+            END_VERSIONS
+            """
+            break;
+    }
 
-    else if ( format.contains('BAM') || format.contains('TRANSCRIPTOME'))
-        """
-        check_samplesheet_bam_transcriptome.py $samplesheet
-
-        cat <<-END_VERSIONS > versions.yml
-        "${task.process}":
-            python: \$(python --version | sed 's/Python //g')
-        END_VERSIONS
-        """
-
-    else if ( format.contains('SALMON') )
-        """
-        cp $samplesheet samplesheet.valid.csv
-
-        cat <<-END_VERSIONS > versions.yml
-        "${task.process}":
-            python: \$(python --version | sed 's/Python //g')
-        END_VERSIONS
-        """
 }

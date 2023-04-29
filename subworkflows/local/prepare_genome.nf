@@ -34,7 +34,7 @@ workflow PREPARE_GENOME {
     suppa_tpm            //      file: /path/to/suppa/quant.tpm
     is_aws_igenome       //   boolean: whether the genome files are from AWS iGenomes
     prepare_tool_indices //      list: tools to prepare indices for
-    format               //     value: input format type "[FASTQ], [BAM], [TRANSCRIPTOME], [SALMON]"
+    step                 //     value: workflow step
 
     main:
 
@@ -106,7 +106,7 @@ workflow PREPARE_GENOME {
     // Uncompress STAR index or generate from scratch if required
     //
     ch_star_index = Channel.empty()
-    if (('star' in prepare_tool_indices || 'star_salmon' in prepare_tool_indices) && (format.contains("FASTQ"))) {
+    if (('star' in prepare_tool_indices || 'star_salmon' in prepare_tool_indices) && (step == 'fastq')) {
         if (star_index) {
             if (star_index.endsWith('.tar.gz')) {
                 ch_star_index = UNTAR_STAR_INDEX ( [ [:], star_index ] ).untar.map { it[1] }
@@ -129,7 +129,7 @@ workflow PREPARE_GENOME {
     // Uncompress Salmon index or generate from scratch if required
     //
     ch_salmon_index = Channel.empty()
-    if (('salmon' in prepare_tool_indices || 'star_salmon' in prepare_tool_indices) && (format.contains("FASTQ"))) {
+    if (('salmon' in prepare_tool_indices || 'star_salmon' in prepare_tool_indices) && (step == 'fastq')) {
         if (salmon_index) {
             if (salmon_index.endsWith('.tar.gz')) {
                 ch_salmon_index = UNTAR_SALMON_INDEX ( [ [:], salmon_index ] ).untar.map { it[1] }

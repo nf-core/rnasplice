@@ -6,46 +6,55 @@ include { SAMPLESHEET_CHECK } from '../../modules/local/samplesheet_check'
 
 workflow INPUT_CHECK {
     take:
-    format // value, get the format type of the samplesheet
-    samplesheet_reformatted // channel for getting the re-formatted samplesheet as input
+    samplesheet // file: /path/to/samplesheet.csv
 
     main:
 
-    switch(format) {
-        case '[FASTQ]':
-//            println("Input_check from 'fastq'");
-            SAMPLESHEET_CHECK ( samplesheet_reformatted, format ).csv.splitCsv ( header:true, sep:',' ).map { create_fastq_channel(it) }.set { out }
+    switch(params.source) {
+        case 'fastq':
+            SAMPLESHEET_CHECK ( samplesheet )
+            .csv
+            .splitCsv ( header:true, sep:',' )
+            .map { create_fastq_channel(it) }
+            .set { reads }
             break;
-        case '[TRANSCRIPTOME]':
-//            println("Input_check from 'transcriptome_bam'");
-            SAMPLESHEET_CHECK ( samplesheet_reformatted, format  ).csv.splitCsv ( header:true, sep:',' ).map { create_transcriptome_channel(it) }.set { out }
+        case 'genome_bam':
+            SAMPLESHEET_CHECK ( samplesheet )
+            .csv
+            .splitCsv ( header:true, sep:',' )
+            .map { create_genome_bam_channel(it) }
+            .set { reads }
             break;
-        case '[BAM]':
-//            println("Input_check from 'bam'");
-            SAMPLESHEET_CHECK ( samplesheet_reformatted, format ).csv.splitCsv ( header:true, sep:',' ).map { create_bam_channel(it) }.set { out }
+        case 'transcriptome_bam':
+            SAMPLESHEET_CHECK ( samplesheet )
+            .csv
+            .splitCsv ( header:true, sep:',' )
+            .map { create_transcriptome_bam_channel(it) }
+            .set { reads }
             break;
-        case '[SALMON]':
-//            println("Input_check from 'salmon'");
-            SAMPLESHEET_CHECK ( samplesheet_reformatted, format ).csv.splitCsv ( header:true, sep:',' ).map { create_salmon_channel(it) }.set { out }
+        case 'salmon_results':
+            SAMPLESHEET_CHECK ( samplesheet )
+            .csv
+            .splitCsv ( header:true, sep:',' )
+            .map { create_txbam_channel(it) }
+            .set { reads }
             break;
-        default: log.info("Doesn't work!!!!")
     }
 
     emit:
-    out                                     // channel: [ val(meta), [ reads ] ]
+    reads                                     // channel: [ val(meta), [ reads ] ]
     versions = SAMPLESHEET_CHECK.out.versions // channel: [ versions.yml ]
 
 }
-
 
 // Function to get list of [ meta, [ fastq_1, fastq_2 ] ]
 def create_fastq_channel(LinkedHashMap row) {
     // create meta map
     def meta = [:]
-    meta.id         = row.sample
-    meta.single_end = row.single_end.toBoolean()
+    meta.id           = row.sample
+    meta.single_end   = row.single_end.toBoolean()
     meta.strandedness = row.strandedness
-    meta.condition = row.condition
+    meta.condition    = row.condition
 
     // add path(s) of the fastq file(s) to the meta map
     def fastq_meta = []
@@ -63,55 +72,54 @@ def create_fastq_channel(LinkedHashMap row) {
     return fastq_meta
 }
 
-
 // Function to get list of [ meta, bam ]
-def create_bam_channel(LinkedHashMap row) {
+def create_genome_bam_channel(LinkedHashMap row) {
     // create meta map
     def meta = [:]
     meta.id         = row.sample
-    meta.condition = row.condition
-    meta.bam = row.bam
+    meta.genome_bam = row.genome_bam
+    meta.condition  = row.condition
 
     // add path(s) of the bam file(s) to the meta map
-    def bam_meta = []
-    if (!file(row.bam).exists()) {
-        exit 1, "ERROR: Please check input samplesheet -> bam file does not exist!\n${row.bam}"
+    def genome_bam_meta = []
+    if (!file(row.genome_bam).exists()) {
+        exit 1, "ERROR: Please check input samplesheet -> genome bam file does not exist!\n${row.genome_bam}"
     }
-        bam_meta = [ meta, [ file(row.bam) ] ]
-    return bam_meta
+    genome_bam_meta = [ meta, [ file(row.genome_bam) ] ]
+    return genome_bam_meta
 }
 
-// Function to get list of [ meta, bam ]
-def create_transcriptome_channel(LinkedHashMap row) {
+// Function to get list of [ meta, txbam ]
+def create_transcriptome_bam_channel(LinkedHashMap row) {
     // create meta map
     def meta = [:]
-    meta.id         = row.sample
-    meta.condition = row.condition
-    meta.bam = row.bam
-    meta.transcriptome = row.transcriptome
+    meta.id                = row.sample
+    meta.transcriptome_bam = row.transcriptome_bam
+    meta.condition         = row.condition
 
-    // add path(s) of the bam and transcriptome file(s) to the meta map
-    def transcriptome_meta = []
-    if (!file(row.transcriptome).exists()) {
-        exit 1, "ERROR: Please check input samplesheet -> bam file does not exist!\n${row.transcriptome}"
+    // add path(s) of the bam and txbam file(s) to the meta map
+    def transcriptome_bam_meta = []
+    if (!file(row.transcriptome_bam).exists()) {
+        exit 1, "ERROR: Please check input samplesheet -> transcriptome bam file does not exist!\n${row.transcriptome_bam}"
     }
-        transcriptome_meta = [ meta, [ file(row.transcriptome) ] ]
-    return transcriptome_meta
+    transcriptome_bam_meta = [ meta, [ file(row.transcriptome_bam) ] ]
+    return transcriptome_bam_meta
 }
 
 // Function to get list of [ meta, salmon ]
-def create_salmon_channel(LinkedHashMap row) {
+def create_salmon_results_channel(LinkedHashMap row) {
     // create meta map
     def meta = [:]
-    meta.id         = row.sample
-    meta.condition = row.condition
-    meta.salmon = row.salmon
+    meta.id             = row.sample
+    meta.salmon_results = row.salmon_results
+    meta.condition      = row.condition
+    meta.archive        = row.salmon_results.toString().endsWith(".tar.gz") ? true : false
 
     // add path(s) of the salmon file(s) to the meta map
-    def salmon_meta = []
-    if (!file(row.salmon).exists()) {
-        exit 1, "ERROR: Please check input samplesheet -> salmon path does not exist!\n${row.salmon}"
+    def salmon_results_meta = []
+    if (!file(row.salmon_results).exists()) {
+        exit 1, "ERROR: Please check input samplesheet -> salmon results directory does not exist!\n${row.salmon_results}"
     }
-        salmon_meta = [ meta, [ file(row.salmon) ] ]
-    return salmon_meta
+    salmon_results_meta = [ meta, [ file(row.salmon_results) ] ]
+    return salmon_results_meta
 }
