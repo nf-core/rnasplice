@@ -15,13 +15,13 @@ parser.add_argument("--output")
 
 args = parser.parse_args()
 
-bam_prefix   = args.bam_prefix
-miso_prefix    = args.miso_prefix
-bams      = args.bams
-name      = args.name
-width     = args.width
-height    = args.height
-output    = args.output
+bam_prefix = args.bam_prefix
+miso_prefix = args.miso_prefix
+bams = args.bams
+name = args.name
+width = args.width
+height = args.height
+output = args.output
 
 name = "".join(name)
 name = name.replace(",", "', '")
@@ -43,13 +43,13 @@ miso_files = {name}
 fig_width = {width}
 fig_height = {height}
 intron_scale = 30
-exon_scale = 4 
-logged = False 
+exon_scale = 4
+logged = False
 font_size = 6
 ymax = 500
 show_posteriors = True
 bar_posteriors = False
-number_junctions = True 
+number_junctions = True
 resolution = .5
 posterior_bins = 40
 gene_posterior_ratio = 5
@@ -58,5 +58,5 @@ bar_color = "b"
 bf_thresholds = [0, 1, 2, 5, 10, 20]
 """
 
-with open(output, 'w') as fout:
-  fout.writelines(settings)
+with open(output, "w") as fout:
+    fout.writelines(settings)
