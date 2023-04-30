@@ -1,140 +1,215 @@
 #!/usr/bin/env Rscript
 
-library(DEXSeq)
+
+# Parse command arguments
+
+argv <- commandArgs(trailingOnly = TRUE)
+
+argc <- length(argv)
+
+counts <- argv[1]
+
+annotation <- argv[2]
+
+samples <- argv[3]
+
+ntop <- as.integer(argv[4])
+
+
+# Load required packages
+
 library(BiocParallel)
 
-args <- commandArgs(trailingOnly=TRUE)
+library(DEXSeq)
 
-# Check args provided
 
-if (length(args) < 5) {
+# Define helper functions
 
-    stop("Usage: run_dexseq_exon.R <countFiles_dir> <flattenedFile> <samplesheet> <read_method> <ncores> <denominator>", call.=FALSE)
+splitByContrast <- function(object, contrast) {
 
-}
+    keep <- colData(object)$condition %in% contrast
 
-######################################
-########### Collect inputs ###########
-######################################
+    object <- object[, keep, drop = FALSE]
 
-countFiles_dir <- args[1] # count files
-flattenedFile  <- args[2] # gff
-samplesheet    <- args[3] # samplesheet
-read_method    <- args[4] # either HTSeq or featurecounts
-ncores         <- args[5] # MultiCoreParam ncores
+    colData(object)$condition <- factor(
+        x = colData(object)$condition,
+        levels = contrast
+    )
 
-if (length(args) == 6) {
-
-    denominator <- args[6]  # denominator for lfc set by user
-
-} else {
-
-    denominator <- ""       # denominator for lfc as default "" meaning is set as first sample condition
+    object
 
 }
 
-######################################
-######## Define Multicoreparams ######
-######################################
+DEXSeq <- function(object) {
 
-BPPARAM <- BiocParallel::MulticoreParam(ncores, stop.on.error = TRUE)
+    object <- estimateSizeFactors(object)
 
-######################################
-######## Process sample sheet ########
-######################################
+    object <- estimateDispersions(object)
 
-# Read in Sample sheet
-samps <- read.csv(samplesheet, sep=",", header = TRUE)
+    object <- testForDEU(object)
 
-# check header of sample sheet
-if (!c("sample") %in% colnames(samps) | !c("condition") %in% colnames(samps)) {
+    object <- estimateExonFoldChanges(object)
 
-    stop("run_dexseq_exon.R Samplesheet must contain 'sample' and 'condition' column headers.", call.=FALSE)
+    object
 
 }
 
-# Take only sample and condition columns
-samps <- samps[,c("sample", "condition")]
+keepValidColumns <- function(x) {
 
-# filter for unique rows based on sample name
-samps <- samps[!duplicated(samps[,"sample"]),]
+    keep <- colnames(x)[sapply(x, class) %in% c("numeric", "character")]
 
-######################################
-######## Run DEXseq analysis #########
-######################################
+    x <- x[ , colnames(x) %in% keep, drop = FALSE]
 
-# Location of DEXseq count files
-countFiles = list.files(countFiles_dir, pattern = ".clean.count.txt$", full.names = TRUE, recursive = TRUE)
+    x
 
-# Define models
-
-fullModel <- as.formula("~sample + exon + condition:exon")
-reducedModel <- as.formula("~sample + exon")
-
-if (read_method == "htseq"){
-
-    dxd <- DEXSeq::DEXSeqDataSetFromHTSeq(countfiles = countFiles,
-                                        sampleData = samps,
-                                        design = fullModel,
-                                        flattenedfile = flattenedFile)
 }
 
-# TODO Implement featurecounts input option
-# if (read_method == "featurecounts"){
+vectorToDataFrame <- function(x) {
 
-#     source("load_SubreadOutput.R")
+    x <- data.frame(groupID = names(x), padj = unname(x))
 
-#     dxd <- DEXSeqDataSetFromFeatureCounts(countFiles,
-#                                           flattenedfile = flattenedFile,
-#                                           sampleData = samps)
+    x
 
-# }
+}
 
-dxd <- DEXSeq::estimateSizeFactors(dxd)
+write.plotDEXSeq <- function(x, file, ntop = 10) {
 
-dxd <- DEXSeq::estimateDispersions(dxd, quiet = TRUE, BPPARAM = BPPARAM)
+    ind <- which(x$pvalue <= sort(x$pvalue)[ntop], arr.ind = TRUE)
 
-# Looks for condition specific difference in tx proportions
-dxd <- DEXSeq::testForDEU(dxd, fullModel = fullModel, reducedModel = reducedModel, BPPARAM = BPPARAM)
+    ids <- x$groupID[ind]
 
-# Define sample col used for lfc calculation - at current this is fixed to required "condition" column
-fitExpToVar <- "condition"
+    pdf(file = file, width = 11.7, height = 8.3)
 
-# Get fold changes based on fitExpToVar col in colData and denominator defines baseline for lfc
-dxd <- DEXSeq::estimateExonFoldChanges(dxd, fitExpToVar = fitExpToVar, denominator = denominator, BPPARAM = BPPARAM)
+    for (i in ids) {
 
-# Get Results
-dxr <- DEXSeq::DEXSeqResults(dxd, independentFiltering = FALSE)
+        plotDEXSeq(x, geneID = i)
 
-# Get q vals
-qval <- DEXSeq::perGeneQValue(dxr)
+    }
 
-# Format q vals
-dxr.g <- data.frame(gene = names(qval), qval)
+    dev.off()
 
-# dxr tsv
-keep <- colnames(dxr)[sapply(dxr, class) %in% c("numeric", "character")]
-dxr.tsv <- dxr[ , colnames(dxr) %in% keep]
+}
 
-################################
-######### Save outputs #########
-################################
+# Read samples table
 
-# dxd
-saveRDS(dxd, "dxd_exon.rds")
+samples <- read.csv(samples, stringsAsFactors = TRUE)
 
-# results
-saveRDS(dxr, "dxr_exon.rds")
-write.table(dxr.tsv, "dxr_exon.tsv", sep="\t", quote=FALSE, row.names = TRUE)
+samples <- samples[, c("sample", "condition"), drop = FALSE]
 
-# qvals
-saveRDS(qval, "qval_exon.rds")
-write.table(dxr.g, "dxr_exon.g.tsv", sep="\t", quote=FALSE, row.names = TRUE)
+samples <- unique(samples)
 
-####################################
-########### Session info ###########
-####################################
 
-# Print sessioninfo to standard out
+# List counts files
+
+counts <- list.files(
+    path = counts,
+    pattern = ".clean.count.txt$",
+    full.names = TRUE,
+    recursive = TRUE
+)
+
+
+# Create DEXSeqDataSet object
+
+object <- DEXSeqDataSetFromHTSeq(
+    countfiles = counts,
+    sampleData = samples,
+    flattenedfile = annotation
+)
+
+
+# Define contrasts
+
+groups <- levels(colData(object)$condition)
+
+contrasts <- expand.grid(A = groups, B = groups)
+
+contrasts <- contrasts[contrasts$A != contrasts$B, , drop = FALSE]
+
+contrasts <- asplit(contrasts, MARGIN = 1)
+
+names <- sapply(contrasts, paste, collapse = "-")
+
+
+# Create objects list
+
+objects <- mapply(
+    FUN = splitByContrast,
+    contrast = contrasts,
+    MoreArgs = list(object = object),
+    SIMPLIFY = FALSE
+)
+
+
+# Run DEXSeq workflow
+
+objects <- lapply(objects, DEXSeq)
+
+names(objects) <- names
+
+
+# Run DEXSeqResults
+
+results.exon <- lapply(objects, DEXSeqResults)
+
+names(results.exon) <- names
+
+
+# Run perGeneQValue
+
+results.gene <- lapply(results.exon, perGeneQValue)
+
+names(results.gene) <- names
+
+
+# Save objects to disk
+
+mapply(
+    saveRDS,
+    object = objects,
+    file = paste0("DEXSeqDataSet.", names, ".rds")
+)
+
+mapply(
+    saveRDS,
+    object = results.exon,
+    file = paste0("DEXSeqResults.", names, ".rds")
+)
+
+mapply(
+    saveRDS,
+    object = results.gene,
+    file = paste0("perGeneQValue.", names, ".rds")
+)
+
+
+# Save results to disk
+
+mapply(
+    write.csv,
+    x = lapply(results.exon, keepValidColumns),
+    file = paste0("DEXSeqResults.", names, ".csv"),
+    MoreArgs = list(quote = FALSE, row.names = FALSE)
+)
+
+mapply(
+    write.csv,
+    x = lapply(results.gene, vectorToDataFrame),
+    file = paste0("perGeneQValue.", names, ".csv"),
+    MoreArgs = list(quote = FALSE, row.names = FALSE)
+)
+
+# Save plots to disk
+
+mapply(
+    write.plotDEXSeq,
+    x = results.exon,
+    file = paste0("plotDEXSeq.", names, ".pdf"),
+    MoreArgs = list(ntop = ntop)
+)
+
+# Print session information
+
 citation("DEXSeq")
+
 sessionInfo()

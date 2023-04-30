@@ -308,14 +308,12 @@ workflow RNASPLICE {
         if (params.dexseq_exon) {
 
             ch_dexseq_gff = params.gff_dexseq ? PREPARE_GENOME.out.dexseq_gff : ""
-            def read_method = "htseq"
 
             DEXSEQ_DEU(
                 PREPARE_GENOME.out.gtf,
                 ch_genome_bam,
                 ch_dexseq_gff,
                 ch_samplesheet,
-                read_method,
                 params.n_dexseq_plot
             )
 
