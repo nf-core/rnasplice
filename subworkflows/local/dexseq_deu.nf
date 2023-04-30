@@ -5,6 +5,7 @@
 include { DEXSEQ_ANNOTATION   } from '../../modules/local/dexseq_annotation'
 include { DEXSEQ_COUNT        } from '../../modules/local/dexseq_count'
 include { DEXSEQ_EXON         } from '../../modules/local/dexseq_exon'
+include { DEXSEQ_PLOT         } from '../../modules/local/dexseq_plot'
 
 workflow DEXSEQ_DEU {
 
@@ -15,6 +16,7 @@ workflow DEXSEQ_DEU {
     ch_dexseq_gff      // path dexseq gff
     ch_samplesheet     // Channel.fromPath(params.input)
     read_method        // val: htseq or featurecounts
+    n_dexseq_plot      // val: numeric
 
     main:
 
@@ -63,6 +65,17 @@ workflow DEXSEQ_DEU {
 
     ch_versions = ch_versions.mix(DEXSEQ_EXON.out.versions)
 
+    //
+    // MODULE: DEXSeq plot
+    //
+
+    DEXSEQ_PLOT (
+        DEXSEQ_EXON.out.dexseq_exon_results_rds,
+        n_dexseq_plot
+    )
+
+    ch_versions = ch_versions.mix(DEXSEQ_PLOT.out.versions)
+
     emit:
 
     dexseq_clean_txt           = DEXSEQ_COUNT.out.dexseq_clean_txt.map{ it[1] }.collect()
@@ -72,6 +85,7 @@ workflow DEXSEQ_DEU {
     dexseq_exon_results_tsv    = DEXSEQ_EXON.out.dexseq_exon_results_tsv      // path: dxr.tsv
     qval_exon_rds              = DEXSEQ_EXON.out.qval_exon_rds                // path: qval.rds
     dexseq_exon_results_q_tsv  = DEXSEQ_EXON.out.dexseq_exon_results_q_tsv    // path: dxr.g.tsv
+    dexseq_plot_pdf            = DEXSEQ_PLOT.out.dexseq_plot_pdf              // path: dexseq_plot.pdf
 
     versions                   = ch_versions                                  // channel: [ versions.yml ]
 }

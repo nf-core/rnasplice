@@ -10,7 +10,7 @@
             "type": "object",
             "fa_icon": "fas fa-terminal",
             "description": "Define where the pipeline should find input data and save output data.",
-            "required": ["input", "outdir"],
+            "required": ["input", "outdir", "source"],
             "properties": {
                 "input": {
                     "type": "string",
@@ -21,6 +21,12 @@
                     "description": "Path to comma-separated file containing information about the samples in the experiment.",
                     "help_text": "You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 4 columns, and a header row. See [usage docs](https://nf-co.re/rnasplice/usage#samplesheet-input).",
                     "fa_icon": "fas fa-file-csv"
+                },
+                "source": {
+                    "type": "string",
+                    "default": "fastq",
+                    "enum": ["fastq", "genome_bam", "transcriptome_bam", "salmon_results"],
+                    "description": "Source of input files."
                 },
                 "outdir": {
                     "type": "string",
@@ -512,8 +518,7 @@
                 },
                 "save_dexseq_annotation": {
                     "type": "boolean",
-                    "description": "Save pre-processed GFF annotation file.",
-                    "default": true
+                    "description": "Save pre-processed GFF annotation file."
                 },
                 "gff_dexseq": {
                     "type": "string",
@@ -537,6 +542,14 @@
                     "type": "string",
                     "default": "wt",
                     "description": "A value of the sample annotation (e.g. condition) to use as a denominator in the log2 fold change."
+                },
+                "save_dexseq_plot": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "n_dexseq_plot": {
+                    "type": "integer",
+                    "default": 10
                 }
             },
             "fa_icon": "far fa-chart-bar"
@@ -550,6 +563,14 @@
                 "edger_exon": {
                     "type": "boolean",
                     "description": "Run edgeR workflow."
+                },
+                "save_edger_plot": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "n_edger_plot": {
+                    "type": "integer",
+                    "default": 10
                 }
             },
             "fa_icon": "far fa-chart-bar"
@@ -607,6 +628,37 @@
                 }
             },
             "fa_icon": "far fa-chart-bar"
+        },
+        "miso": {
+            "title": "Miso",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "sashimi_plot": {
+                    "type": "boolean"
+                },
+                "miso_genes": {
+                    "type": "string",
+                    "default": "ENSG00000004961, ENSG00000005302"
+                },
+                "miso_genes_file": {
+                    "type": "string",
+                    "default": "None"
+                },
+                "miso_read_len": {
+                    "type": "integer",
+                    "default": 75
+                },
+                "fig_height": {
+                    "type": "integer",
+                    "default": 7
+                },
+                "fig_width": {
+                    "type": "integer",
+                    "default": 7
+                }
+            }
         },
         "suppa_options": {
             "title": "SUPPA options",
@@ -807,6 +859,9 @@
         },
         {
             "$ref": "#/definitions/dexseq_dtu_options"
+        },
+        {
+            "$ref": "#/definitions/miso"
         },
         {
             "$ref": "#/definitions/suppa_options"

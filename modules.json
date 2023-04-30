@@ -12,7 +12,7 @@
                     },
                     "custom/dumpsoftwareversions": {
                         "branch": "master",
-                        "git_sha": "c8e35eb2055c099720a75538d1b8adb3fb5a464c",
+                        "git_sha": "7101db4432d3268b7fcb5b8f75fa0a022dc5561b",
                         "installed_by": ["modules"]
                     },
                     "custom/getchromsizes": {
@@ -47,42 +47,42 @@
                     },
                     "salmon/index": {
                         "branch": "master",
-                        "git_sha": "94b06f1683ddf893cf06525f6e7f0573ad8fbf83",
+                        "git_sha": "5d2c0dd6a8e2790e7ff511f7f4d761f4ed627a91",
                         "installed_by": ["modules"]
                     },
                     "salmon/quant": {
                         "branch": "master",
-                        "git_sha": "0f8a77ff00e65eaeebc509b8156eaa983192474b",
+                        "git_sha": "5d2c0dd6a8e2790e7ff511f7f4d761f4ed627a91",
                         "installed_by": ["modules"]
                     },
                     "samtools/flagstat": {
                         "branch": "master",
-                        "git_sha": "0f8a77ff00e65eaeebc509b8156eaa983192474b",
+                        "git_sha": "371eff7748d769c2ddc8bd593773523a364a52fe",
                         "installed_by": ["modules"]
                     },
                     "samtools/idxstats": {
                         "branch": "master",
-                        "git_sha": "0f8a77ff00e65eaeebc509b8156eaa983192474b",
+                        "git_sha": "371eff7748d769c2ddc8bd593773523a364a52fe",
                         "installed_by": ["modules"]
                     },
                     "samtools/index": {
                         "branch": "master",
-                        "git_sha": "0f8a77ff00e65eaeebc509b8156eaa983192474b",
+                        "git_sha": "371eff7748d769c2ddc8bd593773523a364a52fe",
                         "installed_by": ["modules"]
                     },
                     "samtools/sort": {
                         "branch": "master",
-                        "git_sha": "0f8a77ff00e65eaeebc509b8156eaa983192474b",
+                        "git_sha": "371eff7748d769c2ddc8bd593773523a364a52fe",
                         "installed_by": ["modules"]
                     },
                     "samtools/stats": {
                         "branch": "master",
-                        "git_sha": "0f8a77ff00e65eaeebc509b8156eaa983192474b",
+                        "git_sha": "371eff7748d769c2ddc8bd593773523a364a52fe",
                         "installed_by": ["modules"]
                     },
                     "star/align": {
                         "branch": "master",
-                        "git_sha": "c8e35eb2055c099720a75538d1b8adb3fb5a464c",
+                        "git_sha": "76457b6e4f9983f40f5d6d2d19b3aa1b53f28ac0",
                         "installed_by": ["modules"]
                     },
                     "star/genomegenerate": {

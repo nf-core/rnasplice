@@ -4,17 +4,36 @@
 
 include { GFFREAD_TX2GENE  } from '../../modules/local/gffread_tx2gene'
 include { TXIMPORT         } from '../../modules/local/tximport'
+include { UNTAR            } from '../../modules/nf-core/untar'
 
 workflow TX2GENE_TXIMPORT {
 
     take:
 
-    salmon_results   // path: "salmon/*" (SALMON_QUANT.out.results.collect{it[1]})
+    salmon_results   // tuple [meta, salmon path] when starting from salmon or path: "salmon/*" (SALMON_QUANT.out.results.collect{it[1]}) other cases
     gtf              // channel: /path/to/genome.gtf
 
     main:
 
     ch_versions = Channel.empty()
+
+    //
+    // Extract archives (if necessary)
+    //
+
+    salmon_results
+    .map {
+        meta, prefix ->
+            tgz = salmon_results.toString().endsWith(".tar.gz") ? true : false
+            [ meta + [tgz: tgz], prefix ]
+    }
+    .branch{
+        tar: it[0].tgz == true
+        dir: it[0].tgz == false
+    }
+    .set{ salmon_results }
+    UNTAR ( salmon_results.tar )
+    salmon_results = salmon_results.dir.mix(UNTAR.out.untar)
 
     //
     // Quantify and merge counts across samples
@@ -26,7 +45,7 @@ workflow TX2GENE_TXIMPORT {
 
     tx2gene = GFFREAD_TX2GENE.out.tx2gene
 
-    TXIMPORT ( salmon_results, tx2gene )
+    TXIMPORT ( salmon_results.collect{it[1]}, tx2gene )
 
     ch_versions = ch_versions.mix(TXIMPORT.out.versions)
 

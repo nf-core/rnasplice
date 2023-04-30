@@ -10,6 +10,8 @@ featurecounts <- argv[1]
 
 samplesheet <- argv[2]
 
+n  <- argv[3]
+
 # Load required packages
 
 library(edgeR)
@@ -152,3 +154,47 @@ mapply(
     file = paste0("contrast_", names(results.usage$exon), ".usage.exon.csv"),
     MoreArgs = list(quote = FALSE, row.names = FALSE)
 )
+
+# Save plots to disk
+
+write.plotSpliceDGE <- function(results, file, lrt, n = 10) {
+
+    ids <- head(results$Geneid, n = n)
+
+    pdf(file = file, width = 11.7, height = 8.3)
+
+    for (i in ids) { plotSpliceDGE(lrt, geneid = i) }
+
+    dev.off()
+
+}
+
+mapply(
+    write.plotSpliceDGE,
+    results = results.usage$simes,
+    file = paste0("contrast_", names(results.usage$simes), ".usage.simes.pdf"),
+    lrt = DGELRT.usage,
+    MoreArgs = list(n = n)
+)
+
+mapply(
+    write.plotSpliceDGE,
+    results = results.usage$gene,
+    file = paste0("contrast_", names(results.usage$gene), ".usage.gene.pdf"),
+    lrt = DGELRT.usage,
+    MoreArgs = list(n = n)
+)
+
+mapply(
+    write.plotSpliceDGE,
+    results = results.usage$exon,
+    file = paste0("contrast_", names(results.usage$exon), ".usage.exon.pdf"),
+    lrt = DGELRT.usage,
+    MoreArgs = list(n = n)
+)
+
+# Print session information
+
+citation("edgeR")
+
+sessionInfo()
