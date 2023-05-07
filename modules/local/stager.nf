@@ -7,17 +7,14 @@ process STAGER {
         'quay.io/biocontainers/bioconductor-stager:1.12.0--r40_0' }"
 
     input:
-
-    path rds          // dxr.rds or drimseq_d.rds
-    val analysis_type // dexseq or drimseq
-    path results_rds  // qvals.rds or res.txp.rds
+    tuple path(feature_rds), path(gene_rds)    // dxr.rds or drimseq_d.rds || qvals.rds or res.txp.rds
+    val analysis_type    // dexseq or drimseq
 
     output:
-
-    path "*.stageR.padj.tsv"    , emit: stager_padj_tsv
-    path "*.stageR.padj.rds"    , emit: stager_padj_rds
-    path "*.stageRObj.rds"      , emit: stager_rds
-    path "versions.yml"         , emit: versions
+    path "stageRTx.*.rds"              , emit: stager_rds
+    path "getAdjustedPValues.*.rds"    , emit: stager_padj_rds
+    path "getAdjustedPValues.*.tsv"    , emit: stager_padj_tsv
+    path "versions.yml"           , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -25,7 +22,7 @@ process STAGER {
     script:
     def args = task.ext.args ?: ''
     """
-    run_stager.R $rds $analysis_type $results_rds
+    run_stager.R $feature_rds $gene_rds $analysis_type
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

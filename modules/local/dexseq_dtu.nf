@@ -9,23 +9,22 @@ process DEXSEQ_DTU {
     input:
     path drimseq_sample_data
     path drimseq_d_counts
+    val ntop
 
     output:
-    path "dxd.rds"                , emit: dexseq_rds
-    path "dxr.rds"                , emit: dexseq_results_rds
-    path "dxr.tsv"                , emit: dexseq_results_tsv
-    path "qval.rds"               , emit: qval_rds
-    path "dxr.g.tsv"              , emit: dexseq_results_q_tsv
-    path "versions.yml"           , emit: versions
+    path "DEXSeqDataSet.*.rds"  , emit: dexseq_exon_dataset_rds
+    path "DEXSeqResults.*.rds"  , emit: dexseq_exon_results_rds
+    path "perGeneQValue.*.rds"  , emit: dexseq_gene_results_rds
+    path "DEXSeqResults.*.tsv"  , emit: dexseq_exon_results_tsv
+    path "perGeneQValue.*.tsv"  , emit: dexseq_gene_results_tsv
+    path "versions.yml"         , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def denominator = params.dtu_lfc_denominator ?: ""
-
     """
-    run_dexseq_dtu.R $drimseq_sample_data $drimseq_d_counts ${task.cpus} $denominator
+    run_dexseq_dtu.R $drimseq_sample_data $drimseq_d_counts $ntop
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
@@ -33,4 +32,5 @@ process DEXSEQ_DTU {
         bioconductor-dexseq:  \$(Rscript -e "library(DEXSeq); cat(as.character(packageVersion('DEXSeq')))")
     END_VERSIONS
     """
+
 }

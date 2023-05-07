@@ -245,8 +245,6 @@ workflow RNASPLICE {
     ch_samtools_flagstat          = Channel.empty()
     ch_samtools_idxstats          = Channel.empty()
     ch_star_multiqc               = Channel.empty()
-    ch_aligner_pca_multiqc        = Channel.empty()
-    ch_aligner_clustering_multiqc = Channel.empty()
 
     if (params.source == 'genome_bam') {
 
@@ -441,7 +439,8 @@ workflow RNASPLICE {
                 DRIMSEQ_DEXSEQ_DTU_STAR_SALMON (
                     ch_txi,
                     TX2GENE_TXIMPORT_STAR_SALMON.out.tximport_tx2gene,
-                    ch_samplesheet
+                    ch_samplesheet,
+                    params.n_dexseq_plot
                 )
 
                 ch_versions = ch_versions.mix(DRIMSEQ_DEXSEQ_DTU_STAR_SALMON.out.versions)
@@ -542,7 +541,8 @@ workflow RNASPLICE {
             DRIMSEQ_DEXSEQ_DTU_SALMON (
                 ch_txi,
                 TX2GENE_TXIMPORT_SALMON.out.tximport_tx2gene,
-                ch_samplesheet
+                ch_samplesheet,
+                params.n_dexseq_plot
             )
             ch_versions = ch_versions.mix(DRIMSEQ_DEXSEQ_DTU_SALMON.out.versions)
         }
