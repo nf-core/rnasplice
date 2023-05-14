@@ -10,6 +10,7 @@ process EDGER_EXON {
     input:
     path ("featurecounts/*")
     path samplesheet
+    path contrastsheet
     val n_edger_plot
 
     output:
@@ -25,7 +26,7 @@ process EDGER_EXON {
 
     script:
     """
-    run_edger_exon.R featurecounts $samplesheet $n_edger_plot
+    run_edger_exon.R featurecounts $samplesheet $contrastsheet $n_edger_plot
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

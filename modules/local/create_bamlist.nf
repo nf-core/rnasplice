@@ -10,7 +10,7 @@ process CREATE_BAMLIST {
     tuple val(cond), val(meta), path(bam)
 
     output:
-    tuple val(meta), path ("*_bamlist.txt"), emit: bam_text
+    tuple val(meta), path("${cond}_bamlist.txt"), emit: bam_text
     path "versions.yml",   emit: versions
 
     when:

@@ -10,7 +10,9 @@ featurecounts <- argv[1]
 
 samplesheet <- argv[2]
 
-n  <- argv[3]
+contrastsheet <- argv[3]
+
+n  <- argv[4]
 
 # Load required packages
 
@@ -23,6 +25,14 @@ samples <- read.csv(samplesheet)
 samples <- samples[, c("sample", "condition"), drop = FALSE]
 
 samples <- unique(samples)
+
+# Read contrasts table
+
+contrasts <- read.csv(contrastsheet)
+
+contrasts <- contrasts[, c("contrast", "treatment", "control"), drop = FALSE]
+
+contrasts <- unique(contrasts)
 
 # Read featureCounts files
 
@@ -73,7 +83,7 @@ colnames(design) <- levels(group)
 
 groups <- levels(group)
 
-combinations <- expand.grid(A = groups, B = groups)
+combinations <- data.frame(A = contrasts$treatment, B = contrasts$control)
 
 contrasts <- apply(combinations, 1, paste, collapse = "-")
 

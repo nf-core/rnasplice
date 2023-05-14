@@ -13,6 +13,7 @@ workflow EDGER_DEU {
     gtf                  // path: gtf
     ch_genome_bam        // channel: [ val(meta), path(bams) ]
     ch_samplesheet       // Channel.fromPath(params.input)
+    ch_contrastsheet     // Channel.fromPath(params.contrasts)
     n_edger_plot         // val: integer to plot
 
     main:
@@ -40,6 +41,7 @@ workflow EDGER_DEU {
     EDGER_EXON (
         SUBREAD_FEATURECOUNTS.out.counts.collect({it[1]}),
         ch_samplesheet,
+        ch_contrastsheet,
         n_edger_plot
     )
 

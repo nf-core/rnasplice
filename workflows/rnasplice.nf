@@ -68,6 +68,7 @@ ch_multiqc_custom_methods_description = params.multiqc_methods_description ? fil
 // MODULE: Loaded from modules/local/
 //
 include { BEDTOOLS_GENOMECOV      } from '../modules/local/bedtools_genomecov'
+include { CONTRASTSHEET_CHECK     } from '../modules/local/contrastsheet_check'
 
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
@@ -196,6 +197,9 @@ workflow RNASPLICE {
     // Create samplesheet channel (after input check)
     ch_samplesheet = Channel.fromPath(params.input)
 
+    // Create contrastsheet channel (after input check)
+    ch_contrastsheet = Channel.fromPath(params.contrasts)
+
     // Check rMATS parameters specified correctly
     if (params.rmats && params.source == 'fastq') {
             WorkflowRnasplice.rmatsReadError(INPUT_CHECK.out.reads, log)
@@ -219,7 +223,7 @@ workflow RNASPLICE {
         .reads
         .mix(ch_fastq.single)
         .set { ch_cat_fastq }
-        ch_versions = ch_versions.mix(CAT_FASTQ.out.versions.first().ifEmpty(null))
+        ch_versions = ch_versions.mix(CAT_FASTQ.out.versions)
     }
 
     //
@@ -245,8 +249,6 @@ workflow RNASPLICE {
     ch_samtools_flagstat          = Channel.empty()
     ch_samtools_idxstats          = Channel.empty()
     ch_star_multiqc               = Channel.empty()
-    ch_aligner_pca_multiqc        = Channel.empty()
-    ch_aligner_clustering_multiqc = Channel.empty()
 
     if (params.source == 'genome_bam') {
 
@@ -308,14 +310,13 @@ workflow RNASPLICE {
         if (params.dexseq_exon) {
 
             ch_dexseq_gff = params.gff_dexseq ? PREPARE_GENOME.out.dexseq_gff : ""
-            def read_method = "htseq"
 
             DEXSEQ_DEU(
                 PREPARE_GENOME.out.gtf,
                 ch_genome_bam,
                 ch_dexseq_gff,
                 ch_samplesheet,
-                read_method,
+                ch_contrastsheet,
                 params.n_dexseq_plot
             )
 
@@ -332,6 +333,7 @@ workflow RNASPLICE {
                 PREPARE_GENOME.out.gtf,
                 ch_genome_bam,
                 ch_samplesheet,
+                ch_contrastsheet,
                 params.n_edger_plot
             )
 
@@ -355,7 +357,6 @@ workflow RNASPLICE {
                     .bam
                     .map { meta, bam -> [meta.condition, meta, bam] }
                     .groupTuple(by:0)
-                    .toSortedList()
                     .set { ch_genome_bam_conditions }
 
             }
@@ -367,7 +368,6 @@ workflow RNASPLICE {
                         .bam
                         .map { meta, bam -> [meta.condition, meta, bam] }
                         .groupTuple(by:0)
-                        .toSortedList()
                         .set { ch_genome_bam_conditions }
             }
 
@@ -378,11 +378,24 @@ workflow RNASPLICE {
             is_single_condition = WorkflowRnasplice.isSingleCondition(ch_input)
 
             //
+            // Create contrasts channel for RMATS input
+            //
+
+            ch_contrasts = ch_contrastsheet.splitCsv(header:true)
+            ch_contrasts = ch_contrasts
+                .map { it -> [it['treatment'], it] }
+                .cross ( ch_genome_bam_conditions )
+                .map { it -> it[0][1] + ['meta1': it[1][1], 'bam1': it[1][2]] }
+                .map { it -> [it['control'], it] }
+                .cross ( ch_genome_bam_conditions )
+                .map { it -> it[0][1] + ['meta2': it[1][1], 'bam2': it[1][2]] }
+
+            //
             // SUBWORKFLOW: Run rMATS
             //
 
             RMATS (
-                ch_genome_bam_conditions,
+                ch_contrasts,
                 PREPARE_GENOME.out.gtf,
                 is_single_condition
             )
@@ -396,6 +409,7 @@ workflow RNASPLICE {
         //
 
         // If needed run Salmon on transcriptome bam
+
         if (params.source == 'transcriptome_bam' || (!params.skip_alignment && params.aligner == 'star_salmon')) {
 
             alignment_mode = true
@@ -413,7 +427,7 @@ workflow RNASPLICE {
             ch_versions = ch_versions.mix(SALMON_QUANT_STAR.out.versions)
 
             // Collect Salmon quant output
-            ch_salmon_results = SALMON_QUANT_SALMON.out.results
+            ch_salmon_results = SALMON_QUANT_STAR.out.results
 
             //
             // SUBWORKFLOW: Run Tximport and produce tx2gene from gtf using gffread
@@ -443,7 +457,9 @@ workflow RNASPLICE {
                 DRIMSEQ_DEXSEQ_DTU_STAR_SALMON (
                     ch_txi,
                     TX2GENE_TXIMPORT_STAR_SALMON.out.tximport_tx2gene,
-                    ch_samplesheet
+                    ch_samplesheet,
+                    ch_contrastsheet,
+                    params.n_dexseq_plot
                 )
 
                 ch_versions = ch_versions.mix(DRIMSEQ_DEXSEQ_DTU_STAR_SALMON.out.versions)
@@ -464,6 +480,7 @@ workflow RNASPLICE {
                     PREPARE_GENOME.out.gtf,
                     ch_suppa_tpm,
                     ch_samplesheet,
+                    ch_contrastsheet
                 )
 
                 ch_versions = ch_versions.mix(SUPPA_STAR_SALMON.out.versions)
@@ -544,7 +561,9 @@ workflow RNASPLICE {
             DRIMSEQ_DEXSEQ_DTU_SALMON (
                 ch_txi,
                 TX2GENE_TXIMPORT_SALMON.out.tximport_tx2gene,
-                ch_samplesheet
+                ch_samplesheet,
+                ch_contrastsheet,
+                params.n_dexseq_plot
             )
             ch_versions = ch_versions.mix(DRIMSEQ_DEXSEQ_DTU_SALMON.out.versions)
         }
@@ -553,15 +572,20 @@ workflow RNASPLICE {
         // SUBWORKFLOW: SUPPA
         //
         if (params.suppa) {
+
             // Get Suppa tpm either from tximport or user supplied
             ch_suppa_tpm = params.suppa_tpm ? PREPARE_GENOME.out.suppa_tpm : TX2GENE_TXIMPORT_SALMON.out.suppa_tpm
+
             // Run SUPPA
             SUPPA_SALMON (
                 PREPARE_GENOME.out.gtf,
                 ch_suppa_tpm,
                 ch_samplesheet,
+                ch_contrastsheet
             )
+
             ch_versions = ch_versions.mix(SUPPA_SALMON.out.versions)
+
         }
 
     }
@@ -574,7 +598,7 @@ workflow RNASPLICE {
         BEDTOOLS_GENOMECOV (
             ch_genome_bam
         )
-        ch_versions = ch_versions.mix(BEDTOOLS_GENOMECOV.out.versions.first())
+        ch_versions = ch_versions.mix(BEDTOOLS_GENOMECOV.out.versions)
 
 	    //
         // SUBWORKFLOW: Convert bedGraph to bigWig

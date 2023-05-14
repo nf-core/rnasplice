@@ -1,5 +1,5 @@
 process DIFFSPLICE {
-    tag "$tpms"
+    tag "${cond1}-${cond2}"
     label 'process_high'
 
     conda "bioconda::suppa=2.3"
@@ -9,13 +9,13 @@ process DIFFSPLICE {
 
     input:
     path events
-    path tpms
-    path psis
+    tuple val(cond1), val(cond2), path(tpm1), path(tpm2)
+    tuple val(cond1), val(cond2), path(psi1), path(psi2)
     val prefix
 
     output:
-    path "*.dpsi"       , emit: dpsi
-    path "*.psivec"     , emit: psivec
+    tuple val(cond1), val(cond2), path("*.dpsi")       , emit: dpsi
+    tuple val(cond1), val(cond2), path("*.psivec")     , emit: psivec
     path "versions.yml" , emit: versions
 
     when:
@@ -46,9 +46,9 @@ process DIFFSPLICE {
         -th $diffsplice_tpm_threshold \\
         -nan $diffsplice_nan_threshold \\
         -i $events \\
-        -p $psis \\
-        -e $tpms \\
-        -o ${prefix}_diffsplice
+        -p $psi1 $psi2 \\
+        -e $tpm1 $tpm2 \\
+        -o ${cond1}-${cond2}_${prefix}_diffsplice
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

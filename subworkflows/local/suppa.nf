@@ -25,6 +25,7 @@ workflow SUPPA {
     ch_gtf
     ch_tpm
     ch_samplesheet
+    ch_contrastsheet
 
     main:
 
@@ -58,6 +59,7 @@ workflow SUPPA {
     ch_dpsi_local             = Channel.empty()
     ch_psivec_local           = Channel.empty()
 
+    ch_ranges_ioe             = Channel.empty()
     ch_cluster_vec_local      = Channel.empty()
     ch_cluster_log_local      = Channel.empty()
 
@@ -103,6 +105,48 @@ workflow SUPPA {
 
         if (params.diffsplice_local_event) {
 
+            // Create contrasts channel
+
+            ch_suppa_local_contrasts = ch_contrastsheet.splitCsv(header:true)
+
+            // Add TPM files to contrasts channel
+
+            ch_suppa_tpm_conditions = SPLIT_FILES_TPM.out.tpms
+                .flatten()
+                .map { [it.baseName, it ] }
+
+            ch_suppa_local_contrasts = ch_suppa_local_contrasts
+                .map { it -> [it['treatment'], it] }
+                .cross ( ch_suppa_tpm_conditions )
+                .map { it -> it[0][1] + ['tpm1': it[1][1]] }
+
+            ch_suppa_local_contrasts = ch_suppa_local_contrasts
+                .map { it -> [it['control'], it] }
+                .cross ( ch_suppa_tpm_conditions )
+                .map { it -> it[0][1] + ['tpm2': it[1][1]] }
+
+            // Add PSI files to contrasts channel
+
+            ch_suppa_psi_conditions = SPLIT_FILES_IOE.out.psis
+                .flatten()
+                .map { [ it.baseName.toString().replaceAll("local_", ""), it ] }
+
+            ch_suppa_local_contrasts = ch_suppa_local_contrasts
+                .map { it -> [it['treatment'], it] }
+                .cross ( ch_suppa_psi_conditions )
+                .map { it -> it[0][1] + ['psi1': it[1][1]] }
+
+            ch_suppa_local_contrasts = ch_suppa_local_contrasts
+                .map { it -> [it['control'], it] }
+                .cross ( ch_suppa_psi_conditions )
+                .map { it -> it[0][1] + ['psi2': it[1][1]] }
+
+            // Create input channels to diffsplice process
+
+            ch_split_suppa_tpms = ch_suppa_local_contrasts.map { [ it.treatment, it.control, it.tpm1, it.tpm2 ] }
+
+            ch_split_suppa_local_psi = ch_suppa_local_contrasts.map { [ it.treatment, it.control, it.psi1, it.psi2 ] }
+
             DIFFSPLICE_IOE(
                 ch_ioe_events,
                 ch_split_suppa_tpms,
@@ -117,7 +161,9 @@ workflow SUPPA {
 
                 // Get ranges for cluster analysis
 
-                SPLIT_FILES_IOE.out.ranges.splitText( by: 1 ){ it.trim() }.set{ ch_ranges_ioe }
+                ch_ranges_ioe = SPLIT_FILES_IOE.out.ranges
+                    .splitText( by: 1 ) { it.trim() }
+                    .first()
 
                 // Run Clustering
 
@@ -143,6 +189,7 @@ workflow SUPPA {
     ch_dpsi_isoform            = Channel.empty()
     ch_psivec_isoform          = Channel.empty()
 
+    ch_ranges_ioi              = Channel.empty()
     ch_cluster_vec_isoform     = Channel.empty()
     ch_cluster_log_isoform     = Channel.empty()
 
@@ -188,6 +235,48 @@ workflow SUPPA {
 
         if (params.diffsplice_isoform) {
 
+            // Create contrasts channel
+
+            ch_suppa_isoform_contrasts = ch_contrastsheet.splitCsv(header:true)
+
+            // Add TPM files to contrasts channel
+
+            ch_suppa_tpm_conditions = SPLIT_FILES_TPM.out.tpms
+                .flatten()
+                .map { [it.baseName, it ] }
+
+            ch_suppa_isoform_contrasts = ch_suppa_isoform_contrasts
+                .map { it -> [it['treatment'], it] }
+                .cross ( ch_suppa_tpm_conditions )
+                .map { it -> it[0][1] + ['tpm1': it[1][1]] }
+
+            ch_suppa_isoform_contrasts = ch_suppa_isoform_contrasts
+                .map { it -> [it['control'], it] }
+                .cross ( ch_suppa_tpm_conditions )
+                .map { it -> it[0][1] + ['tpm2': it[1][1]] }
+
+            // Add PSI files to contrasts channel
+
+            ch_suppa_psi_conditions = SPLIT_FILES_IOI.out.psis
+                .flatten()
+                .map { [ it.baseName.toString().replaceAll("transcript_", ""), it ] }
+
+            ch_suppa_isoform_contrasts = ch_suppa_isoform_contrasts
+                .map { it -> [it['treatment'], it] }
+                .cross ( ch_suppa_psi_conditions )
+                .map { it -> it[0][1] + ['psi1': it[1][1]] }
+
+            ch_suppa_isoform_contrasts = ch_suppa_isoform_contrasts
+                .map { it -> [it['control'], it] }
+                .cross ( ch_suppa_psi_conditions )
+                .map { it -> it[0][1] + ['psi2': it[1][1]] }
+
+            // Create input channels to diffsplice process
+
+            ch_split_suppa_tpms = ch_suppa_isoform_contrasts.map { [ it.treatment, it.control, it.tpm1, it.tpm2 ] }
+
+            ch_split_suppa_isoform_psi = ch_suppa_isoform_contrasts.map { [ it.treatment, it.control, it.psi1, it.psi2 ] }
+
             DIFFSPLICE_IOI(
                 ch_ioi_events,
                 ch_split_suppa_tpms,
@@ -202,7 +291,9 @@ workflow SUPPA {
 
                 // Get ranges for cluster analysis
 
-                SPLIT_FILES_IOI.out.ranges.splitText( by: 1 ){ it.trim() }.set{ ch_ranges_ioi }
+                ch_ranges_ioi = SPLIT_FILES_IOI.out.ranges
+                    .splitText( by: 1 ) { it.trim() }
+                    .first()
 
                 // Run Clustering
 
@@ -245,4 +336,3 @@ workflow SUPPA {
 
     versions = ch_versions.ifEmpty(null)                         // channel: [ versions.yml ]
 }
-

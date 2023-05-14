@@ -1,4 +1,5 @@
 process RMATS_POST {
+    tag "$cond1-$cond2"
     label "process_high"
 
     conda 'bioconda::r-pairadise=1.0.0 bioconda::rmats=4.1.2'
@@ -12,12 +13,12 @@ process RMATS_POST {
     path bam_group2                              // path("bamlist_group2.txt")
     tuple val(cond1), val(meta1), path(bam1)     // [condition1, [condition1_metas], [condition1_bams]]
     tuple val(cond2), val(meta2), path(bam2)     // [condition2, [condition2_metas], [condition2_bams]]
-    path ("rmats_temp/*")                        // rmats temp folder from rmats prep step
+    path ("$cond1-$cond2/rmats_temp/*")          // rmats temp folder from rmats prep step
 
     output:
-    path "rmats_post/*"    , emit: rmats_post
-    path "rmats_post.log"  , emit: log
-    path "versions.yml"    , emit: versions
+    path "$cond1-$cond2/rmats_post/*"        , emit: rmats_post
+    path "$cond1-$cond2/rmats_post.log"      , emit: log
+    path "versions.yml"                      , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -28,6 +29,7 @@ process RMATS_POST {
     // - see rnasplice.nf input check for rmats
     def meta = meta1[0]
     def args = task.ext.args ?: ''
+    prefix   = task.ext.prefix ?: "$cond1-$cond2"
 
     // Take single/paired end information from meta
     def read_type = meta.single_end ? 'single' : 'paired'
@@ -65,24 +67,28 @@ process RMATS_POST {
     }
 
     """
+    mkdir -p $prefix/rmats_post
+
     rmats.py \\
+        --gtf $gtf \\
         --b1 $bam_group1 \\
         --b2 $bam_group2 \\
+        --od $prefix/rmats_post \\
+        --tmp $prefix/rmats_temp \\
         -t $read_type \\
         --libType $strandedness \\
-        --nthread $task.cpus \\
-        --gtf $gtf \\
-        --allow-clipping \\
         --readLength $read_len \\
         --variable-read-length \\
+        --nthread $task.cpus \\
+        --tstat $task.cpus \\
         --cstat $splice_cutoff \\
         --task post \\
         $paired_stats \\
         $novel_splice_sites \\
         $min_intron_len \\
         $max_exon_len \\
-        --tmp rmats_temp \\
-        --od rmats_post 1> rmats_post.log
+        --allow-clipping \\
+        1> $prefix/rmats_post.log
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
