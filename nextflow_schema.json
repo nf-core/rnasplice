@@ -10,7 +10,7 @@
             "type": "object",
             "fa_icon": "fas fa-terminal",
             "description": "Define where the pipeline should find input data and save output data.",
-            "required": ["input", "outdir", "source"],
+            "required": ["input", "source", "outdir", "contrasts"],
             "properties": {
                 "input": {
                     "type": "string",
@@ -21,6 +21,9 @@
                     "description": "Path to comma-separated file containing information about the samples in the experiment.",
                     "help_text": "You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 4 columns, and a header row. See [usage docs](https://nf-co.re/rnasplice/usage#samplesheet-input).",
                     "fa_icon": "fas fa-file-csv"
+                },
+                "contrasts": {
+                    "type": "string"
                 },
                 "source": {
                     "type": "string",
@@ -538,11 +541,6 @@
                     "default": true,
                     "description": "Combine overlapping genes into a single aggregate gene."
                 },
-                "deu_lfc_denominator": {
-                    "type": "string",
-                    "default": "wt",
-                    "description": "A value of the sample annotation (e.g. condition) to use as a denominator in the log2 fold change."
-                },
                 "save_dexseq_plot": {
                     "type": "boolean",
                     "default": true
@@ -590,11 +588,6 @@
                     "default": "dtuScaledTPM",
                     "enum": ["dtuScaledTPM", "scaledTPM"],
                     "description": "Generate estimated counts using dtuScaledTPM or scaledTPM abundance estimates."
-                },
-                "dtu_lfc_denominator": {
-                    "type": "string",
-                    "default": "pc3e",
-                    "description": "A value of the sample annotation (e.g. condition) to use as a denominator in the log2 fold change."
                 },
                 "min_samps_gene_expr": {
                     "type": "integer",
