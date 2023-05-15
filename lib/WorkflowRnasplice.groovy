@@ -472,35 +472,4 @@ class WorkflowRnasplice {
 
     }
 
-    //
-    // Exit pipeline if incorrect --deu_lfc_denominator or --dtu_lfc_denominator key provided
-    //
-
-    public static void denominatorExistsError(params, log, samplesheet) {
-
-        def reader = samplesheet.splitCsv(header: true)
-
-        def conditions = []
-
-        reader.each { row -> conditions << row.condition }
-
-        if (params.dexseq_exon) {
-
-            if (!conditions.contains(params.deu_lfc_denominator)) {
-                log.error "Invalid option: '${params.deu_lfc_denominator}'. Valid options for '--deu_lfc_denominator': ${conditions.join(', ')}."
-                System.exit(1)
-            }
-
-        }
-
-        if (params.dexseq_dtu) {
-
-            if (!conditions.contains(params.dtu_lfc_denominator)) {
-                log.error "Invalid option: '${params.dtu_lfc_denominator}'. Valid options for '--dtu_lfc_denominator': ${conditions.join(', ')}."
-                System.exit(1)
-            }
-        }
-
-    }
-
 }

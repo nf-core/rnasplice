@@ -206,12 +206,6 @@ workflow RNASPLICE {
             WorkflowRnasplice.rmatsConditionError(INPUT_CHECK.out.reads, log)
         }
 
-    // Check DEXSeq parameters specified correctly
-
-    if (params.dexseq_exon || params.dexseq_dtu) {
-        WorkflowRnasplice.denominatorExistsError(params, log, ch_input)
-    }
-
     //
     // MODULE: Concatenate FastQ files from same sample if required
     //
