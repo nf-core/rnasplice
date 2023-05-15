@@ -68,7 +68,6 @@ ch_multiqc_custom_methods_description = params.multiqc_methods_description ? fil
 // MODULE: Loaded from modules/local/
 //
 include { BEDTOOLS_GENOMECOV      } from '../modules/local/bedtools_genomecov'
-include { CONTRASTSHEET_CHECK     } from '../modules/local/contrastsheet_check'
 
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
