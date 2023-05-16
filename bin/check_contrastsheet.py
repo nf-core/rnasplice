@@ -123,6 +123,7 @@ def sniff_format(handle):
     dialect = sniffer.sniff(peek)
     return dialect
 
+
 def check_contrastsheet(file_in, file_out):
     """
     Check that the tabular contrastsheet has the structure expected by nf-core pipelines.

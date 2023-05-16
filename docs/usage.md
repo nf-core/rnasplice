@@ -50,7 +50,6 @@ TREATMENT_REP3,AEG588A6_S6_L004_R1_001.fastq.gz,,reverse,treatment
 
 An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline.
 
-
 ## Contrastsheet input
 
 You will also need to create a contrastsheet with information about the contrasts you would like to analyse before running the pipeline. Use this parameter to specify its location.
