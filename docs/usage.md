@@ -50,6 +50,30 @@ TREATMENT_REP3,AEG588A6_S6_L004_R1_001.fastq.gz,,reverse,treatment
 
 An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline.
 
+
+## Contrastsheet input
+
+You will also need to create a contrastsheet with information about the contrasts you would like to analyse before running the pipeline. Use this parameter to specify its location.
+
+```bash
+--contrasts '[path to contrastsheet file]'
+```
+
+The contrastsheet has to be a comma-separated file with 3 columns, and a header row as shown in the example below.
+
+```console
+contrast,treatment,control
+TREATMENT-CONTROL,TREATMENT,CONTROL
+```
+
+The necessary fields in order are:
+
+- contrast - an arbitrary identifier, will be used to name contrast-wise output files
+
+- treatment - the treatment/target level for the comparison.
+
+- control - the control/base level for the comparison.
+
 ## Alignment options
 
 The pipeline offers the use of [STAR](https://github.com/alexdobin/STAR) (i.e. `--aligner star`) to map raw FastQ reads to a reference genome and to project the alignments onto the transcriptome. Downstream quantification can also be performed following [STAR](https://github.com/alexdobin/STAR) alignment with [Salmon](https://salmon.readthedocs.io/en/latest/salmon.html) when `--aligner star_salmon` is chosen. Users may which to perform [STAR](https://github.com/alexdobin/STAR) alignment without [Salmon](https://salmon.readthedocs.io/en/latest/salmon.html) quantification when certain downstream tools (e.g. [rMATS](https://github.com/Xinglab/rmats-turbo/blob/v4.1.2/README.md)) only require BAM files as input. By default intermediate SAM alignment files are not saved for space efficiency reasons. This behaviour can be overriden with the `--save_align_intermeds` parameter. Users should take note that STAR requires a lot of memory (~38GB Human GRch37).

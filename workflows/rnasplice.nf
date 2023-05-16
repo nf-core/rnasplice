@@ -74,6 +74,7 @@ include { BEDTOOLS_GENOMECOV      } from '../modules/local/bedtools_genomecov'
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
 include { INPUT_CHECK       } from '../subworkflows/local/input_check'
+include { CONTRASTS_CHECK       } from '../subworkflows/local/contrasts_check'
 include { PREPARE_GENOME    } from '../subworkflows/local/prepare_genome'
 include { FASTQC_TRIMGALORE } from '../subworkflows/local/fastqc_trimgalore'
 include { ALIGN_STAR        } from '../subworkflows/local/align_star'
@@ -197,8 +198,17 @@ workflow RNASPLICE {
     // Create samplesheet channel (after input check)
     ch_samplesheet = Channel.fromPath(params.input)
 
-    // Create contrastsheet channel
+    //
+    // SUBWORKFLOW: Read in contrastsheet, validate and stage input files
+    //
+    CONTRASTS_CHECK (
+        ch_contrasts
+    )
+    ch_versions = ch_versions.mix(CONTRASTS_CHECK.out.versions)
+
+    // Create contrastsheet channel (after contrasts check)
     ch_contrastsheet = Channel.fromPath(params.contrasts)
+
 
     // Check rMATS parameters specified correctly
     if (params.rmats && params.source == 'fastq') {

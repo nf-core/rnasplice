@@ -18,7 +18,7 @@ process EDGER_EXON {
     path "DGEGLM.rds"   , emit: edger_exon_glm
     path "DGELRT.*.rds" , emit: edger_exon_lrt
     path "*.csv"        , emit: edger_exon_csv
-    path "*.pdf"        , emit: plot_pdf
+    path "*.pdf"        , emit: edger_exon_pdf
     path "versions.yml" , emit: versions
 
     when:

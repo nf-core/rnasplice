@@ -1,11 +1,14 @@
 #!/usr/bin/env Rscript
 
 
-# Parse command arguments
+# Read command arguments
 
 argv <- commandArgs(trailingOnly = TRUE)
 
 argc <- length(argv)
+
+
+# Parse command arguments
 
 counts <- argv[1]
 
@@ -132,13 +135,13 @@ object <- DEXSeqDataSetFromHTSeq(
 
 groups <- levels(colData(object)$condition)
 
+names <- contrasts$contrast
+
 contrasts <- data.frame(A = contrasts$treatment, B = contrasts$control)
 
 contrasts <- contrasts[contrasts$A != contrasts$B, , drop = FALSE]
 
 contrasts <- asplit(contrasts, MARGIN = 1)
-
-names <- sapply(contrasts, paste, collapse = "-")
 
 
 # Create objects list
