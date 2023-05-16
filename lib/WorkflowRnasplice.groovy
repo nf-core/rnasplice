@@ -439,22 +439,6 @@ class WorkflowRnasplice {
     }
 
     //
-    // Exit pipeline if rMATS requested with more than 2 conditions
-    //
-    public static void rmatsConditionError(reads, log) {
-        reads
-            .map { meta, fastq -> meta.condition }
-            .unique()
-            .collect()
-            .map {
-                if (it.size() > 2) {
-                    log.error "Please check input samplesheet -> Cannot run rMats with more than 2 conditions."
-                    System.exit(1)
-                }
-            }
-    }
-
-    //
     // Create variable to check if samples have one condition or multiple
     //
 

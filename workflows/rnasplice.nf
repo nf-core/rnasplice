@@ -30,6 +30,7 @@ for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true
 
 // Check mandatory parameters
 if (params.input) { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
+if (params.contrasts) { ch_contrasts = file(params.contrasts) } else { exit 1, 'Input contrastsheet not specified!' }
 
 // Check alignment parameters
 def prepare_tool_indices  = []
@@ -196,15 +197,14 @@ workflow RNASPLICE {
     // Create samplesheet channel (after input check)
     ch_samplesheet = Channel.fromPath(params.input)
 
-    // Create contrastsheet channel (after input check)
+    // Create contrastsheet channel
     ch_contrastsheet = Channel.fromPath(params.contrasts)
 
     // Check rMATS parameters specified correctly
     if (params.rmats && params.source == 'fastq') {
             WorkflowRnasplice.rmatsReadError(INPUT_CHECK.out.reads, log)
             WorkflowRnasplice.rmatsStrandednessError(INPUT_CHECK.out.reads, log)
-            WorkflowRnasplice.rmatsConditionError(INPUT_CHECK.out.reads, log)
-        }
+    }
 
     //
     // MODULE: Concatenate FastQ files from same sample if required
@@ -371,24 +371,12 @@ workflow RNASPLICE {
             is_single_condition = WorkflowRnasplice.isSingleCondition(ch_input)
 
             //
-            // Create contrasts channel for RMATS input
-            //
-
-            ch_contrasts = ch_contrastsheet.splitCsv(header:true)
-            ch_contrasts = ch_contrasts
-                .map { it -> [it['treatment'], it] }
-                .cross ( ch_genome_bam_conditions )
-                .map { it -> it[0][1] + ['meta1': it[1][1], 'bam1': it[1][2]] }
-                .map { it -> [it['control'], it] }
-                .cross ( ch_genome_bam_conditions )
-                .map { it -> it[0][1] + ['meta2': it[1][1], 'bam2': it[1][2]] }
-
-            //
             // SUBWORKFLOW: Run rMATS
             //
 
             RMATS (
-                ch_contrasts,
+                ch_contrastsheet,
+                ch_genome_bam_conditions,
                 PREPARE_GENOME.out.gtf,
                 is_single_condition
             )
