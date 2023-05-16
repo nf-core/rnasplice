@@ -2,39 +2,48 @@
 // Uncompress and prepare reference genome files
 //
 
-include { CREATE_BAMLIST as CREATE_BAMLIST_COND1  } from '../../modules/local/create_bamlist.nf'
-include { CREATE_BAMLIST as CREATE_BAMLIST_COND2  } from '../../modules/local/create_bamlist.nf'
-include { RMATS_PREP                              } from '../../modules/local/rmats_prep.nf'
-include { RMATS_POST                              } from '../../modules/local/rmats_post.nf'
-include { RMATS_PREP_SINGLE                       } from '../../modules/local/rmats_prep_single.nf'
-include { RMATS_POST_SINGLE                       } from '../../modules/local/rmats_post_single.nf'
+include { CREATE_BAMLIST         } from '../../modules/local/create_bamlist.nf'
+include { RMATS_PREP             } from '../../modules/local/rmats_prep.nf'
+include { RMATS_POST             } from '../../modules/local/rmats_post.nf'
+
+include { CREATE_BAMLIST_SINGLE  } from '../../modules/local/create_bamlist_single.nf'
+include { RMATS_PREP_SINGLE      } from '../../modules/local/rmats_prep_single.nf'
+include { RMATS_POST_SINGLE      } from '../../modules/local/rmats_post_single.nf'
 
 workflow RMATS {
 
     take:
-    ch_contrastsheet          // channel: [ [contrast:A-B, treatment:A, control:B], [A1.meta, A2.meta], [B1.meta, B2.meta], [A1.bam A2.bam], [B1.bam B2.ba]]
-    gtf                       // channel: /path/to/genome.gtf
-    single_condition_bool     // channel: true/false
+    ch_contrast            // channel: [ contrast:A-B, treatment:A, control:B, meta1:[A1.meta, A2.meta], meta2:[B1.meta, B2.meta], bam1:[A1.bam A2.bam], bam2:[B1.bam B2.ba]]
+    gtf                    // channel: /path/to/genome.gtf
+    single_condition_bool  // channel: true/false
 
     main:
 
     ch_versions = Channel.empty()
 
-    ch_contrastsheet_cond1 = ch_contrastsheet.map { [ it['treatment'], it['meta1'], it['bam1'] ] }
-
-    ch_contrastsheet_cond2 = ch_contrastsheet.map { [ it['control'], it['meta2'], it['bam2'] ] }
-
     if (single_condition_bool) {
+
+        //
+        // Create input channels
+        //
+
+        ch_contrast_cond1 = ch_contrast.map { [ it.treatment, it.meta1, it.bam1 ] }
 
         //
         // Create input bam list file
         //
 
-        CREATE_BAMLIST_COND1 (
-            ch_contrastsheet_cond1
+        CREATE_BAMLIST_SINGLE (
+            ch_contrast_cond1
         )
 
-        ch_bamlist_cond1 = CREATE_BAMLIST_COND1.out.bam_text.map{ it[1] }
+        //
+        // Create input channels
+        //
+
+        ch_bamlist_cond1 = CREATE_BAMLIST_SINGLE.out.bam_text.map { it[3] }
+
+        ch_contrast_cond1 = CREATE_BAMLIST_SINGLE.out.bam_text.map { [ it[0], it[1], it[2] ] }
 
         //
         // Run rMATS prep step
@@ -43,7 +52,7 @@ workflow RMATS {
         RMATS_PREP_SINGLE (
             gtf,
             ch_bamlist_cond1,
-            ch_contrastsheet_cond1
+            ch_contrast_cond1
         )
 
         //
@@ -53,7 +62,7 @@ workflow RMATS {
         RMATS_POST_SINGLE (
             gtf,
             ch_bamlist_cond1,
-            ch_contrastsheet_cond1,
+            ch_contrast_cond1,
             RMATS_PREP_SINGLE.out.rmats_temp
         )
 
@@ -67,20 +76,33 @@ workflow RMATS {
     } else {
 
         //
+        // Create input channels
+        //
+
+        ch_contrast_cond1 = ch_contrast.map { [ it.treatment, it.meta1, it.bam1 ] }
+
+        ch_contrast_cond2 = ch_contrast.map { [ it.control, it.meta2, it.bam2 ] }
+
+        //
         // Create input bam list file
         //
 
-        CREATE_BAMLIST_COND1 (
-            ch_contrastsheet_cond1
+        CREATE_BAMLIST (
+            ch_contrast_cond1,
+            ch_contrast_cond2
         )
 
-        CREATE_BAMLIST_COND2 (
-            ch_contrastsheet_cond2
-        )
+        //
+        // Create input channels
+        //
 
-        ch_bamlist_cond1 = CREATE_BAMLIST_COND1.out.bam_text.map{ it[1] }
+        ch_bamlist_cond1 = CREATE_BAMLIST.out.bam1_text.map { it[3] }
 
-        ch_bamlist_cond2 = CREATE_BAMLIST_COND2.out.bam_text.map{ it[1] }
+        ch_contrast_cond1 = CREATE_BAMLIST.out.bam1_text.map { [ it[0], it[1], it[2] ] }
+
+        ch_bamlist_cond2 = CREATE_BAMLIST.out.bam2_text.map { it[3] }
+
+        ch_contrast_cond2 = CREATE_BAMLIST.out.bam2_text.map { [ it[0], it[1], it[2] ] }
 
         //
         // Run rMATS prep step
@@ -90,8 +112,8 @@ workflow RMATS {
             gtf,
             ch_bamlist_cond1,
             ch_bamlist_cond2,
-            ch_contrastsheet_cond1,
-            ch_contrastsheet_cond2
+            ch_contrast_cond1,
+            ch_contrast_cond2
         )
 
         //
@@ -102,8 +124,8 @@ workflow RMATS {
             gtf,
             ch_bamlist_cond1,
             ch_bamlist_cond2,
-            ch_contrastsheet_cond1,
-            ch_contrastsheet_cond2,
+            ch_contrast_cond1,
+            ch_contrast_cond2,
             RMATS_PREP.out.rmats_temp
         )
 
