@@ -23,7 +23,8 @@
                     "fa_icon": "fas fa-file-csv"
                 },
                 "contrasts": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Path to comma-separated file containing information about the contrasts in the experiment."
                 },
                 "source": {
                     "type": "string",
@@ -543,11 +544,13 @@
                 },
                 "save_dexseq_plot": {
                     "type": "boolean",
-                    "default": true
+                    "default": true,
+                    "description": "Save plots of the per gene DEXSeq results."
                 },
                 "n_dexseq_plot": {
                     "type": "integer",
-                    "default": 10
+                    "default": 10,
+                    "description": "Plot the N most significant genes from the DEXSeq results."
                 }
             },
             "fa_icon": "far fa-chart-bar"
@@ -564,11 +567,13 @@
                 },
                 "save_edger_plot": {
                     "type": "boolean",
-                    "default": true
+                    "default": true,
+                    "description": "Save plots of the per gene edgeR results."
                 },
                 "n_edger_plot": {
                     "type": "integer",
-                    "default": 10
+                    "default": 10,
+                    "description": "Plot the N most significant genes from the edgeR results."
                 }
             },
             "fa_icon": "far fa-chart-bar"
@@ -629,27 +634,33 @@
             "default": "",
             "properties": {
                 "sashimi_plot": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "description": "Create sashimi plots using MISO."
                 },
                 "miso_genes": {
                     "type": "string",
-                    "default": "ENSG00000004961, ENSG00000005302"
+                    "default": "ENSG00000004961, ENSG00000005302",
+                    "description": "List containing identifiers of genes to plot."
                 },
                 "miso_genes_file": {
                     "type": "string",
-                    "default": "None"
+                    "default": "None",
+                    "description": "New-line separate file containing identifiers of genes to plot."
                 },
                 "miso_read_len": {
                     "type": "integer",
-                    "default": 75
+                    "default": 75,
+                    "description": "Read length used to calculate coverage."
                 },
                 "fig_height": {
                     "type": "integer",
-                    "default": 7
+                    "default": 7,
+                    "description": "Sashimi figure height (inches)."
                 },
                 "fig_width": {
                     "type": "integer",
-                    "default": 7
+                    "default": 7,
+                    "description": "Sashimi figure width (inches)."
                 }
             }
         },

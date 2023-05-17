@@ -32,6 +32,8 @@ workflow RMATS {
         .map { it -> [it['treatment'], it] }
         .cross ( ch_genome_bam_conditions )
         .map { it -> it[0][1] + ['meta1': it[1][1], 'bam1': it[1][2]] }
+
+    ch_contrasts = ch_contrasts
         .map { it -> [it['control'], it] }
         .cross ( ch_genome_bam_conditions )
         .map { it -> it[0][1] + ['meta2': it[1][1], 'bam2': it[1][2]] }
