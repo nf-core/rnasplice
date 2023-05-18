@@ -289,8 +289,8 @@ This workflow will also produce a `suppa_tpm.txt` which is a tab delimitated tex
   - `DEXSeqResults.{contrast}.rds`: DEXSeqResults R object following DEXSeq::DEXSeqResults containing results.
   - `DEXSeqResults.{contrast}.csv`: CSV results table of DEXSeq DEU analysis featuring log2foldchanges and p-values etc.
   - `perGeneQValue.{contrast}.rds`: DEXSeq R Object following DEXSeq::perGeneQValue containing q-values per gene.
-  - `perGeneQValue.{contrast}.csv`: CSV file of q-values for perGeneQValue.*.rds R Object.
-  - `plotDEXSeq.{contrast}.pdf` : PDF file of top *N* genes from DEXSeq results.
+  - `perGeneQValue.{contrast}.csv`: CSV file of q-values for perGeneQValue.\*.rds R Object.
+  - `plotDEXSeq.{contrast}.pdf` : PDF file of top _N_ genes from DEXSeq results.
 - `dexseq_exon/annotation/`
   - `DEXSeq.gff`: GFF file used for DEXSeq DEU analysis converted from GTF input.
 - `dexseq_exon/counts/`
@@ -353,10 +353,9 @@ It was felt that users may wish to retrieve differential exon results at this po
     - `perGeneQValue.{contrast}.rds`: DEXSeq R Object following DEXSeq::perGeneQValue containing q-values per gene.
     - `perGeneQValue.{contrast}.tsv`: TSV file of q-values for qval_exon.rds R Object.
   - `stager/`
-    - `dexseq.stageRObj.rds`: stageRTx R object.
-    - `dexseq.stageR.padj.rds`: R object following stageR::getAdjustedPValues - transcript and gene level adjusted p-values.
-    - `dexseq.stageR.padj.tsv`: TSV with transcript and gene level adjusted p-values.
-    - `dexseq.combined.stageR.padj.tsv`: Results from `dexseq.stageR.padj.rds` combined with the results from DEXSeq `DEXSeqResults.{contrast}.tsv`.
+    - `stageRTx.{contrast}.rds`: stageRTx R object.
+    - `getAdjustedPValues.{contrast}.rds`: R object following stageR::getAdjustedPValues - transcript and gene level adjusted p-values.
+    - `getAdjustedPValues.{contrast}.tsv`: TSV with transcript and gene level adjusted p-values.
 
 </details>
 
@@ -396,8 +395,7 @@ Finally, this portion of the pipeline will run [stageR](https://bioconductor.org
     - `suppa_isoform.psi`: Contains relative abundance value per sample for transcript isoforms.
   - `psi_per_local_event/`
     - `suppa_local.psi`: Contains relative abundance value per sample for local events.
-  - `split_files/per_isoform/` or `split_files/per_local_event/`
-    -`*.psi`: Contains relative abundance value per sample for each event (split by condition)
+  - `split_files/per_isoform/` or `split_files/per_local_event/` -`*.psi`: Contains relative abundance value per sample for each event (split by condition)
   - `split_files/tpms/`
     - `*.tpm`: Contains normalised TPM per sample (split by condition)
   - `diffsplice/per_isoform/` or `diffsplice/per_local_event/`

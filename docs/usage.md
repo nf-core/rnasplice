@@ -67,11 +67,11 @@ TREATMENT_CONTROL,TREATMENT,CONTROL
 
 The contrastsheet can have as many columns as you desire, however, there is a strict requirement for the first 3 columns to match those defined in the table below.
 
-| Column         | Description                                                               |
-| -------------- | ------------------------------------------------------------------------- |
-| `contrast`     | An arbitrary identifier, will be used to name contrast-wise output files. |
-| `treatment`    | The treatment/target level for the comparison.                            |
-| `control`      | The control/base level for the comparison.                                |
+| Column      | Description                                                               |
+| ----------- | ------------------------------------------------------------------------- |
+| `contrast`  | An arbitrary identifier, will be used to name contrast-wise output files. |
+| `treatment` | The treatment/target level for the comparison.                            |
+| `control`   | The control/base level for the comparison.                                |
 
 An [example contrastsheet](../assets/contrastsheet.csv) has been provided with the pipeline.
 
