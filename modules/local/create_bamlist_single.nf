@@ -1,4 +1,4 @@
-process CREATE_BAMLIST {
+process CREATE_BAMLIST_SINGLE {
     label "process_single"
 
     conda "conda-forge::sed=4.7.0"
@@ -7,12 +7,10 @@ process CREATE_BAMLIST {
         'quay.io/biocontainers/sed:4.7.0' }"
 
     input:
-    tuple val(cond1), val(meta1), path(bam1)
-    tuple val(cond2), val(meta2), path(bam2)
+    tuple val(cond), val(meta), path(bam)
 
     output:
-    tuple val(cond1), val(meta1), path(bam1), path("${cond1}_bamlist.txt"), emit: bam1_text
-    tuple val(cond2), val(meta2), path(bam2), path("${cond2}_bamlist.txt"), emit: bam2_text
+    tuple val(cond), val(meta), path(bam), path("${cond}_bamlist.txt"), emit: bam_text
     path "versions.yml",   emit: versions
 
     when:
@@ -20,8 +18,7 @@ process CREATE_BAMLIST {
 
     script:
     """
-    echo $bam1 | sed 's: :,:g' > ${cond1}_bamlist.txt
-    echo $bam2 | sed 's: :,:g' > ${cond2}_bamlist.txt
+    echo $bam | sed 's: :,:g' > ${cond}_bamlist.txt
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

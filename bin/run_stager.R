@@ -1,110 +1,196 @@
 #!/usr/bin/env Rscript
-
-library(stageR)
-
-args <- commandArgs(trailingOnly=TRUE)
-
-# Check args provided
-
-if (length(args) < 3) {
-
-    stop("Usage: run_stager.R <dexseq_results_rds/drimseq_results_rds> <analysis_type> <qvals>|<res.txp>", call.=FALSE)
-
-}
-
-######################################
-########### Collect inputs ###########
-######################################
-
-results       <- args[1]
-analysis_type <- args[2]
-
-#########################################
-####### Run stageR postprocessing #######
-#########################################
-
 # Scripts adjusted from F1000 workflow
 # Please see following for details:
 # https://f1000research.com/articles/7-952
 
-strp <- function(x) substr(x,1,15)
+# Parse command arguments
 
-if (analysis_type == "dexseq"){
+argv <- commandArgs(trailingOnly = TRUE)
 
-    dxr <- read.table(results, sep="\t", header = TRUE)
+argc <- length(argv)
 
-    dxr <- as.data.frame(dxr)
+name <- argv[1]
 
-    qval <- args[3]
+feature <- argv[2]
 
-    qval <- readRDS(qval)
+gene <- argv[3]
 
-    pConfirmation <- matrix(dxr$pvalue,ncol=1)
-    dimnames(pConfirmation) <- list(strp(dxr$featureID),"transcript")
+analysis <- argv[4]
 
-    pScreen <- qval
-    names(pScreen) <- strp(names(pScreen))
 
-    tx2gene <- as.data.frame(dxr[,c("featureID", "groupID")])
-    for (i in 1:2) tx2gene[,i] <- strp(tx2gene[,i])
+# Attach required packages
 
-    res_pval <- as.data.frame(dxr[,1:7])
+library(stageR)
 
-} else if (analysis_type == "drimseq"){
 
-    res <- read.table(results, sep="\t", header = TRUE)
+# Define helper functions
 
-    res <- as.data.frame(res)
+stripVersion <- function(x) {
 
-    res.txp <- args[3]
+    substr(x, 1, 15)
 
-    res.txp <- readRDS(res.txp)
-
-    pConfirmation <- matrix(res.txp$pvalue, ncol=1)
-    rownames(pConfirmation) <- strp(res.txp$feature_id)
-
-    pScreen <- res$pvalue
-    names(pScreen) <- strp(res$gene_id)
-
-    tx2gene <- res.txp[,c("feature_id", "gene_id")]
-    for (i in 1:2) tx2gene[,i] <- strp(tx2gene[,i])
-
-    res_pval <- as.data.frame(res[,1:6])
 }
 
-# Run StageR
+read.DEXSeq <- function(gene, feature) {
 
-stageRObj <- stageRTx(pScreen=pScreen, pConfirmation=pConfirmation,
-                        pScreenAdjusted=FALSE, tx2gene=tx2gene)
+    # Read gene-level results
 
-stageRObj <- stageWiseAdjustment(stageRObj, method="dtu", alpha=0.05, allowNA=TRUE)
+    resultsGene <- readRDS(gene)
 
-suppressWarnings({
-    stageR.padj <- getAdjustedPValues(stageRObj, order=FALSE,
-                                        onlySignificantGenes=FALSE)
-})
+    # Create a vector of screening hypothesis p-values
 
-################################
-######### Save outputs #########
-################################
+    pScreen <- resultsGene
 
-# StageR object
-saveRDS(stageRObj, paste0(analysis_type,".stageRObj.rds"))
+    names(pScreen) <- stripVersion(names(pScreen))
 
-# Adjusted P values
-saveRDS(stageR.padj, paste0(analysis_type,".stageR.padj.rds"))
-write.table(stageR.padj, paste0(analysis_type,".stageR.padj.tsv"), sep="\t", quote=FALSE, row.names = FALSE)
+    # Read feature-level results
 
-# Combine outputs of stager and drim/dexseq
-colnames(stageR.padj) <- paste("stageR", colnames(stageR.padj), sep = ".")
-colnames(res_pval) <- paste(analysis_type, colnames(res_pval), sep = ".")
+    resultsFeature <- readRDS(feature)
 
-write.table(cbind.data.frame(res_pval,stageR.padj), paste0(analysis_type,".combined.stageR.padj.tsv"), sep="\t", quote=FALSE, row.names = FALSE)
+    # Create a matrix of confirmation hypothesis p-values
 
-####################################
-########### Session info ###########
-####################################
+    pConfirmation <- matrix(resultsFeature$pvalue, ncol = 1)
 
-# Print sessioninfo to standard out
+    dimnames(pConfirmation) <- list(
+        stripVersion(resultsFeature$featureID),
+        "transcript"
+    )
+
+    # Create a tx2gene table
+
+    tx2gene <- resultsFeature[, c("featureID", "groupID"), drop = FALSE]
+
+    tx2gene <- apply(tx2gene, 2, stripVersion)
+
+    tx2gene <- as.data.frame(tx2gene)
+
+    # Return created objects
+
+    list(
+        resultsGene    = resultsGene,
+        resultsFeature = resultsFeature,
+        pScreen        = pScreen,
+        pConfirmation  = pConfirmation,
+        tx2gene        = tx2gene
+    )
+
+}
+
+read.DRIMSeq <- function(gene, feature) {
+
+    # Read gene-level results
+
+    resultsGene <- readRDS(gene)
+
+    # Create a vector of screening hypothesis p-values
+
+    pScreen <- resultsGene$pvalue
+
+    names(pScreen) <- stripVersion(resultsGene$gene_id)
+
+    # Read feature-level results
+
+    resultsFeature <- readRDS(feature)
+
+    # Create a matrix of confirmation hypothesis p-values
+
+    pConfirmation <- matrix(resultsFeature$pvalue, ncol = 1)
+
+    rownames(pConfirmation) <- stripVersion(resultsFeature$feature_id)
+
+    # Create a tx2gene table
+
+    tx2gene <- resultsFeature[, c("feature_id", "gene_id"), drop = FALSE]
+
+    tx2gene <- apply(tx2gene, 2, stripVersion)
+
+    tx2gene <- as.data.frame(tx2gene)
+
+    # Return created objects
+
+    list(
+        resultsGene    = resultsGene,
+        resultsFeature = resultsFeature,
+        pScreen        = pScreen,
+        pConfirmation  = pConfirmation,
+        tx2gene        = tx2gene
+    )
+
+}
+
+
+# Read analysis outputs
+
+if (analysis == "dexseq") {
+
+    output <- read.DEXSeq(
+        gene    = gene,
+        feature = feature
+    )
+
+} else if (analysis == "drimseq") {
+
+    output <- read.DRIMSeq(
+        gene    = gene,
+        feature = feature
+    )
+
+}
+
+
+# Create stageRTx object
+
+object <- stageRTx(
+    pScreen       = output[["pScreen"]],
+    pConfirmation = output[["pConfirmation"]],
+    tx2gene       = output[["tx2gene"]],
+    pscreenAdjusted = FALSE
+)
+
+
+# Adjust p-values in a two-stage analysis
+
+object <- stageWiseAdjustment(
+    object = object,
+    method = "dtu",
+    alpha = 0.05,
+    allowNA = TRUE
+)
+
+# Retrieve the stage-wise adjusted p-values
+
+pvalue <- getAdjustedPValues(
+    object               = object,
+    onlySignificantGenes = FALSE,
+    order                = FALSE
+)
+
+# Save objects to disk
+
+saveRDS(
+    object = object,
+    file   = paste0("stageRTx.", name, ".rds")
+)
+
+saveRDS(
+    object = pvalue,
+    file = paste0("getAdjustedPValues", name, ".rds")
+)
+
+
+# Save results to disk
+
+write.table(
+    x         = pvalue,
+    file      = paste0("getAdjustedPValues", name, ".tsv"),
+    sep       = "\t",
+    quote     = FALSE,
+    row.names = FALSE
+)
+
+
+# Print session information
+
 citation("stageR")
+
 sessionInfo()

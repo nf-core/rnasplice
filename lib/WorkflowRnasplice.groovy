@@ -439,22 +439,6 @@ class WorkflowRnasplice {
     }
 
     //
-    // Exit pipeline if rMATS requested with more than 2 conditions
-    //
-    public static void rmatsConditionError(reads, log) {
-        reads
-            .map { meta, fastq -> meta.condition }
-            .unique()
-            .collect()
-            .map {
-                if (it.size() > 2) {
-                    log.error "Please check input samplesheet -> Cannot run rMats with more than 2 conditions."
-                    System.exit(1)
-                }
-            }
-    }
-
-    //
     // Create variable to check if samples have one condition or multiple
     //
 
@@ -469,37 +453,6 @@ class WorkflowRnasplice {
         def single_condition = conditions.unique().size() == 1
 
         return single_condition
-
-    }
-
-    //
-    // Exit pipeline if incorrect --deu_lfc_denominator or --dtu_lfc_denominator key provided
-    //
-
-    public static void denominatorExistsError(params, log, samplesheet) {
-
-        def reader = samplesheet.splitCsv(header: true)
-
-        def conditions = []
-
-        reader.each { row -> conditions << row.condition }
-
-        if (params.dexseq_exon) {
-
-            if (!conditions.contains(params.deu_lfc_denominator)) {
-                log.error "Invalid option: '${params.deu_lfc_denominator}'. Valid options for '--deu_lfc_denominator': ${conditions.join(', ')}."
-                System.exit(1)
-            }
-
-        }
-
-        if (params.dexseq_dtu) {
-
-            if (!conditions.contains(params.dtu_lfc_denominator)) {
-                log.error "Invalid option: '${params.dtu_lfc_denominator}'. Valid options for '--dtu_lfc_denominator': ${conditions.join(', ')}."
-                System.exit(1)
-            }
-        }
 
     }
 

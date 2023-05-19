@@ -7,27 +7,27 @@ process DEXSEQ_EXON {
         'quay.io/biocontainers/bioconductor-dexseq:1.36.0--r40_0' }"
 
     input:
-    path ("dexseq_clean_counts/*")     // path dexseq_clean_counts
-    path gff                           // path dexseq_gff
-    path samplesheet                   // path samplesheet
-    val read_method                    // htseq or featurecounts
+    path ("dexseq_clean_counts/*")    // path: dexseq_clean_counts
+    path gff                          // path: dexseq_gff
+    path samplesheet                  // path: samplesheet
+    path contrastsheet                // path: contrastsheet
+    val ntop                          // val: n_dexseq_plot
 
     output:
-    path "dxd_exon.rds"           , emit: dexseq_exon_rds
-    path "dxr_exon.rds"           , emit: dexseq_exon_results_rds
-    path "dxr_exon.tsv"           , emit: dexseq_exon_results_tsv
-    path "qval_exon.rds"          , emit: qval_exon_rds
-    path "dxr_exon.g.tsv"         , emit: dexseq_exon_results_q_tsv
-    path "versions.yml"           , emit: versions
+    path "DEXSeqDataSet.*.rds"  , emit: dexseq_exon_dataset_rds
+    path "DEXSeqResults.*.rds"  , emit: dexseq_exon_results_rds
+    path "perGeneQValue.*.rds"  , emit: dexseq_gene_results_rds
+    path "DEXSeqResults.*.csv"  , emit: dexseq_exon_results_csv
+    path "perGeneQValue.*.csv"  , emit: dexseq_gene_results_csv
+    path "plotDEXSeq.*.pdf"     , emit: dexseq_plot_results_pdf
+    path "versions.yml"         , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def denominator = params.deu_lfc_denominator ?: ""
-
     """
-    run_dexseq_exon.R dexseq_clean_counts $gff $samplesheet $read_method ${task.cpus} $denominator
+    run_dexseq_exon.R dexseq_clean_counts $gff $samplesheet $contrastsheet $ntop
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

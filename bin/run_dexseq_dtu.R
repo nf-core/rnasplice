@@ -1,116 +1,202 @@
 #!/usr/bin/env Rscript
 
-library(DEXSeq)
+
+# Parse command arguments
+
+argv <- commandArgs(trailingOnly = TRUE)
+
+argc <- length(argv)
+
+samples <- argv[1]
+
+contrasts <- argv[2]
+
+counts <- argv[3]
+
+ntop <- as.integer(argv[4])
+
+
+# Load required packages
+
 library(BiocParallel)
 
-args <- commandArgs(trailingOnly=TRUE)
+library(DEXSeq)
 
-# Check args provided
 
-if (length(args) < 3) {
+# Define helper functions
 
-    stop("Usage: run_dexseq.R <sample.data> <d.counts> <ncores> <denominator>", call.=FALSE)
+splitByContrast <- function(object, contrast) {
 
-}
+    keep <- colData(object)$condition %in% contrast
 
-######################################
-########### Collect inputs ###########
-######################################
+    object <- object[, keep, drop = FALSE]
 
-sample.data <- args[1] # sample.data from DRIMSeq run_drimseq_filter.R
-d.counts    <- args[2] # d.counts from DRIMSeq run_drimseq_filter.R
-ncores      <- args[3] # MultiCoreParam ncores
+    colData(object)$condition <- factor(
+        x = colData(object)$condition,
+        levels = contrast
+    )
 
-if (length(args) == 4) {
-
-    denominator <- args[4]  # denominator for lfc set by user
-
-} else {
-
-    denominator <- ""       # denominator for lfc as default "" meaning is set as first sample condition
+    object
 
 }
 
-######################################
-######## Define Multicoreparams ######
-######################################
+DEXSeq <- function(object) {
 
-BPPARAM <- BiocParallel::MulticoreParam(ncores, stop.on.error = TRUE)
+    object <- estimateSizeFactors(object)
 
-######################################
-######## Run DEXseq analysis #########
-######################################
+    object <- estimateDispersions(object)
 
-# Read DRIMSeq sample data and counts
-sample.data <- read.table(sample.data, sep = "\t", header = TRUE)
-d.counts <- read.table(d.counts, sep = "\t", header = TRUE)
+    object <- testForDEU(object)
 
-# set colnames of sample.data
-colnames(sample.data) <- c("sample", "condition")
+    object <- estimateExonFoldChanges(object)
 
-# Take count data from same filtered DRIMSeq
-count.data <- round(d.counts[,(3:ncol(d.counts))])
+    object
 
-# Define models
-fullModel <- as.formula("~sample + exon + condition:exon")
-reducedModel <- as.formula("~sample + exon")
+}
 
-# DEXseq made for exon level but modified for DTU
-# design specifies "exon" but should be read as "transcript"
-# See F1000 workflow for more details:
-# https://f1000research.com/articles/7-952
+keepValidColumns <- function(x) {
 
-dxd <- DEXSeq::DEXSeqDataSet(countData = count.data,
-                            sampleData = sample.data,
-                            design = fullModel,
-                            featureID = d.counts$feature_id,
-                            groupID = d.counts$gene_id)
+    keep <- colnames(x)[sapply(x, class) %in% c("numeric", "character")]
 
-dxd <- DEXSeq::estimateSizeFactors(dxd)
+    x <- x[ , colnames(x) %in% keep, drop = FALSE]
 
-dxd <- DEXSeq::estimateDispersions(dxd, quiet = TRUE, BPPARAM = BPPARAM)
+    x
 
-# Looks for condition specific difference in tx proportions
-dxd <- DEXSeq::testForDEU(dxd, reducedModel = reducedModel, BPPARAM = BPPARAM)
+}
 
-# Define sample col used for lfc calculation - at current this is fixed to required "condition" column
-fitExpToVar <- "condition"
+vectorToDataFrame <- function(x) {
 
-# Get fold changes based on fitExpToVar col in colData and denominator defines baseline for lfc
-dxd <- DEXSeq::estimateExonFoldChanges(dxd, fitExpToVar = fitExpToVar, denominator = denominator, BPPARAM = BPPARAM)
+    x <- data.frame(groupID = names(x), padj = unname(x))
 
-# Get Results
-dxr <- DEXSeq::DEXSeqResults(dxd, independentFiltering = FALSE)
+    x
 
-# Get q vals
-qval <- DEXSeq::perGeneQValue(dxr)
+}
 
-# Format q vals
-dxr.g <- data.frame(gene = names(qval),qval)
 
-# dxr tsv
-keep <- colnames(dxr)[sapply(dxr, class) %in% c("numeric", "character")]
-dxr.tsv <- dxr[ , colnames(dxr) %in% keep]
+# Read samples table
 
-################################
-######### Save outputs #########
-################################
+samples <- read.delim(samples, stringsAsFactors = TRUE)
 
-# dxd
-saveRDS(dxd, "dxd.rds")
+colnames(samples) <- c("sample", "condition")
 
-# results
-saveRDS(dxr, "dxr.rds")
-write.table(dxr.tsv , "dxr.tsv", sep="\t", quote=FALSE, row.names = TRUE)
 
-# qvals
-saveRDS(qval, "qval.rds")
-write.table(dxr.g, "dxr.g.tsv", sep="\t", quote=FALSE, row.names = TRUE)
+# Read contrasts table
 
-####################################
-########### Session info ###########
-####################################
+contrasts <- read.csv(contrasts)
 
-# Print sessioninfo to standard out
+contrasts <- contrasts[, c("contrast", "treatment", "control"), drop = FALSE]
+
+
+# Read counts table
+
+counts <- read.table(counts, sep = "\t", header = TRUE)
+
+annotation <- data.frame(
+    featureID = counts$feature_id,
+    groupID = counts$gene_id
+)
+
+keep <- seq(3, ncol(counts), by = 1)
+
+counts <- counts[, keep, drop = FALSE]
+
+counts <- round(counts)
+
+
+# Create DEXSeqDataSet object
+
+object <- DEXSeqDataSet(
+    countData = counts,
+    sampleData = samples,
+    featureID = annotation$featureID,
+    groupID = annotation$groupID
+)
+
+
+# Define contrasts
+
+groups <- levels(colData(object)$condition)
+
+contrasts <- data.frame(A = contrasts$treatment, B = contrasts$control)
+
+contrasts <- contrasts[contrasts$A != contrasts$B, , drop = FALSE]
+
+contrasts <- asplit(contrasts, MARGIN = 1)
+
+names <- sapply(contrasts, paste, collapse = "-")
+
+
+# Create objects list
+
+objects <- mapply(
+    FUN = splitByContrast,
+    contrast = contrasts,
+    MoreArgs = list(object = object),
+    SIMPLIFY = FALSE
+)
+
+
+# Run DEXSeq workflow
+
+objects <- lapply(objects, DEXSeq)
+
+names(objects) <- names
+
+
+# Run DEXSeqResults
+
+results.exon <- lapply(objects, DEXSeqResults)
+
+names(results.exon) <- names
+
+
+# Run perGeneQValue
+
+results.gene <- lapply(results.exon, perGeneQValue)
+
+names(results.gene) <- names
+
+
+# Save objects to disk
+
+mapply(
+    saveRDS,
+    object = objects,
+    file = paste0("DEXSeqDataSet.", names, ".rds")
+)
+
+mapply(
+    saveRDS,
+    object = results.exon,
+    file = paste0("DEXSeqResults.", names, ".rds")
+)
+
+mapply(
+    saveRDS,
+    object = results.gene,
+    file = paste0("perGeneQValue.", names, ".rds")
+)
+
+
+# Save results to disk
+
+mapply(
+    write.table,
+    x = lapply(results.exon, keepValidColumns),
+    file = paste0("DEXSeqResults.", names, ".tsv"),
+    MoreArgs = list(quote = FALSE, sep = "\t", row.names = FALSE)
+)
+
+mapply(
+    write.table,
+    x = lapply(results.gene, vectorToDataFrame),
+    file = paste0("perGeneQValue.", names, ".tsv"),
+    MoreArgs = list(quote = FALSE, sep = "\t", row.names = FALSE)
+)
+
+
+# Print session information
+
 citation("DEXSeq")
+
 sessionInfo()

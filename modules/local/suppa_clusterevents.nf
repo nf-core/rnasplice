@@ -1,5 +1,5 @@
 process CLUSTEREVENTS {
-    tag "$dpsi"
+    tag "${cond1}-${cond2}"
     label 'process_high'
     stageInMode = 'copy'
 
@@ -9,8 +9,8 @@ process CLUSTEREVENTS {
         'quay.io/biocontainers/suppa:2.3--py36_0' }"
 
     input:
-    path dpsi
-    path psivec
+    tuple val(cond1), val(cond2), path(dpsi)
+    tuple val(cond1), val(cond2), path(psivec)
     val cluster_ranges // e.g. 1-3,4-6
     val prefix
 
@@ -33,7 +33,6 @@ process CLUSTEREVENTS {
     def clusterevents_method        = params.clusterevents_method ?: 'DBSCAN'       // default DBSCAN
 
     """
-
     suppa.py \\
         clusterEvents \\
         --dpsi $dpsi \\
@@ -44,7 +43,7 @@ process CLUSTEREVENTS {
         --min-pts $clusterevents_min_pts \\
         --groups $cluster_ranges \\
         --clustering $clusterevents_method \\
-        $st $sep -o ${prefix}_cluster
+        $st $sep -o ${cond1}-${cond2}_${prefix}_cluster
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

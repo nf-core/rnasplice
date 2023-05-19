@@ -77,6 +77,8 @@ class RowChecker:
         self._validate_sample(row)
         self._validate_first(row)
         self._validate_second(row)
+        self._validate_strandedness(row)
+        self._validate_condition(row)
         self._validate_pair(row)
         self._seen.add((row[self._sample_col], row[self._first_col]))
         self.modified.append(row)
@@ -106,7 +108,7 @@ class RowChecker:
 
     def _validate_condition(self, row):
         """Assert that the first stradedness entry is non-empty and has a syntactically valid name."""
-        assert len(row[self._condition]) > 0, "Condition input is required."
+        assert len(row[self._condition_col]) > 0, "Condition input is required."
         self._validate_condition_value(row[self._condition_col])
 
     def _validate_pair(self, row):
@@ -137,7 +139,7 @@ class RowChecker:
         )
 
     def _validate_condition_value(self, condition):
-        regex = "^((([[:alpha:]]|[.][._[:alpha:]])[._[:alnum:]]*)|[.])$"
+        regex = "^(([A-Za-z]|[.][._A-Za-z])[._A-Za-z0-9]*)|[.]$"
         assert bool(re.search(regex, condition)), (
             f"The condition column has an invalid name: {condition}\n"
             f"A syntactically valid name consists of letters, numbers and the dot or underline characters and starts with a letter or the dot not followed by a number."

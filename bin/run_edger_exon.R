@@ -1,20 +1,28 @@
 #!/usr/bin/env Rscript
 
-# Parse command arguments
+
+# Read command arguments
 
 argv <- commandArgs(trailingOnly = TRUE)
 
 argc <- length(argv)
 
+
+# Parse command arguments
+
 featurecounts <- argv[1]
 
 samplesheet <- argv[2]
 
-n  <- argv[3]
+contrastsheet <- argv[3]
+
+ntop  <- argv[4]
+
 
 # Load required packages
 
 library(edgeR)
+
 
 # Read samples table
 
@@ -24,6 +32,14 @@ samples <- samples[, c("sample", "condition"), drop = FALSE]
 
 samples <- unique(samples)
 
+
+# Read contrasts table
+
+contrasts <- read.csv(contrastsheet)
+
+contrasts <- contrasts[, c("contrast", "treatment", "control"), drop = FALSE]
+
+
 # Read featureCounts files
 
 files <- paste0(featurecounts, "/", samples$sample, ".featureCounts.txt")
@@ -31,6 +47,7 @@ files <- paste0(featurecounts, "/", samples$sample, ".featureCounts.txt")
 data <- lapply(files, read.delim, comment.char = "#")
 
 data <- Reduce(merge, data)
+
 
 # Extract counts matrix
 
@@ -40,9 +57,11 @@ counts <- as.matrix(counts)
 
 colnames(counts) <- samples$sample
 
+
 # Extract genes annotation
 
 genes <- data[, 1:6]
+
 
 # Create DGEList object
 
@@ -53,6 +72,7 @@ DGEList <- DGEList(
     genes   = genes,
 )
 
+
 # Normalization
 
 keep <- filterByExpr(DGEList, group = DGEList$samples$group)
@@ -60,6 +80,7 @@ keep <- filterByExpr(DGEList, group = DGEList$samples$group)
 DGEList <- DGEList[keep, , keep.lib.sizes = FALSE]
 
 DGEList <- calcNormFactors(DGEList)
+
 
 # Create design matrix
 
@@ -69,25 +90,33 @@ design <- model.matrix(~ 0 + group)
 
 colnames(design) <- levels(group)
 
-# Create contrast matrix
+
+# Create contrasts matrix
 
 groups <- levels(group)
 
-combinations <- expand.grid(A = groups, B = groups)
+names <- contrasts$contrast
 
-contrasts <- apply(combinations, 1, paste, collapse = "-")
+contrasts <- data.frame(A = contrasts$treatment, B = contrasts$control)
+
+contrasts <- apply(contrasts, 1, paste, collapse = "-")
 
 contrasts <- makeContrasts(contrasts = contrasts, levels = groups)
 
+colnames(contrasts) <- names
+
 contrasts <- contrasts[, colSums(contrasts != 0) > 0]
+
 
 # Estimate dispersions by empirical Bayes
 
 DGEList <- estimateDisp(DGEList, design)
 
+
 # Fit log-linear model to count data
 
 DGEGLM <- glmQLFit(DGEList, design)
+
 
 # Test for differential exon expression
 
@@ -99,6 +128,7 @@ DGELRT.exprs <- mapply(
 )
 
 results.exprs <- lapply(DGELRT.exprs, topTags, n = Inf, sort.by = "none")
+
 
 # Test for differential exon usage
 
@@ -115,6 +145,7 @@ results.usage <- list(
     exon  = lapply(DGELRT.usage, topSpliceDGE, test = "exon", number = Inf)
 )
 
+
 # Save objects to disk
 
 saveRDS(DGEList, file = "DGEList.rds")
@@ -125,35 +156,37 @@ saveRDS(DGELRT.exprs,  file = "DGELRT.exprs.rds")
 
 saveRDS(DGELRT.usage,  file = "DGELRT.usage.rds")
 
+
 # Save results to disk
 
 mapply(
     write.csv,
     x = results.exprs,
-    file = paste0("contrast_", names(results.exprs), ".exprs.csv"),
+    file = paste0("contrast_", colnames(contrasts), ".exprs.csv"),
     MoreArgs = list(quote = FALSE, row.names = FALSE)
 )
 
 mapply(
     write.csv,
     x = results.usage$simes,
-    file = paste0("contrast_", names(results.usage$simes), ".usage.simes.csv"),
+    file = paste0("contrast_", colnames(contrasts), ".usage.simes.csv"),
     MoreArgs = list(quote = FALSE, row.names = FALSE)
 )
 
 mapply(
     write.csv,
     x = results.usage$gene,
-    file = paste0("contrast_", names(results.usage$gene), ".usage.gene.csv"),
+    file = paste0("contrast_", colnames(contrasts), ".usage.gene.csv"),
     MoreArgs = list(quote = FALSE, row.names = FALSE)
 )
 
 mapply(
     write.csv,
     x = results.usage$exon,
-    file = paste0("contrast_", names(results.usage$exon), ".usage.exon.csv"),
+    file = paste0("contrast_", colnames(contrasts), ".usage.exon.csv"),
     MoreArgs = list(quote = FALSE, row.names = FALSE)
 )
+
 
 # Save plots to disk
 
@@ -172,26 +205,27 @@ write.plotSpliceDGE <- function(results, file, lrt, n = 10) {
 mapply(
     write.plotSpliceDGE,
     results = results.usage$simes,
-    file = paste0("contrast_", names(results.usage$simes), ".usage.simes.pdf"),
+    file = paste0("contrast_", colnames(contrasts), ".usage.simes.pdf"),
     lrt = DGELRT.usage,
-    MoreArgs = list(n = n)
+    MoreArgs = list(n = ntop)
 )
 
 mapply(
     write.plotSpliceDGE,
     results = results.usage$gene,
-    file = paste0("contrast_", names(results.usage$gene), ".usage.gene.pdf"),
+    file = paste0("contrast_", colnames(contrasts), ".usage.gene.pdf"),
     lrt = DGELRT.usage,
-    MoreArgs = list(n = n)
+    MoreArgs = list(n = ntop)
 )
 
 mapply(
     write.plotSpliceDGE,
     results = results.usage$exon,
-    file = paste0("contrast_", names(results.usage$exon), ".usage.exon.pdf"),
+    file = paste0("contrast_", colnames(contrasts), ".usage.exon.pdf"),
     lrt = DGELRT.usage,
-    MoreArgs = list(n = n)
+    MoreArgs = list(n = ntop)
 )
+
 
 # Print session information
 

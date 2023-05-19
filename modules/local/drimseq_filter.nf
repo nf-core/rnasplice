@@ -12,10 +12,10 @@ process DRIMSEQ_FILTER {
     path samplesheet          // path: /path/to/samplesheet.csv
 
     output:
-    path "d.rds"                , emit: drimseq_filter_rds
-    path "sample.data.tsv"      , emit: drimseq_sample_data
-    path "d.counts.tsv"         , emit: drimseq_d_counts
-    path "versions.yml"         , emit: versions
+    path "dmDSdata.rds"  , emit: drimseq_dataset_rds
+    path "samples.tsv"   , emit: drimseq_samples_tsv
+    path "counts.tsv"    , emit: drimseq_counts_tsv
+    path "versions.yml"  , emit: versions
 
     when:
     task.ext.when == null || task.ext.when

@@ -111,13 +111,13 @@ d.counts <- counts(d)
 ######### Save outputs #########
 ################################
 
-saveRDS(d, "d.rds")
+saveRDS(d, "dmDSdata.rds")
 
 # sample.data
-write.table(sample.data, "sample.data.tsv", sep="\t", quote=FALSE, row.names = FALSE)
+write.table(sample.data, "samples.tsv", sep="\t", quote=FALSE, row.names = FALSE)
 
 # count data
-write.table(d.counts, "d.counts.tsv", sep="\t", quote=FALSE, row.names = FALSE)
+write.table(d.counts, "counts.tsv", sep="\t", quote=FALSE, row.names = FALSE)
 
 ####################################
 ########### Session info ###########
