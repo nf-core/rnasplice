@@ -1,5 +1,5 @@
 process MISO_RUN {
-    label "process_medium"
+    label 'process_medium'
 
     conda "conda-forge::python=2.7 bioconda::misopy=0.5.4"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -12,8 +12,11 @@ process MISO_RUN {
     val miso_read_len
 
     output:
-    path "miso_data/*"         , emit: miso
-    path "versions.yml"        , emit: versions
+    tuple val(meta), path("miso_data/*")    , emit: miso
+    path "versions.yml"                     , emit: versions
+
+    when:
+    task.ext.when == null || task.ext.when
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"

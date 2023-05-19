@@ -64,7 +64,7 @@ workflow VISUALISE_MISO {
     //
 
     ch_bams = ch_genome_bam.collect({it[1]})
-    ch_miso_run = MISO_RUN.out.miso.collect()
+    ch_miso_run = MISO_RUN.out.miso.map{it[1]}.collect()
 
     MISO_SETTINGS (
         ch_miso_run,

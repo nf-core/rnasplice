@@ -1,5 +1,5 @@
 process MISO_INDEX {
-    label "process_high"
+    label 'process_high'
 
     conda "conda-forge::python=2.7 bioconda::misopy=0.5.4"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -12,6 +12,9 @@ process MISO_INDEX {
     output:
     path "index"         , emit: miso_index
     path "versions.yml"  , emit: versions
+
+    when:
+    task.ext.when == null || task.ext.when
 
     script:
     """

@@ -1,5 +1,5 @@
 process DEXSEQ_EXON {
-    label "process_high"
+    label 'process_high'
 
     conda "bioconda::bioconductor-dexseq=1.36.0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
