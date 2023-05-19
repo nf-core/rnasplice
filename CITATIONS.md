@@ -26,6 +26,10 @@
 
   > Givanna H Putri, Simon Anders, Paul Theodor Pyl, John E Pimanda, Fabio Zanini, Analysing high-throughput sequencing data in Python with HTSeq 2.0, Bioinformatics, Volume 38, Issue 10, 15 May 2022, Pages 2943–2945.
 
+- [MISO](https://miso.readthedocs.io/en/fastmiso/#)
+
+  > Katz Y, Wang ET, Airoldi EM, Burge CB. (2010). Analysis and design of RNA sequencing experiments for identifying isoform regulation. Nature Methods 7, 1009-1015.
+
 - [MultiQC](https://pubmed.ncbi.nlm.nih.gov/27312411/)
 
   > Ewels P, Magnusson M, Lundin S, Käller M. MultiQC: summarize analysis results for multiple tools and samples in a single report. Bioinformatics. 2016 Oct 1;32(19):3047-8. doi: 10.1093/bioinformatics/btw354. Epub 2016 Jun 16. PubMed PMID: 27312411; PubMed Central PMCID: PMC5039924.

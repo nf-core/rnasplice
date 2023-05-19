@@ -1,5 +1,5 @@
 process DRIMSEQ_FILTER {
-    label "process_medium"
+    label 'process_medium'
 
     conda "bioconda::bioconductor-drimseq=1.18.0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?

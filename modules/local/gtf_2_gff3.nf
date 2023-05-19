@@ -1,5 +1,5 @@
 process GTF_2_GFF3 {
-    label "process_single"
+    label 'process_single'
 
     conda "bioconda::gffread=0.12.1"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -12,6 +12,9 @@ process GTF_2_GFF3 {
     output:
     path "*.gff3"           , emit: gff3
     path "versions.yml"     , emit: versions
+
+    when:
+    task.ext.when == null || task.ext.when
 
     script:
     """

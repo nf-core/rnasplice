@@ -1,5 +1,5 @@
 process MISO_SASHIMI {
-    label "process_single"
+    label 'process_single'
 
     conda "conda-forge::python=2.7 bioconda::misopy=0.5.4"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -14,6 +14,8 @@ process MISO_SASHIMI {
     path "sashimi/*"           , emit: sashimi
     path "versions.yml"        , emit: versions
 
+    when:
+    task.ext.when == null || task.ext.when
 
     script:
     """

@@ -19,8 +19,7 @@ class WorkflowRnasplice {
         }
 
         if (!params.gtf && !params.gff) {
-            log.error "No GTF or GFF3 annotation specified! The pipeline requires at least one of these files."
-            System.exit(1)
+            Nextflow.error("No GTF or GFF3 annotation specified! The pipeline requires at least one of these files.")
         }
 
         if (params.gtf) {
@@ -44,43 +43,36 @@ class WorkflowRnasplice {
         //
 
         // if (!params.skip_bbsplit && !params.bbsplit_index && !params.bbsplit_fasta_list) {
-        //     log.error "Please provide either --bbsplit_fasta_list / --bbsplit_index to run BBSplit."
-        //     System.exit(1)
+        //     Nextflow.error("Please provide either --bbsplit_fasta_list / --bbsplit_index to run BBSplit.")
         // }
 
         // if (params.remove_ribo_rna && !params.ribo_database_manifest) {
-        //     log.error "Please provide --ribo_database_manifest to remove ribosomal RNA with SortMeRNA."
-        //     System.exit(1)
+        //     Nextflow.error("Please provide --ribo_database_manifest to remove ribosomal RNA with SortMeRNA.")
         // }
 
         // if (params.with_umi && !params.skip_umi_extract) {
         //     if (!params.umitools_bc_pattern && !params.umitools_bc_pattern2) {
-        //         log.error "UMI-tools requires a barcode pattern to extract barcodes from the reads."
-        //         System.exit(1)
+        //         Nextflow.error("UMI-tools requires a barcode pattern to extract barcodes from the reads.")
         //     }
         // }
 
         if (!params.skip_alignment) {
             if (!valid_params['aligners'].contains(params.aligner)) {
-                log.error "Invalid option: '${params.aligner}'. Valid options for '--aligner': ${valid_params['aligners'].join(', ')}."
-                System.exit(1)
+                Nextflow.error("Invalid option: '${params.aligner}'. Valid options for '--aligner': '${valid_params['aligners'].join(', ')}'.")
             }
         } else {
             if (!params.pseudo_aligner) {
-                log.error "--skip_alignment specified without --pseudo_aligner...please specify e.g. --pseudo_aligner ${valid_params['pseudoaligners'][0]}."
-                System.exit(1)
+                Nextflow.error("--skip_alignment specified without --pseudo_aligner...please specify e.g. --pseudo_aligner '${valid_params['pseudoaligners'][0]}'.")
             }
             skipAlignmentWarn(log)
         }
 
         if (params.pseudo_aligner) {
             if (!valid_params['pseudoaligners'].contains(params.pseudo_aligner)) {
-                log.error "Invalid option: '${params.pseudo_aligner}'. Valid options for '--pseudo_aligner': ${valid_params['pseudoaligners'].join(', ')}."
-                System.exit(1)
+                Nextflow.error("Invalid option: '${params.pseudo_aligner}'. Valid options for '--pseudo_aligner': '${valid_params['pseudoaligners'].join(', ')}'.")
             } else {
                 if (!(params.salmon_index || params.transcript_fasta || (params.fasta && (params.gtf || params.gff)))) {
-                    log.error "To use `--pseudo_aligner 'salmon'`, you must provide either --salmon_index or --transcript_fasta or both --fasta and --gtf / --gff."
-                    System.exit(1)
+                    Nextflow.error("To use `--pseudo_aligner 'salmon'`, you must provide either --salmon_index or --transcript_fasta or both --fasta and --gtf / --gff.")
                 }
             }
         }
@@ -106,8 +98,7 @@ class WorkflowRnasplice {
         // Check which RSeQC modules we are running
         // def rseqc_modules = params.rseqc_modules ? params.rseqc_modules.split(',').collect{ it.trim().toLowerCase() } : []
         // if ((valid_params['rseqc_modules'] + rseqc_modules).unique().size() != valid_params['rseqc_modules'].size()) {
-        //     log.error "Invalid option: ${params.rseqc_modules}. Valid options for '--rseqc_modules': ${valid_params['rseqc_modules'].join(', ')}"
-        //     System.exit(1)
+        //     Nextflow.error("Invalid option: '${params.rseqc_modules}''. Valid options for '--rseqc_modules': '${valid_params['rseqc_modules'].join(', ')}'"
         // }
 
         //
@@ -115,13 +106,11 @@ class WorkflowRnasplice {
         //
 
         if (params.clusterevents_local_event && !params.diffsplice_local_event) {
-            log.error "--clusterevents_local_event specified without --diffsplice_local_event... please specify e.g. --diffsplice_local_event=true"
-            System.exit(1)
+            Nextflow.error("--clusterevents_local_event specified without --diffsplice_local_event... please specify e.g. --diffsplice_local_event=true")
         }
 
         if (params.clusterevents_isoform && !params.diffsplice_isoform) {
-            log.error "--clusterevents_isoform specified without diffsplice_isoform... please specify e.g. --diffsplice_isoform=true"
-            System.exit(1)
+            Nextflow.error("--clusterevents_isoform specified without diffsplice_isoform... please specify e.g. --diffsplice_isoform=true")
         }
 
         //
@@ -170,14 +159,15 @@ class WorkflowRnasplice {
             def chrom = lspl[0]
             def size  = lspl[1]
             if (size.toInteger() > max_size) {
-                log.error "=============================================================================\n" +
+                Nextflow.error(
+                    "=============================================================================\n" +
                     "  Contig longer than ${max_size}bp found in reference genome!\n\n" +
                     "  ${chrom}: ${size}\n\n" +
                     "  Provide the '--bam_csi_index' parameter to use a CSI instead of BAI index.\n\n" +
                     "  Please see:\n" +
                     "  https://github.com/nf-core/rnaseq/issues/744\n" +
                     "============================================================================="
-                System.exit(1)
+                )
             }
         }
     }
@@ -381,13 +371,14 @@ class WorkflowRnasplice {
     // Print a warning if using '--aligner star_rsem' and '--with_umi'
     //
     // private static void rsemUmiError(log) {
-    //     log.error "=============================================================================\n" +
+    //     Nextflow.error(
+    //         "=============================================================================\n" +
     //         "  When using '--aligner star_rsem', STAR is run by RSEM itself and so it is\n" +
     //         "  not possible to remove UMIs before the quantification.\n\n" +
     //         "  If you would like to remove UMI barcodes using the '--with_umi' option\n" +
     //         "  please use either '--aligner star_salmon' or '--aligner hisat2'.\n" +
     //         "============================================================================="
-    //     System.exit(1)
+    //     )
     // }
 
     //
@@ -418,8 +409,7 @@ class WorkflowRnasplice {
             .collect()
             .map {
                 if (it.size() > 1) {
-                    log.error "Please check input samplesheet -> Cannot run rMats with mixed single and paired end samples."
-                    System.exit(1)
+                    Nextflow.error("Please check input samplesheet -> Cannot run rMats with mixed single and paired end samples.")
                 }
             }
     }
@@ -434,8 +424,7 @@ class WorkflowRnasplice {
             .collect()
             .map {
                 if (it.size() > 1) {
-                    log.error "Please check input samplesheet -> Cannot run rMats with mixed stranded samples."
-                    System.exit(1)
+                    Nextflow.error("Please check input samplesheet -> Cannot run rMats with mixed stranded samples.")
                 }
             }
     }

@@ -1,5 +1,5 @@
 process MISO_SETTINGS {
-    label "process_high"
+    label 'process_high'
 
     conda "conda-forge::parsimonious"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -16,6 +16,9 @@ process MISO_SETTINGS {
     output:
     path 'miso_settings.txt'          , emit: miso_settings
     path "versions.yml"               , emit: versions
+
+    when:
+    task.ext.when == null || task.ext.when
 
     script:
     def args = task.ext.args ?: ''

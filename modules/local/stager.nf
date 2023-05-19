@@ -1,5 +1,5 @@
 process STAGER {
-    label "process_medium"
+    label 'process_medium'
 
     conda "bioconda::bioconductor-stager=1.12.0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
