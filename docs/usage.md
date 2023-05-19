@@ -6,46 +6,45 @@
 
 ## Samplesheet input
 
-You will need to create a samplesheet with information about the samples you would like to analyse before running the pipeline. Use this parameter to specify its location. It is recommended to use the absolute path of the file, but a relative path should also work.
+You will need to create a samplesheet with information about the samples you would like to analyse before running the pipeline. Use this parameter to specify its location.
 
 ```bash
 --input '[path to samplesheet file]'
 ```
 
-Samplesheet file has to be a comma-separated file (".csv" format) with a header row. The number of mandatory columns can vary according to the `--source` parameter specified (see "Source configuration" section). Valid headers are reported in the table below. The samplesheet can accept additional headers if necessary, however, only those reported in the table will be taken into consideration.
-
-
-| Column          | Description                                                                                                                                                                            |
-| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sample`        | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
-| `fastq_1`       | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
-| `fastq_2`       | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
-| `strandedness`  | Sample strand-specificity. Must be one of `unstranded`, `forward` or `reverse`.                                                                                                        |
-| `condition`     | The name of the condition a sample belongs to (e.g. 'control', or 'treatment') - these labels will be used for downstream analysis.                                                    |
-| `bam`           | Full path to aligned bam file, derived from splicing aware mapper (STAR, HiSat, etc). File has to be in ".bam" format.                                                                 |
-| `transcriptome` | Full path to aligned transcriptome file, derived from splicing aware mapper (STAR, HiSat, etc). Files has to be in ".bam" format.                                                      |
-| `salmon`        | Full path to the result folder produced by salmon. The folder has to be compressed in ".tar.gz" format.                                                     |
-
-
-### Multiple runs of the same sample
-
-The `sample` identifiers have to be the same when you have re-sequenced the same sample more than once e.g. to increase sequencing depth. The pipeline will concatenate the raw reads before performing any downstream analysis. Below is an example for the same sample sequenced across 3 lanes:
+The samplesheet has to be a comma-seperated file with at least 3 columns, and a header row as shown in the example below.
 
 ```console
 sample,fastq_1,fastq_2,strandedness,condition
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz,unstranded,control
-CONTROL_REP1,AEG588A1_S1_L003_R1_001.fastq.gz,AEG588A1_S1_L003_R2_001.fastq.gz,unstranded,control
-CONTROL_REP1,AEG588A1_S1_L004_R1_001.fastq.gz,AEG588A1_S1_L004_R2_001.fastq.gz,unstranded,control
+CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz,forward,control
+CONTROL_REP2,AEG588A2_S2_L002_R1_001.fastq.gz,AEG588A2_S2_L002_R2_001.fastq.gz,forward,control
+CONTROL_REP3,AEG588A3_S3_L002_R1_001.fastq.gz,AEG588A3_S3_L002_R2_001.fastq.gz,forward,control
 ```
+
+The samplesheet can have as many columns as you desire, however, there is a strict requirement for at least 3 columns to match those defined in the table below.
+
+| Column              | Description                                                                                                                                                                            |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sample`            | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
+| `fastq_1`           | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
+| `fastq_2`           | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
+| `strandedness`      | Sample strand-specificity. Must be one of `unstranded`, `forward` or `reverse`.                                                                                                        |
+| `condition`         | The name of the condition a sample belongs to (e.g. 'control', or 'treatment') - these labels will be used for downstream analysis.                                                    |
+| `genome_bam`        | Full path to aligned BAM file, derived from splicing aware mapper (STAR, HiSat, etc). File has to be in ".bam" format.                                                                 |
+| `transcriptome_bam` | Full path to aligned transcriptome file, derived from splicing aware mapper (STAR, HiSat, etc). File has to be in ".bam" format.                                                       |
+| `salmon_results`    | Full path to the result folder produced by salmon quantification.                                                                                                                      |
 
 ### Source configuration
 
-The pipeline can be configured to use four different data inputs to perform the analysis. Use the parameter `--source` to control the source type.
+The pipeline can be started from four sources of input data. Use this parameter to specify the input source.
 
-1) fastq files. This is the default configuration `--source fastq` and takes compressed or uncompressed reads files (fastq, fq, fastq.gz or fq.gz) as input.
-There are 5 mandatory columns to specify when using this configuration. The samplesheet must contain the columns `sample`, either `fastq_1/fastq_2`, `strandedness` and `condition`.
-The pipeline will auto-detect whether a sample is single- or paired-end using the information provided in the samplesheet.
-A final samplesheet file consisting of both single- and paired-end data may look something like the one below. This is for 6 samples, where `TREATMENT_REP3` has been sequenced twice and will therefore be automatically concatenated before further downstream analysis.
+```bash
+--source '[source type]'
+```
+
+#### FASTQ files
+
+The default configuration is `--source fastq` and takes compressed or uncompressed reads files as the input source. The samplesheet must have the 5 columns shown in the example below.
 
 ```console
 sample,fastq_1,fastq_2,strandedness,condition
@@ -58,13 +57,14 @@ TREATMENT_REP3,AEG588A6_S6_L003_R1_001.fastq.gz,,reverse,treatment
 TREATMENT_REP3,AEG588A6_S6_L004_R1_001.fastq.gz,,reverse,treatment
 ```
 
-An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline.
+This configuration allows the pipeline to run all downstream analysis methods.
 
+#### Genome BAM files
 
-2) bam files. This configuration `--source genome_bam` starts using aligned bam derived from splicing aware mapper (STAR, HiSat, etc). This allows to take advantage from previously analyzed data speeding up the execution of the pipeline. File has to be in ".bam" format. A samplesheet file for this configuration may look something like the one below.
+The `--source genome_bam` configuration takes genome BAM files derived from a splice aware mapper (STAR, HiSat, etc). The samplesheet must have the 3 columns shown in the example below.
 
 ```console
-sample,condition,bam
+sample,condition,genome_bam
 CONTROL_REP1,control,AEG588A1.Aligned.out.bam
 CONTROL_REP2,control,AEG588A2.Aligned.out.bam
 CONTROL_REP3,control,AEG588A3.Aligned.out.bam
@@ -73,23 +73,27 @@ TREATMENT_REP2,treatment,AEG588A5.Aligned.out.bam
 TREATMENT_REP3,treatment,AEG588A6.Aligned.out.bam
 ```
 
-Note that only the following splicing tools can be lunched starting from this configuration: "dexseq_exon", "edger" and "rmats".
+This configuration allows the pipeline to run the "dexseq_exon", "edger_exon" and "rmats" analysis methods.
 
+#### Transcriptome BAM files
 
-3) bam + transcriptome.bam files. This configuration `--source transcriptome_bam` starts with aligned bam and related transcriptome.bam files derived from splicing aware mapper (STAR, HiSat, etc), outputs of other pipes (RNA-Seq) o RNAsplice intermediate files. This allows to take advantage from previously analyzed data speeding up the execution of the pipeline. Files have to be in ".bam" format. A samplesheet file for this configuration may look something like the one below.
+The `--source transcriptome_bam` configuration takes transcriptome BAM files files derived from a splice aware mapper (STAR, HiSat, etc). The samplesheet must have the 3 columns shown in the example below.
 
 ```console
-sample,condition,bam,transcriptome
-CONTROL_REP1,control,AEG588A1.Aligned.out.bam,AEG588A1.Aligned.toTranscriptome.out.bam
-CONTROL_REP2,control,AEG588A2.Aligned.out.bam,AEG588A2.Aligned.toTranscriptome.out.bam
-CONTROL_REP3,control,AEG588A3.Aligned.out.bam,AEG588A3.Aligned.toTranscriptome.out.bam
-TREATMENT_REP1,treatment,AEG588A4.Aligned.out.bam,AEG588A4.Aligned.toTranscriptome.out.bam
-TREATMENT_REP2,treatment,AEG588A5.Aligned.out.bam,AEG588A5.Aligned.toTranscriptome.out.bam
-TREATMENT_REP3,treatment,AEG588A6.Aligned.out.bam,AEG588A6.Aligned.toTranscriptome.out.bam
+sample,condition,transcriptome_bam
+CONTROL_REP1,control,AEG588A1.Aligned.toTranscriptome.out.bam
+CONTROL_REP2,control,AEG588A2.Aligned.toTranscriptome.out.bam
+CONTROL_REP3,control,AEG588A3.Aligned.toTranscriptome.out.bam
+TREATMENT_REP1,treatment,AEG588A4.Aligned.toTranscriptome.out.bam
+TREATMENT_REP2,treatment,AEG588A5.Aligned.toTranscriptome.out.bam
+TREATMENT_REP3,treatment,AEG588A6.Aligned.toTranscriptome.out.bam
 ```
 
+This configuration allows the pipeline to run the "dexseq_dtu" and "suppa" analysis methods.
 
-4) salmon result files. This configuration `--source salmon` uses as starting point the output files produced by "Salmon". The Salmon result folder has to be compressed (".tar.gz"). This allows to take advantage from previously analyzed data speeding up the execution of the pipeline. A samplesheet file for this configuration may look something like the one below.
+#### Salmon quantification files
+
+The `--source salmon_results` configuration takes the output quantification directories produced by Salmon. The samplesheet must have the 3 columns shown in the example below.
 
 ```console
 sample,condition,salmon
@@ -101,9 +105,7 @@ TREATMENT_REP2,treatment,AEG588A5.tar.gz
 TREATMENT_REP3,treatment,AEG588A6.tar.gz
 ```
 
-Note that only the following splicing tools can be lunched starting from this configuration: "DTU" and "SUPPA".
-
-
+This configuration allows the pipeline to run the "dexseq_dtu" and "suppa" analysis methods.
 
 ## Contrastsheet input
 
@@ -113,7 +115,7 @@ You will also need to create a contrastsheet with information about the contrast
 --contrasts '[path to contrastsheet file]'
 ```
 
-The contrastsheet to be a comma-separated file with 3 columns, and a header row as shown in the examples below.
+The contrastsheet has to be a comma-separated file with 3 columns, and a header row as shown in the examples below.
 
 ```console
 contrast,treatment,control
