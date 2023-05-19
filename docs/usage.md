@@ -6,11 +6,26 @@
 
 ## Samplesheet input
 
-You will need to create a samplesheet with information about the samples you would like to analyse before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 5 columns, and a header row as shown in the examples below.
+You will need to create a samplesheet with information about the samples you would like to analyse before running the pipeline. Use this parameter to specify its location. It is recommended to use the absolute path of the file, but a relative path should also work.
 
 ```bash
 --input '[path to samplesheet file]'
 ```
+
+Samplesheet file has to be a comma-separated file (".csv" format) with a header row. The number of mandatory columns can vary according to the `--source` parameter specified (see "Source configuration" section). Valid headers are reported in the table below. The samplesheet can accept additional headers if necessary, however, only those reported in the table will be taken into consideration.
+
+
+| Column          | Description                                                                                                                                                                            |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sample`        | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
+| `fastq_1`       | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
+| `fastq_2`       | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
+| `strandedness`  | Sample strand-specificity. Must be one of `unstranded`, `forward` or `reverse`.                                                                                                        |
+| `condition`     | The name of the condition a sample belongs to (e.g. 'control', or 'treatment') - these labels will be used for downstream analysis.                                                    |
+| `bam`           | Full path to aligned bam file, derived from splicing aware mapper (STAR, HiSat, etc). File has to be in ".bam" format.                                                                 |
+| `transcriptome` | Full path to aligned transcriptome file, derived from splicing aware mapper (STAR, HiSat, etc). Files has to be in ".bam" format.                                                      |
+| `salmon`        | Full path to the result folder produced by salmon. The folder has to be compressed in ".tar.gz" format.                                                     |
+
 
 ### Multiple runs of the same sample
 
@@ -23,10 +38,13 @@ CONTROL_REP1,AEG588A1_S1_L003_R1_001.fastq.gz,AEG588A1_S1_L003_R2_001.fastq.gz,u
 CONTROL_REP1,AEG588A1_S1_L004_R1_001.fastq.gz,AEG588A1_S1_L004_R2_001.fastq.gz,unstranded,control
 ```
 
-### Full samplesheet
+### Source configuration
 
-The pipeline will auto-detect whether a sample is single- or paired-end using the information provided in the samplesheet. The samplesheet can have as many columns as you desire, however, there is a strict requirement for the first 5 columns to match those defined in the table below.
+The pipeline can be configured to use four different data inputs to perform the analysis. Use the parameter `--source` to control the source type.
 
+1) fastq files. This is the default configuration `--source fastq` and takes compressed or uncompressed reads files (fastq, fq, fastq.gz or fq.gz) as input.
+There are 5 mandatory columns to specify when using this configuration. The samplesheet must contain the columns `sample`, either `fastq_1/fastq_2`, `strandedness` and `condition`.
+The pipeline will auto-detect whether a sample is single- or paired-end using the information provided in the samplesheet.
 A final samplesheet file consisting of both single- and paired-end data may look something like the one below. This is for 6 samples, where `TREATMENT_REP3` has been sequenced twice and will therefore be automatically concatenated before further downstream analysis.
 
 ```console
@@ -40,15 +58,52 @@ TREATMENT_REP3,AEG588A6_S6_L003_R1_001.fastq.gz,,reverse,treatment
 TREATMENT_REP3,AEG588A6_S6_L004_R1_001.fastq.gz,,reverse,treatment
 ```
 
-| Column         | Description                                                                                                                                                                            |
-| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sample`       | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
-| `fastq_1`      | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
-| `fastq_2`      | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
-| `strandedness` | Sample strand-specificity. Must be one of `unstranded`, `forward` or `reverse`.                                                                                                        |
-| `condition`    | The name of the condition a sample belongs to (e.g. 'control', or 'treatment') - these labels will be used for downstream analysis.                                                    |
-
 An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline.
+
+
+2) bam files. This configuration `--source genome_bam` starts using aligned bam derived from splicing aware mapper (STAR, HiSat, etc). This allows to take advantage from previously analyzed data speeding up the execution of the pipeline. File has to be in ".bam" format. A samplesheet file for this configuration may look something like the one below.
+
+```console
+sample,condition,bam
+CONTROL_REP1,control,AEG588A1.Aligned.out.bam
+CONTROL_REP2,control,AEG588A2.Aligned.out.bam
+CONTROL_REP3,control,AEG588A3.Aligned.out.bam
+TREATMENT_REP1,treatment,AEG588A4.Aligned.out.bam
+TREATMENT_REP2,treatment,AEG588A5.Aligned.out.bam
+TREATMENT_REP3,treatment,AEG588A6.Aligned.out.bam
+```
+
+Note that only the following splicing tools can be lunched starting from this configuration: "dexseq_exon", "edger" and "rmats".
+
+
+3) bam + transcriptome.bam files. This configuration `--source transcriptome_bam` starts with aligned bam and related transcriptome.bam files derived from splicing aware mapper (STAR, HiSat, etc), outputs of other pipes (RNA-Seq) o RNAsplice intermediate files. This allows to take advantage from previously analyzed data speeding up the execution of the pipeline. Files have to be in ".bam" format. A samplesheet file for this configuration may look something like the one below.
+
+```console
+sample,condition,bam,transcriptome
+CONTROL_REP1,control,AEG588A1.Aligned.out.bam,AEG588A1.Aligned.toTranscriptome.out.bam
+CONTROL_REP2,control,AEG588A2.Aligned.out.bam,AEG588A2.Aligned.toTranscriptome.out.bam
+CONTROL_REP3,control,AEG588A3.Aligned.out.bam,AEG588A3.Aligned.toTranscriptome.out.bam
+TREATMENT_REP1,treatment,AEG588A4.Aligned.out.bam,AEG588A4.Aligned.toTranscriptome.out.bam
+TREATMENT_REP2,treatment,AEG588A5.Aligned.out.bam,AEG588A5.Aligned.toTranscriptome.out.bam
+TREATMENT_REP3,treatment,AEG588A6.Aligned.out.bam,AEG588A6.Aligned.toTranscriptome.out.bam
+```
+
+
+4) salmon result files. This configuration `--source salmon` uses as starting point the output files produced by "Salmon". The Salmon result folder has to be compressed (".tar.gz"). This allows to take advantage from previously analyzed data speeding up the execution of the pipeline. A samplesheet file for this configuration may look something like the one below.
+
+```console
+sample,condition,salmon
+CONTROL_REP1,control,AEG588A1.tar.gz
+CONTROL_REP2,control,AEG588A2.tar.gz
+CONTROL_REP3,control,AEG588A3.tar.gz
+TREATMENT_REP1,treatment,AEG588A4.tar.gz
+TREATMENT_REP2,treatment,AEG588A5.tar.gz
+TREATMENT_REP3,treatment,AEG588A6.tar.gz
+```
+
+Note that only the following splicing tools can be lunched starting from this configuration: "DTU" and "SUPPA".
+
+
 
 ## Contrastsheet input
 
