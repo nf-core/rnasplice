@@ -26,22 +26,22 @@ Implemented pipeline:
 - Read QC (FastQC)
 - Adapter and quality trimming (TrimGalore)
 - Alignment with STAR:
-    - STAR -> Salmon
-    - STAR -> featureCounts
-    - STAR -> HTSeq (DEXSeq count)
+  - STAR -> Salmon
+  - STAR -> featureCounts
+  - STAR -> HTSeq (DEXSeq count)
 - Sort and index alignments (SAMtools)
 - Create bigWig coverage files (BEDTools, bedGraphToBigWig)
 - Pseudo-alignment and quantification (Salmon; optional)
 - Summarize QC (MultiQC)
 - Differential Exon Usage (DEU):
-    - HTSeq -> DEXSeq
-    - featureCounts -> edgeR
-    - Quantification with featureCounts or HTSeq
+  - HTSeq -> DEXSeq
+  - featureCounts -> edgeR
+  - Quantification with featureCounts or HTSeq
 - Differential exon usage with DEXSeq or edgeR
-    - Differential Transcript Usage (DTU):
-    - Salmon -> DRIMSeq -> DEXSeq
-    - Filtering with DRIMSeq
+  - Differential Transcript Usage (DTU):
+  - Salmon -> DRIMSeq -> DEXSeq
+  - Filtering with DRIMSeq
 - Differential transcript usage with DEXSeq
 - Event-based splicing analysis:
-    - STAR -> rMATS
-    - Salmon -> SUPPA2
+  - STAR -> rMATS
+  - Salmon -> SUPPA2
