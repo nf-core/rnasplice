@@ -82,7 +82,7 @@ workflow PREPARE_GENOME {
         } else {
             ch_transcript_fasta = Channel.value(file(transcript_fasta))
         }
-        if (params.gencode) {
+        if (gencode) {
             PREPROCESS_TRANSCRIPTS_FASTA_GENCODE ( ch_transcript_fasta )
             ch_transcript_fasta = PREPROCESS_TRANSCRIPTS_FASTA_GENCODE.out.fasta
             ch_versions         = ch_versions.mix(PREPROCESS_TRANSCRIPTS_FASTA_GENCODE.out.versions)
