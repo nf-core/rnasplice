@@ -140,8 +140,7 @@ workflow RNASPLICE {
         params.suppa_tpm,
         is_aws_igenome,
         prepare_tool_indices,
-        params.source,
-        params.gencode
+        params.source
     )
     ch_versions = ch_versions.mix(PREPARE_GENOME.out.versions)
 
