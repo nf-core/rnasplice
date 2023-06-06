@@ -99,29 +99,29 @@ def read_head(handle, num_lines=10):
     return "".join(lines)
 
 
-def sniff_format(handle):
-    """
-    Detect the tabular format.
+# def sniff_format(handle):
+#     """
+#     Detect the tabular format.
 
-    Args:
-        handle (text file): A handle to a `text file`_ object. The read position is
-        expected to be at the beginning (index 0).
+#     Args:
+#         handle (text file): A handle to a `text file`_ object. The read position is
+#         expected to be at the beginning (index 0).
 
-    Returns:
-        csv.Dialect: The detected tabular format.
+#     Returns:
+#         csv.Dialect: The detected tabular format.
 
-    .. _text file:
-        https://docs.python.org/3/glossary.html#term-text-file
+#     .. _text file:
+#         https://docs.python.org/3/glossary.html#term-text-file
 
-    """
-    peek = read_head(handle)
-    handle.seek(0)
-    sniffer = csv.Sniffer()
-    if not sniffer.has_header(peek):
-        logger.critical("The given contrast sheet does not appear to contain a header.")
-        sys.exit(1)
-    dialect = sniffer.sniff(peek)
-    return dialect
+#     """
+#     peek = read_head(handle)
+#     handle.seek(0)
+#     sniffer = csv.Sniffer()
+#     if not sniffer.has_header(peek):
+#         logger.critical("The given contrast sheet does not appear to contain a header.")
+#         sys.exit(1)
+#     dialect = sniffer.sniff(peek)
+#     return dialect
 
 
 def check_contrastsheet(file_in, file_out):
@@ -148,7 +148,7 @@ def check_contrastsheet(file_in, file_out):
     required_columns = {"contrast", "treatment", "control"}
     # See https://docs.python.org/3.9/library/csv.html#id3 to read up on `newline=""`.
     with file_in.open(newline="") as in_handle:
-        reader = csv.DictReader(in_handle, dialect=sniff_format(in_handle))
+        reader = csv.DictReader(in_handle)
         # Validate the existence of the expected header columns.
         if not required_columns.issubset(reader.fieldnames):
             req_cols = ", ".join(required_columns)
@@ -182,7 +182,7 @@ def parse_args(argv=None):
         "file_in",
         metavar="FILE_IN",
         type=Path,
-        help="Tabular input contrastsheet in CSV or TSV format.",
+        help="Tabular input contrastsheet in CSV format.",
     )
     parser.add_argument(
         "file_out",
