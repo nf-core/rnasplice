@@ -118,8 +118,8 @@
                 },
                 "gencode": {
                     "type": "boolean",
-                    "description": "Specify if your GTF annotation is in GENCODE format.",
-                    "help_text": "If your GTF file is in GENCODE format and you would like to run Salmon i.e. `--pseudo_aligner salmon`, you will need to provide this parameter in order to build the Salmon index appropriately.",
+                    "description": "Specify if your transcript FASTA file is in GENCODE format.",
+                    "help_text": "If your file is in GENCODE format and you would like to run Salmon i.e. `--pseudo_aligner salmon`, you will need to provide this parameter in order to build the Salmon index appropriately.",
                     "fa_icon": "fas fa-code-branch"
                 },
                 "gtf_extra_attributes": {

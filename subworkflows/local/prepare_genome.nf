@@ -19,7 +19,8 @@ include { STAR_GENOMEGENERATE_IGENOMES      } from '../../modules/local/star_gen
 include { SALMON_INDEX                      } from '../../modules/nf-core/salmon/index/main'
 include { RSEM_PREPAREREFERENCE as MAKE_TRANSCRIPTS_FASTA } from '../../modules/nf-core/rsem/preparereference/main'
 
-include { GTF_GENE_FILTER                   } from '../../modules/local/gtf_gene_filter'
+include { GTF_GENE_FILTER                      } from '../../modules/local/gtf_gene_filter'
+include { PREPROCESS_TRANSCRIPTS_FASTA_GENCODE } from '../../modules/local/preprocess_transcripts_fasta_gencode.nf'
 
 workflow PREPARE_GENOME {
 
@@ -35,6 +36,7 @@ workflow PREPARE_GENOME {
     is_aws_igenome       //   boolean: whether the genome files are from AWS iGenomes
     prepare_tool_indices //      list: tools to prepare indices for
     step                 //     value: workflow step
+    gencode              //   boolean: whether gene annotation is from gencode
 
     main:
 
