@@ -4,7 +4,7 @@ process GTF_2_GFF3 {
     conda "bioconda::gffread=0.12.1"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/gffread:0.12.1--h8b12597_0' :
-        'quay.io/biocontainers/gffread:0.12.1--h8b12597_0' }"
+        'biocontainers/gffread:0.12.1--h8b12597_0' }"
 
     input:
     path gtf

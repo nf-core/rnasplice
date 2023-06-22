@@ -16,14 +16,14 @@ WorkflowRnasplice.initialise(params, log, valid_params)
 
 // Check input path parameters to see if they exist
 def checkPathParamList = [
+    params.fasta,
+    params.gff,
+    params.gtf,
     params.input,
     params.multiqc_config,
-    params.fasta,
-    params.transcript_fasta,
-    params.gtf,
-    params.gff,
+    params.salmon_index,
     params.star_index,
-    params.salmon_index
+    params.transcript_fasta
 ]
 
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
@@ -73,22 +73,22 @@ include { BEDTOOLS_GENOMECOV      } from '../modules/local/bedtools_genomecov'
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
-include { INPUT_CHECK       } from '../subworkflows/local/input_check'
-include { CONTRASTS_CHECK       } from '../subworkflows/local/contrasts_check'
-include { PREPARE_GENOME    } from '../subworkflows/local/prepare_genome'
-include { FASTQC_TRIMGALORE } from '../subworkflows/local/fastqc_trimgalore'
-include { ALIGN_STAR        } from '../subworkflows/local/align_star'
-include { BAM_SORT_SAMTOOLS   } from '../subworkflows/nf-core/bam_sort_samtools' //added
-include { TX2GENE_TXIMPORT as TX2GENE_TXIMPORT_SALMON      } from '../subworkflows/local/tx2gene_tximport'
-include { TX2GENE_TXIMPORT as TX2GENE_TXIMPORT_STAR_SALMON } from '../subworkflows/local/tx2gene_tximport'
-include { DRIMSEQ_DEXSEQ_DTU as DRIMSEQ_DEXSEQ_DTU_SALMON } from '../subworkflows/local/drimseq_dexseq_dtu'
+include { INPUT_CHECK                                          } from '../subworkflows/local/input_check'
+include { CONTRASTS_CHECK                                      } from '../subworkflows/local/contrasts_check'
+include { PREPARE_GENOME                                       } from '../subworkflows/local/prepare_genome'
+include { FASTQC_TRIMGALORE                                    } from '../subworkflows/local/fastqc_trimgalore'
+include { ALIGN_STAR                                           } from '../subworkflows/local/align_star'
+include { BAM_SORT_SAMTOOLS                                    } from '../subworkflows/nf-core/bam_sort_samtools'
+include { TX2GENE_TXIMPORT as TX2GENE_TXIMPORT_SALMON          } from '../subworkflows/local/tx2gene_tximport'
+include { TX2GENE_TXIMPORT as TX2GENE_TXIMPORT_STAR_SALMON     } from '../subworkflows/local/tx2gene_tximport'
+include { DRIMSEQ_DEXSEQ_DTU as DRIMSEQ_DEXSEQ_DTU_SALMON      } from '../subworkflows/local/drimseq_dexseq_dtu'
 include { DRIMSEQ_DEXSEQ_DTU as DRIMSEQ_DEXSEQ_DTU_STAR_SALMON } from '../subworkflows/local/drimseq_dexseq_dtu'
-include { RMATS             } from '../subworkflows/local/rmats'
-include { DEXSEQ_DEU        } from '../subworkflows/local/dexseq_deu'
-include { EDGER_DEU         } from '../subworkflows/local/edger_deu'
-include { SUPPA as SUPPA_SALMON       } from '../subworkflows/local/suppa'
-include { SUPPA as SUPPA_STAR_SALMON  } from '../subworkflows/local/suppa'
-include { VISUALISE_MISO    } from '../subworkflows/local/visualise_miso' //added
+include { RMATS                                                } from '../subworkflows/local/rmats'
+include { DEXSEQ_DEU                                           } from '../subworkflows/local/dexseq_deu'
+include { EDGER_DEU                                            } from '../subworkflows/local/edger_deu'
+include { SUPPA as SUPPA_SALMON                                } from '../subworkflows/local/suppa'
+include { SUPPA as SUPPA_STAR_SALMON                           } from '../subworkflows/local/suppa'
+include { VISUALISE_MISO                                       } from '../subworkflows/local/visualise_miso'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -151,7 +151,8 @@ workflow RNASPLICE {
     switch (params.source) {
         case 'fastq':
             INPUT_CHECK (
-                ch_input
+                ch_input,
+                params.source
             )
             .reads
             .map {
@@ -172,7 +173,8 @@ workflow RNASPLICE {
             break;
         case 'genome_bam':
             INPUT_CHECK (
-                ch_input
+                ch_input,
+                params.source
             )
             .out
             .set { ch_genome_bam }
@@ -180,7 +182,8 @@ workflow RNASPLICE {
             break;
         case 'transcriptome_bam':
             INPUT_CHECK (
-                ch_input
+                ch_input,
+                params.source
             )
             .out
             .set { ch_transcriptome_bam }
@@ -188,7 +191,8 @@ workflow RNASPLICE {
             break;
         case 'salmon_results':
             INPUT_CHECK (
-                ch_input
+                ch_input,
+                params.source
             )
             .out
             .set { ch_salmon_results }

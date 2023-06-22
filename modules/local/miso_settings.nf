@@ -4,7 +4,7 @@ process MISO_SETTINGS {
     conda "conda-forge::parsimonious"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/parsimonious:0.10.0' :
-        'quay.io/biocontainers/parsimonious:0.10.0' }"
+        'biocontainers/parsimonious:0.10.0' }"
 
 
     input:

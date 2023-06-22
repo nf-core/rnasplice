@@ -1,4 +1,7 @@
 #!/usr/bin/env Rscript
+# Author: Zifo Bioinformatics
+# Email: bioinformatics@zifornd.com
+# License: MIT
 
 library(DRIMSeq)
 

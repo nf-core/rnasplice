@@ -9,17 +9,6 @@ First release of nf-core/rnasplice, created with the [nf-core](https://nf-co.re/
 
 ### `Added`
 
-- Visualization of differential results with edgeR, DEXSeq, and MISO
-- Contrasts specified using contrastsheet.csv
-- Allow users to specify input data type and start point (e.g., fastq, genome_bam, transcript_bam, salmon_results)
-- Pipeline schematic updated
-
-## v1.0dev - [2022-11-10]
-
-Development release of nf-core/rnasplice, created with the [nf-core](https://nf-co.re/) template.
-
-### `Added`
-
 Implemented pipeline:
 
 - Merge re-sequenced FastQ files (cat)
@@ -45,3 +34,10 @@ Implemented pipeline:
 - Event-based splicing analysis:
   - STAR -> rMATS
   - Salmon -> SUPPA2
+
+Updated pipeline:
+
+- Visualization of differential results with edgeR, DEXSeq, and MISO
+- Contrasts specified using contrastsheet.csv
+- Allow users to specify input data type and start point (e.g., fastq, genome_bam, transcript_bam, salmon_results)
+- Pipeline schematic updated

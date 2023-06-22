@@ -4,7 +4,7 @@ process DRIMSEQ_FILTER {
     conda "bioconda::bioconductor-drimseq=1.18.0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/bioconductor-drimseq:1.18.0--r40_0' :
-        'quay.io/biocontainers/bioconductor-drimseq:1.18.0--r40_0' }"
+        'biocontainers/bioconductor-drimseq:1.18.0--r40_0' }"
 
     input:
     path txi                  // path: *.txi*.rds (either txi.s.rds or txi.dtu.rds)

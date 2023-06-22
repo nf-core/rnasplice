@@ -5,7 +5,7 @@ process TXIMPORT {
     conda "bioconda::bioconductor-tximeta=1.8.0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/bioconductor-tximeta:1.8.0--r40_0' :
-        'quay.io/biocontainers/bioconductor-tximeta:1.8.0--r40_0' }"
+        'biocontainers/bioconductor-tximeta:1.8.0--r40_0' }"
 
     input:
 

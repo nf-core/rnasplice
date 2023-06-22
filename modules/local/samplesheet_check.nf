@@ -5,10 +5,11 @@ process SAMPLESHEET_CHECK {
     conda "conda-forge::python=3.9.5"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/python:3.9--1' :
-        'quay.io/biocontainers/python:3.9--1' }"
+        'biocontainers/python:3.9--1' }"
 
     input:
     path samplesheet
+    val source
 
     output:
     path '*.csv'       , emit: csv
@@ -19,7 +20,7 @@ process SAMPLESHEET_CHECK {
 
     script: // This script is bundled with the pipeline, in nf-core/rnasplice/bin/
 
-    switch (params.source) {
+    switch (source) {
         case 'fastq':
             """
             check_samplesheet_fastq.py $samplesheet samplesheet.valid.csv

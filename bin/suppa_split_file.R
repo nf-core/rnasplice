@@ -1,4 +1,7 @@
 #!/usr/bin/env Rscript
+# Author: Zifo Bioinformatics
+# Email: bioinformatics@zifornd.com
+# License: MIT
 
 # Splits any input file (e.g. tpm) by column using samplesheet information
 # Utility script for Suppa processing
