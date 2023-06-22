@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# Adapted from nf-core/rnaseq check_samplesheet.py script.
+# Please see nf-core/rnaseq for author and license.
 
 
 """Provide a command line tool to validate and transform tabular samplesheets."""

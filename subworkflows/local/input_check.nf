@@ -7,33 +7,34 @@ include { SAMPLESHEET_CHECK } from '../../modules/local/samplesheet_check'
 workflow INPUT_CHECK {
     take:
     samplesheet // file: /path/to/samplesheet.csv
+    source      // value: params.source
 
     main:
 
-    switch(params.source) {
+    switch(source) {
         case 'fastq':
-            SAMPLESHEET_CHECK ( samplesheet )
+            SAMPLESHEET_CHECK ( samplesheet, source )
             .csv
             .splitCsv ( header:true, sep:',' )
             .map { create_fastq_channel(it) }
             .set { reads }
             break;
         case 'genome_bam':
-            SAMPLESHEET_CHECK ( samplesheet )
+            SAMPLESHEET_CHECK ( samplesheet, source )
             .csv
             .splitCsv ( header:true, sep:',' )
             .map { create_genome_bam_channel(it) }
             .set { reads }
             break;
         case 'transcriptome_bam':
-            SAMPLESHEET_CHECK ( samplesheet )
+            SAMPLESHEET_CHECK ( samplesheet, source )
             .csv
             .splitCsv ( header:true, sep:',' )
             .map { create_transcriptome_bam_channel(it) }
             .set { reads }
             break;
         case 'salmon_results':
-            SAMPLESHEET_CHECK ( samplesheet )
+            SAMPLESHEET_CHECK ( samplesheet, source )
             .csv
             .splitCsv ( header:true, sep:',' )
             .map { create_txbam_channel(it) }

@@ -4,7 +4,7 @@ process STAGER {
     conda "bioconda::bioconductor-stager=1.12.0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/bioconductor-stager:1.12.0--r40_0' :
-        'quay.io/biocontainers/bioconductor-stager:1.12.0--r40_0' }"
+        'biocontainers/bioconductor-stager:1.12.0--r40_0' }"
 
     input:
     tuple val(contrast), path(feature_rds), path(gene_rds)

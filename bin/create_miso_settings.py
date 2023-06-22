@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+# Author: Zifo Bioinformatics
+# Email: bioinformatics@zifornd.com
+# License: MIT
 
 import argparse
 from itertools import repeat
