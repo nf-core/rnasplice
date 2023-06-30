@@ -19,6 +19,8 @@ workflow VISUALISE_MISO {
     miso_read_len      // 75
     fig_width          // 7
     fig_height         // 5
+    miso_genes         // params.miso_genes
+    miso_genes_file    // params.miso_genes_file
 
     main:
 
@@ -79,16 +81,16 @@ workflow VISUALISE_MISO {
     // MODULE: MISO_SASHIMI
     //
 
-    def miso_genes_list = params.miso_genes ? params.miso_genes.split(',').collect{ it.trim() } : [""]
+    def miso_genes_list = miso_genes ? miso_genes.split(',').collect{ it.trim() } : [""]
     ch_miso_genes_list = Channel.fromList( miso_genes_list )
 
-    if (params.miso_genes_file && params.miso_genes) {
-        ch_miso_genes_file = Channel.fromPath(params.miso_genes_file)
+    if (miso_genes_file && miso_genes) {
+        ch_miso_genes_file = Channel.fromPath(miso_genes_file)
             .splitCsv()
         ch_miso_genes_list.concat( ch_miso_genes_file )
         .set{ ch_miso_genes }
-    } else if (params.miso_genes_file) {
-        ch_miso_genes_file = Channel.fromPath(params.miso_genes_file)
+    } else if (miso_genes_file) {
+        ch_miso_genes_file = Channel.fromPath(miso_genes_file)
             .splitCsv()
             .set{ ch_miso_genes }
         } else {

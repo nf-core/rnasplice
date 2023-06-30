@@ -12,6 +12,15 @@ process DIFFSPLICE {
     tuple val(cond1), val(cond2), path(tpm1), path(tpm2)
     tuple val(cond1), val(cond2), path(psi1), path(psi2)
     val prefix
+    val diffsplice_method             // val params.diffsplice_method
+    val diffsplice_area               // val params.diffsplice_area
+    val diffsplice_lower_bound        // val params.diffsplice_lower_bound
+    val diffsplice_alpha              // val params.diffsplice_alpha
+    val diffsplice_tpm_threshold      // val params.diffsplice_tpm_threshold
+    val diffsplice_nan_threshold      // val params.diffsplice_nan_threshold
+    val diffsplice_gene_correction    // val params.diffsplice_gene_correction
+    val diffsplice_paired             // val params.diffsplice_paired
+    val diffsplice_median             // val params.diffsplice_median
 
     output:
     tuple val(cond1), val(cond2), path("*.dpsi")       , emit: dpsi
@@ -23,17 +32,9 @@ process DIFFSPLICE {
 
     script: //  Calculate differential analysis between conditions
 
-    def diffsplice_method = params.diffsplice_method ?: 'empirical' // empirical or classical
-
-    def gc     = params.diffsplice_gene_correction ? "-gc" : ''
-    def pa     = params.diffsplice_paired ? "-pa" : ''
-    def median = params.diffsplice_median ? "-me" : ''
-
-    def diffsplice_area          = params.diffsplice_area ?: '1000'       // default 1000
-    def diffsplice_lower_bound   = params.diffsplice_lower_bound ?: '0'   // default 0
-    def diffsplice_alpha         = params.diffsplice_alpha ?: '0.05'      // default 0.05
-    def diffsplice_tpm_threshold = params.diffsplice_tpm_threshold ?: '0' // default 0
-    def diffsplice_nan_threshold = params.diffsplice_nan_threshold ?: '0' // default 0
+    def gc     = diffsplice_gene_correction ? "-gc" : ''
+    def pa     = diffsplice_paired ? "-pa" : ''
+    def median = diffsplice_median ? "-me" : ''
 
     """
     suppa.py \\

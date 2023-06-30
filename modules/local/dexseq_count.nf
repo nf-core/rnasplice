@@ -9,6 +9,7 @@ process DEXSEQ_COUNT {
 
     input:
     tuple val(meta), path(bam), path (gff)
+    val alignment_quality                   // val params.alignment_quality
 
     output:
     tuple val(meta), path("*.clean.count.txt"), emit: dexseq_clean_txt
@@ -24,7 +25,7 @@ process DEXSEQ_COUNT {
 
     def read_type = meta.single_end ? '' : '-p yes'
 
-    def alignment_quality = "-a ${params.alignment_quality}"
+    def alignment_quality = "-a ${alignment_quality}"
 
     def strandedness = ''
     if (meta.strandedness == 'forward') {

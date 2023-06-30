@@ -14,7 +14,7 @@ process STAGER {
     path "stageRTx.*.rds"              , emit: stager_rds
     path "getAdjustedPValues.*.rds"    , emit: stager_padj_rds
     path "getAdjustedPValues.*.tsv"    , emit: stager_padj_tsv
-    path "versions.yml"           , emit: versions
+    path "versions.yml"                , emit: versions
 
     when:
     task.ext.when == null || task.ext.when

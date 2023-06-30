@@ -10,11 +10,17 @@ workflow DRIMSEQ_DEXSEQ_DTU {
 
     take:
 
-    txi                  // path: *.txi*.rds (either txi.s.rds or txi.dtu.rds)
-    tximport_tx2gene     // path: tximport.tx2gene.tsv
-    samplesheet          // path: /path/to/samplesheet.csv
-    contrastsheet        // path: contrastsheet
-    n_dexseq_plot        // val: numeric
+    txi                     // path: *.txi*.rds (either txi.s.rds or txi.dtu.rds)
+    tximport_tx2gene        // path: tximport.tx2gene.tsv
+    samplesheet             // path: /path/to/samplesheet.csv
+    contrastsheet           // path: contrastsheet
+    n_dexseq_plot           // val: numeric
+    min_samps_gene_expr     // params.min_samps_gene_expr
+    min_samps_feature_expr  // params.min_samps_feature_expr
+    min_samps_feature_prop  // params.min_samps_feature_prop
+    min_feature_expr        // params.min_feature_expr
+    min_feature_prop        // params.min_feature_prop
+    min_gene_expr           // params.min_gene_expr
 
     main:
 
@@ -24,7 +30,17 @@ workflow DRIMSEQ_DEXSEQ_DTU {
     // DEXSEQ FILTER
     //
 
-    DRIMSEQ_FILTER ( txi, tximport_tx2gene, samplesheet )
+    DRIMSEQ_FILTER (
+        txi,
+        tximport_tx2gene,
+        samplesheet,
+        min_samps_gene_expr,
+        min_samps_feature_expr,
+        min_samps_feature_prop,
+        min_feature_expr,
+        min_feature_prop,
+        min_gene_expr
+    )
 
     ch_versions = ch_versions.mix(DRIMSEQ_FILTER.out.versions)
 
@@ -48,7 +64,7 @@ workflow DRIMSEQ_DEXSEQ_DTU {
     ch_dexseq_feature_rds = DEXSEQ_DTU.out.dexseq_exon_results_rds
         .flatten()
         .map { it ->
-            [ it.baseName.toString().replaceAll("perGeneQValue.", ""), it ]
+            [ it.baseName.toString().replaceAll("DEXSeqResults.", ""), it ]
         }
 
     ch_dexseq_gene_rds = DEXSEQ_DTU.out.dexseq_gene_results_rds
@@ -58,6 +74,7 @@ workflow DRIMSEQ_DEXSEQ_DTU {
         }
 
     ch_dexseq_feature_gene_rds = ch_dexseq_feature_rds.join(ch_dexseq_gene_rds)
+    ch_dexseq_feature_gene_rds.view()
 
     //
     // STAGER

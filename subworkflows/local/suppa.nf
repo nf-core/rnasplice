@@ -26,6 +26,32 @@ workflow SUPPA {
     ch_tpm
     ch_samplesheet
     ch_contrastsheet
+    suppa_per_local_event       // params.suppa_per_local_event
+    generateevents_boundary     // params.generateevents_boundary
+    generateevents_threshold    // params.generateevents_threshold
+    generateevents_exon_length  // params.generateevents_exon_length
+    generateevents_event_type   // params.generateevents_event_type
+    generateevents_pool_genes   // params.generateevents_pool_genes
+    psiperevent_total_filter    // params.psiperevent_total_filter
+    diffsplice_local_event      // params.diffsplice_local_event
+    diffsplice_method           // params.diffsplice_method
+    diffsplice_area             // params.diffsplice_area
+    diffsplice_lower_bound      // params.diffsplice_lower_bound
+    diffsplice_alpha            // params.diffsplice_alpha
+    diffsplice_tpm_threshold    // params.diffsplice_tpm_threshold
+    diffsplice_nan_threshold    // params.diffsplice_nan_threshold
+    diffsplice_gene_correction  // params.diffsplice_gene_correction
+    diffsplice_paired           // params.diffsplice_paired
+    diffsplice_median           // params.diffsplice_median
+    clusterevents_local_event   // params.clusterevents_local_event
+    clusterevents_dpsithreshold // params.clusterevents_dpsithreshold
+    clusterevents_eps           // params.clusterevents_eps
+    clusterevents_metric        // params.clusterevents_metric
+    clusterevents_min_pts       // params.clusterevents_min_pts
+    clusterevents_method        // params.clusterevents_method
+    clusterevents_sigthreshold  // params.clusterevents_sigthreshold
+    clusterevents_separation    // params.clusterevents_separation
+    suppa_per_isoform           // params.suppa_per_isoform
 
     main:
 
@@ -63,7 +89,7 @@ workflow SUPPA {
     ch_cluster_vec_local      = Channel.empty()
     ch_cluster_log_local      = Channel.empty()
 
-    if (params.suppa_per_local_event) {
+    if (suppa_per_local_event) {
 
         file_type = 'ioe'
 
@@ -71,7 +97,12 @@ workflow SUPPA {
 
         GENERATE_EVENTS_IOE (
             ch_gtf,
-            file_type
+            file_type,
+            generateevents_boundary,
+            generateevents_threshold,
+            generateevents_exon_length,
+            generateevents_event_type,
+            generateevents_pool_genes
         )
 
         ch_ioe_events  = GENERATE_EVENTS_IOE.out.events
@@ -80,7 +111,8 @@ workflow SUPPA {
 
         PSIPEREVENT (
             ch_ioe_events,
-            ch_tpm
+            ch_tpm,
+            psiperevent_total_filter
         )
 
         ch_suppa_local_psi = PSIPEREVENT.out.psi
@@ -103,7 +135,7 @@ workflow SUPPA {
 
         // Calculate differential analysis between conditions
 
-        if (params.diffsplice_local_event) {
+        if (diffsplice_local_event) {
 
             // Create contrasts channel
 
@@ -151,13 +183,22 @@ workflow SUPPA {
                 ch_ioe_events,
                 ch_split_suppa_tpms,
                 ch_split_suppa_local_psi,
-                prefix
+                prefix,
+                diffsplice_method,
+                diffsplice_area,
+                diffsplice_lower_bound,
+                diffsplice_alpha,
+                diffsplice_tpm_threshold,
+                diffsplice_nan_threshold,
+                diffsplice_gene_correction,
+                diffsplice_paired,
+                diffsplice_median
             )
 
             ch_dpsi_local     = DIFFSPLICE_IOE.out.dpsi
             ch_psivec_local   = DIFFSPLICE_IOE.out.psivec
 
-            if (params.clusterevents_local_event) {
+            if (clusterevents_local_event) {
 
                 // Get ranges for cluster analysis
 
@@ -171,7 +212,14 @@ workflow SUPPA {
                     ch_dpsi_local,
                     ch_psivec_local,
                     ch_ranges_ioe,
-                    prefix
+                    prefix,
+                    clusterevents_dpsithreshold,
+                    clusterevents_eps,
+                    clusterevents_metric,
+                    clusterevents_min_pts,
+                    clusterevents_method,
+                    clusterevents_sigthreshold,
+                    clusterevents_separation
                 )
 
                 ch_cluster_vec_local   = CLUSTEREVENTS_IOE.out.clustvec
@@ -193,7 +241,7 @@ workflow SUPPA {
     ch_cluster_vec_isoform     = Channel.empty()
     ch_cluster_log_isoform     = Channel.empty()
 
-    if (params.suppa_per_isoform) {
+    if (suppa_per_isoform) {
 
         file_type = 'ioi'
 
@@ -201,7 +249,12 @@ workflow SUPPA {
 
         GENERATE_EVENTS_IOI (
             ch_gtf,
-            file_type
+            file_type,
+            generateevents_boundary,
+            generateevents_threshold,
+            generateevents_exon_length,
+            generateevents_event_type,
+            generateevents_pool_genes
         )
 
         ch_ioi_events = GENERATE_EVENTS_IOI.out.events
@@ -281,7 +334,16 @@ workflow SUPPA {
                 ch_ioi_events,
                 ch_split_suppa_tpms,
                 ch_split_suppa_isoform_psi,
-                prefix
+                prefix,
+                diffsplice_method,
+                diffsplice_area,
+                diffsplice_lower_bound,
+                diffsplice_alpha,
+                diffsplice_tpm_threshold,
+                diffsplice_nan_threshold,
+                diffsplice_gene_correction,
+                diffsplice_paired,
+                diffsplice_median
             )
 
             ch_dpsi_isoform   = DIFFSPLICE_IOI.out.dpsi
@@ -301,7 +363,14 @@ workflow SUPPA {
                     ch_dpsi_isoform,
                     ch_psivec_isoform,
                     ch_ranges_ioi,
-                    prefix
+                    prefix,
+                    clusterevents_dpsithreshold,
+                    clusterevents_eps,
+                    clusterevents_metric,
+                    clusterevents_min_pts,
+                    clusterevents_method,
+                    clusterevents_sigthreshold,
+                    clusterevents_separation
                 )
 
                 ch_cluster_vec_isoform = CLUSTEREVENTS_IOI.out.clustvec

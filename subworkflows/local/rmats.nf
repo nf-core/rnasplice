@@ -13,10 +13,16 @@ include { RMATS_POST_SINGLE      } from '../../modules/local/rmats_post_single.n
 workflow RMATS {
 
     take:
-    ch_contrastsheet         // channel: contrastsheet
-    ch_genome_bam_conditions // channel: genome_bam_conditions
-    gtf                      // channel: /path/to/genome.gtf
-    single_condition_bool    // channel: true/false
+    ch_contrastsheet          // channel: contrastsheet
+    ch_genome_bam_conditions  // channel: genome_bam_conditions
+    gtf                       // channel: /path/to/genome.gtf
+    single_condition_bool     // channel: true/false
+    rmats_read_len            // params.rmats_read_len
+    rmats_splice_diff_cutoff  // params.rmats_splice_diff_cutoff
+    rmats_novel_splice_site   // params.rmats_novel_splice_site
+    rmats_min_intron_len      // params.rmats_min_intron_len
+    rmats_max_exon_len        // params.rmats_max_exon_len
+    rmats_paired_stats        // params.rmats_paired_stats
 
     main:
 
@@ -73,7 +79,12 @@ workflow RMATS {
         RMATS_PREP_SINGLE (
             gtf,
             ch_bamlist_cond1,
-            ch_contrasts_cond1
+            ch_contrasts_cond1,
+            rmats_read_len,
+            rmats_splice_diff_cutoff,
+            rmats_novel_splice_site,
+            rmats_min_intron_len,
+            rmats_max_exon_len
         )
 
         //
@@ -84,7 +95,13 @@ workflow RMATS {
             gtf,
             ch_bamlist_cond1,
             ch_contrasts_cond1,
-            RMATS_PREP_SINGLE.out.rmats_temp
+            RMATS_PREP_SINGLE.out.rmats_temp,
+            rmats_read_len,
+            rmats_splice_diff_cutoff,
+            rmats_novel_splice_site,
+            rmats_min_intron_len,
+            rmats_max_exon_len,
+            rmats_paired_stats
         )
 
         ch_versions         = ch_versions.mix(RMATS_POST_SINGLE.out.versions)
@@ -134,7 +151,12 @@ workflow RMATS {
             ch_bamlist_cond1,
             ch_bamlist_cond2,
             ch_contrasts_cond1,
-            ch_contrasts_cond2
+            ch_contrasts_cond2,
+            rmats_read_len,
+            rmats_splice_diff_cutoff,
+            rmats_novel_splice_site,
+            rmats_min_intron_len,
+            rmats_max_exon_len
         )
 
         //
@@ -147,7 +169,13 @@ workflow RMATS {
             ch_bamlist_cond2,
             ch_contrasts_cond1,
             ch_contrasts_cond2,
-            RMATS_PREP.out.rmats_temp
+            RMATS_PREP.out.rmats_temp,
+            rmats_read_len,
+            rmats_splice_diff_cutoff,
+            rmats_novel_splice_site,
+            rmats_min_intron_len,
+            rmats_max_exon_len,
+            rmats_paired_stats
         )
 
         ch_versions         = ch_versions.mix(RMATS_POST.out.versions)

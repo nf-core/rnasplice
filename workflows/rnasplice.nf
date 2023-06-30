@@ -325,7 +325,9 @@ workflow RNASPLICE {
                 ch_dexseq_gff,
                 ch_samplesheet,
                 ch_contrastsheet,
-                params.n_dexseq_plot
+                params.n_dexseq_plot,
+                params.aggregation,
+                params.alignment_quality
             )
 
             ch_versions = ch_versions.mix(DEXSEQ_DEU.out.versions)
@@ -393,7 +395,13 @@ workflow RNASPLICE {
                 ch_contrastsheet,
                 ch_genome_bam_conditions,
                 PREPARE_GENOME.out.gtf,
-                is_single_condition
+                is_single_condition,
+                params.rmats_read_len,
+                params.rmats_splice_diff_cutoff,
+                params.rmats_novel_splice_site,
+                params.rmats_min_intron_len,
+                params.rmats_max_exon_len,
+                params.rmats_paired_stats
             )
 
             ch_versions = ch_versions.mix(RMATS.out.versions)
@@ -455,7 +463,13 @@ workflow RNASPLICE {
                     TX2GENE_TXIMPORT_STAR_SALMON.out.tximport_tx2gene,
                     ch_samplesheet,
                     ch_contrastsheet,
-                    params.n_dexseq_plot
+                    params.n_dexseq_plot,
+                    params.min_samps_gene_expr,
+                    params.min_samps_feature_expr,
+                    params.min_samps_feature_prop,
+                    params.min_feature_expr,
+                    params.min_feature_prop,
+                    params.min_gene_expr
                 )
 
                 ch_versions = ch_versions.mix(DRIMSEQ_DEXSEQ_DTU_STAR_SALMON.out.versions)
@@ -476,7 +490,33 @@ workflow RNASPLICE {
                     PREPARE_GENOME.out.gtf,
                     ch_suppa_tpm,
                     ch_samplesheet,
-                    ch_contrastsheet
+                    ch_contrastsheet,
+                    params.suppa_per_local_event,
+                    params.generateevents_boundary,
+                    params.generateevents_threshold,
+                    params.generateevents_exon_length,
+                    params.generateevents_event_type,
+                    params.generateevents_pool_genes,
+                    params.psiperevent_total_filter,
+                    params.diffsplice_local_event,
+                    params.diffsplice_method,
+                    params.diffsplice_area,
+                    params.diffsplice_lower_bound,
+                    params.diffsplice_alpha,
+                    params.diffsplice_tpm_threshold,
+                    params.diffsplice_nan_threshold,
+                    params.diffsplice_gene_correction,
+                    params.diffsplice_paired,
+                    params.diffsplice_median,
+                    params.clusterevents_local_event,
+                    params.clusterevents_dpsithreshold,
+                    params.clusterevents_eps,
+                    params.clusterevents_metric,
+                    params.clusterevents_min_pts,
+                    params.clusterevents_method,
+                    params.clusterevents_sigthreshold ?: false,
+                    params.clusterevents_separation ?: false,
+                    params.suppa_per_isoform
                 )
 
                 ch_versions = ch_versions.mix(SUPPA_STAR_SALMON.out.versions)
@@ -493,7 +533,9 @@ workflow RNASPLICE {
                 ch_genome_bam_index,
                 params.miso_read_len,
                 params.fig_width,
-                params.fig_height
+                params.fig_height,
+                params.miso_genes,
+                params.miso_genes_file ?: false,
             )
 
         ch_versions = ch_versions.mix(VISUALISE_MISO.out.versions)
@@ -554,12 +596,19 @@ workflow RNASPLICE {
             } else if (params.dtu_txi == "scaledTPM") {
                 ch_txi = TX2GENE_TXIMPORT_SALMON.out.txi_s
             }
+
             DRIMSEQ_DEXSEQ_DTU_SALMON (
                 ch_txi,
                 TX2GENE_TXIMPORT_SALMON.out.tximport_tx2gene,
                 ch_samplesheet,
                 ch_contrastsheet,
-                params.n_dexseq_plot
+                params.n_dexseq_plot,
+                params.min_samps_gene_expr,
+                params.min_samps_feature_expr,
+                params.min_samps_feature_prop,
+                params.min_feature_expr,
+                params.min_feature_prop,
+                params.min_gene_expr
             )
             ch_versions = ch_versions.mix(DRIMSEQ_DEXSEQ_DTU_SALMON.out.versions)
         }
@@ -577,7 +626,33 @@ workflow RNASPLICE {
                 PREPARE_GENOME.out.gtf,
                 ch_suppa_tpm,
                 ch_samplesheet,
-                ch_contrastsheet
+                ch_contrastsheet,
+                params.suppa_per_local_event,
+                params.generateevents_boundary,
+                params.generateevents_threshold,
+                params.generateevents_exon_length,
+                params.generateevents_event_type,
+                params.generateevents_pool_genes,
+                params.psiperevent_total_filter,
+                params.diffsplice_local_event,
+                params.diffsplice_method,
+                params.diffsplice_area,
+                params.diffsplice_lower_bound,
+                params.diffsplice_alpha,
+                params.diffsplice_tpm_threshold,
+                params.diffsplice_nan_threshold,
+                params.diffsplice_gene_correction,
+                params.diffsplice_paired,
+                params.diffsplice_median,
+                params.clusterevents_local_event,
+                params.clusterevents_dpsithreshold,
+                params.clusterevents_eps,
+                params.clusterevents_metric,
+                params.clusterevents_min_pts,
+                params.clusterevents_method,
+                params.clusterevents_sigthreshold ?: false,
+                params.clusterevents_separation ?: false,
+                params.suppa_per_isoform
             )
 
             ch_versions = ch_versions.mix(SUPPA_SALMON.out.versions)
@@ -636,11 +711,15 @@ workflow RNASPLICE {
     ch_multiqc_files = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
     ch_multiqc_files = ch_multiqc_files.mix(ch_methods_description.collectFile(name: 'methods_description_mqc.yaml'))
     ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
+
     if (params.source == 'fastq') {
-    ch_multiqc_files = ch_multiqc_files.mix(FASTQC_TRIMGALORE.out.fastqc_zip.collect{it[1]}.ifEmpty([]))
-    ch_multiqc_files = ch_multiqc_files.mix(FASTQC_TRIMGALORE.out.trim_zip.collect{it[1]}.ifEmpty([]))
-    ch_multiqc_files = ch_multiqc_files.mix(FASTQC_TRIMGALORE.out.trim_log.collect{it[1]}.ifEmpty([]))
+
+        ch_multiqc_files = ch_multiqc_files.mix(FASTQC_TRIMGALORE.out.fastqc_zip.collect{it[1]}.ifEmpty([]))
+        ch_multiqc_files = ch_multiqc_files.mix(FASTQC_TRIMGALORE.out.trim_zip.collect{it[1]}.ifEmpty([]))
+        ch_multiqc_files = ch_multiqc_files.mix(FASTQC_TRIMGALORE.out.trim_log.collect{it[1]}.ifEmpty([]))
+
     }
+
     if (params.pseudo_aligner == 'salmon' && params.source == 'fastq'){
 
         ch_multiqc_files = ch_multiqc_files.mix(ch_salmon_results.collect{it[1]}.ifEmpty([]))
@@ -650,11 +729,15 @@ workflow RNASPLICE {
     if (!params.skip_alignment && params.source == 'fastq' && (params.aligner == 'star_salmon' || params.aligner == "star")){
 
         ch_multiqc_files = ch_multiqc_files.mix(ch_star_multiqc.collect{it[1]}.ifEmpty([]))
+
     }
-        if ((params.source == 'genome_bam' || params.source == 'transcriptome_bam') || (!params.skip_alignment && params.source == 'fastq' && (params.aligner == 'star_salmon' || params.aligner == "star"))){
+
+    if ((params.source == 'genome_bam' || params.source == 'transcriptome_bam') || (!params.skip_alignment && params.source == 'fastq' && (params.aligner == 'star_salmon' || params.aligner == "star"))){
+
         ch_multiqc_files = ch_multiqc_files.mix(ch_samtools_stats.collect{it[1]}.ifEmpty([]))
         ch_multiqc_files = ch_multiqc_files.mix(ch_samtools_flagstat.collect{it[1]}.ifEmpty([]))
         ch_multiqc_files = ch_multiqc_files.mix(ch_samtools_idxstats.collect{it[1]}.ifEmpty([]))
+
 
         if (params.edger_exon) {
 

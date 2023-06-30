@@ -16,6 +16,8 @@ workflow DEXSEQ_DEU {
     ch_samplesheet     // Channel.fromPath(params.input)
     ch_contrastsheet   // Channel.fromPath()
     n_dexseq_plot      // val: numeric
+    aggregation        // params.aggregation
+    alignment_quality  // params.alignment_quality
 
     main:
 
@@ -28,7 +30,8 @@ workflow DEXSEQ_DEU {
         //
 
         DEXSEQ_ANNOTATION (
-            gtf
+            gtf,
+            aggregation
         )
 
         ch_versions = ch_versions.mix(DEXSEQ_ANNOTATION.out.versions.first())
@@ -44,7 +47,8 @@ workflow DEXSEQ_DEU {
     //
 
     DEXSEQ_COUNT (
-        ch_genome_bam_gff
+        ch_genome_bam_gff,
+        alignment_quality
     )
 
     ch_versions = ch_versions.mix(DEXSEQ_COUNT.out.versions.first())
@@ -65,7 +69,7 @@ workflow DEXSEQ_DEU {
 
     emit:
 
-    dexseq_clean_txt           = DEXSEQ_COUNT.out.dexseq_clean_txt.map{ it[1] }.collect()
+    dexseq_clean_txt        = DEXSEQ_COUNT.out.dexseq_clean_txt.map{ it[1] }.collect()
 
     dexseq_exon_dataset_rds = DEXSEQ_EXON.out.dexseq_exon_dataset_rds
     dexseq_exon_results_rds = DEXSEQ_EXON.out.dexseq_exon_results_rds
@@ -74,6 +78,6 @@ workflow DEXSEQ_DEU {
     dexseq_gene_results_csv = DEXSEQ_EXON.out.dexseq_gene_results_csv
     dexseq_plot_results_pdf = DEXSEQ_EXON.out.dexseq_plot_results_pdf
 
-    versions                   = ch_versions                                  // channel: [ versions.yml ]
+    versions                = ch_versions                                  // channel: [ versions.yml ]
 
 }
