@@ -61,20 +61,19 @@ workflow DRIMSEQ_DEXSEQ_DTU {
     // Join feature and gene channels by contrast value (extracted from filename)
     //
 
-    ch_dexseq_feature_rds = DEXSEQ_DTU.out.dexseq_exon_results_rds
+    ch_dexseq_feature_tsv = DEXSEQ_DTU.out.dexseq_exon_results_tsv
         .flatten()
         .map { it ->
             [ it.baseName.toString().replaceAll("DEXSeqResults.", ""), it ]
         }
 
-    ch_dexseq_gene_rds = DEXSEQ_DTU.out.dexseq_gene_results_rds
+    ch_dexseq_gene_tsv = DEXSEQ_DTU.out.dexseq_gene_results_tsv
         .flatten()
         .map { it ->
             [ it.baseName.toString().replaceAll("perGeneQValue.", ""), it ]
         }
 
-    ch_dexseq_feature_gene_rds = ch_dexseq_feature_rds.join(ch_dexseq_gene_rds)
-    ch_dexseq_feature_gene_rds.view()
+    ch_dexseq_feature_gene_tsv = ch_dexseq_feature_tsv.join(ch_dexseq_gene_tsv)
 
     //
     // STAGER
@@ -83,7 +82,7 @@ workflow DRIMSEQ_DEXSEQ_DTU {
     def analysis_type = 'dexseq'
 
     STAGER (
-        ch_dexseq_feature_gene_rds,
+        ch_dexseq_feature_gene_tsv,
         analysis_type
     )
 
