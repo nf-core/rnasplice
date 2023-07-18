@@ -18,7 +18,7 @@ process GTF_2_GFF3 {
 
     script:
     """
-    gffread $gtf -L | awk -F'\\t' -vOFS='\\t' '{ gsub("transcript", "mRNA", \$3); print}' > ${gtf.baseName}_genes.gff3
+    gffread $gtf -L --keep-genes | awk -F'\\t' -vOFS='\\t' '{ gsub("transcript", "mRNA", \$3); print}' > ${gtf.baseName}_genes.gff3
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
