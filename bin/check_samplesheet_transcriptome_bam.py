@@ -114,8 +114,9 @@ class RowChecker:
         for row in self.modified:
             sample = row[self._sample_col]
             seen[sample] += 1
-            row[self._sample_col] = f"{sample}_T{seen[sample]}"
-
+            # No combining of Tx BAMs downstream so throw error here
+            if seen[sample] > 1:
+                raise AssertionError("Sample names must be unique.")
 
 def read_head(handle, num_lines=10):
     """Read the specified number of lines from the current position in the file."""
