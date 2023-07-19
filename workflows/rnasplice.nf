@@ -76,9 +76,7 @@ include { BEDTOOLS_GENOMECOV      } from '../modules/local/bedtools_genomecov'
 include { INPUT_CHECK                                          } from '../subworkflows/local/input_check'
 include { CONTRASTS_CHECK                                      } from '../subworkflows/local/contrasts_check'
 include { PREPARE_GENOME                                       } from '../subworkflows/local/prepare_genome'
-include { FASTQC_TRIMGALORE                                    } from '../subworkflows/local/fastqc_trimgalore'
 include { ALIGN_STAR                                           } from '../subworkflows/local/align_star'
-include { BAM_SORT_SAMTOOLS                                    } from '../subworkflows/nf-core/bam_sort_samtools'
 include { TX2GENE_TXIMPORT as TX2GENE_TXIMPORT_SALMON          } from '../subworkflows/local/tx2gene_tximport'
 include { TX2GENE_TXIMPORT as TX2GENE_TXIMPORT_STAR_SALMON     } from '../subworkflows/local/tx2gene_tximport'
 include { DRIMSEQ_DEXSEQ_DTU as DRIMSEQ_DEXSEQ_DTU_SALMON      } from '../subworkflows/local/drimseq_dexseq_dtu'
@@ -108,9 +106,10 @@ include { CAT_FASTQ                           } from '../modules/nf-core/cat/fas
 //
 // SUBWORKFLOWS: Installed directly from nf-core/modules
 //
-include { BEDGRAPH_TO_BIGWIG as BEDGRAPH_TO_BIGWIG_FORWARD       } from '../subworkflows/nf-core/bedgraph_to_bigwig'
-include { BEDGRAPH_TO_BIGWIG as BEDGRAPH_TO_BIGWIG_REVERSE       } from '../subworkflows/nf-core/bedgraph_to_bigwig'
-
+include { FASTQ_FASTQC_UMITOOLS_TRIMGALORE                                } from '../subworkflows/nf-core/fastq_fastqc_umitools_trimgalore/main'
+include { BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG as BEDGRAPH_TO_BIGWIG_FORWARD } from '../subworkflows/nf-core/bedgraph_bedclip_bedgraphtobigwig/main'
+include { BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG as BEDGRAPH_TO_BIGWIG_REVERSE } from '../subworkflows/nf-core/bedgraph_bedclip_bedgraphtobigwig/main'
+include { BAM_SORT_STATS_SAMTOOLS                                         } from '../subworkflows/nf-core/bam_sort_stats_samtools/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -120,6 +119,7 @@ include { BEDGRAPH_TO_BIGWIG as BEDGRAPH_TO_BIGWIG_REVERSE       } from '../subw
 
 // Info required for completion email and summary
 def multiqc_report = []
+def pass_trimmed_reads = [:]
 
 workflow RNASPLICE {
 
@@ -238,47 +238,76 @@ workflow RNASPLICE {
     // SUBWORKFLOW: Read QC and trim adapters with TrimGalore!
     //
     if (params.source == 'fastq') {
-        FASTQC_TRIMGALORE (
+
+        FASTQ_FASTQC_UMITOOLS_TRIMGALORE (
             ch_cat_fastq,
             params.skip_fastqc,
-            params.skip_trimming
+            false,                    // run UMI false
+            true,                     // skip UMI true
+            params.skip_trimming,
+            0,                        // No UMI discard
+            0                         // No filtering 0 min_trimmed_reads
         )
-        ch_trim_reads = FASTQC_TRIMGALORE.out.reads
-        ch_versions = ch_versions.mix(FASTQC_TRIMGALORE.out.versions)
+
+        ch_trim_reads      = FASTQ_FASTQC_UMITOOLS_TRIMGALORE.out.reads
+        ch_trim_read_count = FASTQ_FASTQC_UMITOOLS_TRIMGALORE.out.trim_read_count
+        ch_versions        = ch_versions.mix(FASTQ_FASTQC_UMITOOLS_TRIMGALORE.out.versions)
     }
+
+    //
+    // Get list of samples that failed trimming threshold for MultiQC report
+    //
+    ch_trim_read_count
+        .map {
+            meta, num_reads ->
+                pass_trimmed_reads[meta.id] = true
+                if (num_reads <= params.min_trimmed_reads.toFloat()) {
+                    pass_trimmed_reads[meta.id] = false
+                    return [ "$meta.id\t$num_reads" ]
+                }
+        }
+        .collect()
+        .map {
+            tsv_data ->
+                def header = ["Sample", "Reads after trimming"]
+                WorkflowRnasplice.multiqcTsvFromList(tsv_data, header)
+        }
+        .set { ch_fail_trimming_multiqc }
 
     //
     // SUBWORKFLOW: Alignment with STAR
     //
 
-    ch_genome_bam                 = Channel.empty()
-    ch_genome_bam_index           = Channel.empty()
-    ch_samtools_stats             = Channel.empty()
-    ch_samtools_flagstat          = Channel.empty()
-    ch_samtools_idxstats          = Channel.empty()
-    ch_star_multiqc               = Channel.empty()
+    // ch_genome_bam                 = Channel.empty()
+    // ch_genome_bam_index           = Channel.empty()
+    // ch_samtools_stats             = Channel.empty()
+    // ch_samtools_flagstat          = Channel.empty()
+    // ch_samtools_idxstats          = Channel.empty()
+    // ch_star_multiqc               = Channel.empty()
 
     if (params.source == 'genome_bam') {
 
-        BAM_SORT_SAMTOOLS ( ch_genome_bam )
-        ch_genome_bam        = BAM_SORT_SAMTOOLS.out.bam
-        ch_genome_bam_index  = BAM_SORT_SAMTOOLS.out.bai
-        ch_samtools_stats    = BAM_SORT_SAMTOOLS.out.stats
-        ch_samtools_flagstat = BAM_SORT_SAMTOOLS.out.flagstat
-        ch_samtools_idxstats = BAM_SORT_SAMTOOLS.out.idxstats
-        ch_versions          = ch_versions.mix(BAM_SORT_SAMTOOLS.out.versions)
+        BAM_SORT_STATS_SAMTOOLS ( ch_genome_bam )
+
+        ch_genome_bam        = BAM_SORT_STATS_SAMTOOLS.out.bam
+        ch_genome_bam_index  = BAM_SORT_STATS_SAMTOOLS.out.bai
+        ch_samtools_stats    = BAM_SORT_STATS_SAMTOOLS.out.stats
+        ch_samtools_flagstat = BAM_SORT_STATS_SAMTOOLS.out.flagstat
+        ch_samtools_idxstats = BAM_SORT_STATS_SAMTOOLS.out.idxstats
+        ch_versions          = ch_versions.mix(BAM_SORT_STATS_SAMTOOLS.out.versions)
 
     }
 
     if (params.source == 'transcriptome_bam') {
 
-        BAM_SORT_SAMTOOLS ( ch_transcriptome_bam )
-        ch_transcriptome_bam        = BAM_SORT_SAMTOOLS.out.bam
-        ch_transcriptome_bam_index  = BAM_SORT_SAMTOOLS.out.bai
-        ch_samtools_stats           = BAM_SORT_SAMTOOLS.out.stats
-        ch_samtools_flagstat        = BAM_SORT_SAMTOOLS.out.flagstat
-        ch_samtools_idxstats        = BAM_SORT_SAMTOOLS.out.idxstats
-        ch_versions                 = ch_versions.mix(BAM_SORT_SAMTOOLS.out.versions)
+        BAM_SORT_STATS_SAMTOOLS ( ch_transcriptome_bam )
+
+        ch_transcriptome_bam        = BAM_SORT_STATS_SAMTOOLS.out.bam
+        ch_transcriptome_bam_index  = BAM_SORT_STATS_SAMTOOLS.out.bai
+        ch_samtools_stats           = BAM_SORT_STATS_SAMTOOLS.out.stats
+        ch_samtools_flagstat        = BAM_SORT_STATS_SAMTOOLS.out.flagstat
+        ch_samtools_idxstats        = BAM_SORT_STATS_SAMTOOLS.out.idxstats
+        ch_versions                 = ch_versions.mix(BAM_SORT_STATS_SAMTOOLS.out.versions)
 
     }
 
@@ -291,7 +320,8 @@ workflow RNASPLICE {
             params.star_ignore_sjdbgtf,
             '',
             params.seq_center ?: '',
-            is_aws_igenome
+            is_aws_igenome,
+            PREPARE_GENOME.out.fasta.map { [ [:], it ] }
         )
 
         ch_genome_bam        = ALIGN_STAR.out.bam
@@ -373,7 +403,7 @@ workflow RNASPLICE {
 
             if (params.source == 'genome_bam') {
 
-                BAM_SORT_SAMTOOLS
+                BAM_SORT_STATS_SAMTOOLS
                         .out
                         .bam
                         .map { meta, bam -> [meta.condition, meta, bam] }
@@ -714,9 +744,11 @@ workflow RNASPLICE {
 
     if (params.source == 'fastq') {
 
-        ch_multiqc_files = ch_multiqc_files.mix(FASTQC_TRIMGALORE.out.fastqc_zip.collect{it[1]}.ifEmpty([]))
-        ch_multiqc_files = ch_multiqc_files.mix(FASTQC_TRIMGALORE.out.trim_zip.collect{it[1]}.ifEmpty([]))
-        ch_multiqc_files = ch_multiqc_files.mix(FASTQC_TRIMGALORE.out.trim_log.collect{it[1]}.ifEmpty([]))
+        ch_multiqc_files = ch_multiqc_files.mix(FASTQ_FASTQC_UMITOOLS_TRIMGALORE.out.fastqc_zip.collect{it[1]}.ifEmpty([]))
+        ch_multiqc_files = ch_multiqc_files.mix(FASTQ_FASTQC_UMITOOLS_TRIMGALORE.out.trim_zip.collect{it[1]}.ifEmpty([]))
+        ch_multiqc_files = ch_multiqc_files.mix(FASTQ_FASTQC_UMITOOLS_TRIMGALORE.out.trim_log.collect{it[1]}.ifEmpty([]))
+
+        ch_multiqc_files = ch_fail_trimming_multiqc.collectFile(name: 'fail_trimmed_samples_mqc.tsv').ifEmpty([])
 
     }
 
