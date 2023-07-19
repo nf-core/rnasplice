@@ -83,7 +83,7 @@ class RowChecker:
 
     def _validate_condition(self, row):
         """Assert that the first stradedness entry is non-empty and has a syntactically valid name."""
-        assert len(row[self._condition]) > 0, "Condition input is required."
+        assert len(row[self._condition_col]) > 0, "Condition input is required."
         self._validate_condition_value(row[self._condition_col])
 
     def _validate_genome_bam_format(self, filename):

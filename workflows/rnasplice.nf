@@ -143,7 +143,9 @@ workflow RNASPLICE {
         params.source,
         params.gencode
     )
+    ch_meta_fasta = PREPARE_GENOME.out.fasta.map { [ [:], it ] }
     ch_versions = ch_versions.mix(PREPARE_GENOME.out.versions)
+
 
     //
     // SUBWORKFLOW: Read in samplesheet, validate and stage input files
@@ -176,7 +178,7 @@ workflow RNASPLICE {
                 ch_input,
                 params.source
             )
-            .out
+            .reads
             .set { ch_genome_bam }
             ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
             break;
@@ -185,7 +187,7 @@ workflow RNASPLICE {
                 ch_input,
                 params.source
             )
-            .out
+            .reads
             .set { ch_transcriptome_bam }
             ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
             break;
@@ -194,7 +196,7 @@ workflow RNASPLICE {
                 ch_input,
                 params.source
             )
-            .out
+            .reads
             .set { ch_salmon_results }
             ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
             break;
@@ -252,27 +254,28 @@ workflow RNASPLICE {
         ch_trim_reads      = FASTQ_FASTQC_UMITOOLS_TRIMGALORE.out.reads
         ch_trim_read_count = FASTQ_FASTQC_UMITOOLS_TRIMGALORE.out.trim_read_count
         ch_versions        = ch_versions.mix(FASTQ_FASTQC_UMITOOLS_TRIMGALORE.out.versions)
-    }
 
-    //
-    // Get list of samples that failed trimming threshold for MultiQC report
-    //
-    ch_trim_read_count
-        .map {
-            meta, num_reads ->
-                pass_trimmed_reads[meta.id] = true
-                if (num_reads <= params.min_trimmed_reads.toFloat()) {
-                    pass_trimmed_reads[meta.id] = false
-                    return [ "$meta.id\t$num_reads" ]
-                }
-        }
-        .collect()
-        .map {
-            tsv_data ->
-                def header = ["Sample", "Reads after trimming"]
-                WorkflowRnasplice.multiqcTsvFromList(tsv_data, header)
-        }
-        .set { ch_fail_trimming_multiqc }
+        //
+        // Get list of samples that failed trimming threshold for MultiQC report
+        //
+        ch_trim_read_count
+            .map {
+                meta, num_reads ->
+                    pass_trimmed_reads[meta.id] = true
+                    if (num_reads <= params.min_trimmed_reads.toFloat()) {
+                        pass_trimmed_reads[meta.id] = false
+                        return [ "$meta.id\t$num_reads" ]
+                    }
+            }
+            .collect()
+            .map {
+                tsv_data ->
+                    def header = ["Sample", "Reads after trimming"]
+                    WorkflowRnasplice.multiqcTsvFromList(tsv_data, header)
+            }
+            .set { ch_fail_trimming_multiqc }
+
+    }
 
     //
     // SUBWORKFLOW: Alignment with STAR
@@ -287,7 +290,7 @@ workflow RNASPLICE {
 
     if (params.source == 'genome_bam') {
 
-        BAM_SORT_STATS_SAMTOOLS ( ch_genome_bam )
+        BAM_SORT_STATS_SAMTOOLS ( ch_genome_bam, ch_meta_fasta )
 
         ch_genome_bam        = BAM_SORT_STATS_SAMTOOLS.out.bam
         ch_genome_bam_index  = BAM_SORT_STATS_SAMTOOLS.out.bai
@@ -300,7 +303,7 @@ workflow RNASPLICE {
 
     if (params.source == 'transcriptome_bam') {
 
-        BAM_SORT_STATS_SAMTOOLS ( ch_transcriptome_bam )
+        BAM_SORT_STATS_SAMTOOLS ( ch_transcriptome_bam, ch_meta_fasta )
 
         ch_transcriptome_bam        = BAM_SORT_STATS_SAMTOOLS.out.bam
         ch_transcriptome_bam_index  = BAM_SORT_STATS_SAMTOOLS.out.bai
@@ -321,7 +324,7 @@ workflow RNASPLICE {
             '',
             params.seq_center ?: '',
             is_aws_igenome,
-            PREPARE_GENOME.out.fasta.map { [ [:], it ] }
+            ch_meta_fasta
         )
 
         ch_genome_bam        = ALIGN_STAR.out.bam
