@@ -116,7 +116,7 @@ class RowChecker:
             seen[sample] += 1
             # No combining of Tx BAMs downstream so throw error here
             if seen[sample] > 1:
-                raise AssertionError("Sample names must be unique.")
+                raise AssertionError(f"Sample names must be unique. Seen {sample} {seen[sample]} times.")
 
 def read_head(handle, num_lines=10):
     """Read the specified number of lines from the current position in the file."""
