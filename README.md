@@ -94,11 +94,11 @@ nf-core/rnasplice was originally written by the bioinformatics team from [Zifo R
 
 - [Benjamin Southgate](https://github.com/bensouthgate)
 - [James Ashmore](https://github.com/jma1991)
-- [Valentino Ruggieri](https://github.com/valentinoruggieri))
+- [Valentino Ruggieri](https://github.com/valentinoruggieri)
 - [Claire Prince](https://github.com/claire-prince)
-- [Keerthana Bhaskaran](https://github.com/Keerthana-Bhaskaran-TG))
-- [Asma Ali](https://github.com/asmaali98))
-- [Lathika Madhan Mohan](https://github.com/lathikaa))
+- [Keerthana Bhaskaran](https://github.com/Keerthana-Bhaskaran-TG)
+- [Asma Ali](https://github.com/asmaali98)
+- [Lathika Madhan Mohan](https://github.com/lathikaa)
 
 We thank Harshil Patel ([@drpatelh](https://github.com/drpatelh)) and Seqera Labs ([seqeralabs](https://github.com/seqeralabs)) for their assistance in the development of this pipeline.
 

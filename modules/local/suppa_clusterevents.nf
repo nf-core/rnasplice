@@ -13,6 +13,13 @@ process CLUSTEREVENTS {
     tuple val(cond1), val(cond2), path(psivec)
     val cluster_ranges // e.g. 1-3,4-6
     val prefix
+    val clusterevents_dpsithreshold    // val params.clusterevents_dpsithreshold
+    val clusterevents_eps              // val params.clusterevents_eps
+    val clusterevents_metric           // val params.clusterevents_metric
+    val clusterevents_min_pts          // val params.clusterevents_min_pts
+    val clusterevents_method           // val params.clusterevents_method
+    val clusterevents_sigthreshold     // val params.clusterevents_sigthreshold
+    val clusterevents_separation       // val params.clusterevents_separation
 
     output:
     path "*.clustvec"   , emit: clustvec
@@ -23,14 +30,9 @@ process CLUSTEREVENTS {
     task.ext.when == null || task.ext.when
 
     script: //  Cluster events between conditions
-    def st  = params.clusterevents_sigthreshold ? "-st ${params.clusterevents_sigthreshold}" : ''
-    def sep = params.clusterevents_separation ? "-s ${params.clusterevents_separation}" : ''
 
-    def clusterevents_dpsithreshold = params.clusterevents_dpsithreshold ?: '0.05'  // default 0.05
-    def clusterevents_eps           = params.clusterevents_eps ?: '0.05'            // default 0.05
-    def clusterevents_metric        = params.clusterevents_metric ?: 'euclidean'    // default euclidean
-    def clusterevents_min_pts       = params.clusterevents_min_pts ?: '20'          // default 20
-    def clusterevents_method        = params.clusterevents_method ?: 'DBSCAN'       // default DBSCAN
+    def clusterevents_sigthreshold  = clusterevents_sigthreshold ? "-st ${params.clusterevents_sigthreshold}" : ''
+    def clusterevents_separation = clusterevents_separation ? "-s ${params.clusterevents_separation}" : ''
 
     """
     suppa.py \\
@@ -43,7 +45,7 @@ process CLUSTEREVENTS {
         --min-pts $clusterevents_min_pts \\
         --groups $cluster_ranges \\
         --clustering $clusterevents_method \\
-        $st $sep -o ${cond1}-${cond2}_${prefix}_cluster
+        $clusterevents_sigthreshold $clusterevents_separation -o ${cond1}-${cond2}_${prefix}_cluster
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

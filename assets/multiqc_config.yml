@@ -11,3 +11,18 @@ report_section_order:
     order: -1002
 
 export_plots: true
+
+# Order of modules
+top_modules:
+  - "fail_trimmed_samples"
+
+custom_data:
+  fail_trimmed_samples:
+    section_name: "WARNING: Fail Trimming Check"
+    description: "List of samples that failed the minimum trimmed reads threshold specified via the '--min_trimmed_reads' parameter. These samples have still be used downstream but should be examined further."
+    plot_type: "table"
+    pconfig:
+      id: "fail_trimmed_samples_table"
+      table_title: "Samples failed trimming threshold"
+      namespace: "Samples failed trimming threshold"
+      format: "{:.0f}"

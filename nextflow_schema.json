@@ -390,6 +390,12 @@
                     "type": "boolean",
                     "description": "Skip TrimGalore! FastQC.",
                     "fa_icon": "fas fa-fast-forward"
+                },
+                "min_trimmed_reads": {
+                    "type": "integer",
+                    "default": 10000,
+                    "fa_icon": "fas fa-hand-paper",
+                    "description": "Minimum number of trimmed reads below which samples are flagged in multiqc output."
                 }
             }
         },

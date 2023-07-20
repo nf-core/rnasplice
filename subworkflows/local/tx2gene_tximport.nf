@@ -24,7 +24,7 @@ workflow TX2GENE_TXIMPORT {
     salmon_results
     .map {
         meta, prefix ->
-            tgz = salmon_results.toString().endsWith(".tar.gz") ? true : false
+            tgz = prefix[0].toString().endsWith(".tar.gz") ? true : false
             [ meta + [tgz: tgz], prefix ]
     }
     .branch{
@@ -34,6 +34,7 @@ workflow TX2GENE_TXIMPORT {
     .set{ salmon_results }
     UNTAR ( salmon_results.tar )
     salmon_results = salmon_results.dir.mix(UNTAR.out.untar)
+    salmon_results.view()
 
     //
     // Quantify and merge counts across samples

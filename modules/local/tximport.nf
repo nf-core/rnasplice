@@ -1,5 +1,5 @@
 process TXIMPORT {
-    tag "$gtf"
+    tag "$tx2gene"
     label 'process_medium'
 
     conda "bioconda::bioconductor-tximeta=1.8.0"

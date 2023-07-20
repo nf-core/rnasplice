@@ -10,6 +10,7 @@ process PSIPEREVENT {
     input:
     path ioe
     path tpm
+    val psiperevent_total_filter   // val params.psiperevent_total_filter
 
     output:
     path "suppa_local.psi"    , emit: psi
@@ -19,8 +20,6 @@ process PSIPEREVENT {
     task.ext.when == null || task.ext.when
 
     script: // Calculate the psi values of local events
-
-    def psiperevent_total_filter = params.psiperevent_total_filter ?: '0' // default 0
 
     """
     suppa.py \\
