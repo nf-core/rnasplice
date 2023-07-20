@@ -478,7 +478,6 @@ workflow RNASPLICE {
 
         // Collect Salmon quant output
         ch_salmon_results = SALMON_QUANT_STAR.out.results
-        ch_salmon_results.view()
 
         //
         // SUBWORKFLOW: Run Tximport and produce tx2gene from gtf using gffread
