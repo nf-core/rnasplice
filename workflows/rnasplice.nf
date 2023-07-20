@@ -1,6 +1,6 @@
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    VALIDATE INPUTS
+    PRINT PARAMS SUMMARY
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
@@ -9,10 +9,16 @@ def valid_params = [
     pseudoaligners : ['salmon']
 ]
 
-def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
+include { paramsSummaryLog; paramsSummaryMap } from 'plugin/nf-validation'
 
-// Validate input parameters
-WorkflowRnasplice.initialise(params, log, valid_params)
+def logo = NfcoreTemplate.logo(workflow, params.monochrome_logs)
+def citation = '\n' + WorkflowMain.citation(workflow) + '\n'
+def summary_params = paramsSummaryMap(workflow)
+
+// Print parameter summary log to screen
+log.info logo + paramsSummaryLog(workflow) + citation
+
+WorkflowRnasplice.initialise(params, log)
 
 // Check input path parameters to see if they exist
 def checkPathParamList = [
@@ -734,7 +740,7 @@ workflow RNASPLICE {
     workflow_summary    = WorkflowRnasplice.paramsSummaryMultiqc(workflow, summary_params)
     ch_workflow_summary = Channel.value(workflow_summary)
 
-    methods_description    = WorkflowRnasplice.methodsDescriptionText(workflow, ch_multiqc_custom_methods_description)
+    methods_description    = WorkflowRnasplice.methodsDescriptionText(workflow, ch_multiqc_custom_methods_description, params)
     ch_methods_description = Channel.value(methods_description)
 
     ch_multiqc_files = Channel.empty()

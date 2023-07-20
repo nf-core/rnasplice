@@ -16,6 +16,8 @@
 
 - [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
 
+  > Andrews, S. (2010). FastQC: A Quality Control Tool for High Throughput Sequence Data [Online]. Available online https://www.bioinformatics.babraham.ac.uk/projects/fastqc/.
+
 - [featureCounts](https://academic.oup.com/bioinformatics/article/30/7/923/232889?login=false)
 
   > Yang Liao, Gordon K. Smyth, Wei Shi, featureCounts: an efficient general purpose program for assigning sequence reads to genomic features, Bioinformatics, Volume 30, Issue 7, 1 April 2014, Pages 923–930.
@@ -109,5 +111,8 @@
 
 - [Docker](https://dl.acm.org/doi/10.5555/2600239.2600241)
 
+  > Merkel, D. (2014). Docker: lightweight linux containers for consistent development and deployment. Linux Journal, 2014(239), 2. doi: 10.5555/2600239.2600241.
+
 - [Singularity](https://pubmed.ncbi.nlm.nih.gov/28494014/)
+
   > Kurtzer GM, Sochat V, Bauer MW. Singularity: Scientific containers for mobility of compute. PLoS One. 2017 May 11;12(5):e0177459. doi: 10.1371/journal.pone.0177459. eCollection 2017. PubMed PMID: 28494014; PubMed Central PMCID: PMC5426675.
