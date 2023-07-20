@@ -281,13 +281,6 @@ workflow RNASPLICE {
     // SUBWORKFLOW: Alignment with STAR
     //
 
-    // ch_genome_bam                 = Channel.empty()
-    // ch_genome_bam_index           = Channel.empty()
-    // ch_samtools_stats             = Channel.empty()
-    // ch_samtools_flagstat          = Channel.empty()
-    // ch_samtools_idxstats          = Channel.empty()
-    // ch_star_multiqc               = Channel.empty()
-
     if (params.source == 'genome_bam') {
 
         BAM_SORT_STATS_SAMTOOLS ( ch_genome_bam, ch_meta_fasta )
@@ -314,7 +307,7 @@ workflow RNASPLICE {
 
     }
 
-    if (!params.skip_alignment && ( params.aligner == 'star' || params.aligner == 'star_salmon') && (params.source == 'fastq')) {
+    if ((params.source == 'fastq') && !params.skip_alignment && ( params.aligner == 'star' || params.aligner == 'star_salmon')) {
 
         ALIGN_STAR (
             ch_trim_reads,
@@ -342,7 +335,7 @@ workflow RNASPLICE {
         ch_versions = ch_versions.mix(ALIGN_STAR.out.versions)
     }
 
-    if ((params.source == 'genome_bam') || (!params.skip_alignment && ( params.aligner == 'star' || params.aligner == 'star_salmon') && (params.source == 'fastq'))) {
+    if ((params.source == 'genome_bam') || (params.source == 'fastq') && (!params.skip_alignment && ( params.aligner == 'star' || params.aligner == 'star_salmon'))) {
 
         //
         // SUBWORKFLOW: Run DEXSeq DEU
@@ -393,17 +386,8 @@ workflow RNASPLICE {
             //
             // Create channel grouped by condition: [ [condition1, [condition1_metas], [group1_bams]], [condition2, [condition2_metas], [condition2_bams]]] if there are more than one condition
             //
-            if (!params.skip_alignment && ( params.aligner == 'star' || params.aligner == 'star_salmon') && (params.source == 'fastq')) {
 
-                ALIGN_STAR
-                    .out
-                    .bam
-                    .map { meta, bam -> [meta.condition, meta, bam] }
-                    .groupTuple(by:0)
-                    .set { ch_genome_bam_conditions }
-
-            }
-
+            // If genome bam provided, mimic channel created by ALIGN_STAR
             if (params.source == 'genome_bam') {
 
                 BAM_SORT_STATS_SAMTOOLS
@@ -412,6 +396,16 @@ workflow RNASPLICE {
                         .map { meta, bam -> [meta.condition, meta, bam] }
                         .groupTuple(by:0)
                         .set { ch_genome_bam_conditions }
+
+            } else {
+
+                ALIGN_STAR
+                    .out
+                    .bam
+                    .map { meta, bam -> [meta.condition, meta, bam] }
+                    .groupTuple(by:0)
+                    .set { ch_genome_bam_conditions }
+
             }
 
             //
@@ -441,123 +435,6 @@ workflow RNASPLICE {
 
         }
 
-        //
-        // SUBWORKFLOW: Count reads from BAM alignments using Salmon
-        //
-
-        // If needed run Salmon on transcriptome bam
-
-        if (params.source == 'transcriptome_bam' || (!params.skip_alignment && params.aligner == 'star_salmon')) {
-
-            alignment_mode = true
-            ch_salmon_index = ch_dummy_file
-
-            // Run Salmon quant, Run tx2gene.py (tx2gene for Salmon txImport Quantification), then finally runs tximport
-            SALMON_QUANT_STAR (
-                ch_transcriptome_bam,
-                ch_salmon_index,
-                PREPARE_GENOME.out.gtf,
-                PREPARE_GENOME.out.transcript_fasta,
-                alignment_mode,
-                params.salmon_quant_libtype ?: ''
-            )
-            ch_versions = ch_versions.mix(SALMON_QUANT_STAR.out.versions)
-
-            // Collect Salmon quant output
-            ch_salmon_results = SALMON_QUANT_STAR.out.results
-
-            //
-            // SUBWORKFLOW: Run Tximport and produce tx2gene from gtf using gffread
-            //
-            TX2GENE_TXIMPORT_STAR_SALMON (
-                ch_salmon_results,
-                PREPARE_GENOME.out.gtf
-            )
-            ch_versions = ch_versions.mix(TX2GENE_TXIMPORT_STAR_SALMON.out.versions)
-
-            //
-            // SUBWORKFLOW: Run Dexseq DTU
-            //
-
-            if (params.dexseq_dtu) {
-
-                if (params.dtu_txi == "dtuScaledTPM") {
-
-                    ch_txi = TX2GENE_TXIMPORT_STAR_SALMON.out.txi_dtu
-
-                } else if (params.dtu_txi == "scaledTPM") {
-
-                    ch_txi = TX2GENE_TXIMPORT_STAR_SALMON.out.txi_s
-
-                }
-
-                DRIMSEQ_DEXSEQ_DTU_STAR_SALMON (
-                    ch_txi,
-                    TX2GENE_TXIMPORT_STAR_SALMON.out.tximport_tx2gene,
-                    ch_samplesheet,
-                    ch_contrastsheet,
-                    params.n_dexseq_plot,
-                    params.min_samps_gene_expr,
-                    params.min_samps_feature_expr,
-                    params.min_samps_feature_prop,
-                    params.min_feature_expr,
-                    params.min_feature_prop,
-                    params.min_gene_expr
-                )
-
-                ch_versions = ch_versions.mix(DRIMSEQ_DEXSEQ_DTU_STAR_SALMON.out.versions)
-
-            }
-
-            //
-            // SUBWORKFLOW: SUPPA
-            //
-
-            if (params.suppa) {
-
-                // Get Suppa tpm either from tximport or user supplied
-                ch_suppa_tpm = params.suppa_tpm ? PREPARE_GENOME.out.suppa_tpm : TX2GENE_TXIMPORT_STAR_SALMON.out.suppa_tpm
-
-                // Run SUPPA
-                SUPPA_STAR_SALMON (
-                    PREPARE_GENOME.out.gtf,
-                    ch_suppa_tpm,
-                    ch_samplesheet,
-                    ch_contrastsheet,
-                    params.suppa_per_local_event,
-                    params.generateevents_boundary,
-                    params.generateevents_threshold,
-                    params.generateevents_exon_length,
-                    params.generateevents_event_type,
-                    params.generateevents_pool_genes,
-                    params.psiperevent_total_filter,
-                    params.diffsplice_local_event,
-                    params.diffsplice_method,
-                    params.diffsplice_area,
-                    params.diffsplice_lower_bound,
-                    params.diffsplice_alpha,
-                    params.diffsplice_tpm_threshold,
-                    params.diffsplice_nan_threshold,
-                    params.diffsplice_gene_correction,
-                    params.diffsplice_paired,
-                    params.diffsplice_median,
-                    params.clusterevents_local_event,
-                    params.clusterevents_dpsithreshold,
-                    params.clusterevents_eps,
-                    params.clusterevents_metric,
-                    params.clusterevents_min_pts,
-                    params.clusterevents_method,
-                    params.clusterevents_sigthreshold ?: false,
-                    params.clusterevents_separation ?: false,
-                    params.suppa_per_isoform
-                )
-
-                ch_versions = ch_versions.mix(SUPPA_STAR_SALMON.out.versions)
-
-            }
-
-        }
-
         if (params.sashimi_plot == true) {
 
             VISUALISE_MISO (
@@ -571,23 +448,135 @@ workflow RNASPLICE {
                 params.miso_genes_file ?: false,
             )
 
-        ch_versions = ch_versions.mix(VISUALISE_MISO.out.versions)
+            ch_versions = ch_versions.mix(VISUALISE_MISO.out.versions)
 
         }
+
+    }
+
+    //
+    // SUBWORKFLOW: Count reads from BAM alignments using Salmon
+    //
+
+    // If needed run Salmon on transcriptome bam
+
+    if ((params.source == 'transcriptome_bam') || (params.source == 'fastq') && (!params.skip_alignment && params.aligner == 'star_salmon')) {
+
+        alignment_mode = true
+        ch_salmon_index = ch_dummy_file
+
+        // Run Salmon quant, Run tx2gene.py (tx2gene for Salmon txImport Quantification), then finally runs tximport
+        SALMON_QUANT_STAR (
+            ch_transcriptome_bam,
+            ch_salmon_index,
+            PREPARE_GENOME.out.gtf,
+            PREPARE_GENOME.out.transcript_fasta,
+            alignment_mode,
+            params.salmon_quant_libtype ?: ''
+        )
+        ch_versions = ch_versions.mix(SALMON_QUANT_STAR.out.versions)
+
+        // Collect Salmon quant output
+        ch_salmon_results = SALMON_QUANT_STAR.out.results
+        ch_salmon_results.view()
+
+        //
+        // SUBWORKFLOW: Run Tximport and produce tx2gene from gtf using gffread
+        //
+        TX2GENE_TXIMPORT_STAR_SALMON (
+            ch_salmon_results,
+            PREPARE_GENOME.out.gtf
+        )
+        ch_versions = ch_versions.mix(TX2GENE_TXIMPORT_STAR_SALMON.out.versions)
+
+        //
+        // SUBWORKFLOW: Run Dexseq DTU
+        //
+
+        if (params.dexseq_dtu) {
+
+            if (params.dtu_txi == "dtuScaledTPM") {
+
+                ch_txi = TX2GENE_TXIMPORT_STAR_SALMON.out.txi_dtu
+
+            } else if (params.dtu_txi == "scaledTPM") {
+
+                ch_txi = TX2GENE_TXIMPORT_STAR_SALMON.out.txi_s
+
+            }
+
+            DRIMSEQ_DEXSEQ_DTU_STAR_SALMON (
+                ch_txi,
+                TX2GENE_TXIMPORT_STAR_SALMON.out.tximport_tx2gene,
+                ch_samplesheet,
+                ch_contrastsheet,
+                params.n_dexseq_plot,
+                params.min_samps_gene_expr,
+                params.min_samps_feature_expr,
+                params.min_samps_feature_prop,
+                params.min_feature_expr,
+                params.min_feature_prop,
+                params.min_gene_expr
+            )
+
+            ch_versions = ch_versions.mix(DRIMSEQ_DEXSEQ_DTU_STAR_SALMON.out.versions)
+
+        }
+
+        //
+        // SUBWORKFLOW: SUPPA
+        //
+
+        if (params.suppa) {
+
+            // Get Suppa tpm either from tximport or user supplied
+            ch_suppa_tpm = params.suppa_tpm ? PREPARE_GENOME.out.suppa_tpm : TX2GENE_TXIMPORT_STAR_SALMON.out.suppa_tpm
+
+            // Run SUPPA
+            SUPPA_STAR_SALMON (
+                PREPARE_GENOME.out.gtf,
+                ch_suppa_tpm,
+                ch_samplesheet,
+                ch_contrastsheet,
+                params.suppa_per_local_event,
+                params.generateevents_boundary,
+                params.generateevents_threshold,
+                params.generateevents_exon_length,
+                params.generateevents_event_type,
+                params.generateevents_pool_genes,
+                params.psiperevent_total_filter,
+                params.diffsplice_local_event,
+                params.diffsplice_method,
+                params.diffsplice_area,
+                params.diffsplice_lower_bound,
+                params.diffsplice_alpha,
+                params.diffsplice_tpm_threshold,
+                params.diffsplice_nan_threshold,
+                params.diffsplice_gene_correction,
+                params.diffsplice_paired,
+                params.diffsplice_median,
+                params.clusterevents_local_event,
+                params.clusterevents_dpsithreshold,
+                params.clusterevents_eps,
+                params.clusterevents_metric,
+                params.clusterevents_min_pts,
+                params.clusterevents_method,
+                params.clusterevents_sigthreshold ?: false,
+                params.clusterevents_separation ?: false,
+                params.suppa_per_isoform
+            )
+
+            ch_versions = ch_versions.mix(SUPPA_STAR_SALMON.out.versions)
+
+        }
+
     }
 
     //
     // SUBWORKFLOW: Pseudo-alignment and quantification with Salmon
     //
 
-    if (params.source == 'salmon_results') {
-
-        TX2GENE_TXIMPORT_SALMON (
-            ch_salmon_results,
-            PREPARE_GENOME.out.gtf
-        )
-
-    } else if (params.pseudo_aligner == 'salmon' && params.source == 'fastq') {
+    if (params.source == 'fastq' && params.pseudo_aligner == 'salmon') {
 
         alignment_mode = false
         ch_transcript_fasta = ch_dummy_file
@@ -616,9 +605,20 @@ workflow RNASPLICE {
 
         ch_versions = ch_versions.mix(TX2GENE_TXIMPORT_SALMON.out.versions)
 
+
+    } else if ( params.source == 'salmon_results') {
+
+        TX2GENE_TXIMPORT_SALMON (
+            ch_salmon_results,
+            PREPARE_GENOME.out.gtf
+        )
+
+        ch_versions = ch_versions.mix(TX2GENE_TXIMPORT_SALMON.out.versions)
+
     }
 
-    if ((params.source == 'salmon_results') || (params.pseudo_aligner == 'salmon' && params.source == 'fastq')) {
+
+    if ((params.pseudo_aligner == 'salmon' && params.source == 'fastq') || (params.source == 'salmon_results')) {
 
         //
         // SUBWORKFLOW: Run Dexseq DTU
@@ -774,7 +774,7 @@ workflow RNASPLICE {
         ch_multiqc_files = ch_multiqc_files.mix(ch_samtools_idxstats.collect{it[1]}.ifEmpty([]))
 
 
-        if (params.edger_exon) {
+        if (params.edger_exon && params.source != 'transcriptome_bam') {
 
             ch_multiqc_files = ch_multiqc_files.mix(EDGER_DEU.out.featureCounts_summary.collect{it[1]}.ifEmpty([]))
 
