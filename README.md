@@ -66,7 +66,6 @@ Each row represents a fastq file (single-end) or a pair of fastq files (paired e
 > provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_;
 > see [docs](https://nf-co.re/usage/configuration#custom-configuration-files).
 
-<<<<<<< HEAD
 Now, you can run the pipeline using:
 
 ```bash
