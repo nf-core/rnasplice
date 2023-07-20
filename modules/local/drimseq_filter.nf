@@ -7,9 +7,15 @@ process DRIMSEQ_FILTER {
         'biocontainers/bioconductor-drimseq:1.18.0--r40_0' }"
 
     input:
-    path txi                  // path: *.txi*.rds (either txi.s.rds or txi.dtu.rds)
-    path tximport_tx2gene     // path: tximport.tx2gene.tsv
-    path samplesheet          // path: /path/to/samplesheet.csv
+    path txi                    // path: *.txi*.rds (either txi.s.rds or txi.dtu.rds)
+    path tximport_tx2gene       // path: tximport.tx2gene.tsv
+    path samplesheet            // path: /path/to/samplesheet.csv
+    val min_samps_gene_expr     // val params.min_samps_gene_expr
+    val min_samps_feature_expr  // val params.min_samps_feature_expr
+    val min_samps_feature_prop  // val params.min_samps_feature_prop
+    val min_feature_expr        // val params.min_feature_expr
+    val min_feature_prop        // val params.min_feature_prop
+    val min_gene_expr           // val params.min_gene_expr
 
     output:
     path "dmDSdata.rds"  , emit: drimseq_dataset_rds
@@ -22,13 +28,6 @@ process DRIMSEQ_FILTER {
 
     script:
     def args = task.ext.args ?: ''
-
-    def min_samps_gene_expr = params.min_samps_gene_expr ?: 0
-    def min_samps_feature_expr = params.min_samps_feature_expr ?: 0
-    def min_samps_feature_prop = params.min_samps_feature_prop ?: 0
-    def min_feature_expr = params.min_feature_expr ?: 0
-    def min_feature_prop = params.min_feature_prop ?: 0
-    def min_gene_expr = params.min_gene_expr ?: 0
 
     """
     run_drimseq_filter.R $txi $tximport_tx2gene $samplesheet \\

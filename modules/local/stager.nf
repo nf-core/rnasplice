@@ -7,14 +7,14 @@ process STAGER {
         'biocontainers/bioconductor-stager:1.12.0--r40_0' }"
 
     input:
-    tuple val(contrast), path(feature_rds), path(gene_rds)
+    tuple val(contrast), path(feature_tsv), path(gene_tsv)
     val analysis_type                                         // val: "dexseq" or "drimseq"
 
     output:
     path "stageRTx.*.rds"              , emit: stager_rds
     path "getAdjustedPValues.*.rds"    , emit: stager_padj_rds
     path "getAdjustedPValues.*.tsv"    , emit: stager_padj_tsv
-    path "versions.yml"           , emit: versions
+    path "versions.yml"                , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -22,7 +22,7 @@ process STAGER {
     script:
     def args = task.ext.args ?: ''
     """
-    run_stager.R $contrast $feature_rds $gene_rds $analysis_type
+    run_stager.R $contrast $feature_tsv $gene_tsv $analysis_type
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

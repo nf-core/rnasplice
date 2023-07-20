@@ -37,7 +37,7 @@ workflow INPUT_CHECK {
             SAMPLESHEET_CHECK ( samplesheet, source )
             .csv
             .splitCsv ( header:true, sep:',' )
-            .map { create_txbam_channel(it) }
+            .map { create_salmon_results_channel(it) }
             .set { reads }
             break;
     }
@@ -114,7 +114,6 @@ def create_salmon_results_channel(LinkedHashMap row) {
     meta.id             = row.sample
     meta.salmon_results = row.salmon_results
     meta.condition      = row.condition
-    meta.archive        = row.salmon_results.toString().endsWith(".tar.gz") ? true : false
 
     // add path(s) of the salmon file(s) to the meta map
     def salmon_results_meta = []

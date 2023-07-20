@@ -8,7 +8,8 @@ process DEXSEQ_ANNOTATION {
     'biocontainers/htseq:2.0.2--py310ha14a713_0' }"
 
     input:
-    path gtf
+    path gtf         // path gtf file
+    val aggregation  // val params.aggregation
 
     output:
     path "*.gff"        , emit: gff
@@ -22,7 +23,7 @@ process DEXSEQ_ANNOTATION {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "DEXSeq"
 
-    def aggregation = params.aggregation ? '' : '-r no'
+    def aggregation = aggregation ? '' : '-r no'
 
     """
     dexseq_prepare_annotation.py $gtf ${prefix}.gff $aggregation

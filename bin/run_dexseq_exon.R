@@ -116,18 +116,13 @@ contrasts <- unique(contrasts)
 
 # List counts files
 
-counts <- list.files(
-    path = counts,
-    pattern = ".clean.count.txt$",
-    full.names = TRUE,
-    recursive = TRUE
-)
+files <- paste0(counts, "/", samples$sample, ".clean.count.txt")
 
 
 # Create DEXSeqDataSet object
 
 object <- DEXSeqDataSetFromHTSeq(
-    countfiles = counts,
+    countfiles = files,
     sampleData = samples,
     flattenedfile = annotation
 )

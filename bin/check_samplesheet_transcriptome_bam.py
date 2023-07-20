@@ -82,7 +82,7 @@ class RowChecker:
 
     def _validate_condition(self, row):
         """Assert that the first stradedness entry is non-empty and has a syntactically valid name."""
-        assert len(row[self._condition]) > 0, "Condition input is required."
+        assert len(row[self._condition_col]) > 0, "Condition input is required."
         self._validate_condition_value(row[self._condition_col])
 
     def _validate_transcriptome_bam_format(self, filename):
@@ -114,7 +114,9 @@ class RowChecker:
         for row in self.modified:
             sample = row[self._sample_col]
             seen[sample] += 1
-            row[self._sample_col] = f"{sample}_T{seen[sample]}"
+            # No combining of Tx BAMs downstream so throw error here
+            if seen[sample] > 1:
+                raise AssertionError(f"Sample names must be unique. Seen {sample} {seen[sample]} times.")
 
 
 def read_head(handle, num_lines=10):

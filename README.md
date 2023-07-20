@@ -2,7 +2,7 @@
 
 [![AWS CI](https://img.shields.io/badge/CI%20tests-full%20size-FF9900?labelColor=000000&logo=Amazon%20AWS)](https://nf-co.re/rnasplice/results)[![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.XXXXXXX-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.XXXXXXX)
 
-[![Nextflow](https://img.shields.io/badge/nextflow%20DSL2-%E2%89%A522.10.1-23aa62.svg)](https://www.nextflow.io/)
+[![Nextflow](https://img.shields.io/badge/nextflow%20DSL2-%E2%89%A523.04.0-23aa62.svg)](https://www.nextflow.io/)
 [![run with conda](http://img.shields.io/badge/run%20with-conda-3EB049?labelColor=000000&logo=anaconda)](https://docs.conda.io/en/latest/)
 [![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?labelColor=000000&logo=docker)](https://www.docker.com/)
 [![run with singularity](https://img.shields.io/badge/run%20with-singularity-1d355c.svg?labelColor=000000)](https://sylabs.io/docs/)
@@ -77,12 +77,12 @@ nextflow run nf-core/rnasplice \
    -profile <docker/singularity/.../institute>
 ```
 
-For more details, please refer to the [usage documentation](https://nf-co.re/rnasplice/usage) and the [parameter documentation](https://nf-co.re/rnasplice/parameters).
+For more details and further functionality, please refer to the [usage documentation](https://nf-co.re/rnasplice/usage) and the [parameter documentation](https://nf-co.re/rnasplice/parameters).
 
 ## Pipeline output
 
-To see the the results of a test run with a full size dataset refer to the [results](https://nf-co.re/rnasplice/results) tab on the nf-core website pipeline page. For more details about the output files and reports, please refer to the
-[output documentation](https://nf-co.re/rnasplice/output).
+To see the results of an example test run with a full size dataset refer to the [results](https://nf-co.re/rnasplice/results) tab on the nf-core website pipeline page.
+For more details about the output files and reports, please refer to the [output documentation](https://nf-co.re/rnasplice/output).
 
 ## Online videos
 
@@ -94,11 +94,11 @@ nf-core/rnasplice was originally written by the bioinformatics team from [Zifo R
 
 - [Benjamin Southgate](https://github.com/bensouthgate)
 - [James Ashmore](https://github.com/jma1991)
-- [Valentino Ruggieri](https://github.com/valentinoruggieri))
+- [Valentino Ruggieri](https://github.com/valentinoruggieri)
 - [Claire Prince](https://github.com/claire-prince)
-- [Keerthana Bhaskaran](https://github.com/Keerthana-Bhaskaran-TG))
-- [Asma Ali](https://github.com/asmaali98))
-- [Lathika Madhan Mohan](https://github.com/lathikaa))
+- [Keerthana Bhaskaran](https://github.com/Keerthana-Bhaskaran-TG)
+- [Asma Ali](https://github.com/asmaali98)
+- [Lathika Madhan Mohan](https://github.com/lathikaa)
 
 We thank Harshil Patel ([@drpatelh](https://github.com/drpatelh)) and Seqera Labs ([seqeralabs](https://github.com/seqeralabs)) for their assistance in the development of this pipeline.
 

@@ -35,7 +35,9 @@ read.DEXSeq <- function(gene, feature) {
 
     # Read gene-level results
 
-    resultsGene <- readRDS(gene)
+    resultsGene <- read.delim(gene)
+
+    resultsGene <- setNames(resultsGene$padj, resultsGene$groupID)
 
     # Create a vector of screening hypothesis p-values
 
@@ -45,7 +47,7 @@ read.DEXSeq <- function(gene, feature) {
 
     # Read feature-level results
 
-    resultsFeature <- readRDS(feature)
+    resultsFeature <- read.delim(feature)
 
     # Create a matrix of confirmation hypothesis p-values
 
@@ -80,7 +82,9 @@ read.DRIMSeq <- function(gene, feature) {
 
     # Read gene-level results
 
-    resultsGene <- readRDS(gene)
+    resultsGene <- read.delim(gene)
+
+    resultsGene <- setNames(resultsGene$padj, resultsGene$groupID)
 
     # Create a vector of screening hypothesis p-values
 
@@ -90,7 +94,7 @@ read.DRIMSeq <- function(gene, feature) {
 
     # Read feature-level results
 
-    resultsFeature <- readRDS(feature)
+    resultsFeature <- read.delim(feature)
 
     # Create a matrix of confirmation hypothesis p-values
 
@@ -141,19 +145,19 @@ if (analysis == "dexseq") {
 # Create stageRTx object
 
 object <- stageRTx(
-    pScreen       = output[["pScreen"]],
-    pConfirmation = output[["pConfirmation"]],
-    tx2gene       = output[["tx2gene"]],
-    pscreenAdjusted = FALSE
+    pScreen         = output[["pScreen"]],
+    pConfirmation   = output[["pConfirmation"]],
+    tx2gene         = output[["tx2gene"]],
+    pScreenAdjusted = FALSE
 )
 
 
 # Adjust p-values in a two-stage analysis
 
 object <- stageWiseAdjustment(
-    object = object,
-    method = "dtu",
-    alpha = 0.05,
+    object  = object,
+    method  = "dtu",
+    alpha   = 0.05,
     allowNA = TRUE
 )
 
@@ -174,7 +178,7 @@ saveRDS(
 
 saveRDS(
     object = pvalue,
-    file = paste0("getAdjustedPValues", name, ".rds")
+    file = paste0("getAdjustedPValues.", name, ".rds")
 )
 
 
@@ -182,7 +186,7 @@ saveRDS(
 
 write.table(
     x         = pvalue,
-    file      = paste0("getAdjustedPValues", name, ".tsv"),
+    file      = paste0("getAdjustedPValues.", name, ".tsv"),
     sep       = "\t",
     quote     = FALSE,
     row.names = FALSE

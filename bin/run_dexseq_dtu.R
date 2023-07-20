@@ -105,6 +105,15 @@ counts <- counts[, keep, drop = FALSE]
 counts <- round(counts)
 
 
+# Reorder count matrix by sample table
+
+stopifnot(all(samples$sample %in% colnames(counts)))
+
+stopifnot(all(colnames(counts) %in% samples$sample))
+
+counts <- counts[, samples$sample, drop = FALSE]
+
+
 # Create DEXSeqDataSet object
 
 object <- DEXSeqDataSet(

@@ -10,6 +10,11 @@ process GENERATE_EVENTS {
     input:
     path gtf
     val file_type
+    val generateevents_boundary       // val params.generateevents_boundary
+    val generateevents_threshold      // val params.generateevents_threshold
+    val generateevents_exon_length    // val params.generateevents_exon_length
+    val generateevents_event_type     // val params.generateevents_event_type
+    val generateevents_pool_genes     // val params.generateevents_pool_genes
 
     output:
     path "events.*"     , emit: events
@@ -22,17 +27,8 @@ process GENERATE_EVENTS {
 
     script:
 
-    // Calculate the AS events using GTF
-
-    // Incase of Local Events get the list of events from nextflow.config
-    def list_events = params.generateevents_event_type ?: 'SE SS MX RI FL' // default all possible
-
     // If pool_genes is set to true then include the -p parameter
-    def poolgenes = params.generateevents_pool_genes ? "-p" : ''
-
-    def generateevents_boundary = params.generateevents_boundary ?: 'S' // default S
-    def generateevents_threshold = params.generateevents_threshold ?: '10' // default 10
-    def generateevents_exon_length = params.generateevents_exon_length ?: '100' //default 100
+    def poolgenes = generateevents_pool_genes ? "-p" : ''
 
     // Calculate local events and combine all the ioe events files
     if (file_type == 'ioe') {
@@ -42,7 +38,7 @@ process GENERATE_EVENTS {
             -i $gtf \\
             -f $file_type \\
             -o events \\
-            -e $list_events \\
+            -e $generateevents_event_type \\
             -b $generateevents_boundary \\
             -t $generateevents_threshold \\
             -l $generateevents_exon_length \\
