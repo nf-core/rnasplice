@@ -107,7 +107,7 @@ contrasts <- makeContrasts(contrasts = contrasts, levels = groups)
 
 colnames(contrasts) <- names
 
-contrasts <- contrasts[, colSums(contrasts != 0) > 0]
+contrasts <- contrasts[, colSums(contrasts != 0) > 0, drop = FALSE]
 
 
 # Estimate dispersions by empirical Bayes
