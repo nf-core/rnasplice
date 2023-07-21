@@ -1,10 +1,10 @@
 process GTF_2_GFF3 {
     label 'process_single'
 
-    conda "bioconda::gffread=0.12.1"
+    conda "bioconda::gffread=0.12.7"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/gffread:0.12.1--h8b12597_0' :
-        'biocontainers/gffread:0.12.1--h8b12597_0' }"
+        'https://depot.galaxyproject.org/singularity/gffread:0.12.7--hdcf5f25_3' :
+        'biocontainers/gffread:0.12.7--hdcf5f25_3' }"
 
     input:
     path gtf
@@ -18,7 +18,7 @@ process GTF_2_GFF3 {
 
     script:
     """
-    gffread $gtf -L | awk -F'\t' -vOFS='\t' '{ gsub("transcript", "mRNA", \$3); print}' > ${gtf.baseName}_genes.gff3
+    gffread $gtf -L --keep-genes | awk -F'\\t' -vOFS='\\t' '{ gsub("transcript", "mRNA", \$3); print}' > ${gtf.baseName}_genes.gff3
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

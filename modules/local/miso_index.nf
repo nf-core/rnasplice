@@ -1,5 +1,6 @@
 process MISO_INDEX {
     label 'process_high'
+    scratch false
 
     conda "conda-forge::python=2.7 bioconda::misopy=0.5.4"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
