@@ -34,7 +34,6 @@ workflow TX2GENE_TXIMPORT {
     .set{ salmon_results }
     UNTAR ( salmon_results.tar )
     salmon_results = salmon_results.dir.mix(UNTAR.out.untar)
-    salmon_results.view()
 
     //
     // Quantify and merge counts across samples
