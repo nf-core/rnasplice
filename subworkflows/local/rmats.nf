@@ -54,23 +54,32 @@ workflow RMATS {
         // Create input channels
         //
 
-        ch_contrasts_cond1 = ch_contrasts.map { [ it.treatment, it.meta1, it.bam1 ] }
+        ch_bam = ch_contrasts.map { [ it.contrast, it.treatment, it.bam1 ] }
 
         //
         // Create input bam list file
         //
 
         CREATE_BAMLIST_SINGLE (
-            ch_contrasts_cond1
+            ch_bam
         )
+
+        ch_bamlist = CREATE_BAMLIST_SINGLE.out.bamlist
+
+        //
+        // Join bamlist with contrasts
+        //
+
+        ch_contrasts = ch_contrasts
+            .map { it -> [it['contrast'], it] }
+            .combine ( ch_bamlist, by: 0 )
+            .map { it -> it[1] + ['bam1_text': it[2]] }
 
         //
         // Create input channels
         //
 
-        ch_bamlist_cond1 = CREATE_BAMLIST_SINGLE.out.bam_text.map { it[3] }
-
-        ch_contrasts_cond1 = CREATE_BAMLIST_SINGLE.out.bam_text.map { [ it[0], it[1], it[2] ] }
+        ch_contrasts_bamlist = ch_contrasts.map { [ it.contrast, it.treatment, it.meta1, it.bam1, it.bam1_text ] }
 
         //
         // Run rMATS prep step
@@ -78,8 +87,7 @@ workflow RMATS {
 
         RMATS_PREP_SINGLE (
             gtf,
-            ch_bamlist_cond1,
-            ch_contrasts_cond1,
+            ch_contrasts_bamlist,
             rmats_read_len,
             rmats_splice_diff_cutoff,
             rmats_novel_splice_site,
@@ -87,15 +95,30 @@ workflow RMATS {
             rmats_max_exon_len
         )
 
+        ch_rmats_temp = RMATS_PREP_SINGLE.out.rmats_temp
+
+        //
+        // Join rmats temp with contrasts
+        //
+
+        ch_contrasts = ch_contrasts
+            .map { it -> [it['contrast'], it] }
+            .combine ( ch_rmats_temp, by: 0 )
+            .map { it -> it[1] + ['rmats_temp': it[2]] }
+
+        //
+        // Create input channels
+        //
+
+        ch_contrasts_bamlist = ch_contrasts.map { [ it.contrast, it.treatment, it.meta1, it.bam1, it.bam1_text, it.rmats_temp ] }
+
         //
         // Run rMATs post step
         //
 
         RMATS_POST_SINGLE (
             gtf,
-            ch_bamlist_cond1,
-            ch_contrasts_cond1,
-            RMATS_PREP_SINGLE.out.rmats_temp,
+            ch_contrasts_bamlist,
             rmats_read_len,
             rmats_splice_diff_cutoff,
             rmats_novel_splice_site,
@@ -114,33 +137,35 @@ workflow RMATS {
     } else {
 
         //
-        // Create input channels
+        // Create input channel
         //
 
-        ch_contrasts_cond1 = ch_contrasts.map { [ it.treatment, it.meta1, it.bam1 ] }
-
-        ch_contrasts_cond2 = ch_contrasts.map { [ it.control, it.meta2, it.bam2 ] }
+        ch_bam = ch_contrasts.map { [ it.contrast, it.treatment, it.control, it.bam1, it.bam2 ] }
 
         //
         // Create input bam list file
         //
 
         CREATE_BAMLIST (
-            ch_contrasts_cond1,
-            ch_contrasts_cond2
+            ch_bam
         )
+
+        ch_bamlist = CREATE_BAMLIST.out.bamlist
+
+        //
+        // Join bamlist with contrasts
+        //
+
+        ch_contrasts = ch_contrasts
+            .map { it -> [it['contrast'], it] }
+            .combine ( ch_bamlist, by: 0 )
+            .map { it -> it[1] + ['bam1_text': it[2], 'bam2_text': it[3]] }
 
         //
         // Create input channels
         //
 
-        ch_bamlist_cond1 = CREATE_BAMLIST.out.bam1_text.map { it[3] }
-
-        ch_contrasts_cond1 = CREATE_BAMLIST.out.bam1_text.map { [ it[0], it[1], it[2] ] }
-
-        ch_bamlist_cond2 = CREATE_BAMLIST.out.bam2_text.map { it[3] }
-
-        ch_contrasts_cond2 = CREATE_BAMLIST.out.bam2_text.map { [ it[0], it[1], it[2] ] }
+        ch_contrasts_bamlist = ch_contrasts.map { [ it.contrast, it.treatment, it.control, it.meta1, it.meta2, it.bam1, it.bam2, it.bam1_text, it.bam2_text ] }
 
         //
         // Run rMATS prep step
@@ -148,10 +173,7 @@ workflow RMATS {
 
         RMATS_PREP (
             gtf,
-            ch_bamlist_cond1,
-            ch_bamlist_cond2,
-            ch_contrasts_cond1,
-            ch_contrasts_cond2,
+            ch_contrasts_bamlist,
             rmats_read_len,
             rmats_splice_diff_cutoff,
             rmats_novel_splice_site,
@@ -159,17 +181,30 @@ workflow RMATS {
             rmats_max_exon_len
         )
 
+        ch_rmats_temp = RMATS_PREP.out.rmats_temp
+
+        //
+        // Join rmats temp with contrasts
+        //
+
+        ch_contrasts = ch_contrasts
+            .map { it -> [it['contrast'], it] }
+            .combine ( ch_rmats_temp, by: 0 )
+            .map { it -> it[1] + ['rmats_temp': it[2]] }
+
+        //
+        // Create input channels
+        //
+
+        ch_contrasts_bamlist = ch_contrasts.map { [ it.contrast, it.treatment, it.control, it.meta1, it.meta2, it.bam1, it.bam2, it.bam1_text, it.bam2_text, it.rmats_temp ] }
+
         //
         // Run rMATs post step
         //
 
         RMATS_POST (
             gtf,
-            ch_bamlist_cond1,
-            ch_bamlist_cond2,
-            ch_contrasts_cond1,
-            ch_contrasts_cond2,
-            RMATS_PREP.out.rmats_temp,
+            ch_contrasts_bamlist,
             rmats_read_len,
             rmats_splice_diff_cutoff,
             rmats_novel_splice_site,
