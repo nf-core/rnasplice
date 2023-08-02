@@ -15,6 +15,9 @@ include { SPLIT_FILES as SPLIT_FILES_IOI } from '../../modules/local/suppa_split
 include { DIFFSPLICE as DIFFSPLICE_IOE } from '../../modules/local/suppa_diffsplice.nf'
 include { DIFFSPLICE as DIFFSPLICE_IOI } from '../../modules/local/suppa_diffsplice.nf'
 
+include { CLUSTERGROUPS as CLUSTERGROUPS_IOE } from '../../modules/local/suppa_clustergroups.nf'
+include { CLUSTERGROUPS as CLUSTERGROUPS_IOI } from '../../modules/local/suppa_clustergroups.nf'
+
 include { CLUSTEREVENTS as CLUSTEREVENTS_IOE } from '../../modules/local/suppa_clusterevents.nf'
 include { CLUSTEREVENTS as CLUSTEREVENTS_IOI } from '../../modules/local/suppa_clusterevents.nf'
 
@@ -85,7 +88,7 @@ workflow SUPPA {
     ch_dpsi_local             = Channel.empty()
     ch_psivec_local           = Channel.empty()
 
-    ch_ranges_ioe             = Channel.empty()
+    ch_groups_ioe             = Channel.empty()
     ch_cluster_vec_local      = Channel.empty()
     ch_cluster_log_local      = Channel.empty()
 
@@ -149,13 +152,13 @@ workflow SUPPA {
 
             ch_suppa_local_contrasts = ch_suppa_local_contrasts
                 .map { it -> [it['treatment'], it] }
-                .cross ( ch_suppa_tpm_conditions )
-                .map { it -> it[0][1] + ['tpm1': it[1][1]] }
+                .combine ( ch_suppa_tpm_conditions, by: 0 )
+                .map { it -> it[1] + ['tpm1': it[2]] }
 
             ch_suppa_local_contrasts = ch_suppa_local_contrasts
                 .map { it -> [it['control'], it] }
-                .cross ( ch_suppa_tpm_conditions )
-                .map { it -> it[0][1] + ['tpm2': it[1][1]] }
+                .combine ( ch_suppa_tpm_conditions, by: 0 )
+                .map { it -> it[1] + ['tpm2': it[2]] }
 
             // Add PSI files to contrasts channel
 
@@ -165,13 +168,13 @@ workflow SUPPA {
 
             ch_suppa_local_contrasts = ch_suppa_local_contrasts
                 .map { it -> [it['treatment'], it] }
-                .cross ( ch_suppa_psi_conditions )
-                .map { it -> it[0][1] + ['psi1': it[1][1]] }
+                .combine ( ch_suppa_psi_conditions, by: 0 )
+                .map { it -> it[1] + ['psi1': it[2]] }
 
             ch_suppa_local_contrasts = ch_suppa_local_contrasts
                 .map { it -> [it['control'], it] }
-                .cross ( ch_suppa_psi_conditions )
-                .map { it -> it[0][1] + ['psi2': it[1][1]] }
+                .combine ( ch_suppa_psi_conditions, by: 0 )
+                .map { it -> it[1] + ['psi2': it[2]] }
 
             // Create input channels to diffsplice process
 
@@ -202,16 +205,16 @@ workflow SUPPA {
 
                 // Get ranges for cluster analysis
 
-                ch_ranges_ioe = SPLIT_FILES_IOE.out.ranges
-                    .splitText( by: 1 ) { it.trim() }
-                    .first()
+                CLUSTERGROUPS_IOE ( ch_psivec_local )
+
+                ch_groups_ioe = CLUSTERGROUPS_IOE.out
 
                 // Run Clustering
 
                 CLUSTEREVENTS_IOE(
                     ch_dpsi_local,
                     ch_psivec_local,
-                    ch_ranges_ioe,
+                    ch_groups_ioe,
                     prefix,
                     clusterevents_dpsithreshold,
                     clusterevents_eps,
@@ -237,7 +240,7 @@ workflow SUPPA {
     ch_dpsi_isoform            = Channel.empty()
     ch_psivec_isoform          = Channel.empty()
 
-    ch_ranges_ioi              = Channel.empty()
+    ch_groups_ioi              = Channel.empty()
     ch_cluster_vec_isoform     = Channel.empty()
     ch_cluster_log_isoform     = Channel.empty()
 
@@ -300,13 +303,13 @@ workflow SUPPA {
 
             ch_suppa_isoform_contrasts = ch_suppa_isoform_contrasts
                 .map { it -> [it['treatment'], it] }
-                .cross ( ch_suppa_tpm_conditions )
-                .map { it -> it[0][1] + ['tpm1': it[1][1]] }
+                .combine ( ch_suppa_tpm_conditions, by: 0)
+                .map { it -> it[1] + ['tpm1': it[2]] }
 
             ch_suppa_isoform_contrasts = ch_suppa_isoform_contrasts
                 .map { it -> [it['control'], it] }
-                .cross ( ch_suppa_tpm_conditions )
-                .map { it -> it[0][1] + ['tpm2': it[1][1]] }
+                .combine ( ch_suppa_tpm_conditions, by: 0)
+                .map { it -> it[1] + ['tpm2': it[2]] }
 
             // Add PSI files to contrasts channel
 
@@ -316,13 +319,13 @@ workflow SUPPA {
 
             ch_suppa_isoform_contrasts = ch_suppa_isoform_contrasts
                 .map { it -> [it['treatment'], it] }
-                .cross ( ch_suppa_psi_conditions )
-                .map { it -> it[0][1] + ['psi1': it[1][1]] }
+                .combine ( ch_suppa_psi_conditions, by: 0 )
+                .map { it -> it[1] + ['psi1': it[2]] }
 
             ch_suppa_isoform_contrasts = ch_suppa_isoform_contrasts
                 .map { it -> [it['control'], it] }
-                .cross ( ch_suppa_psi_conditions )
-                .map { it -> it[0][1] + ['psi2': it[1][1]] }
+                .combine ( ch_suppa_psi_conditions, by: 0 )
+                .map { it -> it[1] + ['psi2': it[2]] }
 
             // Create input channels to diffsplice process
 
@@ -353,16 +356,16 @@ workflow SUPPA {
 
                 // Get ranges for cluster analysis
 
-                ch_ranges_ioi = SPLIT_FILES_IOI.out.ranges
-                    .splitText( by: 1 ) { it.trim() }
-                    .first()
+                CLUSTERGROUPS_IOI ( ch_psivec_isoform )
+
+                ch_groups_ioi = CLUSTERGROUPS_IOI.out
 
                 // Run Clustering
 
                 CLUSTEREVENTS_IOI(
                     ch_dpsi_isoform,
                     ch_psivec_isoform,
-                    ch_ranges_ioi,
+                    ch_groups_ioi,
                     prefix,
                     clusterevents_dpsithreshold,
                     clusterevents_eps,
@@ -375,6 +378,7 @@ workflow SUPPA {
 
                 ch_cluster_vec_isoform = CLUSTEREVENTS_IOI.out.clustvec
                 ch_cluster_log_isoform = CLUSTEREVENTS_IOI.out.cluster_log
+
             }
         }
     }

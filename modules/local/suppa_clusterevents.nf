@@ -11,7 +11,7 @@ process CLUSTEREVENTS {
     input:
     tuple val(cond1), val(cond2), path(dpsi)
     tuple val(cond1), val(cond2), path(psivec)
-    val cluster_ranges // e.g. 1-3,4-6
+    val group_ranges // e.g. 1-3,4-6
     val prefix
     val clusterevents_dpsithreshold    // val params.clusterevents_dpsithreshold
     val clusterevents_eps              // val params.clusterevents_eps
@@ -43,7 +43,7 @@ process CLUSTEREVENTS {
         --eps $clusterevents_eps \\
         --metric $clusterevents_metric \\
         --min-pts $clusterevents_min_pts \\
-        --groups $cluster_ranges \\
+        --groups $group_ranges \\
         --clustering $clusterevents_method \\
         $clusterevents_sigthreshold $clusterevents_separation -o ${cond1}-${cond2}_${prefix}_cluster
 
