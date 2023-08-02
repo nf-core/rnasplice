@@ -36,13 +36,13 @@ workflow RMATS {
 
     ch_contrasts = ch_contrasts
         .map { it -> [it['treatment'], it] }
-        .cross ( ch_genome_bam_conditions )
-        .map { it -> it[0][1] + ['meta1': it[1][1], 'bam1': it[1][2]] }
+        .combine ( ch_genome_bam_conditions, by: 0 )
+        .map { it -> it[1] + ['meta1': it[2], 'bam1': it[3]] }
 
     ch_contrasts = ch_contrasts
         .map { it -> [it['control'], it] }
-        .cross ( ch_genome_bam_conditions )
-        .map { it -> it[0][1] + ['meta2': it[1][1], 'bam2': it[1][2]] }
+        .combine ( ch_genome_bam_conditions, by: 0 )
+        .map { it -> it[1] + ['meta2': it[2], 'bam2': it[3]] }
 
     //
     // Run RMATS in single or contrast mode
