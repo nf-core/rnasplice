@@ -9,11 +9,7 @@ process RMATS_POST {
 
     input:
     path gtf                                     // /path/to/genome.gtf
-    path bam_group1                              // path("bamlist_group1.txt")
-    path bam_group2                              // path("bamlist_group2.txt")
-    tuple val(cond1), val(meta1), path(bam1)     // [condition1, [condition1_metas], [condition1_bams]]
-    tuple val(cond2), val(meta2), path(bam2)     // [condition2, [condition2_metas], [condition2_bams]]
-    path ("$cond1-$cond2/rmats_temp/*")          // rmats temp folder from rmats prep step
+    tuple val(contrast), val(cond1), val(cond2), val(meta1), val(meta2), path(bam1), path(bam2), path(bam1_text), path(bam2_text), path("$cond1-$cond2/rmats_temp/*")
     val rmats_read_len                           // val params.rmats_read_len
     val rmats_splice_diff_cutoff                 // val params.rmats_splice_diff_cutoff
     val rmats_novel_splice_site                  // val params.rmats_novel_splice_site
@@ -71,8 +67,8 @@ process RMATS_POST {
 
     rmats.py \\
         --gtf $gtf \\
-        --b1 $bam_group1 \\
-        --b2 $bam_group2 \\
+        --b1 $bam1_text \\
+        --b2 $bam2_text \\
         --od $prefix/rmats_post \\
         --tmp $prefix/rmats_temp \\
         -t $read_type \\

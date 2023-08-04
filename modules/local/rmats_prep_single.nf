@@ -8,8 +8,7 @@ process RMATS_PREP_SINGLE {
 
     input:
     path gtf                                     // /path/to/genome.gtf
-    path bam_group1                              // path("bamlist_group1.txt")
-    tuple val(cond1), val(meta1), path(bams)     // [condition1, [condition1_metas], [condition1_bams]]
+    tuple val(contrast), val(cond1), val(meta1), path(bam1), path(bam1_text)
     val rmats_read_len                           // val params.rmats_read_len
     val rmats_splice_diff_cutoff                 // val params.rmats_splice_diff_cutoff
     val rmats_novel_splice_site                  // val params.rmats_novel_splice_site
@@ -17,9 +16,9 @@ process RMATS_PREP_SINGLE {
     val rmats_max_exon_len                       // val params.rmats_max_exon_len
 
     output:
-    path "rmats_temp/*"      , emit: rmats_temp
-    path "rmats_prep.log"    , emit: log
-    path "versions.yml"      , emit: versions
+    tuple val(contrast), path("rmats_temp/*") , emit: rmats_temp
+    path "rmats_prep.log"                     , emit: log
+    path "versions.yml"                       , emit: versions
 
     when:
     task.ext.when == null || task.ext.when

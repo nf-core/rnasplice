@@ -7,12 +7,10 @@ process CREATE_BAMLIST {
         'biocontainers/sed:4.7.0' }"
 
     input:
-    tuple val(cond1), val(meta1), path(bam1)
-    tuple val(cond2), val(meta2), path(bam2)
+    tuple val(contrast), val(cond1), val(cond2), path(bam1), path(bam2)
 
     output:
-    tuple val(cond1), val(meta1), path(bam1), path("${cond1}_bamlist.txt"), emit: bam1_text
-    tuple val(cond2), val(meta2), path(bam2), path("${cond2}_bamlist.txt"), emit: bam2_text
+    tuple val(contrast), path("${cond1}_bamlist.txt"), path("${cond2}_bamlist.txt"), emit: bamlist
     path "versions.yml",   emit: versions
 
     when:
