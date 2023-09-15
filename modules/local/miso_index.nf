@@ -1,6 +1,5 @@
 process MISO_INDEX {
     label 'process_high'
-    scratch false
 
     conda "conda-forge::python=2.7 bioconda::misopy=0.5.4"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -9,9 +8,10 @@ process MISO_INDEX {
 
     input:
     path gff3
+    val index
 
     output:
-    path "index"         , emit: miso_index
+    path index           , emit: miso_index
     path "versions.yml"  , emit: versions
 
     when:
@@ -19,7 +19,8 @@ process MISO_INDEX {
 
     script:
     """
-    index_gff --index $gff3 index
+    index_gff --index $gff3 $index
+    parse_miso_index.py -p $index
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

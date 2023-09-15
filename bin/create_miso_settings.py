@@ -11,7 +11,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--bam_prefix", type=str)
 parser.add_argument("--miso_prefix", type=str)
 parser.add_argument("--bams", nargs="+")
-parser.add_argument("--name", type=str, nargs="+")
+parser.add_argument("--name", nargs="+")
 parser.add_argument("--width", type=int)
 parser.add_argument("--height", type=int)
 parser.add_argument("--output")
@@ -26,10 +26,10 @@ width = args.width
 height = args.height
 output = args.output
 
-name = "".join(name)
-name = name.replace(",", "', '")
-name = name.replace("[", "['")
-name = name.replace("]", "']")
+# name = "".join(name)
+# name = name.replace(",", "', '")
+# name = name.replace("[", "['")
+# name = name.replace("]", "']")
 
 n = len(bams)
 col = "#CC0011"
