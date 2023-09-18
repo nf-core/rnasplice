@@ -1,6 +1,5 @@
 process MISO_SASHIMI {
     label 'process_single'
-    stageInMode = 'copy'
 
     conda "conda-forge::python=2.7 bioconda::misopy=0.5.4"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -10,7 +9,7 @@ process MISO_SASHIMI {
     input:
     path index_path
     tuple path(miso_settings), val(miso_gene)
-    path ("bam_files/*")   // Need bams in working directory
+    path ("bam_files/*")   // Need bam and bai in working directory
     path ("miso_data/*")   // Need Miso files in working directory
 
     output:

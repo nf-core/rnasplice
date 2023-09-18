@@ -26,21 +26,18 @@ width = args.width
 height = args.height
 output = args.output
 
-# name = "".join(name)
-# name = name.replace(",", "', '")
-# name = name.replace("[", "['")
-# name = name.replace("]", "']")
-
 n = len(bams)
 col = "#CC0011"
 n_col = list(repeat(col, n))
 
+# NB: Assume bam_files and miso_files have same prefix. Sorting independently
+# should give same sort order for both. Requirement for MISO.
 
 settings = f"""[data]
 bam_prefix = {bam_prefix}/
 miso_prefix = {miso_prefix}/
-bam_files = {bams}
-miso_files = {name}
+bam_files = {sorted(bams)}
+miso_files = {sorted(name)}
 
 [plotting]
 fig_width = {width}

@@ -101,10 +101,14 @@ workflow VISUALISE_MISO {
     }
     ch_miso_input = MISO_SETTINGS.out.miso_settings.combine(ch_miso_genes)
 
+    ch_bam_bai = ch_bam_join
+        .map { [it[1], it[2] ] }
+        .collect()
+
     MISO_SASHIMI (
         ch_miso_index,
         ch_miso_input,
-        ch_bams,
+        ch_bam_bai,
         ch_miso_run
     )
 

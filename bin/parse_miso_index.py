@@ -3,6 +3,7 @@
 # Email: bioinformatics@zifornd.com
 # License: MIT
 
+import glob
 import shelve
 import os
 import argparse
@@ -21,9 +22,8 @@ def main(prefix):
     genes_to_filenames.close()
 
     # Remove existing shelve files
-    os.remove(prefix + '/genes_to_filenames.shelve.dat')
-    os.remove(prefix + '/genes_to_filenames.shelve.bak')
-    os.remove(prefix + '/genes_to_filenames.shelve.dir')
+    for filename in glob.glob(prefix + '/genes_to_filenames.shelve.*'):
+        os.remove(filename)
 
     # Create new shelve file with relative paths
     genes_to_filenames = shelve.open(prefix + '/genes_to_filenames.shelve')
