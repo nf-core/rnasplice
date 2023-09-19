@@ -9,31 +9,36 @@ import os
 import argparse
 import re
 
+
 def main(prefix):
-
     # Check for non alphanumerics
-    regex = re.compile('[@!#$%^&*()<>?/\|}{~:]')
+    regex = re.compile("[@!#$%^&*()<>?/\|}{~:]")
 
-    assert regex.search(prefix) == None, "Prefix contains special chars: " + prefix + ". Please remove special chars: [@!#$%^&*()<>?/\|}{~:]"
+    assert regex.search(prefix) == None, (
+        "Prefix contains special chars: " + prefix + ". Please remove special chars: [@!#$%^&*()<>?/\|}{~:]"
+    )
 
     # Open and extract shelve file contents
-    genes_to_filenames = shelve.open(prefix + '/genes_to_filenames.shelve')
+    genes_to_filenames = shelve.open(prefix + "/genes_to_filenames.shelve")
     data = [(gene, filename) for gene, filename in genes_to_filenames.iteritems()]
     genes_to_filenames.close()
 
     # Remove existing shelve files
-    for filename in glob.glob(prefix + '/genes_to_filenames.shelve.*'):
+    for filename in glob.glob(prefix + "/genes_to_filenames.shelve.*"):
         os.remove(filename)
 
     # Create new shelve file with relative paths
-    genes_to_filenames = shelve.open(prefix + '/genes_to_filenames.shelve')
+    genes_to_filenames = shelve.open(prefix + "/genes_to_filenames.shelve")
 
     for gene, filename in data:
         elements = filename.split(prefix)
-        assert len(elements) == 2, "Filename contains" + (len(elements) - 1) + "instances of index delimiter. Expected only one."
-        genes_to_filenames[gene] = './' + prefix + elements[1]
+        assert len(elements) == 2, (
+            "Filename contains" + (len(elements) - 1) + "instances of index delimiter. Expected only one."
+        )
+        genes_to_filenames[gene] = "./" + prefix + elements[1]
 
     genes_to_filenames.close()
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="""Parse Miso index shelve files""")
