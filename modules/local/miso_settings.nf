@@ -1,11 +1,10 @@
 process MISO_SETTINGS {
-    label 'process_high'
+    label 'process_single'
 
     conda "conda-forge::parsimonious"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/parsimonious:0.10.0' :
         'biocontainers/parsimonious:0.10.0' }"
-
 
     input:
     path miso
@@ -26,7 +25,7 @@ process MISO_SETTINGS {
     create_miso_settings.py \\
         $args \\
         --bams $bams \\
-        --name $bams.simpleName \\
+        --name $miso \\
         --width $fig_width \\
         --height $fig_height \\
         --output 'miso_settings.txt'

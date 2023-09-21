@@ -40,8 +40,11 @@ workflow VISUALISE_MISO {
    // MODULE: DEXSeq Annotation
    //
 
+    def index_prefix = "index"
+
     MISO_INDEX (
-        GTF_2_GFF3.out.gff3
+        GTF_2_GFF3.out.gff3,
+        index_prefix
     )
 
     ch_versions = ch_versions.mix(MISO_INDEX.out.versions)
@@ -98,9 +101,15 @@ workflow VISUALISE_MISO {
     }
     ch_miso_input = MISO_SETTINGS.out.miso_settings.combine(ch_miso_genes)
 
+    ch_bam_bai = ch_bam_join
+        .map { [it[1], it[2] ] }
+        .collect()
+
     MISO_SASHIMI (
         ch_miso_index,
-        ch_miso_input
+        ch_miso_input,
+        ch_bam_bai,
+        ch_miso_run
     )
 
     ch_versions = ch_versions.mix(MISO_SASHIMI.out.versions)

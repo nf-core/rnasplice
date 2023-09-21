@@ -11,7 +11,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--bam_prefix", type=str)
 parser.add_argument("--miso_prefix", type=str)
 parser.add_argument("--bams", nargs="+")
-parser.add_argument("--name", type=str, nargs="+")
+parser.add_argument("--name", nargs="+")
 parser.add_argument("--width", type=int)
 parser.add_argument("--height", type=int)
 parser.add_argument("--output")
@@ -26,21 +26,18 @@ width = args.width
 height = args.height
 output = args.output
 
-name = "".join(name)
-name = name.replace(",", "', '")
-name = name.replace("[", "['")
-name = name.replace("]", "']")
-
 n = len(bams)
 col = "#CC0011"
 n_col = list(repeat(col, n))
 
+# NB: Assume bam_files and miso_files have same prefix. Sorting independently
+# should give same sort order for both. Requirement for MISO.
 
 settings = f"""[data]
 bam_prefix = {bam_prefix}/
 miso_prefix = {miso_prefix}/
-bam_files = {bams}
-miso_files = {name}
+bam_files = {sorted(bams)}
+miso_files = {sorted(name)}
 
 [plotting]
 fig_width = {width}
