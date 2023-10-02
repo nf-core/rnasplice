@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# Adapted from nf-core/rnaseq check_samplesheet.py script.
+# Please see nf-core/rnaseq for author and license.
 
 
 """Provide a command line tool to validate and transform tabular samplesheets."""
@@ -7,6 +9,7 @@
 import argparse
 import csv
 import logging
+import re
 import sys
 from collections import Counter
 from pathlib import Path
@@ -34,6 +37,8 @@ class RowChecker:
         sample_col="sample",
         first_col="fastq_1",
         second_col="fastq_2",
+        strandedness_col="strandedness",
+        condition_col="condition",
         single_col="single_end",
         **kwargs,
     ):
@@ -56,6 +61,8 @@ class RowChecker:
         self._sample_col = sample_col
         self._first_col = first_col
         self._second_col = second_col
+        self._strandedness_col = strandedness_col
+        self._condition_col = condition_col
         self._single_col = single_col
         self._seen = set()
         self.modified = []
@@ -72,6 +79,8 @@ class RowChecker:
         self._validate_sample(row)
         self._validate_first(row)
         self._validate_second(row)
+        self._validate_strandedness(row)
+        self._validate_condition(row)
         self._validate_pair(row)
         self._seen.add((row[self._sample_col], row[self._first_col]))
         self.modified.append(row)
@@ -94,6 +103,16 @@ class RowChecker:
         if len(row[self._second_col]) > 0:
             self._validate_fastq_format(row[self._second_col])
 
+    def _validate_strandedness(self, row):
+        """Assert that the first stradedness entry is non-empty and has the right value."""
+        assert len(row[self._strandedness_col]) > 0, "Strandedness input is required."
+        self._validate_strandedness_value(row[self._strandedness_col])
+
+    def _validate_condition(self, row):
+        """Assert that the first stradedness entry is non-empty and has a syntactically valid name."""
+        assert len(row[self._condition_col]) > 0, "Condition input is required."
+        self._validate_condition_value(row[self._condition_col])
+
     def _validate_pair(self, row):
         """Assert that read pairs have the same file extension. Report pair status."""
         if row[self._first_col] and row[self._second_col]:
@@ -112,6 +131,21 @@ class RowChecker:
                 f"The FASTQ file has an unrecognized extension: {filename}\n"
                 f"It should be one of: {', '.join(self.VALID_FORMATS)}"
             )
+
+    def _validate_strandedness_value(self, strandedness):
+        """Assert that a given sample has one of the expected strandedness values."""
+        strandednesses = ["unstranded", "forward", "reverse"]
+        assert any(strandedness == s for s in strandednesses), (
+            f"The strandedness column has an unrecognized value: {strandedness}\n"
+            f"It should be one of: {', '.join(strandednesses)}"
+        )
+
+    def _validate_condition_value(self, condition):
+        regex = "^(([A-Za-z]|[.][._A-Za-z])[._A-Za-z0-9]*)|[.]$"
+        assert bool(re.search(regex, condition)), (
+            f"The condition column has an invalid name: {condition}\n"
+            f"A syntactically valid name consists of letters, numbers and the dot or underline characters and starts with a letter or the dot not followed by a number."
+        )
 
     def validate_unique_samples(self):
         """
@@ -140,26 +174,40 @@ def read_head(handle, num_lines=10):
     return "".join(lines)
 
 
-def sniff_format(handle):
+# def sniff_format(handle):
+#     """
+#     Detect the tabular format.
+
+#     Args:
+#         handle (text file): A handle to a `text file`_ object. The read position is
+#         expected to be at the beginning (index 0).
+
+#     Returns:
+#         csv.Dialect: The detected tabular format.
+
+#     .. _text file:
+#         https://docs.python.org/3/glossary.html#term-text-file
+
+#     """
+#     peek = read_head(handle)
+#     handle.seek(0)
+#     sniffer = csv.Sniffer()
+#     dialect = sniffer.sniff(peek)
+#     return dialect
+
+
+def check_condition_replicates(samplesheet):
     """
-    Detect the tabular format.
-
-    Args:
-        handle (text file): A handle to a `text file`_ object. The read position is
-        expected to be at the beginning (index 0).
-
-    Returns:
-        csv.Dialect: The detected tabular format.
-
-    .. _text file:
-        https://docs.python.org/3/glossary.html#term-text-file
-
+    Assert that each condition has biological replicates.
     """
-    peek = read_head(handle)
-    handle.seek(0)
-    sniffer = csv.Sniffer()
-    dialect = sniffer.sniff(peek)
-    return dialect
+    from collections import Counter
+
+    conditions = [row["condition"] for row in samplesheet]
+    counter = Counter(conditions)
+    checker = all(v > 1 for k, v in counter.items())
+    groups = ",".join([k for k, v in counter.items() if v == 1])
+    message = f"Not all conditions have biological replicates ({groups})"
+    assert checker, message
 
 
 def check_samplesheet(file_in, file_out):
@@ -188,10 +236,10 @@ def check_samplesheet(file_in, file_out):
         https://raw.githubusercontent.com/nf-core/test-datasets/viralrecon/samplesheet/samplesheet_test_illumina_amplicon.csv
 
     """
-    required_columns = {"sample", "fastq_1", "fastq_2"}
+    required_columns = {"sample", "fastq_1", "fastq_2", "strandedness", "condition"}
     # See https://docs.python.org/3.9/library/csv.html#id3 to read up on `newline=""`.
     with file_in.open(newline="") as in_handle:
-        reader = csv.DictReader(in_handle, dialect=sniff_format(in_handle))
+        reader = csv.DictReader(in_handle)
         # Validate the existence of the expected header columns.
         if not required_columns.issubset(reader.fieldnames):
             req_cols = ", ".join(required_columns)
@@ -206,6 +254,10 @@ def check_samplesheet(file_in, file_out):
                 logger.critical(f"{str(error)} On line {i + 2}.")
                 sys.exit(1)
         checker.validate_unique_samples()
+
+        # Validate condition column
+        check_condition_replicates(reader)
+
     header = list(reader.fieldnames)
     header.insert(1, "single_end")
     # See https://docs.python.org/3.9/library/csv.html#id3 to read up on `newline=""`.

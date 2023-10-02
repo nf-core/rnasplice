@@ -17,10 +17,11 @@ nextflow.enable.dsl = 2
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-// TODO nf-core: Remove this line if you don't need a FASTA file
-//   This is an example of how to use getGenomeAttribute() to fetch parameters
-//   from igenomes.config using `--genome`
-params.fasta = WorkflowMain.getGenomeAttribute(params, 'fasta')
+params.fasta         = WorkflowMain.getGenomeAttribute(params, 'fasta')
+params.gff           = WorkflowMain.getGenomeAttribute(params, 'gff')
+params.gtf           = WorkflowMain.getGenomeAttribute(params, 'gtf')
+params.salmon_index  = WorkflowMain.getGenomeAttribute(params, 'salmon')
+params.star_index    = WorkflowMain.getGenomeAttribute(params, 'star')
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
