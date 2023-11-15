@@ -24,12 +24,12 @@ tximport_tx2gene <- args[2] # tx2gene information
 samplesheet      <- args[3] # samplesheet
 
 # Filter params
-min_samps_gene_expr    <- as.numeric(args[4])
-min_samps_feature_expr <- as.numeric(args[5])
-min_samps_feature_prop <- as.numeric(args[6])
-min_feature_expr       <- as.numeric(args[7])
-min_feature_prop       <- as.numeric(args[8])
-min_gene_expr          <- as.numeric(args[9])
+min_samps_gene_expr    <- args[4]
+min_samps_feature_expr <- args[5]
+min_samps_feature_prop <- args[6]
+min_feature_expr       <- args[7]
+min_feature_prop       <- args[8]
+min_gene_expr          <- args[9]
 
 ######################################
 ########## Process tx2gene ###########
