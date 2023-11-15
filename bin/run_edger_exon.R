@@ -18,7 +18,7 @@ samplesheet <- argv[2]
 
 contrastsheet <- argv[3]
 
-ntop  <- argv[4]
+ntop  <- as.integer(argv[4])
 
 
 # Load required packages
