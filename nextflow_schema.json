@@ -10,7 +10,7 @@
             "type": "object",
             "fa_icon": "fas fa-terminal",
             "description": "Define where the pipeline should find input data and save output data.",
-            "required": ["input", "outdir"],
+            "required": ["input", "source", "outdir", "contrasts"],
             "properties": {
                 "input": {
                     "type": "string",
@@ -19,8 +19,18 @@
                     "mimetype": "text/csv",
                     "pattern": "^\\S+\\.csv$",
                     "description": "Path to comma-separated file containing information about the samples in the experiment.",
-                    "help_text": "You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row. See [usage docs](https://nf-co.re/rnasplice/usage#samplesheet-input).",
+                    "help_text": "You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 4 columns, and a header row. See [usage docs](https://nf-co.re/rnasplice/usage#samplesheet-input).",
                     "fa_icon": "fas fa-file-csv"
+                },
+                "contrasts": {
+                    "type": "string",
+                    "description": "Path to comma-separated file containing information about the contrasts in the experiment."
+                },
+                "source": {
+                    "type": "string",
+                    "default": "fastq",
+                    "enum": ["fastq", "genome_bam", "transcriptome_bam", "salmon_results"],
+                    "description": "Source of input files."
                 },
                 "outdir": {
                     "type": "string",
@@ -39,6 +49,11 @@
                     "type": "string",
                     "description": "MultiQC report title. Printed as page header, used for filename if not otherwise specified.",
                     "fa_icon": "fas fa-file-signature"
+                },
+                "save_merged_fastq": {
+                    "type": "boolean",
+                    "description": "Save FastQ files after merging re-sequenced libraries in the results directory.",
+                    "fa_icon": "fas fa-save"
                 }
             }
         },
@@ -63,6 +78,76 @@
                     "description": "Path to FASTA genome file.",
                     "help_text": "This parameter is *mandatory* if `--genome` is not specified. If you don't have a BWA index available this will be generated for you automatically. Combine with `--save_reference` to save BWA index for future runs.",
                     "fa_icon": "far fa-file-code"
+                },
+                "gtf": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.gtf(\\.gz)?$",
+                    "description": "Path to GTF annotation file.",
+                    "fa_icon": "fas fa-code-branch",
+                    "help_text": "This parameter is *mandatory* if `--genome` is not specified."
+                },
+                "gff": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.gff(\\.gz)?$",
+                    "fa_icon": "fas fa-code-branch",
+                    "description": "Path to GFF3 annotation file.",
+                    "help_text": "This parameter must be specified if `--genome` or `--gtf` are not specified."
+                },
+                "transcript_fasta": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.fn?a(sta)?(\\.gz)?$",
+                    "fa_icon": "far fa-file-code",
+                    "description": "Path to FASTA transcriptome file."
+                },
+                "star_index": {
+                    "type": "string",
+                    "format": "path",
+                    "fa_icon": "fas fa-bezier-curve",
+                    "description": "Path to directory or tar.gz archive for pre-built STAR index."
+                },
+                "salmon_index": {
+                    "type": "string",
+                    "format": "path",
+                    "fa_icon": "fas fa-bezier-curve",
+                    "description": "Path to directory or tar.gz archive for pre-built Salmon index."
+                },
+                "gencode": {
+                    "type": "boolean",
+                    "description": "Specify if your transcript FASTA file is in GENCODE format.",
+                    "help_text": "If your file is in GENCODE format and you would like to run Salmon i.e. `--pseudo_aligner salmon`, you will need to provide this parameter in order to build the Salmon index appropriately.",
+                    "fa_icon": "fas fa-code-branch"
+                },
+                "gtf_extra_attributes": {
+                    "type": "string",
+                    "default": "gene_name",
+                    "fa_icon": "fas fa-layer-group",
+                    "description": "By default, the pipeline uses the gene_name field to obtain additional gene identifiers from the input GTF file when running Salmon."
+                },
+                "gtf_group_features": {
+                    "type": "string",
+                    "default": "gene_id",
+                    "fa_icon": "fas fa-layer-group",
+                    "description": "Define the attribute type used to group features in the GTF file when running Salmon."
+                },
+                "save_reference": {
+                    "type": "boolean",
+                    "fa_icon": "fas fa-save",
+                    "description": "If generated by the pipeline save the STAR index in the results directory.",
+                    "help_text": "If an alignment index is generated by the pipeline use this parameter to save it to your results folder. These can then be used for future pipeline runs, reducing processing times."
+                },
+                "igenomes_base": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "description": "Directory / URL base for iGenomes references.",
+                    "default": "s3://ngi-igenomes/igenomes",
+                    "fa_icon": "fas fa-cloud-download-alt",
+                    "hidden": true
                 },
                 "igenomes_ignore": {
                     "type": "boolean",
@@ -266,6 +351,495 @@
                     "help_text": "Allows string values that are parseable as numbers or booleans. For further information see [JSONSchema docs](https://github.com/everit-org/json-schema#lenient-mode)."
                 }
             }
+        },
+        "read_trimming_options": {
+            "title": "Read trimming options",
+            "type": "object",
+            "description": "Options to adjust read trimming criteria.",
+            "default": "",
+            "fa_icon": "fas fa-cut",
+            "properties": {
+                "clip_r1": {
+                    "type": "integer",
+                    "fa_icon": "fas fa-cut",
+                    "description": "Instructs Trim Galore to remove bp from the 5' end of read 1 (or single-end reads)."
+                },
+                "clip_r2": {
+                    "type": "integer",
+                    "fa_icon": "fas fa-cut",
+                    "description": "Instructs Trim Galore to remove bp from the 5' end of read 2 (paired-end reads only)."
+                },
+                "three_prime_clip_r1": {
+                    "type": "integer",
+                    "fa_icon": "fas fa-cut",
+                    "description": "Instructs Trim Galore to remove bp from the 3' end of read 1 AFTER adapter/quality trimming has been performed."
+                },
+                "three_prime_clip_r2": {
+                    "type": "integer",
+                    "fa_icon": "fas fa-cut",
+                    "description": "Instructs Trim Galore to remove bp from the 3' end of read 2 AFTER adapter/quality trimming has been performed."
+                },
+                "trim_nextseq": {
+                    "type": "integer",
+                    "help_text": "This enables the option Cutadapt `--nextseq-trim=3'CUTOFF` option via Trim Galore, which will set a quality cutoff (that is normally given with -q instead), but qualities of G bases are ignored. This trimming is in common for the NextSeq- and NovaSeq-platforms, where basecalls without any signal are called as high-quality G bases.",
+                    "fa_icon": "fas fa-cut",
+                    "description": "Instructs Trim Galore to apply the --nextseq=X option, to trim based on quality after removing poly-G tails."
+                },
+                "save_trimmed": {
+                    "type": "boolean",
+                    "description": "Save the trimmed FastQ files in the results directory.",
+                    "fa_icon": "fas fa-save"
+                },
+                "skip_trimming": {
+                    "type": "boolean",
+                    "description": "Use this if your input FastQ files have already been trimmed outside of the workflow or if you're very confident that there is no adapter contamination in your data.",
+                    "fa_icon": "fas fa-fast-forward"
+                },
+                "skip_trimgalore_fastqc": {
+                    "type": "boolean",
+                    "description": "Skip TrimGalore! FastQC.",
+                    "fa_icon": "fas fa-fast-forward"
+                },
+                "min_trimmed_reads": {
+                    "type": "integer",
+                    "default": 10000,
+                    "fa_icon": "fas fa-hand-paper",
+                    "description": "Minimum number of trimmed reads below which samples are flagged in multiqc output."
+                }
+            }
+        },
+        "qc_options": {
+            "title": "QC options",
+            "type": "object",
+            "description": "Defube QC options required for the workflow.",
+            "default": "",
+            "fa_icon": "fas fa-chart-pie",
+            "properties": {
+                "skip_fastqc": {
+                    "type": "boolean",
+                    "description": "Skip FastQC.",
+                    "fa_icon": "fas fa-fast-forward"
+                },
+                "skip_bigwig": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Skip bigWig file creation.",
+                    "fa_icon": "fas fa-fast-forward"
+                }
+            }
+        },
+        "alignment_options": {
+            "title": "Alignment options",
+            "type": "object",
+            "description": "Options to adjust parameters and filtering criteria for read alignments.",
+            "default": "",
+            "fa_icon": "fas fa-map-signs",
+            "properties": {
+                "aligner": {
+                    "type": "string",
+                    "default": "star",
+                    "description": "Specifies the alignment algorithm to use - available options are 'star_salmon', or 'star'.",
+                    "fa_icon": "fas fa-map-signs"
+                },
+                "pseudo_aligner": {
+                    "type": "string",
+                    "default": "salmon",
+                    "description": "Specifies the pseudo aligner to use - available options are 'salmon'. Runs in addition to '--aligner'.",
+                    "enum": ["salmon"],
+                    "fa_icon": "fas fa-hamburger"
+                },
+                "bam_csi_index": {
+                    "type": "boolean",
+                    "description": "Create a CSI index for BAM files instead of the traditional BAI index. This will be required for genomes with larger chromosome sizes.",
+                    "fa_icon": "fas fa-sort-alpha-down"
+                },
+                "star_ignore_sjdbgtf": {
+                    "type": "boolean",
+                    "description": "When using pre-built STAR indices do not re-extract and use splice junctions from the GTF file.",
+                    "fa_icon": "fas fa-ban"
+                },
+                "salmon_quant_libtype": {
+                    "type": "string",
+                    "fa_icon": "fas fa-fast-forward",
+                    "description": " Override Salmon library type inferred based on strandedness defined in meta object.",
+                    "help_text": "See [Salmon docs](https://salmon.readthedocs.io/en/latest/library_type.html)."
+                },
+                "seq_center": {
+                    "type": "string",
+                    "description": "Sequencing center information to be added to read group of BAM files.",
+                    "fa_icon": "fas fa-synagogue"
+                },
+                "skip_alignment": {
+                    "type": "boolean",
+                    "description": "Skip all of the alignment-based processes within the pipeline."
+                },
+                "save_unaligned": {
+                    "type": "boolean",
+                    "description": "Where possible, save unaligned reads from either STAR or Salmon to the results directory."
+                },
+                "save_align_intermeds": {
+                    "type": "boolean",
+                    "description": "Save the intermediate BAM files from the alignment step.",
+                    "help_text": "By default, intermediate BAM files will not be saved. The final BAM files created after the appropriate filtering step are always saved to limit storage usage. Set this parameter to also save other intermediate BAM files."
+                }
+            }
+        },
+        "rmats_options": {
+            "type": "object",
+            "title": "rMATS options",
+            "default": "",
+            "properties": {
+                "rmats": {
+                    "type": "boolean",
+                    "description": "Run rMATS workflow."
+                },
+                "rmats_splice_diff_cutoff": {
+                    "type": "number",
+                    "default": 0.0001,
+                    "description": "The cutoff used in the null hypothesis test for differential splicing."
+                },
+                "rmats_paired_stats": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Use paired statistical model."
+                },
+                "rmats_read_len": {
+                    "type": "integer",
+                    "default": 40,
+                    "description": "The length of each read."
+                },
+                "rmats_novel_splice_site": {
+                    "type": "boolean",
+                    "description": "Detect splicing events that involve an unannotated splice site."
+                },
+                "rmats_min_intron_len": {
+                    "type": "integer",
+                    "default": 50,
+                    "description": "Minimum Intron Length."
+                },
+                "rmats_max_exon_len": {
+                    "type": "integer",
+                    "default": 500,
+                    "description": "Maximum exon length."
+                }
+            },
+            "fa_icon": "far fa-chart-bar"
+        },
+        "dexseq_deu_options": {
+            "title": "DEXSeq DEU options",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "dexseq_exon": {
+                    "type": "boolean",
+                    "description": "Run DEXSeq differential exon usage workflow."
+                },
+                "save_dexseq_annotation": {
+                    "type": "boolean",
+                    "description": "Save pre-processed GFF annotation file."
+                },
+                "gff_dexseq": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.gff(\\.gz)?$",
+                    "fa_icon": "fas fa-code-branch",
+                    "description": "Path to GFF3 annotation file."
+                },
+                "alignment_quality": {
+                    "type": "integer",
+                    "default": 10,
+                    "description": "Minimum alignment quality required for reads to be counted."
+                },
+                "aggregation": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Combine overlapping genes into a single aggregate gene."
+                },
+                "save_dexseq_plot": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Save plots of the per gene DEXSeq results."
+                },
+                "n_dexseq_plot": {
+                    "type": "integer",
+                    "default": 10,
+                    "description": "Plot the N most significant genes from the DEXSeq results."
+                }
+            },
+            "fa_icon": "far fa-chart-bar"
+        },
+        "edger_deu_options": {
+            "title": "edgeR DEU options",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "edger_exon": {
+                    "type": "boolean",
+                    "description": "Run edgeR workflow."
+                },
+                "save_edger_plot": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Save plots of the per gene edgeR results."
+                },
+                "n_edger_plot": {
+                    "type": "integer",
+                    "default": 10,
+                    "description": "Plot the N most significant genes from the edgeR results."
+                }
+            },
+            "fa_icon": "far fa-chart-bar"
+        },
+        "dexseq_dtu_options": {
+            "title": "DEXSeq DTU options",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "dexseq_dtu": {
+                    "type": "boolean",
+                    "description": "Run DEXSeq differential transcript usage workflow."
+                },
+                "dtu_txi": {
+                    "type": "string",
+                    "default": "dtuScaledTPM",
+                    "enum": ["dtuScaledTPM", "scaledTPM"],
+                    "description": "Generate estimated counts using dtuScaledTPM or scaledTPM abundance estimates."
+                },
+                "min_samps_gene_expr": {
+                    "type": "integer",
+                    "default": 6,
+                    "description": "Minimal number of samples where genes should be expressed."
+                },
+                "min_samps_feature_expr": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Minimal number of samples where features should be expressed."
+                },
+                "min_samps_feature_prop": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Minimal proportion of samples where features should be expressed."
+                },
+                "min_gene_expr": {
+                    "type": "integer",
+                    "default": 10,
+                    "description": "Minimal gene expression."
+                },
+                "min_feature_expr": {
+                    "type": "integer",
+                    "default": 10,
+                    "description": "Minimal feature expression."
+                },
+                "min_feature_prop": {
+                    "type": "number",
+                    "default": 0.1,
+                    "description": "Minimal proportion for feature expression. This value should be between 0 and 1."
+                }
+            },
+            "fa_icon": "far fa-chart-bar"
+        },
+        "miso": {
+            "title": "Miso",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "sashimi_plot": {
+                    "type": "boolean",
+                    "description": "Create sashimi plots using MISO."
+                },
+                "miso_genes": {
+                    "type": "string",
+                    "default": "ENSG00000004961, ENSG00000005302",
+                    "description": "List containing identifiers of genes to plot."
+                },
+                "miso_genes_file": {
+                    "type": "string",
+                    "default": "None",
+                    "description": "New-line separate file containing identifiers of genes to plot."
+                },
+                "miso_read_len": {
+                    "type": "integer",
+                    "default": 75,
+                    "description": "Read length used to calculate coverage."
+                },
+                "fig_height": {
+                    "type": "integer",
+                    "default": 7,
+                    "description": "Sashimi figure height (inches)."
+                },
+                "fig_width": {
+                    "type": "integer",
+                    "default": 7,
+                    "description": "Sashimi figure width (inches)."
+                }
+            }
+        },
+        "suppa_options": {
+            "title": "SUPPA options",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "suppa": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Run SUPPA workflow."
+                },
+                "suppa_per_local_event": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Quantify event inclusion levels (PSIs) from multiple samples."
+                },
+                "suppa_per_isoform": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Quantify isoform inclusion levels (PSIs) from multiple samples."
+                },
+                "suppa_tpm": {
+                    "type": "string",
+                    "format": "path",
+                    "fa_icon": "fas fa-bezier-curve",
+                    "help_text": "An example can be found at \"${projectDir}/assets/tpm.txt\"",
+                    "description": "Expression file containing the abundances of all transcripts (ideally in TPM units)."
+                },
+                "generateevents_pool_genes": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Redefine genes by clustering together transcripts by genomic stranded overlap and sharing at least one exon."
+                },
+                "generateevents_event_type": {
+                    "type": "string",
+                    "default": "SE SS MX RI FL",
+                    "description": "Space separated list of events to generate."
+                },
+                "generateevents_boundary": {
+                    "type": "string",
+                    "default": "S",
+                    "description": "Boundary type (only used for local AS events).",
+                    "enum": ["S", "V"]
+                },
+                "generateevents_threshold": {
+                    "type": "integer",
+                    "default": 10,
+                    "description": "Variability treshold."
+                },
+                "generateevents_exon_length": {
+                    "type": "integer",
+                    "default": 100,
+                    "description": "Defines the number of nucleotides to display in the output GTF."
+                },
+                "psiperevent_total_filter": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Minimum total expression of the transcripts involved in the event."
+                },
+                "diffsplice_local_event": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Calculate differential splicing for AS events across multiple conditions with replicates."
+                },
+                "diffsplice_isoform": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Calculate differential splicing for differential transcript usage across multiple conditions with replicates"
+                },
+                "diffsplice_method": {
+                    "type": "string",
+                    "default": "empirical",
+                    "enum": ["empirical", "classical"],
+                    "description": "The method to use to calculate the significance."
+                },
+                "diffsplice_area": {
+                    "type": "integer",
+                    "default": 1000,
+                    "description": "Integer indicating the number of points in the local area of the delta PSI - average TPM distribution."
+                },
+                "diffsplice_lower_bound": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Lower-bound for the absolute delta PSI value to test for significance."
+                },
+                "diffsplice_gene_correction": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Correct the p-values by gene."
+                },
+                "diffsplice_paired": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Indicates if replicates across conditions are paired."
+                },
+                "diffsplice_alpha": {
+                    "type": "number",
+                    "default": 0.05,
+                    "description": "Family-wise error rate to use for the multiple test correction."
+                },
+                "diffsplice_median": {
+                    "type": "boolean",
+                    "description": "Use the median to calculate the Delta PSI, instead of the mean."
+                },
+                "diffsplice_tpm_threshold": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Minimum expression (calculated as average TPM value within-replicates and between-conditions) to be included in the analysis."
+                },
+                "diffsplice_nan_threshold": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Proportion of samples with nan values allowed per condition to calculate a DeltaPSI ."
+                },
+                "clusterevents_local_event": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Cluster events according to PSI values across conditions"
+                },
+                "clusterevents_isoform": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Cluster transcripts according to PSI values across conditions"
+                },
+                "clusterevents_sigthreshold": {
+                    "type": "number",
+                    "description": "P-value threshold to consider an event significant from the dpsi file."
+                },
+                "clusterevents_dpsithreshold": {
+                    "type": "number",
+                    "default": 0.05,
+                    "description": "Lower-bound for the absolute delta PSI value to cluster."
+                },
+                "clusterevents_eps": {
+                    "type": "number",
+                    "default": 0.05,
+                    "description": "Maximum distance (between 0 and 1) to consider two events as members of the same cluster."
+                },
+                "clusterevents_metric": {
+                    "type": "string",
+                    "default": "euclidean",
+                    "enum": ["euclidean", "manhattan", "cosine"],
+                    "description": "Distance metric."
+                },
+                "clusterevents_separation": {
+                    "type": "integer",
+                    "description": "Maximum distance in PSI space of an event to a cluster."
+                },
+                "clusterevents_min_pts": {
+                    "type": "integer",
+                    "default": 20,
+                    "description": "Minimum number of events required per cluster."
+                },
+                "clusterevents_method": {
+                    "type": "string",
+                    "default": "DBSCAN",
+                    "enum": ["OPTICS", "DBSCAN"],
+                    "description": "Clustering method to use (DBSCAN, OPTICS)."
+                }
+            },
+            "fa_icon": "far fa-chart-bar"
         }
     },
     "allOf": [
@@ -283,6 +857,33 @@
         },
         {
             "$ref": "#/definitions/generic_options"
+        },
+        {
+            "$ref": "#/definitions/read_trimming_options"
+        },
+        {
+            "$ref": "#/definitions/qc_options"
+        },
+        {
+            "$ref": "#/definitions/alignment_options"
+        },
+        {
+            "$ref": "#/definitions/rmats_options"
+        },
+        {
+            "$ref": "#/definitions/dexseq_deu_options"
+        },
+        {
+            "$ref": "#/definitions/edger_deu_options"
+        },
+        {
+            "$ref": "#/definitions/dexseq_dtu_options"
+        },
+        {
+            "$ref": "#/definitions/miso"
+        },
+        {
+            "$ref": "#/definitions/suppa_options"
         }
     ]
 }
