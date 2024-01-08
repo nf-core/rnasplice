@@ -148,7 +148,7 @@ object <- stageRTx(
     pScreen         = output[["pScreen"]],
     pConfirmation   = output[["pConfirmation"]],
     tx2gene         = output[["tx2gene"]],
-    pScreenAdjusted = FALSE
+    pScreenAdjusted = switch(analysis, "dexseq" = TRUE, "drimseq" = FALSE)
 )
 
 
