@@ -27,7 +27,7 @@ library(stageR)
 
 stripVersion <- function(x) {
 
-    substr(x, 1, 15)
+    sub("\\..*", "", x)
 
 }
 
