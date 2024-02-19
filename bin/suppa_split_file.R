@@ -36,6 +36,12 @@ if (length(args) == 5){
 }
 
 ######################################
+######### Read in input file #########
+######################################
+
+input_data <- read.csv(input_file, sep="\t", header=TRUE)
+
+######################################
 ####### Process samplesheet ##########
 ######################################
 
@@ -63,7 +69,7 @@ conditions <- unique(samplesheet[,"condition"])
 #########################################################
 
 # Function for taking all sample names associated with a given condition
-split_files <- function(condition, samplesheet, input_file, output_file_suffix, prefix, calculate_ranges){
+split_files <- function(condition, samplesheet, input_data, output_file_suffix, prefix, calculate_ranges){
 
     # Get indices of rows which cover given condition for ranges
     indices <- which(samplesheet$condition == condition)
@@ -71,11 +77,8 @@ split_files <- function(condition, samplesheet, input_file, output_file_suffix, 
     # Get sample names for given condition
     sample_names <- samplesheet[samplesheet$condition == condition,]$sample
 
-    # Read in input file
-    input_file <- read.csv(input_file, sep="\t", header=TRUE)
-
-    # Check header of input_file contains all samples from processed samplesheet
-    if (!all(samplesheet$sample %in% colnames(input_file))) {
+    # Check header of input_data contains all samples from processed samplesheet
+    if (!all(samplesheet$sample %in% colnames(input_data))) {
 
         stop("suppa_split_file.R Input_file must contain samplesheet samples.", call.=FALSE)
 
@@ -92,7 +95,7 @@ split_files <- function(condition, samplesheet, input_file, output_file_suffix, 
     }
 
     # Subset input files and save out as new file
-    write.table(input_file[,sample_names, drop=F], file = output_file, quote = FALSE, sep = "\t")
+    write.table(input_data[,sample_names, drop=F], file = output_file, quote = FALSE, sep = "\t")
 
     # Get Cluster ranges which match the tpm and psi files above (1-3 4-6)
     # Column numbers have to be continuous, with no overlapping or missing columns between them. Ex:1-3,4-6
@@ -118,7 +121,7 @@ split_files <- function(condition, samplesheet, input_file, output_file_suffix, 
 for (cond in conditions) {
 
     # Split files
-    split_files(cond, samplesheet, input_file, output_file_suffix, prefix, calculate_ranges)
+    split_files(cond, samplesheet, input_data, output_file_suffix, prefix, calculate_ranges)
 
 }
 
