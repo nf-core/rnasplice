@@ -77,21 +77,21 @@ vectorToDataFrame <- function(x) {
 
 # Read samples table
 
-samples <- read.delim(samples, stringsAsFactors = TRUE)
+samples <- read.delim(samples, stringsAsFactors = TRUE, check.names = FALSE)
 
 colnames(samples) <- c("sample", "condition")
 
 
 # Read contrasts table
 
-contrasts <- read.csv(contrasts)
+contrasts <- read.csv(contrasts, check.names = FALSE)
 
 contrasts <- contrasts[, c("contrast", "treatment", "control"), drop = FALSE]
 
 
 # Read counts table
 
-counts <- read.table(counts, sep = "\t", header = TRUE)
+counts <- read.table(counts, sep = "\t", header = TRUE, check.names = FALSE)
 
 annotation <- data.frame(
     featureID = counts$feature_id,

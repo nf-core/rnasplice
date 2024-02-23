@@ -99,7 +99,7 @@ write.plotDEXSeq <- function(x, file, ntop = 10) {
 
 # Read samples table
 
-samples <- read.csv(samples, stringsAsFactors = TRUE)
+samples <- read.csv(samples, stringsAsFactors = TRUE, check.names = FALSE)
 
 samples <- samples[, c("sample", "condition"), drop = FALSE]
 
@@ -107,7 +107,7 @@ samples <- unique(samples)
 
 # Read contrasts table
 
-contrasts <- read.csv(contrasts)
+contrasts <- read.csv(contrasts, check.names = FALSE)
 
 contrasts <- contrasts[, c("contrast", "treatment", "control"), drop = FALSE]
 
