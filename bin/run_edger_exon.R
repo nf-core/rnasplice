@@ -28,7 +28,7 @@ library(edgeR)
 
 # Read samples table
 
-samples <- read.csv(samplesheet)
+samples <- read.csv(samplesheet, check.names = FALSE)
 
 samples <- samples[, c("sample", "condition"), drop = FALSE]
 
@@ -37,7 +37,7 @@ samples <- unique(samples)
 
 # Read contrasts table
 
-contrasts <- read.csv(contrastsheet)
+contrasts <- read.csv(contrastsheet, check.names = FALSE)
 
 contrasts <- contrasts[, c("contrast", "treatment", "control"), drop = FALSE]
 

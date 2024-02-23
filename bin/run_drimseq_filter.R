@@ -43,7 +43,7 @@ tx2gene <- read.csv(tximport_tx2gene, sep="\t", header = TRUE)
 ######################################
 
 # Read in Sample sheet
-samps <- read.csv(samplesheet, sep=",", header = TRUE)
+samps <- read.csv(samplesheet, sep=",", header = TRUE, check.names = FALSE)
 
 # check header of sample sheet
 if (!c("sample") %in% colnames(samps) | !c("condition") %in% colnames(samps)) {
