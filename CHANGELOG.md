@@ -3,6 +3,11 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.0.3 - 2024-02-23
+
+- Improved TPM file splitting performance (Issue #120).
+- Fixed an issue where R scripts altered sample names upon loading (Issue #122).
+
 ## v1.0.2 - 2024-01-08
 
 Patch for run_stager.R (#108) and template update v2.11.1 (#109).

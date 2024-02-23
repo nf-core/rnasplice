@@ -39,14 +39,14 @@ if (length(args) == 5){
 ######### Read in input file #########
 ######################################
 
-input_data <- read.csv(input_file, sep="\t", header=TRUE)
+input_data <- read.csv(input_file, sep = "\t", header = TRUE, check.names = FALSE)
 
 ######################################
 ####### Process samplesheet ##########
 ######################################
 
 # Read in samplesheet
-samplesheet <- read.csv(samplesheet, header = TRUE)
+samplesheet <- read.csv(samplesheet, header = TRUE, check.names = FALSE)
 
 # check header of sample sheet
 if (!c("sample") %in% colnames(samplesheet) | !c("condition") %in% colnames(samplesheet)) {
