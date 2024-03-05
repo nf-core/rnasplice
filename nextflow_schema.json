@@ -659,7 +659,6 @@
                 },
                 "miso_genes_file": {
                     "type": "string",
-                    "default": "None",
                     "description": "New-line separate file containing identifiers of genes to plot."
                 },
                 "miso_read_len": {
