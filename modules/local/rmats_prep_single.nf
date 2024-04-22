@@ -57,7 +57,7 @@ process RMATS_PREP_SINGLE {
 
     """
     rmats.py \\
-        --b1 $bam_group1 \\
+        --b1 $bam1 \\
         -t $read_type \\
         --libType $strandedness \\
         --nthread $task.cpus \\
