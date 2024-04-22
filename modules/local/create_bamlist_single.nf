@@ -7,7 +7,7 @@ process CREATE_BAMLIST_SINGLE {
         'biocontainers/sed:4.7.0' }"
 
     input:
-    tuple val(contrast), val(cond1), path(bam1)
+    tuple val(contrast), val(cond), path(bam)
 
     output:
     tuple val(contrast), path("${cond}_bamlist.txt"), emit: bamlist
