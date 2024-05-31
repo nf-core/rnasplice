@@ -86,6 +86,7 @@ counts <- data.frame(gene_id = tx2gene$gene_id,
                     feature_id = tx2gene$tx,
                     cts)
 
+samps$sample_id = make.names(samps$sample_id)
 
 # Filter for txs with > 0 counts across all samples
 counts <- counts[rowSums(counts[,(3:ncol(counts))]) > 0,]
