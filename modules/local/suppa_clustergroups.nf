@@ -11,7 +11,7 @@ process CLUSTERGROUPS {
     tuple val(cond1), val(cond2), path(psivec)
 
     output:
-    stdout
+    tuple val(cond1), val(cond2), stdout
 
     when:
     task.ext.when == null || task.ext.when
