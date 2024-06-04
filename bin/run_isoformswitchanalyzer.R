@@ -333,6 +333,13 @@ tryCatch({
         "isoformswitchanalyzer_summary.csv",
         row.names = FALSE
     )
+
+    # Write blank isoformFeatures
+
+    write.csv(data.frame(),
+        "isoformswitchanalyzer_isoformfeatures.csv",
+        row.names = FALSE
+    )
 })
 
 
