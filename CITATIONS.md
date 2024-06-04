@@ -81,6 +81,12 @@
 
   > Nowicka M, Robinson MD (2016). “DRIMSeq: a Dirichlet-multinomial framework for multivariate count outcomes in genomics [version 2; referees: 2 approved].” F1000Research, 5(1356). doi: 10.12688/f1000research.8900.2.
 
+- [IsoformSwitchAnalyzeR](https://www.bioconductor.org/packages/release/bioc/html/IsoformSwitchAnalyzeR.html)
+
+  > Vitting-Seerup K, Sandelin A (2017). “The Landscape of Isoform Switches in Human Cancers.” Mol. Cancer Res. doi:10.1158/1541-7786.MCR-16-0459, doi: 10.1158/1541-7786.MCR-16-0459.
+
+  > Vitting-Seerup K, Sandelin A (2019). “IsoformSwitchAnalyzeR: Analysis of changes in genome-wide patterns of alternative splicing and its functional consequences.” Bioinformatics. doi:10.1093/bioinformatics/btz247, doi: 10.1093/bioinformatics/btz247.
+
 - [edgeR](https://bioconductor.org/packages/release/bioc/html/edgeR.html)
 
   > Robinson MD, McCarthy DJ, Smyth GK (2010). “edgeR: a Bioconductor package for differential expression analysis of digital gene expression data.” Bioinformatics, 26(1), 139-140. doi: 10.1093/bioinformatics/btp616.

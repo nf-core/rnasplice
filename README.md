@@ -38,7 +38,9 @@
     1. [`Salmon`](https://combine-lab.github.io/salmon/) -> [`DRIMSeq`](https://bioconductor.org/packages/release/bioc/html/DRIMSeq.html) -> [`DEXSeq`](https://f1000research.com/articles/7-952)
     2. Filtering with [`DRIMSeq`](https://bioconductor.org/packages/release/bioc/html/DRIMSeq.html)
     3. Differential transcript usage with [`DEXSeq`](https://bioconductor.org/packages/devel/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html)
-12. Event-based splicing analysis:
+12. Isoform switch analysis:
+    1. [`Salmon`](https://combine-lab.github.io/salmon/) -> [`IsoformSwitchAnalyzeR`](https://www.bioconductor.org/packages/release/bioc/html/IsoformSwitchAnalyzeR.html)
+13. Event-based splicing analysis:
     1. [`STAR`](https://github.com/alexdobin/STAR) -> [`rMATS`](https://github.com/Xinglab/rmats-turbo)
     2. [`Salmon`](https://combine-lab.github.io/salmon/) -> [`SUPPA2`](https://github.com/comprna/SUPPA)
 
