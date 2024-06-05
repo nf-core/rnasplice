@@ -407,7 +407,6 @@ Finally, this portion of the pipeline will run [stageR](https://bioconductor.org
 
 If [IsoformSwitchAnalyzeR](https://www.bioconductor.org/packages/release/bioc/html/IsoformSwitchAnalyzeR.html) finds genes with isoform switches it produces plots visualizing these switches. A separate set of switch plots is created for each contrast if that contrast contains significant switches. Further two .csv files are created, a summary and the main results. The .rds of the main R list gets also returned.
 
-
 ## Event-based analysis
 
 ### rMATS
