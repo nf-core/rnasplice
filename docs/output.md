@@ -383,6 +383,31 @@ The `DEXSeqDataSet.*.rds` is a DEXSeqDataSet R object which contains slots with 
 
 Finally, this portion of the pipeline will run [stageR](https://bioconductor.org/packages/release/bioc/html/stageR.html), a tool for stage wise analysis of high throughput expression data, following DEXSeq. This allows us to answer a two stage set of questions - the first is "Which set of genes show some evidence of DTU?" which we ask by running the DEXSeq screening step and the second "Which transcripts in those identified genes participate in DTU?" a secondary confirmation step. Outputs for stageR include `stageRTx.{contrast}.rds` an stageRTx R object which has p-value correction with stageWiseAdjustment with 5% target Overall FDR (alpha=0.05) and method="dtu" as default. The `getAdjustedPValues.{contrast}.rds` is an R object of results - a matrix with transcript and gene level adjusted p-values with gene and respective transcript level gene identifiers in the first two columns. `getAdjustedPValues.{contrast}.tsv` is a TSV file identical to `getAdjustedPValues.{contrast}.rds`. Finally, `getAdjustedPValues.{contrast}.tsv`, is the results from `getAdjustedPValues.{contrast}.rds` combined with the results from DEXSeq `DEXSeqResults.{contrast}.tsv`.
 
+### IsoformSwitchAnalyzeR
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `isoformswitchanalyzer/`
+  - `results/`
+    - `Condition1_vs_Condition2/`
+      - `01_switch_plot_gene1.pdf`
+      - `02_switch_plot_gene2.pdf`
+      - `03_switch_plot_gene3.pdf`
+    - `Condition2_vs_Condition3/`
+      - `01_switch_plot_gene4.pdf`
+      - `02_switch_plot_gene5.pdf`
+      - `03_switch_plot_gene6.pdf`
+    - `...`
+  - `isoformswitchanalyzer_isoformfeatures.csv`
+  - `isoformswitchanalyzer_summary.csv`
+  - `switchlist.rds`
+
+</details>
+
+If [IsoformSwitchAnalyzeR](https://www.bioconductor.org/packages/release/bioc/html/IsoformSwitchAnalyzeR.html) finds genes with isoform switches it produces plots visualizing these switches. A separate set of switch plots is created for each contrast if that contrast contains significant switches. Further two .csv files are created, a summary and the main results. The .rds of the main R list gets also returned.
+
+
 ## Event-based analysis
 
 ### rMATS
