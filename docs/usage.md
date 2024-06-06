@@ -191,7 +191,7 @@ Prior to DEXSeq DTU analysis, filtering of genes and features with low expressio
 ### IsoformSwitchAnalyzeR
 
 IsoformSwitchAnalyzeR as described by [Vitting-Seerup et al., 2019](https://doi.org/10.1093/bioinformatics/btz247) performs a genome-wide analysis of splicing patterns and identifies isoform switches. It takes a salmon results directory as input so either `--source fastq` or `--source salmon_results` must be given. Two parameters can be set:
-`--isoformswitchanalyzer_alpha` sets the significance threshold and `--isoformswitchanalyzer_dIF` sets the minimum absolute difference in isoform expression.
+`--isoformswitchanalyzer_alpha` sets the significance threshold and `--isoformswitchanalyzer_dIF` sets the minimum absolute difference in isoform usage.
 
 ## Event based approaches
 
