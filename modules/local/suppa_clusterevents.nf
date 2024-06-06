@@ -11,7 +11,7 @@ process CLUSTEREVENTS {
     input:
     tuple val(cond1), val(cond2), path(dpsi)
     tuple val(cond1), val(cond2), path(psivec)
-    val group_ranges // e.g. 1-3,4-6
+    tuple val(cond1), val(cond2), val(group_ranges) // e.g. 1-3,4-6
     val prefix
     val clusterevents_dpsithreshold    // val params.clusterevents_dpsithreshold
     val clusterevents_eps              // val params.clusterevents_eps

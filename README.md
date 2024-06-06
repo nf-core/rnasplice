@@ -38,7 +38,9 @@
     1. [`Salmon`](https://combine-lab.github.io/salmon/) -> [`DRIMSeq`](https://bioconductor.org/packages/release/bioc/html/DRIMSeq.html) -> [`DEXSeq`](https://f1000research.com/articles/7-952)
     2. Filtering with [`DRIMSeq`](https://bioconductor.org/packages/release/bioc/html/DRIMSeq.html)
     3. Differential transcript usage with [`DEXSeq`](https://bioconductor.org/packages/devel/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html)
-12. Event-based splicing analysis:
+12. Isoform switch analysis:
+    1. [`Salmon`](https://combine-lab.github.io/salmon/) -> [`IsoformSwitchAnalyzeR`](https://www.bioconductor.org/packages/release/bioc/html/IsoformSwitchAnalyzeR.html)
+13. Event-based splicing analysis:
     1. [`STAR`](https://github.com/alexdobin/STAR) -> [`rMATS`](https://github.com/Xinglab/rmats-turbo)
     2. [`Salmon`](https://combine-lab.github.io/salmon/) -> [`SUPPA2`](https://github.com/comprna/SUPPA)
 
@@ -104,7 +106,7 @@ nf-core/rnasplice was originally written by the bioinformatics team from [Zifo R
 - [Asma Ali](https://github.com/asmaali98)
 - [Lathika Madhan Mohan](https://github.com/lathikaa)
 
-We thank Harshil Patel ([@drpatelh](https://github.com/drpatelh)) and Seqera Labs ([seqeralabs](https://github.com/seqeralabs)) for their assistance in the development of this pipeline.
+We thank Harshil Patel ([@drpatelh](https://github.com/drpatelh)), Seqera Labs ([seqeralabs](https://github.com/seqeralabs)) and Jesse Angelis ([@jesseangelis](https://github.com/jesseangelis)) for their assistance in the development of this pipeline.
 
 <img src="docs/images/zifo_logo.jpg" alt="Zifo RnD Solutions" width="200"/>
 
