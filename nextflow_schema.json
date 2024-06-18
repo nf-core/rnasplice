@@ -650,6 +650,7 @@
             "properties": {
                 "sashimi_plot": {
                     "type": "boolean",
+                    "default":"True",
                     "description": "Create sashimi plots using MISO."
                 },
                 "miso_genes": {
