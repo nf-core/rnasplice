@@ -123,7 +123,7 @@ The contrastsheet has to be a comma-separated file with 3 columns, and a header 
 
 ```console
 contrast,treatment,control
-TREATMENT_CONTROL,TREATMENT,CONTROL
+TREATMENT-CONTROL,TREATMENT,CONTROL
 ```
 
 The contrastsheet can have as many columns as you desire, however, there is a strict requirement for the first 3 columns to match those defined in the table below.
