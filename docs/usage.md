@@ -130,9 +130,11 @@ The contrastsheet can have as many columns as you desire, however, there is a st
 
 | Column      | Description                                                               |
 | ----------- | ------------------------------------------------------------------------- |
-| `contrast`  | An arbitrary identifier, will be used to name contrast-wise output files. |
+| `contrast`  | An arbitrary identifier for the contrast. |
 | `treatment` | The treatment/target level for the comparison.                            |
 | `control`   | The control/base level for the comparison.                                |
+
+The 'contrast' column can have any separator between the conditions. For example- TREATMENT-CONTROL, TREATMENT_vs_CONTROL, TREATMENT_CONTROL are all synonymous in the pipeline.
 
 An [example contrastsheet](../assets/contrastsheet.csv) has been provided with the pipeline.
 
