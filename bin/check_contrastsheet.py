@@ -141,9 +141,9 @@ def check_contrastsheet(file_in, file_out):
         This function checks that the contrastsheet follows the following structure:
 
         contrast,treatment,control
-        A_vs_B,A,B
-        A_vs_C,A,C
-        B_vs_C,B,C
+        A-B,A,B
+        A-C,A,C
+        B-C,B,C
 
     """
     required_columns = {"contrast", "treatment", "control"}

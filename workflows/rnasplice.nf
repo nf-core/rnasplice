@@ -101,13 +101,14 @@ include { VISUALISE_MISO                                       } from '../subwor
 */
 
 //
-// MODULE: Installed directly from nf-core/modules
+// MODULE: Consisting of a mix of local and nf-core/modules
 //
 include { SALMON_QUANT as SALMON_QUANT_SALMON } from '../modules/nf-core/salmon/quant/main'
 include { SALMON_QUANT as SALMON_QUANT_STAR   } from '../modules/nf-core/salmon/quant/main'
 include { MULTIQC                             } from '../modules/nf-core/multiqc/main'
 include { CUSTOM_DUMPSOFTWAREVERSIONS         } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 include { CAT_FASTQ                           } from '../modules/nf-core/cat/fastq/main'
+include { SAMPLESHEET_CONTRASTSHEET_CHECKER           } from '../modules/local/samplesheet_contrastsheet_checker'
 
 //
 // SUBWORKFLOWS: Installed directly from nf-core/modules
@@ -221,7 +222,16 @@ workflow RNASPLICE {
 
     // Create contrastsheet channel (after contrasts check)
     ch_contrastsheet = Channel.fromPath(params.contrasts)
+    
+    //
+    // MODULE: Validate whether samplesheet and contrastsheet match
+    //
 
+    SAMPLESHEET_CONTRASTSHEET_CHECKER (
+        ch_samplesheet,
+        ch_contrastsheet
+    )
+    ch_versions = ch_versions.mix(SAMPLESHEET_CONTRASTSHEET_CHECKER.out.versions)
 
     // Check rMATS parameters specified correctly
     if (params.rmats && params.source == 'fastq') {
