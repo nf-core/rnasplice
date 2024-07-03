@@ -108,11 +108,12 @@ include { SALMON_QUANT as SALMON_QUANT_STAR   } from '../modules/nf-core/salmon/
 include { MULTIQC                             } from '../modules/nf-core/multiqc/main'
 include { CUSTOM_DUMPSOFTWAREVERSIONS         } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 include { CAT_FASTQ                           } from '../modules/nf-core/cat/fastq/main'
-include { SAMPLESHEET_CONTRASTSHEET_CHECKER           } from '../modules/local/samplesheet_contrastsheet_checker'
+include { SAMPLESHEET_CONTRASTSHEET_CHECKER   } from '../modules/local/samplesheet_contrastsheet_checker'
 
 //
 // SUBWORKFLOWS: Installed directly from nf-core/modules
 //
+include { FASTQ_SUBSAMPLE_FQ_SALMON                                       } from '../subworkflows/nf-core/fastq_subsample_fq_salmon'
 include { FASTQ_FASTQC_UMITOOLS_TRIMGALORE                                } from '../subworkflows/nf-core/fastq_fastqc_umitools_trimgalore/main'
 include { BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG as BEDGRAPH_TO_BIGWIG_FORWARD } from '../subworkflows/nf-core/bedgraph_bedclip_bedgraphtobigwig/main'
 include { BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG as BEDGRAPH_TO_BIGWIG_REVERSE } from '../subworkflows/nf-core/bedgraph_bedclip_bedgraphtobigwig/main'
@@ -293,6 +294,46 @@ workflow RNASPLICE {
 
     }
 
+    //Branch FastQ channels if 'auto' specified to infer strandedness
+    ch_trim_reads
+        .branch {
+            meta, fastq ->
+                auto_strand : meta.strandedness == 'auto'
+                    return [ meta, fastq ]
+                known_strand: meta.strandedness != 'auto'
+                    return [ meta, fastq ]
+        }
+        .set { ch_strand_reads }
+
+    // Return empty channel if ch_strand_fastq.auto_strand is empty so salmon index isn't created
+    PREPARE_GENOME
+        .out
+        .fasta
+        .combine(ch_strand_reads.auto_strand)
+        .map { it.first() }
+        .first()
+        .set { ch_genome_fasta }
+
+    FASTQ_SUBSAMPLE_FQ_SALMON (
+        ch_strand_reads.auto_strand,
+        ch_genome_fasta,
+        PREPARE_GENOME.out.transcript_fasta,
+        PREPARE_GENOME.out.gtf,
+        PREPARE_GENOME.out.salmon_index,
+        !params.salmon_index && !('salmon' in prepare_tool_indices)
+    )
+    ch_versions = ch_versions.mix(FASTQ_SUBSAMPLE_FQ_SALMON.out.versions)
+
+    FASTQ_SUBSAMPLE_FQ_SALMON
+        .out
+        .json_info
+        .join(ch_strand_reads.auto_strand)
+        .map { meta, json, reads ->
+            return [ meta + [ strandedness: WorkflowRnasplice.getSalmonInferredStrandedness(json) ], reads ]
+        }
+        .mix(ch_strand_reads.known_strand)
+        .set { ch_strand_inferred_filtered_reads }
+
     //
     // SUBWORKFLOW: Alignment with STAR
     //
@@ -326,7 +367,7 @@ workflow RNASPLICE {
     if ((params.source == 'fastq') && !params.skip_alignment && ( params.aligner == 'star' || params.aligner == 'star_salmon')) {
 
         ALIGN_STAR (
-            ch_trim_reads,
+            ch_strand_inferred_filtered_reads,
             PREPARE_GENOME.out.star_index,
             PREPARE_GENOME.out.gtf,
             params.star_ignore_sjdbgtf,
@@ -597,7 +638,7 @@ workflow RNASPLICE {
         ch_transcript_fasta = ch_dummy_file
 
         SALMON_QUANT_SALMON (
-            ch_trim_reads,
+            ch_strand_inferred_filtered_reads,
             PREPARE_GENOME.out.salmon_index,
             PREPARE_GENOME.out.gtf,
             ch_transcript_fasta,

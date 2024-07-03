@@ -62,13 +62,6 @@ def check_sheets(samplesheet, contrastsheet):
             except AssertionError as error:
                 logger.critical(f"{str(error)} on line {i + 2}")
                 sys.exit(1)
-        # check block col
-        try:
-            checker.check_block_unique(reader2)
-        except AssertionError as error:
-            logger.critical(f"{str(error)}.")
-            sys.exit(1)
-
 
 def parse_args(argv=None):
     """Define and immediately parse command line arguments."""

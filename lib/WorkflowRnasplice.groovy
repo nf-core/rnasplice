@@ -3,6 +3,7 @@
 //
 
 import nextflow.Nextflow
+import groovy.json.JsonSlurper
 import groovy.text.SimpleTemplateEngine
 
 class WorkflowRnasplice {
@@ -128,6 +129,52 @@ class WorkflowRnasplice {
                 )
             }
         }
+    }
+
+    //
+    // Function that parses Salmon quant 'meta_info.json' output file to get inferred strandedness
+    //
+    public static String getSalmonInferredStrandedness(json_file) {
+        def lib_type = new JsonSlurper().parseText(json_file.text).get('library_types')[0]
+        def strandedness = 'reverse'
+        if (lib_type) {
+            if (lib_type in ['U', 'IU']) {
+                strandedness = 'unstranded'
+            } else if (lib_type in ['SF', 'ISF']) {
+                strandedness = 'forward'
+            } else if (lib_type in ['SR', 'ISR']) {
+                strandedness = 'reverse'
+            }
+        }
+        return strandedness
+    }
+
+    //
+    // Function that parses and returns the predicted strandedness from the RSeQC infer_experiment.py output
+    //
+    public static ArrayList getInferexperimentStrandedness(inferexperiment_file, cutoff=30) {
+        def sense        = 0
+        def antisense    = 0
+        def undetermined = 0
+        inferexperiment_file.eachLine { line ->
+            def undetermined_matcher = line =~ /Fraction of reads failed to determine:\s([\d\.]+)/
+            def se_sense_matcher     = line =~ /Fraction of reads explained by "\++,--":\s([\d\.]+)/
+            def se_antisense_matcher = line =~ /Fraction of reads explained by "\+-,-\+":\s([\d\.]+)/
+            def pe_sense_matcher     = line =~ /Fraction of reads explained by "1\++,1--,2\+-,2-\+":\s([\d\.]+)/
+            def pe_antisense_matcher = line =~ /Fraction of reads explained by "1\+-,1-\+,2\+\+,2--":\s([\d\.]+)/
+            if (undetermined_matcher) undetermined = undetermined_matcher[0][1].toFloat() * 100
+            if (se_sense_matcher)     sense        = se_sense_matcher[0][1].toFloat() * 100
+            if (se_antisense_matcher) antisense    = se_antisense_matcher[0][1].toFloat() * 100
+            if (pe_sense_matcher)     sense        = pe_sense_matcher[0][1].toFloat() * 100
+            if (pe_antisense_matcher) antisense    = pe_antisense_matcher[0][1].toFloat() * 100
+        }
+        def strandedness = 'unstranded'
+        if (sense >= 100-cutoff) {
+            strandedness = 'forward'
+        } else if (antisense >= 100-cutoff) {
+            strandedness = 'reverse'
+        }
+        return [ strandedness, sense, antisense, undetermined ]
     }
 
     //
