@@ -5,7 +5,7 @@
 This document describes the output produced by the pipeline. Most of the plots are taken from the MultiQC report generated from the [full-sized test dataset](https://github.com/nf-core/test-datasets/tree/rnasplice#full-test-dataset-origin) for the pipeline using a command similar to the one below:
 
 ```bash
-nextflow run nf-core/rnasplice -profile test_full,<docker/singularity/institute>
+nextflow run nf-core/rnasplice -profile test_full,<docker/singularity/institute> --outdir <OUTDIR>
 ```
 
 The directories listed below will be created in the results directory after the pipeline has finished. All paths are relative to the top-level results directory.
