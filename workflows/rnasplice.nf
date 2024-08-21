@@ -75,6 +75,7 @@ ch_multiqc_custom_methods_description = params.multiqc_methods_description ? fil
 // MODULE: Loaded from modules/local/
 //
 include { BEDTOOLS_GENOMECOV      } from '../modules/local/bedtools_genomecov'
+include { ISOFORMSWITCHANALYZER   } from '../modules/local/isoformswitchanalyzer'
 
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
@@ -696,8 +697,27 @@ workflow RNASPLICE {
             ch_versions = ch_versions.mix(SUPPA_SALMON.out.versions)
 
         }
-
     }
+
+    //
+    // MODULE: ISOFORMSWITCHANALYZER
+    //
+    if (params.isoformswitchanalyzer && (params.source == 'fastq' || params.source == 'salmon_results')) {
+
+        // Run IsoformSwitchAnalyzeR
+        ISOFORMSWITCHANALYZER(
+            ch_salmon_results.collect{ it[1] },
+            PREPARE_GENOME.out.gtf,
+            PREPARE_GENOME.out.transcript_fasta,
+            ch_samplesheet,
+            ch_contrastsheet,
+            params.isoformswitchanalyzer_alpha,
+            params.isoformswitchanalyzer_dIF
+        )
+
+        ch_versions = ch_versions.mix(ISOFORMSWITCHANALYZER.out.versions)
+    }
+
 
     //
     // MODULE: Genome-wide coverage with BEDTools

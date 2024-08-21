@@ -145,7 +145,7 @@
                     "type": "string",
                     "format": "directory-path",
                     "description": "Directory / URL base for iGenomes references.",
-                    "default": "s3://ngi-igenomes/igenomes",
+                    "default": "s3://ngi-igenomes/igenomes/",
                     "fa_icon": "fas fa-cloud-download-alt",
                     "hidden": true
                 },
@@ -437,7 +437,7 @@
             "properties": {
                 "aligner": {
                     "type": "string",
-                    "default": "star",
+                    "default": "star_salmon",
                     "description": "Specifies the alignment algorithm to use - available options are 'star_salmon', or 'star'.",
                     "fa_icon": "fas fa-map-signs"
                 },
@@ -491,7 +491,8 @@
             "properties": {
                 "rmats": {
                     "type": "boolean",
-                    "description": "Run rMATS workflow."
+                    "description": "Run rMATS workflow.",
+                    "default": true
                 },
                 "rmats_splice_diff_cutoff": {
                     "type": "number",
@@ -533,7 +534,8 @@
             "properties": {
                 "dexseq_exon": {
                     "type": "boolean",
-                    "description": "Run DEXSeq differential exon usage workflow."
+                    "description": "Run DEXSeq differential exon usage workflow.",
+                    "default": true
                 },
                 "save_dexseq_annotation": {
                     "type": "boolean",
@@ -578,7 +580,8 @@
             "properties": {
                 "edger_exon": {
                     "type": "boolean",
-                    "description": "Run edgeR workflow."
+                    "description": "Run edgeR workflow.",
+                    "default": true
                 },
                 "save_edger_plot": {
                     "type": "boolean",
@@ -601,7 +604,8 @@
             "properties": {
                 "dexseq_dtu": {
                     "type": "boolean",
-                    "description": "Run DEXSeq differential transcript usage workflow."
+                    "description": "Run DEXSeq differential transcript usage workflow.",
+                    "default": true
                 },
                 "dtu_txi": {
                     "type": "string",
@@ -611,17 +615,17 @@
                 },
                 "min_samps_gene_expr": {
                     "type": "integer",
-                    "default": 6,
+                    "default": 4,
                     "description": "Minimal number of samples where genes should be expressed."
                 },
                 "min_samps_feature_expr": {
                     "type": "integer",
-                    "default": 0,
+                    "default": 2,
                     "description": "Minimal number of samples where features should be expressed."
                 },
                 "min_samps_feature_prop": {
                     "type": "integer",
-                    "default": 0,
+                    "default": 2,
                     "description": "Minimal proportion of samples where features should be expressed."
                 },
                 "min_gene_expr": {
@@ -650,11 +654,12 @@
             "properties": {
                 "sashimi_plot": {
                     "type": "boolean",
-                    "description": "Create sashimi plots using MISO."
+                    "description": "Create sashimi plots using MISO.",
+                    "default": true
                 },
                 "miso_genes": {
                     "type": "string",
-                    "default": "ENSG00000004961, ENSG00000005302",
+                    "default": "ENSG00000004961, ENSG00000005302, ENSG00000147403",
                     "description": "List containing identifiers of genes to plot."
                 },
                 "miso_genes_file": {
@@ -839,6 +844,28 @@
                 }
             },
             "fa_icon": "far fa-chart-bar"
+        },
+        "isoformswitchanalyzer_options": {
+            "title": "IsoformSwitchAnalyzeR options",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "isoformswitchanalyzer": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "isoformswitchanalyzer_alpha": {
+                    "type": "number",
+                    "default": 0.05,
+                    "description": "Significance level for the statistical tests."
+                },
+                "isoformswitchanalyzer_dIF": {
+                    "type": "number",
+                    "default": 0.1,
+                    "description": "Minimum difference in isoform fraction to be considered as a switch."
+                }
+            }
         }
     },
     "allOf": [
@@ -883,6 +910,9 @@
         },
         {
             "$ref": "#/definitions/suppa_options"
+        },
+        {
+            "$ref": "#/definitions/isoformswitchanalyzer_options"
         }
     ]
 }
