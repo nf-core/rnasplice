@@ -62,7 +62,7 @@ process RMATS_POST_SINGLE {
 
     """
     rmats.py \\
-        --b1 $bam1 \\
+        --b1 $bam1_text \\
         -t $read_type \\
         --libType $strandedness \\
         --nthread $task.cpus \\
