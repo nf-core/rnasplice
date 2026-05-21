@@ -151,56 +151,51 @@ workflow RNASPLICE {
     //
     // SUBWORKFLOW: Read in samplesheet, validate and stage input files
     //
-    switch (params.source) {
-        case 'fastq':
-            INPUT_CHECK (
-                ch_input,
-                params.source
-            )
-            .reads
-            .map {
-                meta, fastq ->
-                    new_id = meta.id - ~/_T\d+/
-                    [ meta + [id: new_id], fastq ]
-            }
-            .groupTuple()
-            .branch {
-                meta, fastq ->
-                    single  : fastq.size() == 1
-                        return [ meta, fastq.flatten() ]
-                    multiple: fastq.size() > 1
-                        return [ meta, fastq.flatten() ]
-            }
-            .set { ch_fastq }
-            ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
-            break;
-        case 'genome_bam':
-            INPUT_CHECK (
-                ch_input,
-                params.source
-            )
-            .reads
-            .set { ch_genome_bam }
-            ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
-            break;
-        case 'transcriptome_bam':
-            INPUT_CHECK (
-                ch_input,
-                params.source
-            )
-            .reads
-            .set { ch_transcriptome_bam }
-            ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
-            break;
-        case 'salmon_results':
-            INPUT_CHECK (
-                ch_input,
-                params.source
-            )
-            .reads
-            .set { ch_salmon_results }
-            ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
-            break;
+    if (params.source == 'fastq') {
+        INPUT_CHECK (
+            ch_input,
+            params.source
+        )
+        .reads
+        .map {
+            meta, fastq ->
+                new_id = meta.id - ~/_T\d+/
+                [ meta + [id: new_id], fastq ]
+        }
+        .groupTuple()
+        .branch {
+            meta, fastq ->
+                single  : fastq.size() == 1
+                    return [ meta, fastq.flatten() ]
+                multiple: fastq.size() > 1
+                    return [ meta, fastq.flatten() ]
+        }
+        .set { ch_fastq }
+        ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
+    } else if (params.source == 'genome_bam') {
+        INPUT_CHECK (
+            ch_input,
+            params.source
+        )
+        .reads
+        .set { ch_genome_bam }
+        ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
+    } else if (params.source == 'transcriptome_bam') {
+        INPUT_CHECK (
+            ch_input,
+            params.source
+        )
+        .reads
+        .set { ch_transcriptome_bam }
+        ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
+    } else if (params.source == 'salmon_results') {
+        INPUT_CHECK (
+            ch_input,
+            params.source
+        )
+        .reads
+        .set { ch_salmon_results }
+        ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
     }
 
     // Create samplesheet channel (after input check)

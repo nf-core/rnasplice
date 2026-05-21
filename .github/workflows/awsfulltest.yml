@@ -10,12 +10,14 @@ on:
   workflow_dispatch:
   pull_request_review:
     types: [submitted]
+  release:
+    types: [published]
 
 jobs:
   run-platform:
     name: Run AWS full tests
-    # run only if the PR is approved by at least 2 reviewers and against the master branch or manually triggered
-    if: github.repository == 'nf-core/rnasplice' && github.event.review.state == 'approved' && github.event.pull_request.base.ref == 'master' || github.event_name == 'workflow_dispatch'
+    # This workflow is triggered on PRs opened against the main/master branch.
+    if: github.repository == 'nf-core/rnasplice' && github.event.review.state == 'approved' && (github.event.pull_request.base.ref == 'master' || github.event.pull_request.base.ref == 'main') || github.event_name == 'workflow_dispatch' || github.event_name == 'release'
     runs-on: ubuntu-latest
     steps:
       - uses: octokit/request-action@v2.x
