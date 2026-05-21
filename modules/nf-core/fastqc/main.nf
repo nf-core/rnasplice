@@ -3,17 +3,17 @@ process FASTQC {
     label 'process_medium'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/fastqc:0.12.1--hdfd78af_0' :
-        'biocontainers/fastqc:0.12.1--hdfd78af_0' }"
+    container "${workflow.containerEngine in ['singularity', 'apptainer'] && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/fastqc:0.12.1--hdfd78af_0'
+        : 'quay.io/biocontainers/fastqc:0.12.1--hdfd78af_0'}"
 
     input:
-    tuple val(meta), path(reads)
+    tuple val(meta), path(reads, stageAs: '?/*')
 
     output:
     tuple val(meta), path("*.html"), emit: html
-    tuple val(meta), path("*.zip") , emit: zip
-    path  "versions.yml"           , emit: versions
+    tuple val(meta), path("*.zip"), emit: zip
+    tuple val("${task.process}"), val('fastqc'), eval('fastqc --version | sed "/FastQC v/!d; s/.*v//"'), emit: versions_fastqc, topic: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -46,10 +46,5 @@ process FASTQC {
     """
     touch ${prefix}.html
     touch ${prefix}.zip
-
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        fastqc: \$( fastqc --version | sed '/FastQC v/!d; s/.*v//' )
-    END_VERSIONS
     """
 }

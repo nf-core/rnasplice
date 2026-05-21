@@ -9,7 +9,16 @@ jobs:
   toot:
     runs-on: ubuntu-latest
     steps:
-      - uses: rzr/fediverse-action@master
+      - name: get topics and convert to hashtags
+        id: get_topics
+        run: |
+          echo "topics=$(curl -s https://nf-co.re/pipelines.json | jq -r '.remote_workflows[] | select(.full_name == "${{ github.repository }}") | .topics[]' | awk '{print "#"$0}' | tr '\n' ' ')" | sed 's/-//g' >> $GITHUB_OUTPUT
+
+      - name: get description
+        id: get_description
+        run: |
+          echo "description=$(curl -s https://nf-co.re/pipelines.json | jq -r '.remote_workflows[] | select(.full_name == "${{ github.repository }}") | .description')" >> $GITHUB_OUTPUT
+      - uses: rzr/fediverse-action@563159eb8d45f70ab6aaba36ed55cd037e51f441 # master
         with:
           access-token: ${{ secrets.MASTODON_ACCESS_TOKEN }}
           host: "mstdn.science" # custom host if not "mastodon.social" (default)
@@ -17,7 +26,7 @@ jobs:
           # https://docs.github.com/en/developers/webhooks-and-events/webhooks/webhook-events-and-payloads#release
           message: |
             Pipeline release! ${{ github.repository }} v${{ github.event.release.tag_name }} - ${{ github.event.release.name }}!
-
+            ${{ steps.get_description.outputs.description }}
             Please see the changelog: ${{ github.event.release.html_url }}
 
   send-tweet:
@@ -56,7 +65,7 @@ jobs:
   bsky-post:
     runs-on: ubuntu-latest
     steps:
-      - uses: zentered/bluesky-post-action@v0.0.2
+      - uses: zentered/bluesky-post-action@5a91cc2ad10a304a4e96c16182dbe4918710bcf6 # v0.4.0
         with:
           post: |
             Pipeline release! ${{ github.repository }} v${{ github.event.release.tag_name }} - ${{ github.event.release.name }}!

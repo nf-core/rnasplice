@@ -1,7 +1,4 @@
-bump_version: null
-lint: null
-nf_core_version: 3.0.2
-org_path: null
+nf_core_version: 4.0.2
 repository_type: pipeline
 template:
   author: Ben Southgate, James Ashmore

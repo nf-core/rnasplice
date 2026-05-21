@@ -1,4 +1,5 @@
 process MULTIQC {
+    tag "${meta.id}"
     label 'process_single'
 
     conda "${moduleDir}/environment.yml"
@@ -13,10 +14,11 @@ process MULTIQC {
     path(multiqc_logo)
 
     output:
-    path "*multiqc_report.html", emit: report
-    path "*_data"              , emit: data
-    path "*_plots"             , optional:true, emit: plots
-    path "versions.yml"        , emit: versions
+    tuple val(meta), path("*.html"), emit: report
+    tuple val(meta), path("*_data"), emit: data
+    tuple val(meta), path("*_plots"), emit: plots, optional: true
+    // MultiQC should not push its versions to the `versions` topic. Its input depends on the versions topic to be resolved thus outputting to the topic will let the pipeline hang forever
+    tuple val("${task.process}"), val('multiqc'), eval('multiqc --version | sed "s/.* //g"'), emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -34,11 +36,6 @@ process MULTIQC {
         $extra_config \\
         $logo \\
         .
-
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        multiqc: \$( multiqc --version | sed -e "s/multiqc, version //g" )
-    END_VERSIONS
     """
 
     stub:
@@ -46,10 +43,5 @@ process MULTIQC {
     touch multiqc_data
     touch multiqc_plots
     touch multiqc_report.html
-
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        multiqc: \$( multiqc --version | sed -e "s/multiqc, version //g" )
-    END_VERSIONS
     """
 }
