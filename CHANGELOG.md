@@ -57,7 +57,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #219 - Fixed `MISOPY` module to correctly handle paired-end reads and pass the correct BAM files to MISOPY (by @piplus2)
 - #224 - Fixed `DEXSEQ_DTU` script to correctly handle the sample IDs (reported by @albamasmalavila, fix by @piplus2)
 - #232 - Fixed wrong branch when input is BAM in `dev` (reported by @albamasmalavila, fix by @piplus2)
-- #238 - missing backslash in `mergeevents` command in `dev` branch (by @piplus2)
+- #238 - Added missing backslash in `mergeevents` command in `dev` branch (by @piplus2)
+- #241 - Added missing backslash in `clusterevents` command in `dev` branch (by @piplus2)
 
 ## v1.0.5 - 2024-11-03
 

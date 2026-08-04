@@ -30,7 +30,7 @@ process CLUSTERGROUPS {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        suppa_groups: "$(python3 --version 2>&1 | sed -n '1p' | sed 's/.*version //; s/ (.*//')"
+        suppa_groups: "\$(python3 --version 2>&1 | sed -n '1p' | sed 's/.*version //; s/ (.*//')"
     END_VERSIONS
     """
 }
