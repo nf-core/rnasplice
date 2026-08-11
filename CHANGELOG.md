@@ -35,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #225 -Now `DEXSEQ_DTU` module uses `BPPARAM` argument to enable parallel processing, if no `BPPARAM` is provided, it defaults to `SerialParam()` (by @piplus2)
 - #229 - Use nf-core modules for `SUPPA` and moved `SUPPA` helper modules to `modules/local` using templates (by @piplus2)
 - #238 - Synced pipeline with nf-core template 4.0.3 (by @piplus2)
+- #242 - Refactored `misopy` modules to match nf-core module template (by @piplus2)
 
 ### Fixed
 
@@ -58,7 +59,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #224 - Fixed `DEXSEQ_DTU` script to correctly handle the sample IDs (reported by @albamasmalavila, fix by @piplus2)
 - #232 - Fixed wrong branch when input is BAM in `dev` (reported by @albamasmalavila, fix by @piplus2)
 - #238 - Added missing backslash in `mergeevents` command in `dev` branch (by @piplus2)
-- #241 - Added missing backslash in `clusterevents` command in `dev` branch (by @piplus2)
+- #241 - Added missing backslash in `clustergroups` command in `dev` branch (by @piplus2)
 
 ## v1.0.5 - 2024-11-03
 

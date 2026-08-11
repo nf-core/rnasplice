@@ -1,0 +1,99 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: misosettings
+description: Generate the MISO settings file for sashimi plot visualization
+keywords:
+  - miso
+  - alternative splicing
+  - sashimi plot
+tools:
+  - "python":
+      description: "Python programming language"
+      homepage: "https://www.python.org/"
+      documentation: "https://docs.python.org/3/"
+      tool_dev_url: "https://www.python.org/downloads/source/"
+      doi: 10.1038/nmeth.1528
+      license: ["Python Software Foundation License"]
+      identifier: biotools:python
+
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing samples information
+          e.g. `[ id:'samples1' ]`
+    - bams:
+        type: file
+        description: BAM files from which to generate the MISO settings file
+        pattern: "*.bam"
+        ontologies:
+          - edam: "http://edamontology.org/format_2572"
+    - miso_data:
+        type: file
+        description: MISO data files
+        pattern: "*.miso"
+        ontologies: []
+  - fig_width:
+      type: integer
+      description: Width of the sashimi plot figure
+  - fig_height:
+      type: integer
+      description: Height of the sashimi plot figure
+
+output:
+  miso_settings:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing samples information
+            e.g. `[ id:'samples1' ]`
+      - miso_data/*:
+          type: file
+          description: MISO output data files
+          pattern: "*"
+          ontologies: []
+  versions_python:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - python:
+          type: string
+          description: The name of the tool
+      - python --version 2>&1 | sed "s/Python //g":
+          type: eval
+          description: The expression to obtain the version of the tool
+  versions_misopy:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - misopy:
+          type: string
+          description: The name of the tool
+      - python -c "import pkg_resources; print(pkg_resources.get_distribution('misopy').version)":
+          type: eval
+          description: The expression to obtain the version of the tool
+
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - python:
+          type: string
+          description: The name of the tool
+      - python --version 2>&1 | sed "s/Python //g":
+          type: eval
+          description: The expression to obtain the version of the tool
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - misopy:
+          type: string
+          description: The name of the tool
+      - python -c "import pkg_resources; print(pkg_resources.get_distribution('misopy').version)":
+          type: eval
+          description: The expression to obtain the version of the tool
+authors:
+  - "@valentinoruggieri"
+  - "@piplus"
+maintainers:
+  - "@piplus"

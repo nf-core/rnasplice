@@ -79,12 +79,12 @@
                     "misopy": "0.5.4",
                     "python": "2.7.15"
                 },
-                "MISO_SASHIMI": {
+                "MISOPY_SASHIMIPLOT": {
                     "misopy": "0.5.4",
                     "python": "2.7.15"
                 },
-                "MISO_SETTINGS": {
-                    "parsimonious": "0.10.0"
+                "MISOPY_SETTINGS": {
+                    "python": "3.14.6"
                 },
                 "RMATS_POST": {
                     "rmats": "4.3.0"
@@ -4706,7 +4706,7 @@
                 "isoformswitchanalyzer_summary.csv:md5,4b2ab1b387ded8f479d7cfa96893e93b",
                 "genes_chrX_genes.gff3:md5,1c1ece4ee637e317c0ae6528a253a83f",
                 "genes.gff:md5,0ef855fcf03bcb7d49afde3e63577465",
-                "miso_settings.txt:md5,982af0d2a2d3c9a1d12f8c141cbeb1d4",
+                "miso_settings.txt:md5,c092cc3e878a299674a99c508b6b2e72",
                 "GBR-YRI_groups.txt:md5,e9636d1c0a5cb00df8cedc61642a5d52",
                 "YRI-GBR_groups.txt:md5,e9636d1c0a5cb00df8cedc61642a5d52",
                 "genes_chrX.ioi:md5,6c9ee3567554e3f74186b4c17ec777d6",
@@ -4822,10 +4822,10 @@
                 "genes_chrX.ioi:md5,6c9ee3567554e3f74186b4c17ec777d6"
             ]
         ],
-        "timestamp": "2026-07-31T18:40:08.795346602",
+        "timestamp": "2026-08-04T14:20:17.364380913",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.4"
+            "nextflow": "26.04.3"
         }
     }
 }
