@@ -5,7 +5,7 @@ lint:
     - assets/nf-core-rnasplice_logo_light.png
     - .github/workflows/branch.yml
     - .github/workflows/linting.yml
-nf_core_version: 4.0.3
+nf_core_version: 4.1.0
 repository_type: pipeline
 template:
   author: Ben Southgate, James Ashmore
