@@ -1,0 +1,131 @@
+// nf-core modules test tximeta/tximport
+nextflow_process {
+
+    name "Test Process TXIMETA_TXIMPORT"
+    script "../main.nf"
+    process "TXIMETA_TXIMPORT"
+    config "./nextflow.config"
+
+    tag "modules"
+    tag "modules_"
+    tag "tximeta"
+    tag "tximeta/tximport"
+    tag "untar"
+
+    // The salmon_quant tarball holds one quant directory per sample
+    // (ERR188383, ERR188428, ERR188454, ERR204916) plus the matching
+    // genes_chrX.tx2gene.tsv, so it provides both process inputs.
+    setup {
+        run("UNTAR", alias: "UNTAR_SALMON_QUANT") {
+            script '../../../../nf-core/untar/main.nf'
+            process {
+            """
+            input[0] = [
+                [ id: 'test' ],
+                file(params.pipelines_testdata_base_path + 'testdata/salmon_quant/salmon_quant.tar.gz', checkIfExists: true)
+            ]
+            """
+            }
+        }
+    }
+
+    test("human chrX - salmon quant") {
+
+        when {
+            process {
+            """
+            UNTAR_SALMON_QUANT.out.untar
+                .multiMap { meta, dir ->
+                    quants : [ meta, file(dir.toString() + '/ERR*', type: 'dir', checkIfExists: true) ]
+                    tx2gene: file(dir.toString() + '/genes_chrX.tx2gene.tsv', checkIfExists: true)
+                }
+                .set { ch_salmon_quant }
+
+            input[0] = ch_salmon_quant.quants
+            input[1] = ch_salmon_quant.tx2gene
+            """
+            }
+        }
+
+        then {
+            assert process.success
+
+            assertAll(
+                { assert snapshot(
+                    sanitizeOutput(
+                        process.out,
+                        unstableKeys: ["txi", "txi_s", "txi_ls", "txi_dtu", "gi", "gi_s", "gi_ls"]
+                    ),
+                    process.out.findAll { key, val -> key.startsWith('versions') }
+                ).match() }
+            )
+        }
+
+    }
+
+    test("human chrX - salmon quant - ignore_tx_version") {
+
+        config "./ignore_tx_version.config"
+
+        when {
+            process {
+            """
+            UNTAR_SALMON_QUANT.out.untar
+                .multiMap { meta, dir ->
+                    quants : [ meta, file(dir.toString() + '/ERR*', type: 'dir', checkIfExists: true) ]
+                    tx2gene: file(dir.toString() + '/genes_chrX.tx2gene.tsv', checkIfExists: true)
+                }
+                .set { ch_salmon_quant }
+
+            input[0] = ch_salmon_quant.quants
+            input[1] = ch_salmon_quant.tx2gene
+            """
+            }
+        }
+
+        then {
+            assert process.success
+
+            assertAll(
+                { assert snapshot(
+                    sanitizeOutput(
+                        process.out,
+                        unstableKeys: ["txi", "txi_s", "txi_ls", "txi_dtu", "gi", "gi_s", "gi_ls"]
+                    ),
+                    process.out.findAll { key, val -> key.startsWith('versions') }
+                ).match() }
+            )
+        }
+
+    }
+
+    test("human chrX - salmon quant - stub") {
+
+        options "-stub"
+
+        when {
+            process {
+            """
+            UNTAR_SALMON_QUANT.out.untar
+                .multiMap { meta, dir ->
+                    quants : [ meta, file(dir.toString() + '/ERR*', type: 'dir', checkIfExists: true) ]
+                    tx2gene: file(dir.toString() + '/genes_chrX.tx2gene.tsv', checkIfExists: true)
+                }
+                .set { ch_salmon_quant }
+
+            input[0] = ch_salmon_quant.quants
+            input[1] = ch_salmon_quant.tx2gene
+            """
+            }
+        }
+
+        then {
+            assert process.success
+            assertAll(
+                { assert snapshot(sanitizeOutput(process.out)).match() }
+            )
+        }
+
+    }
+
+}

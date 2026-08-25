@@ -163,7 +163,8 @@
                     "trimgalore": "2.3.0"
                 },
                 "TXIMPORT": {
-                    "tximeta": "1.8.0"
+                    "bioconductor-tximeta": "1.28.2",
+                    "bioconductor-tximport": "1.38.2"
                 },
                 "Workflow": {
                     "nf-core/rnasplice": "v1.1.0dev"
@@ -4822,7 +4823,7 @@
                 "genes_chrX.ioi:md5,6c9ee3567554e3f74186b4c17ec777d6"
             ]
         ],
-        "timestamp": "2026-08-04T14:20:17.364380913",
+        "timestamp": "2026-08-25T14:33:14.412269311",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.3"

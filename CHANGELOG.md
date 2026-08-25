@@ -38,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #242 - Refactored `misopy` modules to match nf-core module template (by @piplus2)
 - #243 - Removed unused workflows `contrast_check` (by @piplus2)
 - #244 - Updated to nf-core template 4.1.0 (by @piplus2)
+- #245 - Refactored `TXIMPORT` to match nf-core module template. Update `bioconductor-tximeta` 1.8.0 -> 1.28.2 (plus `bioconductor-tximport` 1.38.2, R 4.0 -> 4.5). Default `--ignore_tx_version` to `FALSE` (by @piplus2)
 
 ### Fixed
 
@@ -62,6 +63,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #232 - Fixed wrong branch when input is BAM in `dev` (reported by @albamasmalavila, fix by @piplus2)
 - #238 - Added missing backslash in `mergeevents` command in `dev` branch (by @piplus2)
 - #241 - Added missing backslash in `clustergroups` command in `dev` branch (by @piplus2)
+- #245 - Fixed ignored `--tximport_ignore_tx_version` argument in `TXIMPORT` module (by @piplus2)
 
 ## v1.0.5 - 2024-11-03
 
