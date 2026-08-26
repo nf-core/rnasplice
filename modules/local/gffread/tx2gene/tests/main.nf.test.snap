@@ -1,0 +1,54 @@
+{
+    "chrX gtf - stub": {
+        "content": [
+            {
+                "0": [
+                    "genes_chrX.tx2gene.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "1": [
+                    [
+                        "GFFREAD_TX2GENE",
+                        "gffread",
+                        "0.12.7"
+                    ]
+                ],
+                "tx2gene": [
+                    "genes_chrX.tx2gene.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "versions_gffread": [
+                    [
+                        "GFFREAD_TX2GENE",
+                        "gffread",
+                        "0.12.7"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-08-26T13:40:42.210643563",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.4"
+        }
+    },
+    "chrX gtf": {
+        "content": [
+            [
+                "genes_chrX.tx2gene.tsv:md5,3fafda41b35f045538151b82a4abb59c"
+            ],
+            {
+                "versions_gffread": [
+                    [
+                        "GFFREAD_TX2GENE",
+                        "gffread",
+                        "0.12.7"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-08-26T13:40:36.586701321",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.4"
+        }
+    }
+}
