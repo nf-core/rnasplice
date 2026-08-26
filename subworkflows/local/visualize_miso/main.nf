@@ -2,7 +2,7 @@
 // Visualise miso subworkflow
 //
 
-include { GTF_2_GFF3         } from '../../../modules/local/gtf_2_gff3'
+include { GFFREAD_GTF2GFF3   } from '../../../modules/local/gffread/gtf2gff3'
 include { MISOPY_INDEX       } from '../../../modules/nf-core/misopy/index'
 include { MISOPY_RUN         } from '../../../modules/local/misopy/run'
 include { MISOPY_SASHIMIPLOT } from '../../../modules/local/misopy/sashimiplot'
@@ -22,16 +22,16 @@ workflow VISUALISE_MISO {
     main:
 
     //
-    // MODULE: gtf_2_gff3
+    // MODULE: GFFREAD_GTF2GFF3
     //
 
-    GTF_2_GFF3(gtf)
+    GFFREAD_GTF2GFF3(gtf.map { annotation -> [[id: annotation.baseName], annotation] })
 
     //
     // MODULE: DEXSeq Annotation
     //
 
-    MISOPY_INDEX(GTF_2_GFF3.out.gff3.map { gff -> [[:], gff] })
+    MISOPY_INDEX(GFFREAD_GTF2GFF3.out.gff3)
 
     //
     // MODULE: MISOPY_RUN
@@ -104,7 +104,7 @@ workflow VISUALISE_MISO {
     )
 
     emit:
-    gff3          = GTF_2_GFF3.out.gff3 // path *.gff3
+    gff3          = GFFREAD_GTF2GFF3.out.gff3 // channel: [ val(meta), path(*.gff3) ]
     miso_index    = ch_miso_index // channel: [ ch_miso_index ]
     miso_data     = ch_miso_data // channel: [ ch_miso_data ]
     miso_settings = MISOPY_SETTINGS.out.miso_settings // path miso_setting.txt

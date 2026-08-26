@@ -48,11 +48,11 @@
                 "FASTQC": {
                     "fastqc": "0.12.1"
                 },
+                "GFFREAD_GTF2GFF3": {
+                    "gffread": "0.12.7"
+                },
                 "GFFREAD_TX2GENE": {
                     "gffread": "0.12.1"
-                },
-                "GTF_2_GFF3": {
-                    "gffread": "0.12.7"
                 },
                 "GTF_GENE_FILTER": {
                     "python": "3.9.5"

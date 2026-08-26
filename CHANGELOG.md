@@ -40,6 +40,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #244 - Updated to nf-core template 4.1.0 (by @piplus2)
 - #245 - Refactored `TXIMPORT` to match nf-core module template. Update `bioconductor-tximeta` 1.8.0 -> 1.28.2 (plus `bioconductor-tximport` 1.38.2, R 4.0 -> 4.5). Default `--ignore_tx_version` to `FALSE` (by @piplus2)
 - #246 - Replaced the local `LEAFCUTTER_CLUSTER` module (and the bundled `bin/leafcutter_cluster_regtools.py` script) with the nf-core `leafcutter/clusterregtools` module (by @piplus2)
+- #247 - Refactored the local `GTF_2_GFF3` module into `GFFREAD_GTF2GFF3` (`modules/local/gffread/gtf2gff3`) to match the nf-core module template: meta-based input/output, `ext.args`/`ext.prefix` support, stub section and nf-test (by @piplus2)
 
 ### Fixed
 

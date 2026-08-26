@@ -1,0 +1,69 @@
+{
+    "chrX gtf - stub": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test_genes.gff3:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "1": [
+                    [
+                        "GFFREAD_GTF2GFF3",
+                        "gffread",
+                        "0.12.7"
+                    ]
+                ],
+                "gff3": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test_genes.gff3:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "versions_gffread": [
+                    [
+                        "GFFREAD_GTF2GFF3",
+                        "gffread",
+                        "0.12.7"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-08-26T12:13:52.757529797",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.4"
+        }
+    },
+    "chrX gtf": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test_genes.gff3:md5,1c1ece4ee637e317c0ae6528a253a83f"
+                ]
+            ],
+            {
+                "versions_gffread": [
+                    [
+                        "GFFREAD_GTF2GFF3",
+                        "gffread",
+                        "0.12.7"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-08-26T12:13:46.95657622",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.4"
+        }
+    }
+}
