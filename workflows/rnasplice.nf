@@ -332,7 +332,7 @@ workflow RNASPLICE {
         }
 
         if (params.leafcutter == true) {
-            LEAFCUTTER(ch_genome_bam, ch_genome_bam_index, ch_gtf)
+            LEAFCUTTER(ch_genome_bam, ch_genome_bam_index)
         }
     }
 

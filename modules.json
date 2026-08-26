@@ -40,6 +40,11 @@
                         "git_sha": "0902eac3012baaf4f9ab6513c8c55acc9353c96c",
                         "installed_by": ["modules"]
                     },
+                    "leafcutter/clusterregtools": {
+                        "branch": "master",
+                        "git_sha": "5909fc046b4b2062e4b4173808aacd2424e0866a",
+                        "installed_by": ["modules"]
+                    },
                     "misopy/index": {
                         "branch": "master",
                         "git_sha": "9707facbacc9c5c02ecf0b192f0604a29351b00a",

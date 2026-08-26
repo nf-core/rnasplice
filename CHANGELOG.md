@@ -39,6 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #243 - Removed unused workflows `contrast_check` (by @piplus2)
 - #244 - Updated to nf-core template 4.1.0 (by @piplus2)
 - #245 - Refactored `TXIMPORT` to match nf-core module template. Update `bioconductor-tximeta` 1.8.0 -> 1.28.2 (plus `bioconductor-tximport` 1.38.2, R 4.0 -> 4.5). Default `--ignore_tx_version` to `FALSE` (by @piplus2)
+- #246 - Replaced the local `LEAFCUTTER_CLUSTER` module (and the bundled `bin/leafcutter_cluster_regtools.py` script) with the nf-core `leafcutter/clusterregtools` module (by @piplus2)
 
 ### Fixed
 
