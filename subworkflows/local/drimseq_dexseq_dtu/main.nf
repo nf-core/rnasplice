@@ -56,13 +56,13 @@ workflow DRIMSEQ_DEXSEQ_DTU {
     ch_dexseq_feature_tsv = DEXSEQ_DTU.out.dexseq_exon_results_tsv
         .flatten()
         .map { it ->
-            [ it.baseName.toString().replaceAll("DEXSeqResults.", ""), it ]
+            [ [ id: it.baseName.toString().replaceAll("DEXSeqResults.", "") ], it ]
         }
 
     ch_dexseq_gene_tsv = DEXSEQ_DTU.out.dexseq_gene_results_tsv
         .flatten()
         .map { it ->
-            [ it.baseName.toString().replaceAll("perGeneQValue.", ""), it ]
+            [ [ id: it.baseName.toString().replaceAll("perGeneQValue.", "") ], it ]
         }
 
     ch_dexseq_feature_gene_tsv = ch_dexseq_feature_tsv.join(ch_dexseq_gene_tsv)

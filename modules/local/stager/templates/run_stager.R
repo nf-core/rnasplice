@@ -1,33 +1,45 @@
 #!/usr/bin/env Rscript
+
 # Scripts adjusted from F1000 workflow
 # Please see following for details:
 # https://f1000research.com/articles/7-952
 
-# Parse command arguments
-
-argv <- commandArgs(trailingOnly = TRUE)
-
-argc <- length(argv)
-
-name <- argv[1]
-
-feature <- argv[2]
-
-gene <- argv[3]
-
-analysis <- argv[4]
-
-
-# Attach required packages
-
-library(stageR)
+# NOTE: This file is a Nextflow template. Nextflow interpolates the process
+#       variables and treats the backslash as an escape character, therefore
+#       R's list/data.frame operator must be written as a backslash followed
+#       by a dollar sign, and every literal backslash must be doubled.
 
 
 # Define helper functions
 
+#' Parse out options from a string without recourse to optparse
+#'
+#' @param x Long-form argument list like --opt1 val1 --opt2 val2
+#'
+#' @return named list of options and values similar to optparse
+
+parse_args <- function(x) {
+
+    args_list <- unlist(strsplit(x, ' ?--')[[1]])[-1]
+
+    args_vals <- lapply(args_list, function(x) scan(text = x, what = 'character', quiet = TRUE))
+
+    # Ensure the option vectors are length 2 (key/ value) to catch empty ones
+
+    args_vals <- lapply(args_vals, function(z) { length(z) <- 2; z })
+
+    parsed_args <- structure(
+        lapply(args_vals, function(x) x[2]),
+        names = lapply(args_vals, function(x) x[1])
+    )
+
+    parsed_args[!is.na(parsed_args)]
+
+}
+
 stripVersion <- function(x) {
 
-    sub("\\..*", "", x)
+    sub("\\\\..*", "", x)
 
 }
 
@@ -37,7 +49,7 @@ read.DEXSeq <- function(gene, feature) {
 
     resultsGene <- read.delim(gene)
 
-    resultsGene <- setNames(resultsGene$padj, resultsGene$groupID)
+    resultsGene <- setNames(resultsGene\$padj, resultsGene\$groupID)
 
     # Create a vector of screening hypothesis p-values
 
@@ -51,10 +63,10 @@ read.DEXSeq <- function(gene, feature) {
 
     # Create a matrix of confirmation hypothesis p-values
 
-    pConfirmation <- matrix(resultsFeature$pvalue, ncol = 1)
+    pConfirmation <- matrix(resultsFeature\$pvalue, ncol = 1)
 
     dimnames(pConfirmation) <- list(
-        stripVersion(resultsFeature$featureID),
+        stripVersion(resultsFeature\$featureID),
         "transcript"
     )
 
@@ -84,13 +96,13 @@ read.DRIMSeq <- function(gene, feature) {
 
     resultsGene <- read.delim(gene)
 
-    resultsGene <- setNames(resultsGene$padj, resultsGene$groupID)
+    resultsGene <- setNames(resultsGene\$padj, resultsGene\$groupID)
 
     # Create a vector of screening hypothesis p-values
 
-    pScreen <- resultsGene$pvalue
+    pScreen <- resultsGene\$pvalue
 
-    names(pScreen) <- stripVersion(resultsGene$gene_id)
+    names(pScreen) <- stripVersion(resultsGene\$gene_id)
 
     # Read feature-level results
 
@@ -98,9 +110,9 @@ read.DRIMSeq <- function(gene, feature) {
 
     # Create a matrix of confirmation hypothesis p-values
 
-    pConfirmation <- matrix(resultsFeature$pvalue, ncol = 1)
+    pConfirmation <- matrix(resultsFeature\$pvalue, ncol = 1)
 
-    rownames(pConfirmation) <- stripVersion(resultsFeature$feature_id)
+    rownames(pConfirmation) <- stripVersion(resultsFeature\$feature_id)
 
     # Create a tx2gene table
 
@@ -123,6 +135,55 @@ read.DRIMSeq <- function(gene, feature) {
 }
 
 
+# Set defaults and parse the options provided via `task.ext.args`
+
+opt <- list(
+    alpha                  = 0.05,
+    method                 = "dtu",
+    allow_na               = TRUE,
+    only_significant_genes = FALSE,
+    order                  = FALSE
+)
+
+args_opt <- parse_args('$task.ext.args')
+
+for (ao in names(args_opt)) {
+
+    if (!ao %in% names(opt)) {
+
+        stop(paste("Invalid option:", ao))
+
+    }
+
+    opt[[ao]] <- as(args_opt[[ao]], class(opt[[ao]]))
+
+}
+
+
+# Read the inputs staged by Nextflow
+
+if ("$task.ext.prefix" != "null") {
+
+    name <- "$task.ext.prefix"
+
+} else {
+
+    name <- "$meta.id"
+
+}
+
+feature <- '$feature_tsv'
+
+gene <- '$gene_tsv'
+
+analysis <- '$analysis_type'
+
+
+# Attach required packages
+
+library(stageR)
+
+
 # Read analysis outputs
 
 if (analysis == "dexseq") {
@@ -138,6 +199,10 @@ if (analysis == "dexseq") {
         gene    = gene,
         feature = feature
     )
+
+} else {
+
+    stop(paste("Invalid analysis type:", analysis))
 
 }
 
@@ -156,17 +221,17 @@ object <- stageRTx(
 
 object <- stageWiseAdjustment(
     object  = object,
-    method  = "dtu",
-    alpha   = 0.05,
-    allowNA = TRUE
+    method  = opt[["method"]],
+    alpha   = opt[["alpha"]],
+    allowNA = opt[["allow_na"]]
 )
 
 # Retrieve the stage-wise adjusted p-values
 
 pvalue <- getAdjustedPValues(
     object               = object,
-    onlySignificantGenes = FALSE,
-    order                = FALSE
+    onlySignificantGenes = opt[["only_significant_genes"]],
+    order                = opt[["order"]]
 )
 
 # Save objects to disk
@@ -187,9 +252,20 @@ saveRDS(
 write.table(
     x         = pvalue,
     file      = paste0("getAdjustedPValues.", name, ".tsv"),
-    sep       = "\t",
+    sep       = "\\t",
     quote     = FALSE,
     row.names = FALSE
+)
+
+
+# Save the software versions to disk
+
+writeLines(
+    c(
+        '"${task.process}":',
+        paste0("    stageR: ", as.character(packageVersion("stageR")))
+    ),
+    "versions.yml"
 )
 
 

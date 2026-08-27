@@ -42,6 +42,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #246 - Replaced the local `LEAFCUTTER_CLUSTER` module (and the bundled `bin/leafcutter_cluster_regtools.py` script) with the nf-core `leafcutter/clusterregtools` module (by @piplus2)
 - #247 - Refactored the local `GTF_2_GFF3` module into `GFFREAD_GTF2GFF3` (`modules/local/gffread/gtf2gff3`) to match the nf-core module template: meta-based input/output, `ext.args`/`ext.prefix` support, stub section and nf-test (by @piplus2)
 - #248 - Moved the local `GFFREAD_TX2GENE` module to `modules/local/gffread/tx2gene` to match the nf-core module template: `environment.yml`, `meta.yml`, stub section and nf-test. Update `gffread` 0.12.1 -> 0.12.7 (by @piplus2)
+- #249 - Refactored the local `STAGER` module (`modules/local/stager`) to match the nf-core module template, adding `environment.yml`, `meta.yml`, a stub section and an nf-test (by @piplus2)
+- #249 - Exposed the `stageR` parameters of `STAGER` through `ext.args` (`--alpha`, `--method`, `--allow_na`, `--only_significant_genes`, `--order`). Previously `ext.args` was appended to the command line and silently ignored. Defaults are unchanged, so the behaviour with no `ext.args` is identical (by @piplus2)
 
 ### Fixed
 
