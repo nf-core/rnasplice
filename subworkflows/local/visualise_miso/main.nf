@@ -1,23 +1,23 @@
 //
-// Visualise miso subworkflow
+// Visualise splicing events with MISO sashimi plots
 //
 
-include { GFFREAD_GTF2GFF3   } from '../../../modules/local/gffread/gtf2gff3'
-include { MISOPY_INDEX       } from '../../../modules/nf-core/misopy/index'
-include { MISOPY_RUN         } from '../../../modules/local/misopy/run'
-include { MISOPY_SASHIMIPLOT } from '../../../modules/local/misopy/sashimiplot'
-include { MISOPY_SETTINGS    } from '../../../modules/local/misopysettings'
-
+include { GFFREAD_GTF2GFF3   } from '../../../modules/local/gffread/gtf2gff3/main'
+include { MISOPY_INDEX       } from '../../../modules/nf-core/misopy/index/main'
+include { MISOPY_RUN         } from '../../../modules/local/misopy/run/main'
+include { MISOPY_SASHIMIPLOT } from '../../../modules/local/misopy/sashimiplot/main'
+include { MISOPY_SETTINGS    } from '../../../modules/local/misopysettings/main'
 
 workflow VISUALISE_MISO {
+
     take:
-    gtf // path gtf
-    ch_genome_bam // channel: [ val(meta), path(bam) ]
-    ch_genome_bai // channel: [ val(meta), path(bai) ]
-    fig_width
-    fig_height
-    miso_genes // params.miso_genes
-    miso_genes_file // params.miso_genes_file
+    gtf             // channel: [ path(gtf) ]
+    ch_genome_bam   // channel: [ val(meta), path(bam) ]
+    ch_genome_bai   // channel: [ val(meta), path(bai) ]
+    fig_width       // val: figure width in inches
+    fig_height      // val: figure height in inches
+    miso_genes      // val: comma separated list of events to plot
+    miso_genes_file // val: path to a file listing events to plot, or false
 
     main:
 
@@ -28,7 +28,7 @@ workflow VISUALISE_MISO {
     GFFREAD_GTF2GFF3(gtf.map { annotation -> [[id: annotation.baseName], annotation] })
 
     //
-    // MODULE: DEXSeq Annotation
+    // MODULE: MISOPY_INDEX
     //
 
     MISOPY_INDEX(GFFREAD_GTF2GFF3.out.gff3)
@@ -50,7 +50,7 @@ workflow VISUALISE_MISO {
         .map { miso_data -> [[id: 'miso'], miso_data] }
 
     //
-    // MODULE: MISO_SETTINGS
+    // MODULE: MISOPY_SETTINGS
     //
 
     ch_miso_settings_input = ch_genome_bam
@@ -65,7 +65,7 @@ workflow VISUALISE_MISO {
     ).miso_settings
 
     //
-    // MODULE: MISO_SASHIMI
+    // MODULE: MISOPY_SASHIMIPLOT
     //
 
     def miso_genes_list = miso_genes ? miso_genes.split(',').collect { it -> it.trim() } : [""]
@@ -104,9 +104,9 @@ workflow VISUALISE_MISO {
     )
 
     emit:
-    gff3          = GFFREAD_GTF2GFF3.out.gff3 // channel: [ val(meta), path(*.gff3) ]
-    miso_index    = ch_miso_index // channel: [ ch_miso_index ]
-    miso_data     = ch_miso_data // channel: [ ch_miso_data ]
-    miso_settings = MISOPY_SETTINGS.out.miso_settings // path miso_setting.txt
-    miso_sashimi  = MISOPY_SASHIMIPLOT.out.sashimi_plot // path sashimi/*.pdf
+    gff3          = GFFREAD_GTF2GFF3.out.gff3          // channel: [ val(meta), path(*.gff3) ]
+    miso_index    = ch_miso_index                      // channel: [ val(meta), path(index) ]
+    miso_data     = ch_miso_data                       // channel: [ val(meta), path(miso_data/*) ]
+    miso_settings = MISOPY_SETTINGS.out.miso_settings  // channel: [ val(meta), path(miso_settings.txt) ]
+    miso_sashimi  = MISOPY_SASHIMIPLOT.out.sashimi_plot // channel: [ val(meta), path(*.{pdf,png}) ]
 }

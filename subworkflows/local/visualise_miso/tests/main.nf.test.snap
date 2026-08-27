@@ -1,0 +1,92 @@
+{
+    "human chrX": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "genes_chrX"
+                    },
+                    "genes_chrX_genes.gff3:md5,1c1ece4ee637e317c0ae6528a253a83f"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "miso"
+                    },
+                    "miso_settings.txt:md5,3b7189e01ef27308ae982d6700781f12"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "miso"
+                    },
+                    "ENSG00000147403.pdf"
+                ]
+            ]
+        ],
+        "timestamp": "2026-08-27T08:06:13.256490585",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    },
+    "human chrX - stub": {
+        "content": [
+            {
+                "gff3": [
+                    [
+                        {
+                            "id": "genes_chrX"
+                        },
+                        "genes_chrX_genes.gff3:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "miso_data": [
+                    [
+                        {
+                            "id": "miso"
+                        },
+                        [
+                            [
+                                "miso_results:md5,d41d8cd98f00b204e9800998ecf8427e"
+                            ]
+                        ]
+                    ]
+                ],
+                "miso_index": [
+                    [
+                        {
+                            "id": "genes_chrX"
+                        },
+                        [
+                            "genes_chrX.shelve:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ]
+                ],
+                "miso_sashimi": [
+                    [
+                        {
+                            "id": "miso"
+                        },
+                        "ENSG00000147403.pdf:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "miso_settings": [
+                    [
+                        {
+                            "id": "miso"
+                        },
+                        "miso_settings.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-08-27T08:06:20.941089793",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    }
+}

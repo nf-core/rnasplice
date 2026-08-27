@@ -17,7 +17,7 @@ include { DEXSEQ_DEU                                                      } from
 include { EDGER_DEU                                                       } from '../subworkflows/local/edger_deu'
 include { SUPPA as SUPPA_SALMON                                           } from '../subworkflows/local/suppa'
 include { SUPPA as SUPPA_STAR_SALMON                                      } from '../subworkflows/local/suppa'
-include { VISUALISE_MISO                                                  } from '../subworkflows/local/visualize_miso'
+include { VISUALISE_MISO                                                  } from '../subworkflows/local/visualise_miso'
 include { LEAFCUTTER                                                      } from '../subworkflows/local/leafcutter'
 
 include { validateInputSamplesheet                                        } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'

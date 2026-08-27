@@ -1,0 +1,89 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "visualise_miso"
+description: Index a GFF3 annotation with MISO, quantify splicing events per sample and render sashimi plots for the requested events
+keywords:
+  - miso
+  - sashimi
+  - splicing
+  - visualisation
+  - gff3
+components:
+  - gffread/gtf2gff3
+  - misopy/index
+  - misopy/run
+  - misopy/sashimiplot
+  - misopysettings
+input:
+  - gtf:
+      type: file
+      description: |
+        The input channel containing the GTF annotation to convert and index
+        Structure: [ path(gtf) ]
+      pattern: "*.gtf"
+  - ch_genome_bam:
+      type: file
+      description: |
+        The input channel containing the genome BAM files
+        Structure: [ val(meta), path(bam) ]
+      pattern: "*.bam"
+  - ch_genome_bai:
+      type: file
+      description: |
+        The input channel containing the genome BAM index files
+        Structure: [ val(meta), path(bai) ]
+      pattern: "*.bai"
+  - fig_width:
+      type: integer
+      description: |
+        Width of the sashimi plot figure in inches
+        Structure: [ val(fig_width) ]
+  - fig_height:
+      type: integer
+      description: |
+        Height of the sashimi plot figure in inches
+        Structure: [ val(fig_height) ]
+  - miso_genes:
+      type: string
+      description: |
+        Comma separated list of events to plot, or false when only `miso_genes_file` is used
+        Structure: [ val(miso_genes) ]
+  - miso_genes_file:
+      type: file
+      description: |
+        File listing one event to plot per line, or false when only `miso_genes` is used
+        Structure: [ val(miso_genes_file) ]
+      pattern: "*.txt"
+output:
+  - gff3:
+      type: file
+      description: |
+        Channel containing the GFF3 annotation converted from the input GTF
+        Structure: [ val(meta), path(gff3) ]
+      pattern: "*.gff3"
+  - miso_index:
+      type: directory
+      description: |
+        Channel containing the MISO index built from the GFF3 annotation
+        Structure: [ val(meta), path(index) ]
+  - miso_data:
+      type: directory
+      description: |
+        Channel containing the per sample MISO quantification directories, collected across samples
+        Structure: [ val(meta), path(miso_data) ]
+  - miso_settings:
+      type: file
+      description: |
+        Channel containing the MISO settings file used to render the sashimi plots
+        Structure: [ val(meta), path(miso_settings.txt) ]
+      pattern: "miso_settings.txt"
+  - miso_sashimi:
+      type: file
+      description: |
+        Channel containing the sashimi plots, one per requested event
+        Structure: [ val(meta), path(sashimi_plot) ]
+      pattern: "*.{pdf,png}"
+authors:
+  - "@valentinoruggieri"
+  - "@piplus2"
+maintainers:
+  - "@piplus2"
