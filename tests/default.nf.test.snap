@@ -37,7 +37,7 @@
                 "DIFFSPLICE_IOI": {
                     "suppa": 2.4
                 },
-                "DRIMSEQ_FILTER": {
+                "DRIMSEQ_DMFILTER": {
                     "bioconductor-drimseq": "1.18.0",
                     "r-base": "4.0.3"
                 },

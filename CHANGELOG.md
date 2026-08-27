@@ -45,6 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #249 - Refactored the local `STAGER` module (`modules/local/stager`) to match the nf-core module template, adding `environment.yml`, `meta.yml`, a stub section and an nf-test (by @piplus2)
 - #249 - Exposed the `stageR` parameters of `STAGER` through `ext.args` (`--alpha`, `--method`, `--allow_na`, `--only_significant_genes`, `--order`). Previously `ext.args` was appended to the command line and silently ignored. Defaults are unchanged, so the behaviour with no `ext.args` is identical (by @piplus2)
 - #250 - Moved the local `VISUALISE_MISO` subworkflow to `subworkflows/local/visualise_miso` to match the nf-core subworkflow template, adding `meta.yml` and an nf-test (by @piplus2)
+- #251 - Moved the local `DRIMSEQ_FILTER` module to `modules/local/drimseq/dmfilter` as `DRIMSEQ_DMFILTER` to match the nf-core module template (by @piplus2)
 
 ### Fixed
 

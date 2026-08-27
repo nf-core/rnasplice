@@ -2,9 +2,9 @@
 // Dexseq DTU subworkflow
 //
 
-include { DRIMSEQ_FILTER  } from '../../../modules/local/drimseq_filter'
-include { DEXSEQ_DTU      } from '../../../modules/local/dexseq/dtu'
-include { STAGER          } from '../../../modules/local/stager'
+include { DRIMSEQ_DMFILTER } from '../../../modules/local/drimseq/dmfilter'
+include { DEXSEQ_DTU       } from '../../../modules/local/dexseq/dtu'
+include { STAGER           } from '../../../modules/local/stager'
 
 workflow DRIMSEQ_DEXSEQ_DTU {
 
@@ -14,29 +14,17 @@ workflow DRIMSEQ_DEXSEQ_DTU {
     tximport_tx2gene        // path: tximport.tx2gene.tsv
     samplesheet             // path: /path/to/samplesheet.csv
     contrastsheet           // path: contrastsheet
-    min_samps_gene_expr     // params.min_samps_gene_expr
-    min_samps_feature_expr  // params.min_samps_feature_expr
-    min_samps_feature_prop  // params.min_samps_feature_prop
-    min_feature_expr        // params.min_feature_expr
-    min_feature_prop        // params.min_feature_prop
-    min_gene_expr           // params.min_gene_expr
 
     main:
 
     //
-    // DEXSEQ FILTER
+    // DRIMSEQ FILTER
     //
 
-    DRIMSEQ_FILTER (
+    DRIMSEQ_DMFILTER (
         txi,
         tximport_tx2gene,
-        samplesheet,
-        min_samps_gene_expr,
-        min_samps_feature_expr,
-        min_samps_feature_prop,
-        min_feature_expr,
-        min_feature_prop,
-        min_gene_expr
+        samplesheet
     )
 
     //
@@ -44,8 +32,8 @@ workflow DRIMSEQ_DEXSEQ_DTU {
     //
 
     DEXSEQ_DTU (
-        DRIMSEQ_FILTER.out.drimseq_samples_tsv,
-        DRIMSEQ_FILTER.out.drimseq_counts_tsv,
+        DRIMSEQ_DMFILTER.out.drimseq_samples_tsv,
+        DRIMSEQ_DMFILTER.out.drimseq_counts_tsv,
         contrastsheet
     )
 
@@ -80,9 +68,9 @@ workflow DRIMSEQ_DEXSEQ_DTU {
 
     emit:
 
-    drimseq_dataset_rds      = DRIMSEQ_FILTER.out.drimseq_dataset_rds
-    drimseq_samples_tsv      = DRIMSEQ_FILTER.out.drimseq_samples_tsv
-    drimseq_counts_tsv       = DRIMSEQ_FILTER.out.drimseq_counts_tsv
+    drimseq_dataset_rds      = DRIMSEQ_DMFILTER.out.drimseq_dataset_rds
+    drimseq_samples_tsv      = DRIMSEQ_DMFILTER.out.drimseq_samples_tsv
+    drimseq_counts_tsv       = DRIMSEQ_DMFILTER.out.drimseq_counts_tsv
 
     dexseq_exon_dataset_rds  = DEXSEQ_DTU.out.dexseq_exon_dataset_rds
     dexseq_exon_results_rds  = DEXSEQ_DTU.out.dexseq_exon_results_rds

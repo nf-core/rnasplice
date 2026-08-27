@@ -366,12 +366,6 @@ workflow RNASPLICE {
                 ch_tximport_tx2gene,
                 ch_samplesheet,
                 ch_contrastsheet,
-                params.min_samps_gene_expr,
-                params.min_samps_feature_expr,
-                params.min_samps_feature_prop,
-                params.min_feature_expr,
-                params.min_feature_prop,
-                params.min_gene_expr,
             )
         }
 
@@ -441,12 +435,6 @@ workflow RNASPLICE {
                 TX2GENE_TXIMPORT_SALMON.out.tximport_tx2gene,
                 ch_samplesheet,
                 ch_contrastsheet,
-                params.min_samps_gene_expr,
-                params.min_samps_feature_expr,
-                params.min_samps_feature_prop,
-                params.min_feature_expr,
-                params.min_feature_prop,
-                params.min_gene_expr,
             )
         }
 

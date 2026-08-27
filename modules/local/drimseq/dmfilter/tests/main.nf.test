@@ -1,0 +1,132 @@
+// nf-core modules test drimseq/dmfilter
+nextflow_process {
+
+    name "Test Process DRIMSEQ_DMFILTER"
+    script "../main.nf"
+    process "DRIMSEQ_DMFILTER"
+
+    tag "modules"
+    tag "modules_"
+    tag "drimseq"
+    tag "drimseq/dmfilter"
+    tag "untar"
+
+    // The drimseq tarball holds the dtuScaledTPM tximport object
+    // (salmon.merged.txi.dtu.rds) plus the matching tximport.tx2gene.tsv
+    // and samplesheet.csv, so it provides all three process inputs.
+    setup {
+        run("UNTAR", alias: "UNTAR_DRIMSEQ") {
+            script '../../../../nf-core/untar/main.nf'
+            process {
+            """
+            input[0] = [
+                [ id: 'test' ],
+                file(params.pipelines_testdata_base_path + 'testdata/drimseq/drimseq_testdata.tar.gz', checkIfExists: true)
+            ]
+            """
+            }
+        }
+    }
+
+    test("tximport dtuScaledTPM - rds") {
+
+        when {
+            process {
+                """
+                UNTAR_DRIMSEQ.out.untar
+                    .multiMap { _meta, dir ->
+                        txi         : file(dir.toString() + '/salmon.merged.txi.dtu.rds', checkIfExists: true)
+                        tx2gene     : file(dir.toString() + '/tximport.tx2gene.tsv', checkIfExists: true)
+                        samplesheet : file(dir.toString() + '/samplesheet.csv', checkIfExists: true)
+                    }
+                    .set { ch_drimseq }
+
+                input[0] = ch_drimseq.txi
+                input[1] = ch_drimseq.tx2gene
+                input[2] = ch_drimseq.samplesheet
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assertAll(
+                { assert snapshot(
+                    process.out.drimseq_samples_tsv,
+                    process.out.drimseq_counts_tsv,
+                    process.out.drimseq_dataset_rds.collect { rds -> file(rds).name },
+                    process.out.findAll { key, val -> key.startsWith('versions') }
+                ).match() }
+            )
+        }
+
+    }
+
+    test("tximport dtuScaledTPM - rds - no filtering") {
+
+        config "./no_filter.config"
+
+        when {
+            process {
+                """
+                UNTAR_DRIMSEQ.out.untar
+                    .multiMap { _meta, dir ->
+                        txi         : file(dir.toString() + '/salmon.merged.txi.dtu.rds', checkIfExists: true)
+                        tx2gene     : file(dir.toString() + '/tximport.tx2gene.tsv', checkIfExists: true)
+                        samplesheet : file(dir.toString() + '/samplesheet.csv', checkIfExists: true)
+                    }
+                    .set { ch_drimseq }
+
+                input[0] = ch_drimseq.txi
+                input[1] = ch_drimseq.tx2gene
+                input[2] = ch_drimseq.samplesheet
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assertAll(
+                { assert snapshot(
+                    process.out.drimseq_samples_tsv,
+                    process.out.drimseq_counts_tsv,
+                    process.out.drimseq_dataset_rds.collect { rds -> file(rds).name },
+                    process.out.findAll { key, val -> key.startsWith('versions') }
+                ).match() }
+            )
+        }
+
+    }
+
+    test("tximport dtuScaledTPM - rds - stub") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                UNTAR_DRIMSEQ.out.untar
+                    .multiMap { _meta, dir ->
+                        txi         : file(dir.toString() + '/salmon.merged.txi.dtu.rds', checkIfExists: true)
+                        tx2gene     : file(dir.toString() + '/tximport.tx2gene.tsv', checkIfExists: true)
+                        samplesheet : file(dir.toString() + '/samplesheet.csv', checkIfExists: true)
+                    }
+                    .set { ch_drimseq }
+
+                input[0] = ch_drimseq.txi
+                input[1] = ch_drimseq.tx2gene
+                input[2] = ch_drimseq.samplesheet
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assertAll(
+                { assert snapshot(process.out).match() }
+            )
+        }
+
+    }
+
+}
