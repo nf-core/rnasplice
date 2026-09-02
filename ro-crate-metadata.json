@@ -22,7 +22,7 @@
             "@id": "./",
             "@type": "Dataset",
             "creativeWorkStatus": "InProgress",
-            "datePublished": "2026-08-24T17:21:23+00:00",
+            "datePublished": "2026-09-01T15:17:07+00:00",
             "description": "<h1>\n  <picture>\n    <source media=\"(prefers-color-scheme: dark)\" srcset=\"docs/images/nf-core-rnasplice_logo_dark.png\">\n    <img alt=\"nf-core/rnasplice\" src=\"docs/images/nf-core-rnasplice_logo_light.png\">\n  </picture>\n</h1>\n\n[![Open in GitHub Codespaces](https://img.shields.io/badge/Open_In_GitHub_Codespaces-black?labelColor=grey&logo=github)](https://github.com/codespaces/new/nf-core/rnasplice)\n[![GitHub Actions CI Status](https://github.com/nf-core/rnasplice/actions/workflows/nf-test.yml/badge.svg)](https://github.com/nf-core/rnasplice/actions/workflows/nf-test.yml)\n[![GitHub Actions Linting Status](https://github.com/nf-core/rnasplice/actions/workflows/linting.yml/badge.svg)](https://github.com/nf-core/rnasplice/actions/workflows/linting.yml)[![AWS CI](https://img.shields.io/badge/CI%20tests-full%20size-FF9900?labelColor=000000&logo=Amazon%20AWS)](https://nf-co.re/rnasplice/results)[![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.XXXXXXX-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.XXXXXXX)\n[![nf-test](https://img.shields.io/badge/unit_tests-nf--test-337ab7.svg)](https://www.nf-test.com)\n\n[![Nextflow](https://img.shields.io/badge/version-%E2%89%A526.04.0-green?style=flat&logo=nextflow&logoColor=white&color=%230DC09D&link=https%3A%2F%2Fnextflow.io)](https://www.nextflow.io/)\n[![nf-core template version](https://img.shields.io/badge/nf--core_template-4.1.0-green?style=flat&logo=nfcore&logoColor=white&color=%2324B064&link=https%3A%2F%2Fnf-co.re)](https://github.com/nf-core/tools/releases/tag/4.1.0)\n[![run with conda](http://img.shields.io/badge/run%20with-conda-3EB049?labelColor=000000&logo=anaconda)](https://docs.conda.io/en/latest/)\n[![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?labelColor=000000&logo=docker)](https://www.docker.com/)\n[![run with singularity](https://img.shields.io/badge/run%20with-singularity-1d355c.svg?labelColor=000000)](https://sylabs.io/docs/)\n[![Launch on Seqera Platform](https://img.shields.io/badge/Launch%20%F0%9F%9A%80-Seqera%20Platform-%234256e7)](https://cloud.seqera.io/launch?pipeline=https://github.com/nf-core/rnasplice)\n\n[![Get help on Slack](http://img.shields.io/badge/slack-nf--core%20%23rnasplice-4A154B?labelColor=000000&logo=slack)](https://nfcore.slack.com/channels/rnasplice)[![Follow on Bluesky](https://img.shields.io/badge/bluesky-%40nf__core-1185fe?labelColor=000000&logo=bluesky)](https://bsky.app/profile/nf-co.re)[![Follow on Mastodon](https://img.shields.io/badge/mastodon-nf__core-6364ff?labelColor=FFFFFF&logo=mastodon)](https://mstdn.science/@nf_core)[![Watch on YouTube](http://img.shields.io/badge/youtube-nf--core-FF0000?labelColor=000000&logo=youtube)](https://www.youtube.com/c/nf-core)\n\n## Introduction\n\n**nf-core/rnasplice** is a bioinformatics pipeline for alternative splicing analysis of RNA sequencing data obtained from organisms with a reference genome and annotation.\n\n![nf-core/rnasplice metro map](docs/rnasplice_map.png)\n\n1. Merge re-sequenced FastQ files ([`cat`](http://www.linfo.org/cat.html))\n2. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))\n3. Adapter and quality trimming ([`TrimGalore`](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/))\n4. Alignment with [`STAR`](https://github.com/alexdobin/STAR)\n5. Choice of quantification depending on analysis type:\n   1. [`STAR`](https://github.com/alexdobin/STAR) -> [`Salmon`](https://combine-lab.github.io/salmon/)\n   2. [`STAR`](https://github.com/alexdobin/STAR) -> [`featureCounts`](https://academic.oup.com/bioinformatics/article/30/7/923/232889?login=false)\n   3. [`STAR`](https://github.com/alexdobin/STAR) -> [`HTSeq`](https://htseq.readthedocs.io/en/master/) (DEXSeq count)\n6. Sort and index alignments ([`SAMtools`](https://sourceforge.net/projects/samtools/files/samtools/))\n7. Create bigWig coverage files ([`BEDTools`](https://github.com/arq5x/bedtools2/), [`bedGraphToBigWig`](http://hgdownload.soe.ucsc.edu/admin/exe/))\n8. Pseudo-alignment and quantification ([`Salmon`](https://combine-lab.github.io/salmon/); _optional_)\n9. Summarize QC ([`MultiQC`](http://multiqc.info/))\n10. Differential Exon Usage (DEU):\n    1. [`HTSeq`](https://htseq.readthedocs.io/en/master/) -> [`DEXSeq`](https://bioconductor.org/packages/devel/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html)\n    2. [`featureCounts`](https://academic.oup.com/bioinformatics/article/30/7/923/232889?login=false) -> [`edgeR`](https://bioconductor.org/packages/release/bioc/html/edgeR.html)\n    3. Quantification with [`featureCounts`](https://academic.oup.com/bioinformatics/article/30/7/923/232889?login=false) or [`HTSeq`](https://htseq.readthedocs.io/en/master/)\n    4. Differential exon usage with [`DEXSeq`](https://bioconductor.org/packages/devel/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html) or [`edgeR`](https://bioconductor.org/packages/release/bioc/html/edgeR.html)\n11. Differential Transcript Usage (DTU):\n    1. [`Salmon`](https://combine-lab.github.io/salmon/) -> [`DRIMSeq`](https://bioconductor.org/packages/release/bioc/html/DRIMSeq.html) -> [`DEXSeq`](https://f1000research.com/articles/7-952)\n    2. Filtering with [`DRIMSeq`](https://bioconductor.org/packages/release/bioc/html/DRIMSeq.html)\n    3. Differential transcript usage with [`DEXSeq`](https://bioconductor.org/packages/devel/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html)\n    4. [`Salmon`](https://combine-lab.github.io/salmon/) -> [`IsoformSwitchAnalyzeR`](https://www.bioconductor.org/packages/release/bioc/html/IsoformSwitchAnalyzeR.html)\n    5. Isoform switch analysis with [`IsoformSwitchAnalyzeR`](https://www.bioconductor.org/packages/release/bioc/html/IsoformSwitchAnalyzeR.html)\n12. Event-based splicing analysis:\n    1. [`STAR`](https://github.com/alexdobin/STAR) -> [`rMATS`](https://github.com/Xinglab/rmats-turbo)\n    2. [`Salmon`](https://combine-lab.github.io/salmon/) -> [`SUPPA2`](https://github.com/comprna/SUPPA)\n\n## Usage\n\n> [!NOTE]\n> If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/get_started/environment_setup/overview) on how to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/get_started/run-your-first-pipeline) with `-profile test` before running the workflow on actual data.\n\nFirst, prepare a samplesheet with your input data that looks as follows:\n\n`samplesheet.csv`:\n\n```csv\nsample,fastq_1,fastq_2,strandedness,condition\nCONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz,forward,CONTROL\nCONTROL_REP1,AEG588A1_S1_L003_R1_001.fastq.gz,AEG588A1_S1_L003_R2_001.fastq.gz,forward,CONTROL\nCONTROL_REP1,AEG588A1_S1_L004_R1_001.fastq.gz,AEG588A1_S1_L004_R2_001.fastq.gz,forward,CONTROL\n```\n\nEach row represents a fastq file (single-end) or a pair of fastq files (paired end). Rows with the same sample identifier are considered technical replicates and merged automatically. The strandedness refers to the library preparation and should be specified by the user.\n\n:::warning\nPlease provide pipeline parameters via the CLI or Nextflow `-params-file` option. Custom config files including those\nprovided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_;\nsee [docs](https://nf-co.re/usage/configuration#custom-configuration-files).\n:::\n\nNow, you can run the pipeline using:\n\n```bash\nnextflow run nf-core/rnasplice \\\n   --input samplesheet.csv \\\n   --contrasts contrastsheet.csv \\\n   --genome GRCh37 \\\n   --outdir <OUTDIR> \\\n   -profile <docker/singularity/.../institute>\n```\n\n> [!WARNING]\n> Please provide pipeline parameters via the CLI or Nextflow `-params-file` option. Custom config files including those provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_; see [docs](https://nf-co.re/docs/running/run-pipelines#using-parameter-files).\n\nFor more details and further functionality, please refer to the [usage documentation](https://nf-co.re/rnasplice/usage) and the [parameter documentation](https://nf-co.re/rnasplice/parameters).\n\n## Pipeline output\n\nTo see the results of an example test run with a full size dataset refer to the [results](https://nf-co.re/rnasplice/results) tab on the nf-core website pipeline page.\nFor more details about the output files and reports, please refer to the [output documentation](https://nf-co.re/rnasplice/output).\n\n## Online videos\n\nYou can find numerous talks on the [nf-core events page](https://nf-co.re/events) from various topics including writing pipelines/modules in Nextflow DSL2, using nf-core tooling, running nf-core pipelines as well as more generic content like contributing to Github. Please check them out!\n\n## Credits\n\nnf-core/rnasplice was originally written by the bioinformatics team from [Zifo RnD Solutions](https://www.zifornd.com/):\n\n- [Benjamin Southgate](https://github.com/bensouthgate)\n- [James Ashmore](https://github.com/jma1991)\n- [Valentino Ruggieri](https://github.com/valentinoruggieri)\n- [Claire Prince](https://github.com/claire-prince)\n- [Keerthana Bhaskaran](https://github.com/Keerthana-Bhaskaran-TG)\n- [Asma Ali](https://github.com/asmaali98)\n- [Lathika Madhan Mohan](https://github.com/lathikaa)\n\nWe thank Harshil Patel ([@drpatelh](https://github.com/drpatelh)), Seqera Labs ([seqeralabs](https://github.com/seqeralabs)) and Jesse Angelis ([@jesseangelis](https://github.com/jesseangelis)) for their assistance in the development of this pipeline.\n\n<img src=\"docs/images/zifo_logo.jpg\" alt=\"Zifo RnD Solutions\" width=\"200\"/>\n\n## Contributions and Support\n\nIf you would like to contribute to this pipeline, please see the [contributing guidelines](docs/CONTRIBUTING.md).\n\nFor further information or help, don't hesitate to get in touch on the [Slack `#rnasplice` channel](https://nfcore.slack.com/channels/rnasplice) (you can join with [this invite](https://nf-co.re/join/slack)).\n\n## Citations\n\nIf you use nf-core/rnasplice for your analysis, please cite it using the following doi: [10.5281/zenodo.8424632](https://doi.org/10.5281/zenodo.8424632)\n\nAn extensive list of references for the tools used by the pipeline can be found in the [`CITATIONS.md`](CITATIONS.md) file.\n\nYou can cite the `nf-core` publication as follows:\n\n> **The nf-core framework for community-curated bioinformatics pipelines.**\n>\n> Philip Ewels, Alexander Peltzer, Sven Fillinger, Harshil Patel, Johannes Alneberg, Andreas Wilm, Maxime Ulysse Garcia, Paolo Di Tommaso & Sven Nahnsen.\n>\n> _Nat Biotechnol._ 2020 Feb 13. doi: [10.1038/s41587-020-0439-x](https://dx.doi.org/10.1038/s41587-020-0439-x).\n",
             "hasPart": [
                 {
@@ -105,7 +105,7 @@
             },
             "mentions": [
                 {
-                    "@id": "#c98abd7a-ddd3-4858-a76d-6e0edb7ab79e"
+                    "@id": "#956bd058-f949-4923-858b-9780ba6acaa7"
                 }
             ],
             "name": "nf-core/rnasplice"
@@ -132,16 +132,16 @@
                 "SoftwareSourceCode",
                 "ComputationalWorkflow"
             ],
-            "contributor": [
+            "author": [
                 {
-                    "@id": "#2b27eebb-8910-47bc-abc5-d81627e716ad"
+                    "@id": "#2d136c8f-ff17-4663-9454-8948c72012d3"
                 },
                 {
                     "@id": "https://orcid.org/0000-0002-9921-3270"
                 }
             ],
             "dateCreated": "",
-            "dateModified": "2026-08-24T19:21:23Z",
+            "dateModified": "2026-09-01T17:17:07Z",
             "dct:conformsTo": "https://bioschemas.org/profiles/ComputationalWorkflow/1.0-RELEASE/",
             "keywords": [
                 "nf-core",
@@ -184,11 +184,11 @@
             "version": "!>=26.04.0"
         },
         {
-            "@id": "#c98abd7a-ddd3-4858-a76d-6e0edb7ab79e",
+            "@id": "#956bd058-f949-4923-858b-9780ba6acaa7",
             "@type": "TestSuite",
             "instance": [
                 {
-                    "@id": "#92e8c29e-fae0-4873-9656-66aa04640730"
+                    "@id": "#b84ee6d4-35de-4e86-b752-392d136dfac8"
                 }
             ],
             "mainEntity": {
@@ -197,7 +197,7 @@
             "name": "Test suite for nf-core/rnasplice"
         },
         {
-            "@id": "#92e8c29e-fae0-4873-9656-66aa04640730",
+            "@id": "#b84ee6d4-35de-4e86-b752-392d136dfac8",
             "@type": "TestInstance",
             "name": "GitHub Actions workflow for testing nf-core/rnasplice",
             "resource": "repos/nf-core/rnasplice/actions/workflows/nf-test.yml",
@@ -336,14 +336,17 @@
             "url": "https://nf-co.re/"
         },
         {
-            "@id": "#2b27eebb-8910-47bc-abc5-d81627e716ad",
+            "@id": "#2d136c8f-ff17-4663-9454-8948c72012d3",
             "@type": "Person",
-            "name": "Ben Southgate"
+            "name": "Ben Southgate",
+            "url": "https://github.com/bensouthgate"
         },
         {
             "@id": "https://orcid.org/0000-0002-9921-3270",
             "@type": "Person",
-            "name": "James Ashmore"
+            "email": "james.ashmore@zifornd.com",
+            "name": "James Ashmore",
+            "url": "https://github.com/jamesashmore"
         }
     ]
 }
