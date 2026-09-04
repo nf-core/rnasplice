@@ -1,0 +1,67 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "gtfgenefilter"
+description: "Filter a GTF annotation file, keeping only the features whose sequence name is present in the genome FASTA file."
+keywords:
+  - gtf
+  - genome
+  - filter
+  - annotation
+  - genomics
+tools:
+  - "gtfgenefilter":
+      homepage: "https://github.com/nf-core/rnasplice"
+      description: "Filter GTF only for features in the genome"
+      licence: ["MIT"]
+      identifier: ""
+
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing genome information
+          e.g. `[ id:'genome' ]`
+    - fasta:
+        type: file
+        description: Genome FASTA file
+        pattern: "*.{fa,fasta,fna}"
+        ontologies: []
+  - - meta2:
+        type: map
+        description: |
+          Groovy Map containing annotation information
+          e.g. `[ id:'genome' ]`
+    - gtf:
+        type: file
+        description: GTF annotation file
+        pattern: "*.gtf"
+        ontologies: []
+
+output:
+  gtf:
+    - - meta2:
+          type: map
+          description: |
+            Groovy Map containing annotation information
+            e.g. `[ id:'genome' ]`
+      - "*_genes.gtf":
+          type: file
+          description: GTF file containing only the features found in the genome FASTA file
+          pattern: "*_genes.gtf"
+          ontologies: []
+  versions_python:
+    - "versions.yml":
+        type: file
+        description: Versions file for python
+        pattern: "versions.yml"
+
+topics:
+  versions:
+    - "versions.yml":
+        type: file
+        description: Versions file for python
+        pattern: "versions.yml"
+authors:
+  - "@jma1991"
+  - "@piplus2"
+maintainers:
+  - "@piplus2"

@@ -47,6 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #250 - Moved the local `VISUALISE_MISO` subworkflow to `subworkflows/local/visualise_miso` to match the nf-core subworkflow template, adding `meta.yml` and an nf-test (by @piplus2)
 - #251 - Moved the local `DRIMSEQ_FILTER` module to `modules/local/drimseq/dmfilter` as `DRIMSEQ_DMFILTER` to match the nf-core module template (by @piplus2)
 - #253 - Sync pipeline with nf-core template 4.1.0-2 (by @piplus2)
+- #254 - Moved the local `GTF_GENE_FILTER` module to `modules/local/gtfgenefilter` as `GTFGENEFILTER` to match the nf-core module template, adding `environment.yml`, `meta.yml`, a stub section and an nf-test. The bundled `bin/filter_gtf_for_genes_in_genome.py` script is now a module template (by @piplus2)
 
 ### Fixed
 
@@ -72,6 +73,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #238 - Added missing backslash in `mergeevents` command in `dev` branch (by @piplus2)
 - #241 - Added missing backslash in `clustergroups` command in `dev` branch (by @piplus2)
 - #245 - Fixed ignored `--tximport_ignore_tx_version` argument in `TXIMPORT` module (by @piplus2)
+- #254 - Fixed `GTFGENEFILTER` logging the characters of the last GTF sequence name instead of the set of sequence names found in the GTF, which also raised a `NameError` on an empty GTF. The module now fails with an explicit error when no GTF feature matches a sequence in the genome FASTA (by @piplus2)
 
 ## v1.0.5 - 2024-11-03
 

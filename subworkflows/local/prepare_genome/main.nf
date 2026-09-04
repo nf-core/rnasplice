@@ -19,7 +19,7 @@ include { STAR_GENOMEGENERATE_IGENOMES                    } from '../../../modul
 include { SALMON_INDEX                                    } from '../../../modules/nf-core/salmon/index'
 include { RSEM_PREPAREREFERENCE as MAKE_TRANSCRIPTS_FASTA } from '../../../modules/nf-core/rsem/preparereference'
 
-include { GTF_GENE_FILTER                                 } from '../../../modules/local/gtf_gene_filter'
+include { GTFGENEFILTER                                   } from '../../../modules/local/gtfgenefilter'
 include { PREPROCESS_TRANSCRIPTS_FASTA_GENCODE            } from '../../../modules/local/preprocess_transcripts_fasta_gencode'
 
 workflow PREPARE_GENOME {
@@ -88,7 +88,7 @@ workflow PREPARE_GENOME {
         }
     }
     else {
-        ch_filter_gtf = GTF_GENE_FILTER(ch_fasta, ch_gtf).gtf
+        ch_filter_gtf = GTFGENEFILTER(ch_fasta, ch_gtf).gtf
         ch_transcript_fasta = MAKE_TRANSCRIPTS_FASTA(
             ch_fasta.map { _meta, fa -> fa },
             ch_filter_gtf.map { _meta, filter_gtf -> filter_gtf },
