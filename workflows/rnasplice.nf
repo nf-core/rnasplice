@@ -263,13 +263,12 @@ workflow RNASPLICE {
             ( ( params.source == 'fastq') && ( !params.skip_alignment && (params.aligner == 'star' || params.aligner == 'star_salmon') ) )
         )
     {
-        ch_dexseq_gff = params.gff_dexseq ?: ''
-
         if (params.dexseq_exon) {
             DEXSEQ_DEU(
                 ch_gtf,
                 ch_genome_bam,
                 ch_dexseq_gff,
+                !params.gff_dexseq,
                 ch_samplesheet,
                 ch_contrastsheet,
                 params.n_dexseq_plot,

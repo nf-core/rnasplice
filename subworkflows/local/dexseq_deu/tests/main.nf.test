@@ -1,0 +1,142 @@
+// nf-core subworkflows test dexseq_deu
+nextflow_workflow {
+
+    name "Test Subworkflow DEXSEQ_DEU"
+    script "../main.nf"
+    workflow "DEXSEQ_DEU"
+    config "./nextflow.config"
+
+    tag "subworkflows"
+    tag "subworkflows/dexseq_deu"
+    tag "dexseq"
+    tag "dexseq/annotation"
+    tag "dexseq/count"
+    tag "dexseq/exon"
+
+    test("human chrX") {
+
+        when {
+            workflow {
+                """
+                input[0] = channel.value(file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true))
+                input[1] = channel.of(
+                    [ [ id:'ERR188383', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188428', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188454', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR204916', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916.Aligned.out.bam', checkIfExists: true) ],
+                )
+                input[2] = channel.empty()
+                input[3] = true
+                input[4] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true))
+                input[5] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/contrastsheet.csv', checkIfExists: true))
+                input[6] = 10
+                input[7] = false
+                input[8] = 10
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert snapshot(
+                    workflow.out.dexseq_clean_txt,
+                    workflow.out.dexseq_exon_dataset_rds.flatten().collect { rds -> file(rds).name },
+                    workflow.out.dexseq_exon_results_rds.flatten().collect { rds -> file(rds).name },
+                    workflow.out.dexseq_gene_results_rds.flatten().collect { rds -> file(rds).name },
+                    workflow.out.dexseq_exon_results_csv.flatten().collect { csv -> file(csv).name },
+                    workflow.out.dexseq_gene_results_csv.flatten().collect { csv -> file(csv).name },
+                    workflow.out.dexseq_plot_results_pdf.flatten().collect { pdf -> file(pdf).name }
+                ).match() }
+            )
+        }
+
+    }
+
+    test("human chrX - user supplied gff") {
+
+        // The user supplied annotation has to be a DEXSeq flattened GFF, which the test
+        // datasets do not carry, so it is prepared from the GTF first
+        setup {
+            run("DEXSEQ_ANNOTATION") {
+                script "../../../../modules/local/dexseq/annotation/main.nf"
+                process {
+                    """
+                    input[0] = [ file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true) ]
+                    input[1] = false
+                    """
+                }
+            }
+        }
+
+        when {
+            workflow {
+                """
+                input[0] = channel.value(file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true))
+                input[1] = channel.of(
+                    [ [ id:'ERR188383', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188428', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188454', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR204916', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916.Aligned.out.bam', checkIfExists: true) ],
+                )
+                input[2] = DEXSEQ_ANNOTATION.out.gff
+                input[3] = false
+                input[4] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true))
+                input[5] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/contrastsheet.csv', checkIfExists: true))
+                input[6] = 10
+                input[7] = false
+                input[8] = 10
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert snapshot(
+                    workflow.out.dexseq_clean_txt,
+                    workflow.out.dexseq_exon_dataset_rds.flatten().collect { rds -> file(rds).name },
+                    workflow.out.dexseq_exon_results_rds.flatten().collect { rds -> file(rds).name },
+                    workflow.out.dexseq_gene_results_rds.flatten().collect { rds -> file(rds).name },
+                    workflow.out.dexseq_exon_results_csv.flatten().collect { csv -> file(csv).name },
+                    workflow.out.dexseq_gene_results_csv.flatten().collect { csv -> file(csv).name },
+                    workflow.out.dexseq_plot_results_pdf.flatten().collect { pdf -> file(pdf).name }
+                ).match() }
+            )
+        }
+
+    }
+
+    test("human chrX - stub") {
+
+        options "-stub"
+
+        when {
+            workflow {
+                """
+                input[0] = channel.value(file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true))
+                input[1] = channel.of(
+                    [ [ id:'ERR188383', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188428', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true) ],
+                )
+                input[2] = channel.empty()
+                input[3] = true
+                input[4] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true))
+                input[5] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/contrastsheet.csv', checkIfExists: true))
+                input[6] = 10
+                input[7] = false
+                input[8] = 10
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert snapshot(sanitizeOutput(workflow.out)).match() }
+            )
+        }
+
+    }
+
+}

@@ -1,0 +1,119 @@
+{
+    "human chrX": {
+        "content": [
+            [
+                [
+                    "ERR188383.clean.count.txt:md5,c555a5a49d32751af3ea3cb244aa61b2",
+                    "ERR188428.clean.count.txt:md5,b8ec3c9de6d8a40fcbf9c887a6e6e810",
+                    "ERR188454.clean.count.txt:md5,efc69da2471a84255ffe81ee24b2d59f",
+                    "ERR204916.clean.count.txt:md5,8d4646e26054b727eaaedbd0706aa99f"
+                ]
+            ],
+            [
+                "DEXSeqDataSet.GBR-YRI.rds",
+                "DEXSeqDataSet.YRI-GBR.rds"
+            ],
+            [
+                "DEXSeqResults.GBR-YRI.rds",
+                "DEXSeqResults.YRI-GBR.rds"
+            ],
+            [
+                "perGeneQValue.GBR-YRI.rds",
+                "perGeneQValue.YRI-GBR.rds"
+            ],
+            [
+                "DEXSeqResults.GBR-YRI.csv",
+                "DEXSeqResults.YRI-GBR.csv"
+            ],
+            [
+                "perGeneQValue.GBR-YRI.csv",
+                "perGeneQValue.YRI-GBR.csv"
+            ],
+            [
+                "plotDEXSeq.GBR-YRI.pdf",
+                "plotDEXSeq.YRI-GBR.pdf"
+            ]
+        ],
+        "timestamp": "2026-09-07T13:00:49.05752066",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    },
+    "human chrX - stub": {
+        "content": [
+            {
+                "dexseq_clean_txt": [
+                    [
+                        "ERR188383.clean.count.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "ERR188428.clean.count.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "dexseq_exon_dataset_rds": [
+                    "DEXSeqDataSet.stub.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "dexseq_exon_results_csv": [
+                    "DEXSeqResults.stub.csv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "dexseq_exon_results_rds": [
+                    "DEXSeqResults.stub.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "dexseq_gene_results_csv": [
+                    "perGeneQValue.stub.csv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "dexseq_gene_results_rds": [
+                    "perGeneQValue.stub.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "dexseq_plot_results_pdf": [
+                    "plotDEXSeq.stub.pdf:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            }
+        ],
+        "timestamp": "2026-09-07T13:01:57.286414046",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    },
+    "human chrX - user supplied gff": {
+        "content": [
+            [
+                [
+                    "ERR188383.clean.count.txt:md5,c555a5a49d32751af3ea3cb244aa61b2",
+                    "ERR188428.clean.count.txt:md5,b8ec3c9de6d8a40fcbf9c887a6e6e810",
+                    "ERR188454.clean.count.txt:md5,efc69da2471a84255ffe81ee24b2d59f",
+                    "ERR204916.clean.count.txt:md5,8d4646e26054b727eaaedbd0706aa99f"
+                ]
+            ],
+            [
+                "DEXSeqDataSet.GBR-YRI.rds",
+                "DEXSeqDataSet.YRI-GBR.rds"
+            ],
+            [
+                "DEXSeqResults.GBR-YRI.rds",
+                "DEXSeqResults.YRI-GBR.rds"
+            ],
+            [
+                "perGeneQValue.GBR-YRI.rds",
+                "perGeneQValue.YRI-GBR.rds"
+            ],
+            [
+                "DEXSeqResults.GBR-YRI.csv",
+                "DEXSeqResults.YRI-GBR.csv"
+            ],
+            [
+                "perGeneQValue.GBR-YRI.csv",
+                "perGeneQValue.YRI-GBR.csv"
+            ],
+            [
+                "plotDEXSeq.GBR-YRI.pdf",
+                "plotDEXSeq.YRI-GBR.pdf"
+            ]
+        ],
+        "timestamp": "2026-09-07T13:01:45.650519343",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    }
+}

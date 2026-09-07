@@ -1,0 +1,119 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "dexseq_deu"
+description: Prepare a DEXSeq exon annotation from a GTF, count reads per exonic part in each sample and test for differential exon usage
+keywords:
+  - dexseq
+  - deu
+  - differential exon usage
+  - splicing
+  - htseq
+components:
+  - dexseq/annotation
+  - dexseq/count
+  - dexseq/exon
+input:
+  - gtf:
+      type: file
+      description: |
+        The input channel containing the GTF annotation flattened into DEXSeq exonic parts.
+        Only used when `prepare_annotation` is true
+        Structure: [ path(gtf) ]
+      pattern: "*.gtf"
+  - ch_genome_bam:
+      type: file
+      description: |
+        The input channel containing the genome BAM files to count reads from
+        Structure: [ val(meta), path(bam) ]
+      pattern: "*.bam"
+  - ch_dexseq_gff:
+      type: file
+      description: |
+        The input channel containing a user supplied DEXSeq GFF annotation. Must be an empty
+        channel when `prepare_annotation` is true
+        Structure: [ path(gff) ]
+      pattern: "*.gff"
+  - prepare_annotation:
+      type: boolean
+      description: |
+        Whether to flatten `gtf` into a DEXSeq annotation with `DEXSEQ_ANNOTATION`. When false,
+        the annotation supplied through `ch_dexseq_gff` is used instead
+        Structure: [ val(prepare_annotation) ]
+  - ch_samplesheet:
+      type: file
+      description: |
+        The input channel containing the samplesheet, which assigns each sample to a condition
+        Structure: [ path(samplesheet) ]
+      pattern: "*.csv"
+  - ch_contrastsheet:
+      type: file
+      description: |
+        The input channel containing the contrastsheet, which lists the conditions to compare
+        Structure: [ path(contrastsheet) ]
+      pattern: "*.csv"
+  - n_dexseq_plot:
+      type: integer
+      description: |
+        Number of top significant genes to plot per contrast
+        Structure: [ val(n_dexseq_plot) ]
+  - aggregation:
+      type: boolean
+      description: |
+        Whether to combine overlapping genes into a single aggregate gene when preparing the
+        annotation. When false, exons that overlap exons of other genes are skipped.
+        Only used when `prepare_annotation` is true
+        Structure: [ val(aggregation) ]
+  - alignment_quality:
+      type: integer
+      description: |
+        Minimum alignment quality required for a read to be counted
+        Structure: [ val(alignment_quality) ]
+output:
+  - dexseq_clean_txt:
+      type: file
+      description: |
+        Channel containing the per sample exon count tables, collected across samples
+        Structure: [ path(counts) ]
+      pattern: "*.clean.count.txt"
+  - dexseq_exon_dataset_rds:
+      type: file
+      description: |
+        Channel containing the `DEXSeqDataSet` objects, one per contrast
+        Structure: [ path(rds) ]
+      pattern: "DEXSeqDataSet.*.rds"
+  - dexseq_exon_results_rds:
+      type: file
+      description: |
+        Channel containing the exon level `DEXSeqResults` objects, one per contrast
+        Structure: [ path(rds) ]
+      pattern: "DEXSeqResults.*.rds"
+  - dexseq_gene_results_rds:
+      type: file
+      description: |
+        Channel containing the gene level q-values, one per contrast
+        Structure: [ path(rds) ]
+      pattern: "perGeneQValue.*.rds"
+  - dexseq_exon_results_csv:
+      type: file
+      description: |
+        Channel containing the exon level results as CSV, one per contrast
+        Structure: [ path(csv) ]
+      pattern: "DEXSeqResults.*.csv"
+  - dexseq_gene_results_csv:
+      type: file
+      description: |
+        Channel containing the gene level q-values as CSV, one per contrast
+        Structure: [ path(csv) ]
+      pattern: "perGeneQValue.*.csv"
+  - dexseq_plot_results_pdf:
+      type: file
+      description: |
+        Channel containing the DEXSeq plots of the top significant genes, one PDF per contrast
+        Structure: [ path(pdf) ]
+      pattern: "plotDEXSeq.*.pdf"
+authors:
+  - "@bensouthgate"
+  - "@jma1991"
+  - "@valentinoruggieri"
+  - "@piplus2"
+maintainers:
+  - "@piplus2"

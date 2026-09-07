@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #200 -Ignore transcript version in tximport by default to improve compatibility with tx2gene files from GTFs (e.g., from GENCODE) that may not include version numbers in transcript IDs. This can be overridden with `--ignore_tx_version false` if desired (requested by @Oliverfeudj, done by @piplus2)
 - #204 - Improve documentation for `--rmats_paired_stats` (requested by @mlbonatelli, done by @piplus2)
 - #212 - Add test config for unpaired `rMATS` (by @piplus2)
+- #257 - Added a `test_dexseq_gff` profile and a pipeline level nf-test running the DEXSeq exon analysis from a user supplied, gzipped annotation (`--gff_dexseq`), which covers the `GUNZIP_GFF_DEXSEQ` step of `PREPARE_GENOME` (by @piplus2)
 
 ### Changed
 
@@ -50,6 +51,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #254 - Moved the local `GTF_GENE_FILTER` module to `modules/local/gtfgenefilter` as `GTFGENEFILTER` to match the nf-core module template, adding `environment.yml`, `meta.yml`, a stub section and an nf-test. The bundled `bin/filter_gtf_for_genes_in_genome.py` script is now a module template (by @piplus2)
 - #255 - Moved the local `EDGER_EXON` module to `modules/local/edger/exon` to match the nf-core module template, adding `environment.yml`, `meta.yml`, a stub section and an nf-test. The bundled `bin/run_edger_exon.R` script is now a module template, `--n_edger_plot` is passed through `ext.args` instead of a process input and the module inputs and outputs now carry a `meta` map as in the nf-core modules (by @piplus2)
 - #256 - Moved the local `ALIGN_STAR` subworkflow to the nf-core subworkflow template, adding `meta.yml` and nf-tests covering both the `STAR_ALIGN` and the `STAR_ALIGN_IGENOMES` paths. `STAR_ALIGN_IGENOMES` and `STAR_GENOMEGENERATE_IGENOMES` gained stub sections (by @piplus2)
+- #257 - Moved the local `DEXSEQ_DEU` subworkflow to the nf-core subworkflow template, adding `meta.yml` and nf-tests covering both the prepared and the user supplied DEXSeq annotation (by @piplus2)
+- #257 - `DEXSEQ_DEU` now emits the collected DEXSeq exon count tables sorted by file name, so the `dexseq_clean_txt` channel has a reproducible order. The analysis is unaffected, as `run_dexseq_exon.R` matches count files to samples by name (by @piplus2)
+- #257 - `DEXSEQ_DEU` no longer reads `params.gff_dexseq`. Whether to flatten the GTF into a DEXSeq annotation is now an explicit `prepare_annotation` input, following the same pattern as `is_aws_igenome` in `ALIGN_STAR` (by @piplus2)
 
 ### Fixed
 
@@ -79,6 +83,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #255 - Fixed `EDGER_EXON` writing an unreadable zero-page PDF when a contrast has no gene to plot. The module now also fails with an explicit error when the samplesheet or the contrastsheet miss a required column, when a sample is assigned to more than one condition, when a condition of the contrastsheet is absent from the samplesheet or when a featureCounts table is missing (by @piplus2)
 - #256 - Fixed the software version `eval` commands of `STAR_ALIGN_IGENOMES` and `STAR_GENOMEGENERATE_IGENOMES`, which failed with a shell syntax error and aborted both processes (by @piplus2)
 - #256 - Fixed the iGenomes STAR alignment path: `STAR_ALIGN_IGENOMES` pins STAR 2.6.1d, which does not accept `--quantTranscriptomeSAMoutput`, so it now uses the equivalent `--quantTranscriptomeBan Singleend` (by @piplus2)
+- #257 - Fixed `--gff_dexseq` aborting the pipeline with `Not a valid argument for 'combine' operator [String]`. `RNASPLICE` overwrote the `ch_dexseq_gff` it already receives from `PREPARE_GENOME` with the raw `params.gff_dexseq` string; that assignment is now removed, so the channel prepared by `PREPARE_GENOME` (including the `GUNZIP_GFF_DEXSEQ` step for a `.gff.gz` input) reaches `DEXSEQ_DEU` (by @piplus2)
 
 ## v1.0.5 - 2024-11-03
 
