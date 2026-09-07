@@ -15,9 +15,9 @@ process STAR_GENOMEGENERATE_IGENOMES {
 
     output:
     tuple val(meta), path("star"), emit: index
-    tuple val("${task.process}"), val('star'), eval('STAR --version 2>&1 | sed -e "s/STAR_//g"'), topic: versions, emit: versions_star
-    tuple val("${task.process}"), val('samtools'), eval('echo $(samtools --version 2>&1) | sed "s/^.*samtools //; s/Using.*$//"'), topic: versions, emit: versions_samtools
-    tuple val("${task.process}"), val('gawk'), eval('echo $(gawk --version 2>&1) | sed "s/^.*GNU Awk //; s/, .*$/\1/"'), topic: versions, emit: versions_gawk
+    tuple val("${task.process}"), val('star'), eval('STAR --version | sed "s/STAR_//"'), topic: versions, emit: versions_star
+    tuple val("${task.process}"), val('samtools'), eval("samtools --version | sed -n '1s/samtools //p'"), topic: versions, emit: versions_samtools
+    tuple val("${task.process}"), val('gawk'), eval("gawk --version | sed -n '1s/GNU Awk \\([0-9.]*\\).*/\\1/p'"), topic: versions, emit: versions_gawk
 
     when:
     task.ext.when == null || task.ext.when
@@ -60,4 +60,25 @@ process STAR_GENOMEGENERATE_IGENOMES {
             $args
         """
     }
+
+    stub:
+    """
+    mkdir star
+    touch star/Genome
+    touch star/Log.out
+    touch star/SA
+    touch star/SAindex
+    touch star/chrLength.txt
+    touch star/chrName.txt
+    touch star/chrNameLength.txt
+    touch star/chrStart.txt
+    touch star/exonGeTrInfo.tab
+    touch star/exonInfo.tab
+    touch star/geneInfo.tab
+    touch star/genomeParameters.txt
+    touch star/sjdbInfo.txt
+    touch star/sjdbList.fromGTF.out.tab
+    touch star/sjdbList.out.tab
+    touch star/transcriptInfo.tab
+    """
 }
