@@ -81,7 +81,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #255 - Fixed `EDGER_EXON` writing an unreadable zero-page PDF when a contrast has no gene to plot. The module now also fails with an explicit error when the samplesheet or the contrastsheet miss a required column, when a sample is assigned to more than one condition, when a condition of the contrastsheet is absent from the samplesheet or when a featureCounts table is missing (by @piplus2)
 - #256 - Fixed the software version `eval` commands of `STAR_ALIGN_IGENOMES` and `STAR_GENOMEGENERATE_IGENOMES`, which failed with a shell syntax error and aborted both processes (by @piplus2)
 - #256 - Fixed the iGenomes STAR alignment path: `STAR_ALIGN_IGENOMES` pins STAR 2.6.1d, which does not accept `--quantTranscriptomeSAMoutput`, so it now uses the equivalent `--quantTranscriptomeBan Singleend` (by @piplus2)
-- #257 - Fixed `--gff_dexseq`, which aborted the pipeline with `Not a valid argument for 'combine' operator [String]` because the user supplied GFF was passed to `DEXSEQ_DEU` as a plain string instead of a channel (by @piplus2)
+- #257 - Fixed `--gff_dexseq` aborting the pipeline with `Not a valid argument for 'combine' operator [String]`. `RNASPLICE` overwrote the `ch_dexseq_gff` it already receives from `PREPARE_GENOME` with the raw `params.gff_dexseq` string; that assignment is now removed, so the channel prepared by `PREPARE_GENOME` (including the `GUNZIP_GFF_DEXSEQ` step for a `.gff.gz` input) reaches `DEXSEQ_DEU` (by @piplus2)
 
 ## v1.0.5 - 2024-11-03
 

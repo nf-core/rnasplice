@@ -263,10 +263,6 @@ workflow RNASPLICE {
             ( ( params.source == 'fastq') && ( !params.skip_alignment && (params.aligner == 'star' || params.aligner == 'star_salmon') ) )
         )
     {
-        ch_dexseq_gff = params.gff_dexseq
-            ? channel.value(file(params.gff_dexseq, checkIfExists: true))
-            : channel.empty()
-
         if (params.dexseq_exon) {
             DEXSEQ_DEU(
                 ch_gtf,
