@@ -30,15 +30,12 @@ workflow PIPELINE_INITIALISATION {
     monochrome_logs // boolean: Do not use coloured log outputs
     nextflow_cli_args //   array: List of positional nextflow CLI args
     outdir            //  string: The output directory where the results will be saved
-    input             //  string: Path to input samplesheet
-    source            //  string: Type of input data [fastq, genome_bam, transcriptome_bam, salmon_results]
+    _input            //  string: Path to input samplesheet
     help              // boolean: Display help message and exit
     help_full         // boolean: Show the full help message
     show_hidden       // boolean: Show hidden parameters in the help message
 
     main:
-
-    ch_versions = channel.empty()
 
     //
     // Print version and exit if required and dump pipeline parameters to JSON file
@@ -103,61 +100,6 @@ workflow PIPELINE_INITIALISATION {
     //
     validateInputParameters()
 
-    //
-    // Create channel from input file provided through params.input
-    //
-    // The samplesheet columns depend on --source, so it is validated against the schema
-    // matching the declared source. This is the only place the samplesheet is read: the
-    // reads channel emitted here is what every downstream consumer works from.
-    //
-
-    def samplesheet_rows = samplesheetToList(input, samplesheetSchema(source))
-
-    if (source == 'fastq') {
-        channel
-            .fromList(samplesheet_rows)
-            .map {
-                meta, fastq_1, fastq_2 ->
-                    if (!fastq_2) {
-                        return [ meta.id, meta + [ single_end:true ], [ fastq_1 ] ]
-                    } else {
-                        return [ meta.id, meta + [ single_end:false ], [ fastq_1, fastq_2 ] ]
-                    }
-            }
-            .groupTuple()
-            .map { samplesheet ->
-                validateInputSamplesheet(samplesheet)
-            }
-            .map {
-                meta, fastqs ->
-                    return [ meta, fastqs.flatten() ]
-            }
-            .set { ch_samplesheet }
-    } else if (source == 'transcriptome_bam') {
-        // The samplesheet carries both genome_bam and transcriptome_bam; only the
-        // transcriptome BAM is read from here
-        channel
-            .fromList(samplesheet_rows)
-            .map {
-                meta, _genome_bam, transcriptome_bam ->
-                    return [ [ id: meta.id, condition: meta.condition ], [ transcriptome_bam ] ]
-            }
-            .set { ch_samplesheet }
-    } else {
-        // genome_bam and salmon_results both carry a single path column
-        channel
-            .fromList(samplesheet_rows)
-            .map {
-                meta, input_file ->
-                    return [ [ id: meta.id, condition: meta.condition ], [ input_file ] ]
-            }
-            .set { ch_samplesheet }
-    }
-
-    emit:
-    samplesheet      = ch_samplesheet                                  // channel: [ val(meta), [ files ] ]
-    samplesheet_file = channel.value(file(input, checkIfExists: true)) // channel: path(samplesheet.csv)
-    versions         = ch_versions
 }
 
 /*
