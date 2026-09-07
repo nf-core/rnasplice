@@ -50,6 +50,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #254 - Moved the local `GTF_GENE_FILTER` module to `modules/local/gtfgenefilter` as `GTFGENEFILTER` to match the nf-core module template, adding `environment.yml`, `meta.yml`, a stub section and an nf-test. The bundled `bin/filter_gtf_for_genes_in_genome.py` script is now a module template (by @piplus2)
 - #255 - Moved the local `EDGER_EXON` module to `modules/local/edger/exon` to match the nf-core module template, adding `environment.yml`, `meta.yml`, a stub section and an nf-test. The bundled `bin/run_edger_exon.R` script is now a module template, `--n_edger_plot` is passed through `ext.args` instead of a process input and the module inputs and outputs now carry a `meta` map as in the nf-core modules (by @piplus2)
 - #256 - Moved the local `ALIGN_STAR` subworkflow to the nf-core subworkflow template, adding `meta.yml` and nf-tests covering both the `STAR_ALIGN` and the `STAR_ALIGN_IGENOMES` paths. `STAR_ALIGN_IGENOMES` and `STAR_GENOMEGENERATE_IGENOMES` gained stub sections (by @piplus2)
+- #257 - Moved the local `DEXSEQ_DEU` subworkflow to the nf-core subworkflow template, adding `meta.yml` and nf-tests covering both the prepared and the user supplied DEXSeq annotation (by @piplus2)
+- #257 - `DEXSEQ_DEU` now emits the collected DEXSeq exon count tables sorted by file name, so the `dexseq_clean_txt` channel has a reproducible order. The analysis is unaffected, as `run_dexseq_exon.R` matches count files to samples by name (by @piplus2)
 
 ### Fixed
 
@@ -79,6 +81,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #255 - Fixed `EDGER_EXON` writing an unreadable zero-page PDF when a contrast has no gene to plot. The module now also fails with an explicit error when the samplesheet or the contrastsheet miss a required column, when a sample is assigned to more than one condition, when a condition of the contrastsheet is absent from the samplesheet or when a featureCounts table is missing (by @piplus2)
 - #256 - Fixed the software version `eval` commands of `STAR_ALIGN_IGENOMES` and `STAR_GENOMEGENERATE_IGENOMES`, which failed with a shell syntax error and aborted both processes (by @piplus2)
 - #256 - Fixed the iGenomes STAR alignment path: `STAR_ALIGN_IGENOMES` pins STAR 2.6.1d, which does not accept `--quantTranscriptomeSAMoutput`, so it now uses the equivalent `--quantTranscriptomeBan Singleend` (by @piplus2)
+- #257 - Fixed `--gff_dexseq`, which aborted the pipeline with `Not a valid argument for 'combine' operator [String]` because the user supplied GFF was passed to `DEXSEQ_DEU` as a plain string instead of a channel (by @piplus2)
 
 ## v1.0.5 - 2024-11-03
 
