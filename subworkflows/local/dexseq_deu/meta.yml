@@ -16,7 +16,7 @@ input:
       type: file
       description: |
         The input channel containing the GTF annotation flattened into DEXSeq exonic parts.
-        Only used when `params.gff_dexseq` is not set
+        Only used when `prepare_annotation` is true
         Structure: [ path(gtf) ]
       pattern: "*.gtf"
   - ch_genome_bam:
@@ -28,10 +28,16 @@ input:
   - ch_dexseq_gff:
       type: file
       description: |
-        The input channel containing a user supplied DEXSeq GFF annotation, as set through
-        `params.gff_dexseq`. Must be an empty channel when the annotation is prepared from the GTF
+        The input channel containing a user supplied DEXSeq GFF annotation. Must be an empty
+        channel when `prepare_annotation` is true
         Structure: [ path(gff) ]
       pattern: "*.gff"
+  - prepare_annotation:
+      type: boolean
+      description: |
+        Whether to flatten `gtf` into a DEXSeq annotation with `DEXSEQ_ANNOTATION`. When false,
+        the annotation supplied through `ch_dexseq_gff` is used instead
+        Structure: [ val(prepare_annotation) ]
   - ch_samplesheet:
       type: file
       description: |
@@ -53,7 +59,8 @@ input:
       type: boolean
       description: |
         Whether to combine overlapping genes into a single aggregate gene when preparing the
-        annotation. When false, exons that overlap exons of other genes are skipped
+        annotation. When false, exons that overlap exons of other genes are skipped.
+        Only used when `prepare_annotation` is true
         Structure: [ val(aggregation) ]
   - alignment_quality:
       type: integer

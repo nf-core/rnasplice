@@ -8,18 +8,19 @@ include { DEXSEQ_EXON } from '../../../modules/local/dexseq/exon'
 
 workflow DEXSEQ_DEU {
     take:
-    gtf // path gtf
+    gtf // path gtf, only used when `prepare_annotation` is true
     ch_genome_bam // bam channel
-    ch_dexseq_gff // path dexseq gff
+    ch_dexseq_gff // path dexseq gff, empty when `prepare_annotation` is true
+    prepare_annotation // boolean: whether to flatten the GTF into a DEXSeq annotation
     ch_samplesheet // channel.fromPath(params.input)
     ch_contrastsheet // channel.fromPath()
     n_dexseq_plot // val: numeric
-    aggregation // params.aggregation
+    aggregation // params.aggregation, only used when `prepare_annotation` is true
     alignment_quality // params.alignment_quality
 
     main:
 
-    if (!params.gff_dexseq) {
+    if (prepare_annotation) {
 
         //
         // MODULE: DEXSeq Annotation

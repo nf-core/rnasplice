@@ -268,6 +268,7 @@ workflow RNASPLICE {
                 ch_gtf,
                 ch_genome_bam,
                 ch_dexseq_gff,
+                !params.gff_dexseq,
                 ch_samplesheet,
                 ch_contrastsheet,
                 params.n_dexseq_plot,

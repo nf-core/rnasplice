@@ -52,6 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #256 - Moved the local `ALIGN_STAR` subworkflow to the nf-core subworkflow template, adding `meta.yml` and nf-tests covering both the `STAR_ALIGN` and the `STAR_ALIGN_IGENOMES` paths. `STAR_ALIGN_IGENOMES` and `STAR_GENOMEGENERATE_IGENOMES` gained stub sections (by @piplus2)
 - #257 - Moved the local `DEXSEQ_DEU` subworkflow to the nf-core subworkflow template, adding `meta.yml` and nf-tests covering both the prepared and the user supplied DEXSeq annotation (by @piplus2)
 - #257 - `DEXSEQ_DEU` now emits the collected DEXSeq exon count tables sorted by file name, so the `dexseq_clean_txt` channel has a reproducible order. The analysis is unaffected, as `run_dexseq_exon.R` matches count files to samples by name (by @piplus2)
+- #257 - `DEXSEQ_DEU` no longer reads `params.gff_dexseq`. Whether to flatten the GTF into a DEXSeq annotation is now an explicit `prepare_annotation` input, following the same pattern as `is_aws_igenome` in `ALIGN_STAR` (by @piplus2)
 
 ### Fixed
 

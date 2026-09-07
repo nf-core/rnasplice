@@ -26,11 +26,12 @@ nextflow_workflow {
                     [ [ id:'ERR204916', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916.Aligned.out.bam', checkIfExists: true) ],
                 )
                 input[2] = channel.empty()
-                input[3] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true))
-                input[4] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/contrastsheet.csv', checkIfExists: true))
-                input[5] = 10
-                input[6] = false
-                input[7] = 10
+                input[3] = true
+                input[4] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true))
+                input[5] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/contrastsheet.csv', checkIfExists: true))
+                input[6] = 10
+                input[7] = false
+                input[8] = 10
                 """
             }
         }
@@ -53,8 +54,6 @@ nextflow_workflow {
     }
 
     test("human chrX - user supplied gff") {
-
-        config "./nextflow-gff.config"
 
         // The user supplied annotation has to be a DEXSeq flattened GFF, which the test
         // datasets do not carry, so it is prepared from the GTF first
@@ -81,11 +80,12 @@ nextflow_workflow {
                     [ [ id:'ERR204916', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916.Aligned.out.bam', checkIfExists: true) ],
                 )
                 input[2] = DEXSEQ_ANNOTATION.out.gff
-                input[3] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true))
-                input[4] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/contrastsheet.csv', checkIfExists: true))
-                input[5] = 10
-                input[6] = false
-                input[7] = 10
+                input[3] = false
+                input[4] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true))
+                input[5] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/contrastsheet.csv', checkIfExists: true))
+                input[6] = 10
+                input[7] = false
+                input[8] = 10
                 """
             }
         }
@@ -120,11 +120,12 @@ nextflow_workflow {
                     [ [ id:'ERR188428', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true) ],
                 )
                 input[2] = channel.empty()
-                input[3] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true))
-                input[4] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/contrastsheet.csv', checkIfExists: true))
-                input[5] = 10
-                input[6] = false
-                input[7] = 10
+                input[3] = true
+                input[4] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true))
+                input[5] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/contrastsheet.csv', checkIfExists: true))
+                input[6] = 10
+                input[7] = false
+                input[8] = 10
                 """
             }
         }
