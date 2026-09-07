@@ -31,6 +31,7 @@ workflow PIPELINE_INITIALISATION {
     nextflow_cli_args //   array: List of positional nextflow CLI args
     outdir            //  string: The output directory where the results will be saved
     input             //  string: Path to input samplesheet
+    source            //  string: Type of input data [fastq, genome_bam, transcriptome_bam, salmon_results]
     help              // boolean: Display help message and exit
     help_full         // boolean: Show the full help message
     show_hidden       // boolean: Show hidden parameters in the help message
@@ -105,30 +106,58 @@ workflow PIPELINE_INITIALISATION {
     //
     // Create channel from input file provided through params.input
     //
+    // The samplesheet columns depend on --source, so it is validated against the schema
+    // matching the declared source. This is the only place the samplesheet is read: the
+    // reads channel emitted here is what every downstream consumer works from.
+    //
 
-    channel
-        .fromList(samplesheetToList(input, "${projectDir}/assets/schema_input.json"))
-        .map {
-            meta, fastq_1, fastq_2 ->
-                if (!fastq_2) {
-                    return [ meta.id, meta + [ single_end:true ], [ fastq_1 ] ]
-                } else {
-                    return [ meta.id, meta + [ single_end:false ], [ fastq_1, fastq_2 ] ]
-                }
-        }
-        .groupTuple()
-        .map { samplesheet ->
-            validateInputSamplesheet(samplesheet)
-        }
-        .map {
-            meta, fastqs ->
-                return [ meta, fastqs.flatten() ]
-        }
-        .set { ch_samplesheet }
+    def samplesheet_rows = samplesheetToList(input, samplesheetSchema(source))
+
+    if (source == 'fastq') {
+        channel
+            .fromList(samplesheet_rows)
+            .map {
+                meta, fastq_1, fastq_2 ->
+                    if (!fastq_2) {
+                        return [ meta.id, meta + [ single_end:true ], [ fastq_1 ] ]
+                    } else {
+                        return [ meta.id, meta + [ single_end:false ], [ fastq_1, fastq_2 ] ]
+                    }
+            }
+            .groupTuple()
+            .map { samplesheet ->
+                validateInputSamplesheet(samplesheet)
+            }
+            .map {
+                meta, fastqs ->
+                    return [ meta, fastqs.flatten() ]
+            }
+            .set { ch_samplesheet }
+    } else if (source == 'transcriptome_bam') {
+        // The samplesheet carries both genome_bam and transcriptome_bam; only the
+        // transcriptome BAM is read from here
+        channel
+            .fromList(samplesheet_rows)
+            .map {
+                meta, _genome_bam, transcriptome_bam ->
+                    return [ [ id: meta.id, condition: meta.condition ], [ transcriptome_bam ] ]
+            }
+            .set { ch_samplesheet }
+    } else {
+        // genome_bam and salmon_results both carry a single path column
+        channel
+            .fromList(samplesheet_rows)
+            .map {
+                meta, input_file ->
+                    return [ [ id: meta.id, condition: meta.condition ], [ input_file ] ]
+            }
+            .set { ch_samplesheet }
+    }
 
     emit:
-    samplesheet = ch_samplesheet
-    versions    = ch_versions
+    samplesheet      = ch_samplesheet                                  // channel: [ val(meta), [ files ] ]
+    samplesheet_file = channel.value(file(input, checkIfExists: true)) // channel: path(samplesheet.csv)
+    versions         = ch_versions
 }
 
 /*
@@ -253,6 +282,28 @@ def validateInputParameters() {
     if (!params.input) {
         error("Please provide an input samplesheet to the pipeline e.g. '--input samplesheet.csv'")
     }
+}
+
+//
+// Schema the input samplesheet is validated against, selected from --source
+//
+// Each source declares a different set of columns, so there is one schema per source.
+// Every place that reads the samplesheet goes through this function, so a samplesheet
+// can never be accepted by one consumer and rejected by another.
+//
+def samplesheetSchema(source) {
+    def source_schemas = [
+        fastq:             "${projectDir}/assets/schema_input.json",
+        genome_bam:        "${projectDir}/assets/schema_input_genome_bam.json",
+        transcriptome_bam: "${projectDir}/assets/schema_input_transcriptome_bam.json",
+        salmon_results:    "${projectDir}/assets/schema_input_salmon_results.json",
+    ]
+
+    if (!source_schemas.containsKey(source)) {
+        error("Invalid --source parameter: '${source}'. Must be one of: ${source_schemas.keySet().join(', ')}")
+    }
+
+    return source_schemas[source]
 }
 
 //

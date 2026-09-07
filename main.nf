@@ -190,6 +190,10 @@ include { PREPARE_GENOME          } from './subworkflows/local/prepare_genome'
 //
 workflow NFCORE_RNASPLICE {
 
+    take:
+    ch_reads       // channel: [ val(meta), [ files ] ], the parsed and validated samplesheet
+    ch_samplesheet // channel: path(samplesheet.csv), for the processes that parse it themselves
+
     main:
 
     def is_aws_igenome = params.fasta && params.gtf && (file(params.fasta).getName() - '.gz' == 'genome.fa') && (file(params.gtf).getName() - '.gz' == 'genes.gtf')
@@ -211,13 +215,13 @@ workflow NFCORE_RNASPLICE {
         is_aws_igenome,
     )
 
-    ch_samplesheet = channel.value(file(params.input, checkIfExists: true))
     ch_contrastsheet = channel.value(file(params.contrasts, checkIfExists: true))
 
     //
     // WORKFLOW: Run pipeline
     //
     RNASPLICE(
+        ch_reads,
         ch_samplesheet,
         ch_contrastsheet,
         PREPARE_GENOME.out.fasta,
@@ -256,6 +260,7 @@ workflow {
         args,
         params.outdir,
         params.input,
+        params.source,
         params.help,
         params.help_full,
         params.show_hidden
@@ -264,7 +269,10 @@ workflow {
     //
     // WORKFLOW: Run main workflow
     //
-    NFCORE_RNASPLICE()
+    NFCORE_RNASPLICE(
+        PIPELINE_INITIALISATION.out.samplesheet,
+        PIPELINE_INITIALISATION.out.samplesheet_file
+    )
 
     //
     // SUBWORKFLOW: Run completion tasks

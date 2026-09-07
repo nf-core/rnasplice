@@ -20,7 +20,7 @@ include { SUPPA as SUPPA_STAR_SALMON                                      } from
 include { VISUALISE_MISO                                                  } from '../subworkflows/local/visualise_miso'
 include { LEAFCUTTER                                                      } from '../subworkflows/local/leafcutter'
 
-include { validateInputSamplesheet                                        } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
+include { samplesheetSchema                                               } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
 include { validateInputContrastsheet                                      } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
 include { rmatsReadError                                                  } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
 include { rmatsStrandednessError                                          } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
@@ -57,6 +57,7 @@ include { paramsSummaryMap                                                } from
 
 workflow RNASPLICE {
     take:
+    ch_reads // channel: [ val(meta), [ files ] ], the parsed and validated samplesheet
     ch_samplesheet // channel: file(samplesheet)
     ch_contrastsheet  // channel: file(contrastsheet)
     ch_fasta // channel: path of genome fasta
@@ -78,52 +79,6 @@ workflow RNASPLICE {
     def ch_versions = channel.empty()
     def ch_multiqc_files = channel.empty()
     def pass_trimmed_reads = [:]
-
-    //
-    // Create channel from input file provided through params.input
-    //
-    if (params.source == "fastq") {
-        ch_reads = channel.fromList(samplesheetToList(params.input, "${projectDir}/assets/schema_input.json"))
-            .map { meta, fastq_1, fastq_2 ->
-                if (!fastq_2) {
-                    return [meta.id, meta + [single_end: true], [fastq_1]]
-                }
-                else {
-                    return [meta.id, meta + [single_end: false], [fastq_1, fastq_2]]
-                }
-            }
-            .groupTuple()
-            .map { samplesheet ->
-                validateInputSamplesheet(samplesheet)
-            }
-            .map { meta, fastqs ->
-                return [meta, fastqs.flatten()]
-            }
-    }
-    else if (params.source == "genome_bam") {
-        ch_reads = channel.fromList(samplesheetToList(params.input, "${projectDir}/assets/schema_input_genome_bam.json"))
-            .map { meta, genome_bam ->
-                def meta_map = [id: meta.id, condition: meta.condition]
-                return [meta_map, [genome_bam]]
-            }
-    }
-    else if (params.source == "transcriptome_bam") {
-        ch_reads = channel.fromList(samplesheetToList(params.input, "${projectDir}/assets/schema_input_transcriptome_bam.json"))
-            .map { meta, _genome_bam, transcriptome_bam ->
-                def meta_map = [id: meta.id, condition: meta.condition]
-                return [meta_map, [transcriptome_bam]]
-            }
-    }
-    else if (params.source == "salmon_results") {
-        ch_reads = channel.fromList(samplesheetToList(params.input, "${projectDir}/assets/schema_input_salmon_results.json"))
-            .map { meta, salmon_results ->
-                def meta_map = [id: meta.id, condition: meta.condition]
-                return [meta_map, [salmon_results]]
-            }
-    }
-    else {
-        error("Invalid --source parameter: '${params.source}'. Must be one of: fastq, genome_bam, transcriptome_bam, salmon_results")
-    }
 
     //
     // Create channel from contrasts file
@@ -214,7 +169,7 @@ workflow RNASPLICE {
     // SUBWORKFLOW: BAM post-processing and indexing loops
     //
     if (params.source == 'genome_bam') {
-        BAM_SORT_STATS_SAMTOOLS(ch_genome_bam, ch_fasta)
+        BAM_SORT_STATS_SAMTOOLS(ch_genome_bam, ch_fasta.map { fasta -> [[:], fasta, []] })
         ch_genome_bam = BAM_SORT_STATS_SAMTOOLS.out.bam
         ch_genome_bam_index = BAM_SORT_STATS_SAMTOOLS.out.index
         ch_samtools_stats = BAM_SORT_STATS_SAMTOOLS.out.stats
@@ -224,7 +179,7 @@ workflow RNASPLICE {
 
     if (params.source == 'transcriptome_bam') {
         ch_transcriptome_bam_for_salmon = ch_transcriptome_bam
-        BAM_SORT_STATS_SAMTOOLS(ch_transcriptome_bam, ch_fasta)
+        BAM_SORT_STATS_SAMTOOLS(ch_transcriptome_bam, ch_fasta.map { fasta -> [[:], fasta, []] })
         ch_transcriptome_bam = BAM_SORT_STATS_SAMTOOLS.out.bam
         ch_transcriptome_bam_index = BAM_SORT_STATS_SAMTOOLS.out.index
         ch_samtools_stats = BAM_SORT_STATS_SAMTOOLS.out.stats
@@ -291,19 +246,17 @@ workflow RNASPLICE {
                 .map { meta, bam -> [meta.condition, meta, bam] }
                 .set { ch_genome_bam_conditions }
 
-            def lines
-            if (params.input.startsWith('http')) {
-                lines = new URL(params.input).text.readLines()
-            }
-            else {
-                lines = new File(params.input).readLines()
-            }
-            def headers = lines[0].split(',')*.trim()
-            def condition_idx = headers.indexOf('condition')
-            def is_single_condition = lines[1..-1].collect { it -> it.split(',')[condition_idx].trim() }.unique().size() == 1
+            // rMATS builds a different DAG for a single condition run, so this has to be
+            // known before the workflow is built rather than as a channel. It is read
+            // through the same schema the samplesheet was validated with, so it cannot
+            // disagree with the conditions carried in `ch_reads`
+            def conditions = samplesheetToList(params.input, samplesheetSchema(params.source))
+                .collect { row -> row[0].condition }
+                .unique()
+            def is_single_condition = conditions.size() == 1
 
             RMATS(
-                channel.value(file(params.input)),
+                ch_samplesheet,
                 ch_contrastsheet,
                 ch_genome_bam_conditions,
                 ch_gtf,
@@ -423,6 +376,10 @@ workflow RNASPLICE {
     }
     else if (params.source == 'salmon_results') {
         TX2GENE_TXIMPORT_SALMON(ch_salmon_results, ch_gtf)
+
+        // The samplesheet may point at tarballs, which TX2GENE_TXIMPORT extracts.
+        // Consumers downstream need the extracted directories, not the archives
+        ch_salmon_results = TX2GENE_TXIMPORT_SALMON.out.salmon_results
     }
 
     if ((params.pseudo_aligner == 'salmon' && params.source == 'fastq') || (params.source == 'salmon_results')) {
@@ -437,7 +394,7 @@ workflow RNASPLICE {
         }
 
         if (params.suppa) {
-            ch_suppa_tpm = params.suppa_tpm ? ch_suppa_tpm : ch_txi_suppa_tpm
+            ch_suppa_tpm = params.suppa_tpm ? ch_suppa_tpm : TX2GENE_TXIMPORT_SALMON.out.suppa_tpm
             SUPPA_SALMON(
                 ch_gtf.map { gtf -> [ [ id: gtf.baseName ] , gtf] },
                 ch_suppa_tpm.map { tpm_psi -> [ [ id: tpm_psi.baseName ] , tpm_psi] },
