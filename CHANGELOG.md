@@ -48,6 +48,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #251 - Moved the local `DRIMSEQ_FILTER` module to `modules/local/drimseq/dmfilter` as `DRIMSEQ_DMFILTER` to match the nf-core module template (by @piplus2)
 - #253 - Sync pipeline with nf-core template 4.1.0-2 (by @piplus2)
 - #254 - Moved the local `GTF_GENE_FILTER` module to `modules/local/gtfgenefilter` as `GTFGENEFILTER` to match the nf-core module template, adding `environment.yml`, `meta.yml`, a stub section and an nf-test. The bundled `bin/filter_gtf_for_genes_in_genome.py` script is now a module template (by @piplus2)
+- #255 - Moved the local `EDGER_EXON` module to `modules/local/edger/exon` to match the nf-core module template, adding `environment.yml`, `meta.yml`, a stub section and an nf-test. The bundled `bin/run_edger_exon.R` script is now a module template, `--n_edger_plot` is passed through `ext.args` instead of a process input and the module inputs and outputs now carry a `meta` map as in the nf-core modules (by @piplus2)
 
 ### Fixed
 
@@ -74,6 +75,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #241 - Added missing backslash in `clustergroups` command in `dev` branch (by @piplus2)
 - #245 - Fixed ignored `--tximport_ignore_tx_version` argument in `TXIMPORT` module (by @piplus2)
 - #254 - Fixed `GTFGENEFILTER` logging the characters of the last GTF sequence name instead of the set of sequence names found in the GTF, which also raised a `NameError` on an empty GTF. The module now fails with an explicit error when no GTF feature matches a sequence in the genome FASTA (by @piplus2)
+- #255 - Fixed `EDGER_EXON` writing an unreadable zero-page PDF when a contrast has no gene to plot. The module now also fails with an explicit error when the samplesheet or the contrastsheet miss a required column, when a sample is assigned to more than one condition, when a condition of the contrastsheet is absent from the samplesheet or when a featureCounts table is missing (by @piplus2)
 
 ## v1.0.5 - 2024-11-03
 

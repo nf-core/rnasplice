@@ -4,7 +4,7 @@
 
 include { SUBREAD_FLATTENGTF    } from '../../../modules/local/subread/flattengtf'
 include { SUBREAD_FEATURECOUNTS } from '../../../modules/nf-core/subread/featurecounts'
-include { EDGER_EXON            } from '../../../modules/local/edger_exon'
+include { EDGER_EXON            } from '../../../modules/local/edger/exon'
 
 workflow EDGER_DEU {
     take:
@@ -12,7 +12,6 @@ workflow EDGER_DEU {
     ch_genome_bam // channel: [ val(meta), path(bams) ]
     ch_samplesheet // channel.fromPath(params.input)
     ch_contrastsheet // channel.fromPath(params.contrasts)
-    n_edger_plot // val: integer to plot
 
     main:
 
@@ -31,11 +30,15 @@ workflow EDGER_DEU {
     //
     // MODULE: EDGER_COUNTS AND PLOT
     //
+    ch_feature_counts_collected = SUBREAD_FEATURECOUNTS.out.counts
+        .map { _meta, counts -> counts }
+        .collect()
+        .map { counts -> [ [ id: 'edger_exon' ], counts ] }
+
     EDGER_EXON(
-        SUBREAD_FEATURECOUNTS.out.counts.collect { it -> it[1] },
-        ch_samplesheet,
-        ch_contrastsheet,
-        n_edger_plot,
+        ch_feature_counts_collected,
+        ch_samplesheet.map { samplesheet -> [ [ id: samplesheet.baseName ], samplesheet ] },
+        ch_contrastsheet.map { contrastsheet -> [ [ id: contrastsheet.baseName ], contrastsheet ] },
     )
 
     emit:

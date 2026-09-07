@@ -1,0 +1,122 @@
+// nf-core modules test edger/exon
+nextflow_process {
+
+    name "Test Process EDGER_EXON"
+    script "../main.nf"
+    process "EDGER_EXON"
+
+    tag "modules"
+    tag "modules_local"
+    tag "edger"
+    tag "edger/exon"
+    tag "subread"
+    tag "subread/featurecounts"
+    tag "subread/flattengtf"
+
+    // EDGER_EXON reads one featureCounts table per sample of the samplesheet,
+    // so the exon-level counts of the four test samples are generated first.
+    setup {
+
+        run("SUBREAD_FLATTENGTF") {
+            script "../../../subread/flattengtf/main.nf"
+            process {
+            """
+            input[0] = [
+                [ id:'genes_chrX' ],
+                file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true),
+            ]
+            """
+            }
+        }
+
+        run("SUBREAD_FEATURECOUNTS") {
+            script "../../../../nf-core/subread/featurecounts/main.nf"
+            process {
+            """
+            input[0] = channel
+                .of(
+                    [ [ id:'ERR188383', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188428', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188454', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR204916', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916.Aligned.out.bam', checkIfExists: true) ],
+                )
+                .combine(SUBREAD_FLATTENGTF.out.saf.map { _meta, saf -> saf })
+            """
+            }
+        }
+
+    }
+
+    test("human chrX - featurecounts") {
+
+        when {
+            process {
+                """
+                input[0] = SUBREAD_FEATURECOUNTS.out.counts
+                    .map { _meta, counts -> counts }
+                    .collect()
+                    .map { counts -> [ [ id:'edger_exon' ], counts ] }
+                input[1] = [
+                    [ id:'samplesheet' ],
+                    file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true),
+                ]
+                input[2] = [
+                    [ id:'contrastsheet' ],
+                    file(params.pipelines_testdata_base_path + 'samplesheet/contrastsheet.csv', checkIfExists: true),
+                ]
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assertAll(
+                { assert snapshot(
+                    // The exon usage tables are stable, the exon expression tables
+                    // and the binary outputs are only checked by name
+                    process.out.edger_exon_csv.collect { meta, csvs -> [ meta, csvs.findAll { csv -> csv.contains('.usage.') } ] },
+                    process.out.edger_exon_csv.collect { meta, csvs -> [ meta, csvs.findAll { csv -> csv.endsWith('.exprs.csv') }.collect { csv -> file(csv).name } ] },
+                    process.out.edger_exon_pdf.collect { meta, pdfs -> [ meta, pdfs.collect { pdf -> file(pdf).name } ] },
+                    process.out.edger_exon_dge.collect { meta, rds -> [ meta, file(rds).name ] },
+                    process.out.edger_exon_glm.collect { meta, rds -> [ meta, file(rds).name ] },
+                    process.out.edger_exon_lrt.collect { meta, rds -> [ meta, rds.collect { r -> file(r).name } ] },
+                    process.out.findAll { key, val -> key.startsWith('versions') }
+                ).match() }
+            )
+        }
+
+    }
+
+    test("human chrX - featurecounts - stub") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = SUBREAD_FEATURECOUNTS.out.counts
+                    .map { _meta, counts -> counts }
+                    .collect()
+                    .map { counts -> [ [ id:'edger_exon' ], counts ] }
+                input[1] = [
+                    [ id:'samplesheet' ],
+                    file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true),
+                ]
+                input[2] = [
+                    [ id:'contrastsheet' ],
+                    file(params.pipelines_testdata_base_path + 'samplesheet/contrastsheet.csv', checkIfExists: true),
+                ]
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assertAll(
+                { assert snapshot(process.out).match() }
+            )
+        }
+
+    }
+
+}

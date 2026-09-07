@@ -284,7 +284,6 @@ workflow RNASPLICE {
                 ch_genome_bam,
                 ch_samplesheet,
                 ch_contrastsheet,
-                params.n_edger_plot,
             )
         }
 
