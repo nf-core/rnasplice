@@ -27,9 +27,9 @@ process STAR_ALIGN_IGENOMES {
     tuple val(meta), path('*.tab'), optional: true, emit: tab
     tuple val(meta), path('*.out.junction'), optional: true, emit: junction
     tuple val(meta), path('*.out.sam'), optional: true, emit: sam
-    tuple val("${task.process}"), val('star'), eval('STAR --version 2>&1 | sed -e "s/STAR_//g"'), topic: versions, emit: versions_star
-    tuple val("${task.process}"), val('samtools'), eval('echo $(samtools --version 2>&1) | sed "s/^.*samtools //; s/Using.*$//"'), topic: versions, emit: versions_samtools
-    tuple val("${task.process}"), val('gawk'), eval('echo $(gawk --version 2>&1) | sed "s/^.*GNU Awk //; s/, .*$/\1/"'), topic: versions, emit: versions_gawk
+    tuple val("${task.process}"), val('star'), eval('STAR --version | sed "s/STAR_//"'), topic: versions, emit: versions_star
+    tuple val("${task.process}"), val('samtools'), eval("samtools --version | sed -n '1s/samtools //p'"), topic: versions, emit: versions_samtools
+    tuple val("${task.process}"), val('gawk'), eval("gawk --version | sed -n '1s/GNU Awk \\([0-9.]*\\).*/\\1/p'"), topic: versions, emit: versions_gawk
 
     when:
     task.ext.when == null || task.ext.when
@@ -63,5 +63,22 @@ process STAR_ALIGN_IGENOMES {
         mv ${prefix}.Unmapped.out.mate2 ${prefix}.unmapped_2.fastq
         gzip ${prefix}.unmapped_2.fastq
     fi
+    """
+
+    stub:
+    def prefix = task.ext.prefix ?: "${meta.id}"
+    """
+    echo "" | gzip > ${prefix}.unmapped_1.fastq.gz
+    echo "" | gzip > ${prefix}.unmapped_2.fastq.gz
+    touch ${prefix}.Aligned.out.bam
+    touch ${prefix}.Log.final.out
+    touch ${prefix}.Log.out
+    touch ${prefix}.Log.progress.out
+    touch ${prefix}.Aligned.sortedByCoord.out.bam
+    touch ${prefix}.Aligned.toTranscriptome.out.bam
+    touch ${prefix}.Aligned.unsort.out.bam
+    touch ${prefix}.SJ.out.tab
+    touch ${prefix}.Chimeric.out.junction
+    touch ${prefix}.out.sam
     """
 }

@@ -1,0 +1,145 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "align_star"
+description: Align reads to a genome with STAR, then sort, index and compute samtools statistics on the resulting alignments
+keywords:
+  - align
+  - star
+  - rnaseq
+  - splicing
+  - bam
+components:
+  - star/align
+  - star_align_igenomes
+  - bam_sort_stats_samtools
+input:
+  - reads:
+      type: file
+      description: |
+        The input channel containing the FastQ reads to align
+        Structure: [ val(meta), path(reads) ]
+      pattern: "*.{fastq,fq}.gz"
+  - index:
+      type: directory
+      description: |
+        The input channel containing the STAR genome index
+        Structure: [ val(meta2), path(index) ]
+  - gtf:
+      type: file
+      description: |
+        The input channel containing the GTF annotation used to extract splice junctions
+        Structure: [ val(meta3), path(gtf) ]
+      pattern: "*.gtf"
+  - star_ignore_sjdbgtf:
+      type: boolean
+      description: |
+        When using pre-built STAR indices do not re-extract and use splice junctions from the GTF file
+        Structure: [ val(star_ignore_sjdbgtf) ]
+  - seq_platform:
+      type: string
+      description: |
+        Sequencing platform written to the BAM read group line, or an empty string to omit it.
+        Only used when `is_aws_igenome` is true
+        Structure: [ val(seq_platform) ]
+  - seq_center:
+      type: string
+      description: |
+        Sequencing center written to the BAM read group line, or an empty string to omit it.
+        Only used when `is_aws_igenome` is true
+        Structure: [ val(seq_center) ]
+  - is_aws_igenome:
+      type: boolean
+      description: |
+        Whether the genome files come from AWS iGenomes, in which case the STAR 2.6.1d based
+        `STAR_ALIGN_IGENOMES` module is used instead of `STAR_ALIGN`
+        Structure: [ val(is_aws_igenome) ]
+  - fasta:
+      type: file
+      description: |
+        The input channel containing the reference genome FASTA and its index, used by samtools
+        Structure: [ val(meta4), path(fasta), path(fai) ]
+      pattern: "*.{fasta,fa}"
+output:
+  - orig_bam:
+      type: file
+      description: |
+        Channel containing the unsorted BAM files as emitted by STAR
+        Structure: [ val(meta), path(bam) ]
+      pattern: "*.bam"
+  - log_final:
+      type: file
+      description: |
+        Channel containing the STAR final log files
+        Structure: [ val(meta), path(log_final) ]
+      pattern: "*Log.final.out"
+  - log_out:
+      type: file
+      description: |
+        Channel containing the STAR log files
+        Structure: [ val(meta), path(log_out) ]
+      pattern: "*Log.out"
+  - log_progress:
+      type: file
+      description: |
+        Channel containing the STAR progress log files
+        Structure: [ val(meta), path(log_progress) ]
+      pattern: "*Log.progress.out"
+  - bam_sorted:
+      type: file
+      description: |
+        Channel containing the coordinate sorted BAM files, when STAR is asked to sort them
+        Structure: [ val(meta), path(bam) ]
+      pattern: "*sortedByCoord.out.bam"
+  - bam_transcript:
+      type: file
+      description: |
+        Channel containing the transcriptome BAM files, when STAR is run with `--quantMode TranscriptomeSAM`
+        Structure: [ val(meta), path(bam) ]
+      pattern: "*toTranscriptome.out.bam"
+  - fastq:
+      type: file
+      description: |
+        Channel containing the unmapped reads, when STAR is run with `--outReadsUnmapped Fastx`
+        Structure: [ val(meta), path(fastq) ]
+      pattern: "*.fastq.gz"
+  - tab:
+      type: file
+      description: |
+        Channel containing the STAR tab separated output files, such as the splice junction table
+        Structure: [ val(meta), path(tab) ]
+      pattern: "*.tab"
+  - bam:
+      type: file
+      description: |
+        Channel containing the coordinate sorted BAM files produced by samtools
+        Structure: [ val(meta), path(bam) ]
+      pattern: "*.bam"
+  - index:
+      type: file
+      description: |
+        Channel containing the index of the coordinate sorted BAM files
+        Structure: [ val(meta), path(index) ]
+      pattern: "*.{bai,csi}"
+  - stats:
+      type: file
+      description: |
+        Channel containing the samtools stats output
+        Structure: [ val(meta), path(stats) ]
+      pattern: "*.stats"
+  - flagstat:
+      type: file
+      description: |
+        Channel containing the samtools flagstat output
+        Structure: [ val(meta), path(flagstat) ]
+      pattern: "*.flagstat"
+  - idxstats:
+      type: file
+      description: |
+        Channel containing the samtools idxstats output
+        Structure: [ val(meta), path(idxstats) ]
+      pattern: "*.idxstats"
+authors:
+  - "@bensouthgate"
+  - "@jma1991"
+  - "@piplus2"
+maintainers:
+  - "@piplus2"
