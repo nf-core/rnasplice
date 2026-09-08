@@ -17,7 +17,7 @@ workflow TX2GENE_TXIMPORT {
     // Extract archives (if necessary)
     //
 
-    salmon_results
+    ch_branched_results = salmon_results
         .map { meta, prefix ->
             def tgz = prefix[0].toString().endsWith(".tar.gz") ? true : false
             [meta + [tgz: tgz], prefix]
@@ -26,9 +26,8 @@ workflow TX2GENE_TXIMPORT {
             tar: it[0].tgz == true
             dir: it[0].tgz == false
         }
-        .set { salmon_results }
-    UNTAR(salmon_results.tar)
-    salmon_results = salmon_results.dir.mix(UNTAR.out.untar)
+    UNTAR(ch_branched_results.tar)
+    salmon_results = ch_branched_results.dir.mix(UNTAR.out.untar)
 
     //
     // Quantify and merge counts across samples
@@ -47,6 +46,7 @@ workflow TX2GENE_TXIMPORT {
     TXIMPORT(ch_salmon_results, tx2gene)
 
     emit:
+    salmon_results // tuple [meta, salmon dir], extracted if the input was a tarball
     tx2gene // path: *.tx2gene.tsv
     txi                             = TXIMPORT.out.txi // path: txi.rds
     txi_s                           = TXIMPORT.out.txi_s // path: txi.s.rds
