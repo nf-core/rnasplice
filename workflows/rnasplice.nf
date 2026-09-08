@@ -21,7 +21,6 @@ include { VISUALISE_MISO                                                  } from
 include { LEAFCUTTER                                                      } from '../subworkflows/local/leafcutter'
 
 include { samplesheetSchema                                               } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
-include { validateInputSamplesheet                                        } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
 include { validateInputContrastsheet                                      } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
 include { rmatsReadError                                                  } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
 include { rmatsStrandednessError                                          } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
@@ -58,6 +57,7 @@ include { paramsSummaryMap                                                } from
 
 workflow RNASPLICE {
     take:
+    ch_reads // channel: [ val(meta), [ files ] ], the parsed and validated samplesheet
     ch_samplesheet // channel: file(samplesheet)
     ch_contrastsheet  // channel: file(contrastsheet)
     ch_fasta // channel: path of genome fasta
@@ -79,57 +79,6 @@ workflow RNASPLICE {
     def ch_versions = channel.empty()
     def ch_multiqc_files = channel.empty()
     def pass_trimmed_reads = [:]
-
-    //
-    // Create channel from input file provided through params.input
-    //
-    // The samplesheet columns depend on --source, so it is validated against the schema
-    // matching the declared source. This is the only place the samplesheet is read: both
-    // `ch_reads` and the rMATS single condition check further down are derived from these
-    // same rows, so they cannot disagree with each other. `samplesheetSchema` errors on an
-    // unknown --source
-    //
-    def samplesheet_rows = samplesheetToList(params.input, samplesheetSchema(params.source))
-
-    if (params.source == "fastq") {
-        ch_reads = channel.fromList(samplesheet_rows)
-            .map { meta, fastq_1, fastq_2 ->
-                if (!fastq_2) {
-                    return [meta.id, meta + [single_end: true], [fastq_1]]
-                }
-                else {
-                    return [meta.id, meta + [single_end: false], [fastq_1, fastq_2]]
-                }
-            }
-            .groupTuple()
-            .map { samplesheet ->
-                validateInputSamplesheet(samplesheet)
-            }
-            .map { meta, fastqs ->
-                return [meta, fastqs.flatten()]
-            }
-    }
-    else if (params.source == "genome_bam") {
-        ch_reads = channel.fromList(samplesheet_rows)
-            .map { meta, genome_bam ->
-                def meta_map = [id: meta.id, condition: meta.condition]
-                return [meta_map, [genome_bam]]
-            }
-    }
-    else if (params.source == "transcriptome_bam") {
-        ch_reads = channel.fromList(samplesheet_rows)
-            .map { meta, _genome_bam, transcriptome_bam ->
-                def meta_map = [id: meta.id, condition: meta.condition]
-                return [meta_map, [transcriptome_bam]]
-            }
-    }
-    else {
-        ch_reads = channel.fromList(samplesheet_rows)
-            .map { meta, salmon_results ->
-                def meta_map = [id: meta.id, condition: meta.condition]
-                return [meta_map, [salmon_results]]
-            }
-    }
 
     //
     // Create channel from contrasts file
@@ -298,9 +247,13 @@ workflow RNASPLICE {
                 .set { ch_genome_bam_conditions }
 
             // rMATS builds a different DAG for a single condition run, so this has to be
-            // known before the workflow is built rather than as a channel. It reuses the
-            // rows parsed above, so it cannot disagree with the conditions in `ch_reads`
-            def is_single_condition = samplesheet_rows.collect { row -> row[0].condition }.unique().size() == 1
+            // known before the workflow is built rather than as a channel. It is read
+            // through the same schema the samplesheet was validated with, so it cannot
+            // disagree with the conditions carried in `ch_reads`
+            def conditions = samplesheetToList(params.input, samplesheetSchema(params.source))
+                .collect { row -> row[0].condition }
+                .unique()
+            def is_single_condition = conditions.size() == 1
 
             RMATS(
                 ch_samplesheet,
