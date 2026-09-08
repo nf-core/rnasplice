@@ -48,7 +48,7 @@ workflow TX2GENE_TXIMPORT {
     TXIMPORT(ch_salmon_results, tx2gene)
 
     emit:
-    salmon_results                  = ch_untarred_results // tuple [meta, salmon dir], extracted if the input was a tarball
+    salmon_results                  = salmon_results.dir.mix(UNTAR.out.untar) // tuple [meta, salmon dir], extracted if the input was a tarball
     tx2gene // path: *.tx2gene.tsv
     txi                             = TXIMPORT.out.txi // path: txi.rds
     txi_s                           = TXIMPORT.out.txi_s // path: txi.s.rds
