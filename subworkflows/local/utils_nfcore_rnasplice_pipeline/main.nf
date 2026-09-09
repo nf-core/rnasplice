@@ -138,16 +138,27 @@ workflow PIPELINE_INITIALISATION {
             .set { ch_samplesheet }
     } else if (source == 'transcriptome_bam') {
         // The samplesheet carries both genome_bam and transcriptome_bam; only the
-        // transcriptome BAM is read from here
+        // transcriptome BAM is read from here. Strandedness and read type cannot be
+        // derived from a BAM file, so they come from the samplesheet, which defaults
+        // them to 'unstranded' and paired end when the columns are missing
         channel
             .fromList(samplesheet_rows)
             .map {
                 meta, _genome_bam, transcriptome_bam ->
-                    return [ [ id: meta.id, condition: meta.condition ], [ transcriptome_bam ] ]
+                    return [ [ id: meta.id, condition: meta.condition, strandedness: meta.strandedness, single_end: meta.single_end ], [ transcriptome_bam ] ]
+            }
+            .set { ch_samplesheet }
+    } else if (source == 'genome_bam') {
+        channel
+            .fromList(samplesheet_rows)
+            .map {
+                meta, genome_bam ->
+                    return [ [ id: meta.id, condition: meta.condition, strandedness: meta.strandedness, single_end: meta.single_end ], [ genome_bam ] ]
             }
             .set { ch_samplesheet }
     } else {
-        // genome_bam and salmon_results both carry a single path column
+        // salmon_results carries a single path column, and the quantification it holds
+        // has already been done, so no strandedness is needed
         channel
             .fromList(samplesheet_rows)
             .map {
@@ -511,9 +522,9 @@ def skipAlignmentWarn() {
 //
 // Exit pipeline if rMATS requested with mixed single and paired end samples
 //
-def rmatsReadError(reads) {
-    reads
-        .map { meta, fastq -> meta.single_end }
+def rmatsReadError(samples) {
+    samples
+        .map { meta, _files -> meta.single_end }
         .unique()
         .collect()
         .map {
@@ -526,9 +537,9 @@ def rmatsReadError(reads) {
 //
 // Exit pipeline if rMATS requested with mixed stranded samples
 //
-def rmatsStrandednessError(reads) {
-    reads
-        .map { meta, fastq -> meta.strandedness }
+def rmatsStrandednessError(samples) {
+    samples
+        .map { meta, _files -> meta.strandedness }
         .unique()
         .collect()
         .map {

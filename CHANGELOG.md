@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #257 - Add a `test_dexseq_gff` profile and a pipeline level nf-test for a user supplied DEXSeq annotation (`--gff_dexseq`) (by @piplus2)
 - #258 - Add pipeline level nf-tests for `--source genome_bam`, `transcriptome_bam` and `salmon_results`, which had no test coverage (by @piplus2)
 - #261 - Add a pipeline nf-test for samples split over several runs (by @piplus2)
+- #263 - Accept optional `strandedness` and `single_end` columns when starting from `--source genome_bam` or `transcriptome_bam`, defaulting to `unstranded` and paired end (requested by @albamasmalavila, done by @piplus2)
 
 ### Changed
 
@@ -77,6 +78,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #261 - Fix the paired rMATS sample order when a sample spans several samplesheet rows (by @piplus2)
 - #261 - Fix single condition rMATS runs, which aborted before producing any output (by @piplus2)
 - #261 - Fix samples split over several samplesheet rows, whose fastq files were passed on without being concatenated (by @piplus2)
+- #263 - **Breaking change**: `DEXSEQ_COUNT` no longer counts BAM input as forward stranded, it follows the samplesheet `strandedness`, so DEXSeq results change for BAM samplesheets that do not set the column (reported by @albamasmalavila, fix by @piplus2)
 
 ## v1.0.5 - 2024-11-03
 

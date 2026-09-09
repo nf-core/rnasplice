@@ -1,0 +1,131 @@
+nextflow_workflow {
+
+    name "Test Subworkflow PIPELINE_INITIALISATION"
+    script "../main.nf"
+    workflow "PIPELINE_INITIALISATION"
+
+    tag "subworkflows"
+    tag "subworkflows/utils_nfcore_rnasplice_pipeline"
+
+    // The samplesheets of the BAM sources carry optional strandedness and single_end
+    // columns, which have to reach the meta map of every sample so that the tools that
+    // need the library type and the read type get them, and which default to unstranded
+    // and paired end, see https://github.com/nf-core/rnasplice/issues/184
+
+    setup {
+        def testdata = 'https://raw.githubusercontent.com/nf-core/test-datasets/rnasplice/testdata/'
+        def samples = [ 'ERR188383': 'GBR', 'ERR188428': 'GBR', 'ERR188454': 'YRI', 'ERR204916': 'YRI' ]
+
+        def genome_bam = new File("${launchDir}/samplesheet_genome_bam_optional_columns.csv")
+        genome_bam.parentFile.mkdirs()
+        genome_bam.text = "sample,condition,strandedness,single_end,genome_bam\n" + samples.collect { sample, condition ->
+            "${sample},${condition},reverse,true,${testdata}${sample}.Aligned.out.bam\n"
+        }.join()
+
+        def genome_bam_defaults = new File("${launchDir}/samplesheet_genome_bam.csv")
+        genome_bam_defaults.text = "sample,condition,genome_bam\n" + samples.collect { sample, condition ->
+            "${sample},${condition},${testdata}${sample}.Aligned.out.bam\n"
+        }.join()
+
+        def transcriptome_bam = new File("${launchDir}/samplesheet_transcriptome_bam_optional_columns.csv")
+        transcriptome_bam.text = "sample,condition,strandedness,single_end,genome_bam,transcriptome_bam\n" + samples.collect { sample, condition ->
+            "${sample},${condition},forward,true,${testdata}${sample}.Aligned.out.bam,${testdata}${sample}.Aligned.toTranscriptome.out.bam\n"
+        }.join()
+    }
+
+    test("genome_bam - strandedness and read type") {
+
+        when {
+            workflow {
+                """
+                input[0] = false                                                                    // version
+                input[1] = false                                                                    // validate_params
+                input[2] = true                                                                     // monochrome_logs
+                input[3] = []                                                                       // nextflow_cli_args
+                input[4] = "${outputDir}"                                                           // outdir
+                input[5] = "${launchDir}/samplesheet_genome_bam_optional_columns.csv"               // input
+                input[6] = 'genome_bam'                                                             // source
+                input[7] = params.pipelines_testdata_base_path + 'samplesheet/contrastsheet.csv'    // contrasts
+                input[8] = false                                                                    // help
+                input[9] = false                                                                    // help_full
+                input[10] = false                                                                   // show_hidden
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.samplesheet.size() == 4 },
+                { assert workflow.out.samplesheet.every { meta, _bam -> meta.strandedness == 'reverse' } },
+                { assert workflow.out.samplesheet.every { meta, _bam -> meta.single_end } }
+            )
+        }
+
+    }
+
+    test("genome_bam - no optional columns") {
+
+        when {
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = "${outputDir}"
+                input[5] = "${launchDir}/samplesheet_genome_bam.csv"
+                input[6] = 'genome_bam'
+                input[7] = params.pipelines_testdata_base_path + 'samplesheet/contrastsheet.csv'
+                input[8] = false
+                input[9] = false
+                input[10] = false
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.samplesheet.size() == 4 },
+                { assert workflow.out.samplesheet.every { meta, _bam -> meta.strandedness == 'unstranded' } },
+                { assert workflow.out.samplesheet.every { meta, _bam -> !meta.single_end } }
+            )
+        }
+
+    }
+
+    test("transcriptome_bam - strandedness and read type") {
+
+        when {
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = "${outputDir}"
+                input[5] = "${launchDir}/samplesheet_transcriptome_bam_optional_columns.csv"
+                input[6] = 'transcriptome_bam'
+                input[7] = params.pipelines_testdata_base_path + 'samplesheet/contrastsheet.csv'
+                input[8] = false
+                input[9] = false
+                input[10] = false
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.samplesheet.size() == 4 },
+                { assert workflow.out.samplesheet.every { meta, _bam -> meta.strandedness == 'forward' } },
+                { assert workflow.out.samplesheet.every { meta, _bam -> meta.single_end } },
+                // Only the transcriptome BAM is taken from a transcriptome_bam samplesheet
+                { assert workflow.out.samplesheet.every { _meta, bam -> bam[0].endsWith('.Aligned.toTranscriptome.out.bam') } }
+            )
+        }
+
+    }
+
+}

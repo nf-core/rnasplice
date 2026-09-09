@@ -27,16 +27,17 @@ CONTROL_REP3,AEG588A3_S3_L002_R1_001.fastq.gz,AEG588A3_S3_L002_R2_001.fastq.gz,f
 
 The samplesheet can have as many columns as you desire, however, there is a strict requirement for at least 3 columns to match those defined in the table below.
 
-| Column              | Description                                                                                                                                                                            |
-| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sample`            | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
-| `fastq_1`           | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
-| `fastq_2`           | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
-| `strandedness`      | Sample strand-specificity. Must be one of `unstranded`, `forward` or `reverse`.                                                                                                        |
-| `condition`         | The name of the condition a sample belongs to (e.g. 'control', or 'treatment') - these labels will be used for downstream analysis.                                                    |
-| `genome_bam`        | Full path to aligned BAM file, derived from splicing aware mapper (STAR, HiSat, etc). File has to be in ".bam" format.                                                                 |
-| `transcriptome_bam` | Full path to aligned transcriptome file, derived from splicing aware mapper (STAR, HiSat, etc). File has to be in ".bam" format.                                                       |
-| `salmon_results`    | Full path to the result folder produced by salmon quantification.                                                                                                                      |
+| Column              | Description                                                                                                                                                                                                                                                                    |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `sample`            | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`).                                                                                         |
+| `fastq_1`           | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                                                                                                                     |
+| `fastq_2`           | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                                                                                                                     |
+| `strandedness`      | Sample strand-specificity. Must be one of `unstranded`, `forward` or `reverse`. Required with `--source fastq`, optional and defaulting to `unstranded` with `--source genome_bam` and `--source transcriptome_bam`.                                                           |
+| `single_end`        | Read type of a BAM sample, `true` for single end and `false` for paired end. Only read with `--source genome_bam` and `--source transcriptome_bam`, where it is optional and defaults to `false`. With `--source fastq` the read type is taken from the presence of `fastq_2`. |
+| `condition`         | The name of the condition a sample belongs to (e.g. 'control', or 'treatment') - these labels will be used for downstream analysis.                                                                                                                                            |
+| `genome_bam`        | Full path to aligned BAM file, derived from splicing aware mapper (STAR, HiSat, etc). File has to be in ".bam" format.                                                                                                                                                         |
+| `transcriptome_bam` | Full path to aligned transcriptome file, derived from splicing aware mapper (STAR, HiSat, etc). File has to be in ".bam" format.                                                                                                                                               |
+| `salmon_results`    | Full path to the result folder produced by salmon quantification.                                                                                                                                                                                                              |
 
 In the case of paired differential splicing analysis (e.g., with `rMATS`), the treatment and control samples order must match:
 
@@ -77,33 +78,37 @@ This configuration allows the pipeline to run all downstream analysis methods.
 
 #### Genome BAM files
 
-The `--source genome_bam` configuration takes genome BAM files derived from a splice aware mapper (STAR, HiSat, etc). The samplesheet must have the 3 columns shown in the example below.
+The `--source genome_bam` configuration takes genome BAM files derived from a splice aware mapper (STAR, HiSat, etc). The samplesheet must have the `sample`, `condition` and `genome_bam` columns, and can carry the optional `strandedness` and `single_end` columns shown in the example below.
 
 ```console
-sample,condition,genome_bam
-CONTROL_REP1,control,AEG588A1.Aligned.out.bam
-CONTROL_REP2,control,AEG588A2.Aligned.out.bam
-CONTROL_REP3,control,AEG588A3.Aligned.out.bam
-TREATMENT_REP1,treatment,AEG588A4.Aligned.out.bam
-TREATMENT_REP2,treatment,AEG588A5.Aligned.out.bam
-TREATMENT_REP3,treatment,AEG588A6.Aligned.out.bam
+sample,condition,strandedness,single_end,genome_bam
+CONTROL_REP1,control,reverse,false,AEG588A1.Aligned.out.bam
+CONTROL_REP2,control,reverse,false,AEG588A2.Aligned.out.bam
+CONTROL_REP3,control,reverse,false,AEG588A3.Aligned.out.bam
+TREATMENT_REP1,treatment,reverse,false,AEG588A4.Aligned.out.bam
+TREATMENT_REP2,treatment,reverse,false,AEG588A5.Aligned.out.bam
+TREATMENT_REP3,treatment,reverse,false,AEG588A6.Aligned.out.bam
 ```
+
+Neither the library type nor the read type can be read from a BAM file, so both come from the samplesheet: `strandedness` defaults to `unstranded` and `single_end` to `false` (paired end), which keeps samplesheets without those columns valid. They are passed on to the tools that need them, here DEXSeq, featureCounts (edgeR) and rMATS. Note that DEXSeq used to count BAM input as forward stranded and now follows `strandedness`.
 
 This configuration allows the pipeline to run the "dexseq_exon", "edger_exon" and "rmats" analysis methods.
 
 #### Transcriptome BAM files
 
-The `--source transcriptome_bam` configuration takes transcriptome BAM files files derived from a splice aware mapper (STAR, HiSat, etc). The samplesheet must have the 3 columns shown in the example below.
+The `--source transcriptome_bam` configuration takes transcriptome BAM files files derived from a splice aware mapper (STAR, HiSat, etc). The samplesheet must have the `sample`, `condition`, `genome_bam` and `transcriptome_bam` columns, and can carry the optional `strandedness` and `single_end` columns shown in the example below.
 
 ```console
-sample,condition,transcriptome_bam
-CONTROL_REP1,control,AEG588A1.Aligned.toTranscriptome.out.bam
-CONTROL_REP2,control,AEG588A2.Aligned.toTranscriptome.out.bam
-CONTROL_REP3,control,AEG588A3.Aligned.toTranscriptome.out.bam
-TREATMENT_REP1,treatment,AEG588A4.Aligned.toTranscriptome.out.bam
-TREATMENT_REP2,treatment,AEG588A5.Aligned.toTranscriptome.out.bam
-TREATMENT_REP3,treatment,AEG588A6.Aligned.toTranscriptome.out.bam
+sample,condition,strandedness,single_end,genome_bam,transcriptome_bam
+CONTROL_REP1,control,reverse,false,AEG588A1.Aligned.out.bam,AEG588A1.Aligned.toTranscriptome.out.bam
+CONTROL_REP2,control,reverse,false,AEG588A2.Aligned.out.bam,AEG588A2.Aligned.toTranscriptome.out.bam
+CONTROL_REP3,control,reverse,false,AEG588A3.Aligned.out.bam,AEG588A3.Aligned.toTranscriptome.out.bam
+TREATMENT_REP1,treatment,reverse,false,AEG588A4.Aligned.out.bam,AEG588A4.Aligned.toTranscriptome.out.bam
+TREATMENT_REP2,treatment,reverse,false,AEG588A5.Aligned.out.bam,AEG588A5.Aligned.toTranscriptome.out.bam
+TREATMENT_REP3,treatment,reverse,false,AEG588A6.Aligned.out.bam,AEG588A6.Aligned.toTranscriptome.out.bam
 ```
+
+Neither the library type nor the read type can be read from a BAM file, so both come from the samplesheet: `strandedness` defaults to `unstranded` and `single_end` to `false` (paired end), which keeps samplesheets without those columns valid. Both are passed on to Salmon, which quantifies the transcriptome BAM files.
 
 This configuration allows the pipeline to run the "dexseq_dtu" and "suppa" analysis methods.
 

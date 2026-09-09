@@ -55,6 +55,19 @@
                 "errorMessage": "Condition must be provided and contain syntactically valid names.",
                 "meta": ["condition"]
             },
+            "strandedness": {
+                "type": "string",
+                "errorMessage": "Strandedness must be one of 'forward', 'reverse' or 'unstranded'",
+                "enum": ["forward", "reverse", "unstranded"],
+                "default": "unstranded",
+                "meta": ["strandedness"]
+            },
+            "single_end": {
+                "type": "boolean",
+                "errorMessage": "Single end must be 'true' for single end reads or 'false' for paired end reads",
+                "default": false,
+                "meta": ["single_end"]
+            },
             "genome_bam": {
                 "type": "string",
                 "format": "file-path",

@@ -110,8 +110,10 @@ workflow RNASPLICE {
     //
     ch_samples = ch_samplesheet.map { meta, _files -> [ meta.id, meta.condition ] }
 
-    // Check rMATS parameter configuration mapping checks
-    if (params.rmats && params.source == 'fastq') {
+    // rMATS takes the read type and the library type from the first sample of a
+    // contrast, so every sample has to agree on both. Genome BAM samplesheets carry
+    // them as well as fastq ones, so they get the same checks
+    if (params.rmats && ['fastq', 'genome_bam'].contains(params.source)) {
         rmatsReadError(ch_samplesheet)
         rmatsStrandednessError(ch_samplesheet)
     }
