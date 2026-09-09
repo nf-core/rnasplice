@@ -27,7 +27,9 @@ process RMATS_POST {
 
     script:
 
-    output_dir = cond2 ? "${cond1}-${cond2}" : '.'
+    // A run without a second condition still needs a named directory: Nextflow does
+    // not match an output glob that starts with `./`
+    output_dir = cond2 ? "${cond1}-${cond2}" : "${cond1}"
     rmats_output_dir = rmats_paired_stats ? "rmats_post_paired" : "rmats_post"
 
     // Only need to take meta1 as samples have same strand and read type info

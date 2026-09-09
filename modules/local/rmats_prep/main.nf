@@ -25,14 +25,16 @@ process RMATS_PREP {
     task.ext.when == null || task.ext.when
 
     script:
-    output_dir = cond2 ? "${cond1}-${cond2}" : '.'
+    // A run without a second condition still needs a named directory: Nextflow does
+    // not match an output glob that starts with `./`
+    output_dir = cond2 ? "${cond1}-${cond2}" : "${cond1}"
 
      // Only need to take meta1 as samples have same strand and read type info
     // Only need to take meta1 as samples have same strand and read type info
     // - see rnasplice.nf input check for rmats
     def meta = meta1 instanceof List ? meta1[0] : meta1
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${cond2 ? "$cond1-$cond2" : '.'}"
+    def prefix = task.ext.prefix ?: output_dir
 
     // Take single/paired end information from meta
     def read_type = meta.single_end ? 'single' : 'paired'
