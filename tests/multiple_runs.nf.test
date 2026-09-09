@@ -1,0 +1,80 @@
+nextflow_pipeline {
+
+    name "Test pipeline with several runs per sample"
+    script "../main.nf"
+    profile "test"
+    tag "pipeline"
+
+    // Rows that share a sample name are runs of the same sample and have to be
+    // concatenated before alignment, so what comes out is one sample, named as the
+    // samplesheet names it.
+
+    test("-profile test - two runs per sample") {
+
+        setup {
+            // `params` is not populated yet in a setup block, so the base path of
+            // `tests/nextflow.config` is spelled out here
+            def testdata = 'https://raw.githubusercontent.com/nf-core/test-datasets/rnasplice/testdata/'
+            def runs = [ 'GBR_SAMPLE': [ 'ERR188383', 'ERR188428' ], 'YRI_SAMPLE': [ 'ERR188454', 'ERR204916' ] ]
+
+            def samplesheet = new File("${launchDir}/samplesheet_multiple_runs.csv")
+            samplesheet.parentFile.mkdirs()
+            samplesheet.text = "sample,fastq_1,fastq_2,strandedness,condition\n" + runs.collect { sample, accessions ->
+                accessions.collect { accession ->
+                    "${sample},${testdata}${accession}_chrX_1.fastq.gz,${testdata}${accession}_chrX_2.fastq.gz,unstranded,${sample - '_SAMPLE'}\n"
+                }.join()
+            }.join()
+        }
+
+        when {
+            params {
+                input = "${launchDir}/samplesheet_multiple_runs.csv"
+                outdir = "$outputDir"
+                save_merged_fastq = true
+                rmats_paired_stats = false
+                // One sample per condition is enough to show the runs were merged, and
+                // the tools that need replicates are not what is under test here
+                dexseq_exon = false
+                edger_exon = false
+                dexseq_dtu = false
+                suppa = false
+                isoformswitchanalyzer = false
+                sashimi_plot = false
+            }
+        }
+
+        then {
+            def published = getAllFilesFromDir(params.outdir, relative: true, includeDir: true).collect { path -> path.toString() }
+
+            assertAll(
+                { assert workflow.success },
+
+                // Remove Nextflow version to prevent cross-version testing failures
+                { assert snapshot(removeNextflowVersion("$outputDir/pipeline_info/nf_core_rnasplice_software_mqc_versions.yml")).match() },
+
+                // The runs of each sample were concatenated into one pair of reads
+                { assert published.contains('fastq/GBR_SAMPLE_1.merged.fastq.gz') },
+                { assert published.contains('fastq/GBR_SAMPLE_2.merged.fastq.gz') },
+                { assert published.contains('fastq/YRI_SAMPLE_1.merged.fastq.gz') },
+                { assert published.contains('fastq/YRI_SAMPLE_2.merged.fastq.gz') },
+
+                // and what came out is two samples named as the samplesheet names them,
+                // not four named after the fastq files
+                { assert published.count { path -> path.endsWith('.merged.fastq.gz') } == 4 },
+                { assert published.every { path -> !path.contains('ERR188383') } },
+            )
+        }
+
+        cleanup {
+            // Only prune/delete on CI - keeping local VM state intact prevents
+            // cross-test launchDir wipes that break nf-test snapshot walks.
+            if (System.getenv("CI") == "true") {
+                if (System.getenv("NFT_PROFILE")?.contains("docker")) {
+                    "docker system prune -a -f --volumes".execute()
+                }
+                new File("${launchDir}").deleteDir()
+            }
+        }
+    }
+
+}
