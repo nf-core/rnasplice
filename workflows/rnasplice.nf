@@ -20,8 +20,6 @@ include { SUPPA as SUPPA_STAR_SALMON                                      } from
 include { VISUALISE_MISO                                                  } from '../subworkflows/local/visualise_miso'
 include { LEAFCUTTER                                                      } from '../subworkflows/local/leafcutter'
 
-include { samplesheetSchema                                               } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
-include { validateInputContrastsheet                                      } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
 include { rmatsReadError                                                  } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
 include { rmatsStrandednessError                                          } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
 include { multiqcTsvFromList                                              } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
@@ -35,7 +33,6 @@ include { methodsDescriptionText                                          } from
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { samplesheetToList                                               } from 'plugin/nf-schema'
 include { FASTQC                                                          } from '../modules/nf-core/fastqc/main'
 include { SALMON_QUANT as SALMON_QUANT_SALMON                             } from '../modules/nf-core/salmon/quant'
 include { SALMON_QUANT as SALMON_QUANT_STAR                               } from '../modules/nf-core/salmon/quant'
@@ -57,9 +54,10 @@ include { paramsSummaryMap                                                } from
 
 workflow RNASPLICE {
     take:
-    ch_reads // channel: [ val(meta), [ files ] ], the parsed and validated samplesheet
-    ch_samplesheet // channel: file(samplesheet)
-    ch_contrastsheet  // channel: file(contrastsheet)
+    ch_samplesheet // channel: [ val(meta), [ files ] ], the parsed samplesheet
+    ch_samplesheet_file // channel: file(samplesheet), for the processes that read it
+    ch_contrastsheet // channel: [ contrast, treatment, control ], the parsed contrasts
+    ch_contrastsheet_file // channel: file(contrastsheet), for the processes that read it
     ch_fasta // channel: path of genome fasta
     ch_gtf // channel: path of genome gtf
     ch_transcript_fasta // channel: path of transcript fasta
@@ -80,48 +78,42 @@ workflow RNASPLICE {
     def ch_multiqc_files = channel.empty()
     def pass_trimmed_reads = [:]
 
-    //
-    // Create channel from contrasts file
-    //
-    channel.fromList(samplesheetToList(params.contrasts, "${projectDir}/assets/schema_contrasts.json"))
-        .map { meta ->
-            validateInputContrastsheet([[meta]])
-            return [contrast: meta.contrast, treatment: meta.treatment, control: meta.control]
-        }
-        .collect()
-        .flatMap { it }
-        .set { ch_contrasts }
-
     // Branch samplesheet channel based on source type
     if (params.source == 'fastq') {
-        ch_reads
-            .map { meta, fastq ->
-                def new_id = meta.id - ~/_T\d+/
-                [meta + [id: new_id], fastq]
-            }
-            .groupTuple()
+        // PIPELINE_INITIALISATION has already collected every run of a sample under its
+        // sample id, so all that is left to decide here is whether a sample has more than
+        // one run and therefore needs its fastq files concatenated first
+        ch_samplesheet
             .branch { meta, fastq ->
-                single: fastq.size() == 1
-                return [meta, fastq.flatten()]
-                multiple: fastq.size() > 1
-                return [meta, fastq.flatten()]
+                def runs = meta.single_end ? fastq.size() : fastq.size().intdiv(2)
+                single: runs == 1
+                return [meta, fastq]
+                multiple: runs > 1
+                return [meta, fastq]
             }
             .set { ch_fastq }
     }
     else if (params.source == 'genome_bam') {
-        ch_reads.set { ch_genome_bam }
+        ch_samplesheet.set { ch_genome_bam }
     }
     else if (params.source == 'transcriptome_bam') {
-        ch_reads.set { ch_transcriptome_bam }
+        ch_samplesheet.set { ch_transcriptome_bam }
     }
     else if (params.source == 'salmon_results') {
-        ch_reads.set { ch_salmon_results }
+        ch_samplesheet.set { ch_salmon_results }
     }
+
+    //
+    // Sample id and condition, in samplesheet order, from the channel
+    // PIPELINE_INITIALISATION emits. rMATS needs these as values rather than as a sheet
+    // to read, and taking them from here is what keeps it from parsing --input again.
+    //
+    ch_samples = ch_samplesheet.map { meta, _files -> [ meta.id, meta.condition ] }
 
     // Check rMATS parameter configuration mapping checks
     if (params.rmats && params.source == 'fastq') {
-        rmatsReadError(ch_reads)
-        rmatsStrandednessError(ch_reads)
+        rmatsReadError(ch_samplesheet)
+        rmatsStrandednessError(ch_samplesheet)
     }
 
     //
@@ -224,8 +216,8 @@ workflow RNASPLICE {
                 ch_genome_bam,
                 ch_dexseq_gff,
                 !params.gff_dexseq,
-                ch_samplesheet,
-                ch_contrastsheet,
+                ch_samplesheet_file,
+                ch_contrastsheet_file,
                 params.n_dexseq_plot,
                 params.aggregation,
                 params.alignment_quality,
@@ -236,8 +228,8 @@ workflow RNASPLICE {
             EDGER_DEU(
                 ch_gtf,
                 ch_genome_bam,
-                ch_samplesheet,
-                ch_contrastsheet,
+                ch_samplesheet_file,
+                ch_contrastsheet_file,
             )
         }
 
@@ -246,21 +238,13 @@ workflow RNASPLICE {
                 .map { meta, bam -> [meta.condition, meta, bam] }
                 .set { ch_genome_bam_conditions }
 
-            // rMATS builds a different DAG for a single condition run, so this has to be
-            // known before the workflow is built rather than as a channel. It is read
-            // through the same schema the samplesheet was validated with, so it cannot
-            // disagree with the conditions carried in `ch_reads`
-            def conditions = samplesheetToList(params.input, samplesheetSchema(params.source))
-                .collect { row -> row[0].condition }
-                .unique()
-            def is_single_condition = conditions.size() == 1
-
+            // rMATS pairs treatment and control samples by their position within a
+            // condition, so the samplesheet order of `ch_samples` is what it works from
             RMATS(
-                ch_samplesheet,
+                ch_samples,
                 ch_contrastsheet,
                 ch_genome_bam_conditions,
                 ch_gtf,
-                is_single_condition,
                 params.rmats_read_len,
                 params.rmats_splice_diff_cutoff,
                 params.rmats_novel_splice_site,
@@ -315,8 +299,8 @@ workflow RNASPLICE {
             DRIMSEQ_DEXSEQ_DTU_STAR_SALMON(
                 ch_txi,
                 ch_tximport_tx2gene,
-                ch_samplesheet,
-                ch_contrastsheet,
+                ch_samplesheet_file,
+                ch_contrastsheet_file,
             )
         }
 
@@ -325,7 +309,7 @@ workflow RNASPLICE {
             SUPPA_STAR_SALMON(
                 ch_gtf.map { gtf -> [[ id: gtf.baseName ], gtf] },
                 ch_suppa_tpm.map { tpm_psi -> [[ id: tpm_psi.baseName ], tpm_psi] },
-                ch_samplesheet,
+                ch_samplesheet_file,
                 ch_contrastsheet,
                 params.suppa_per_local_event,
                 params.generateevents_boundary,
@@ -388,8 +372,8 @@ workflow RNASPLICE {
             DRIMSEQ_DEXSEQ_DTU_SALMON(
                 ch_txi,
                 TX2GENE_TXIMPORT_SALMON.out.tximport_tx2gene,
-                ch_samplesheet,
-                ch_contrastsheet,
+                ch_samplesheet_file,
+                ch_contrastsheet_file,
             )
         }
 
@@ -398,7 +382,7 @@ workflow RNASPLICE {
             SUPPA_SALMON(
                 ch_gtf.map { gtf -> [ [ id: gtf.baseName ] , gtf] },
                 ch_suppa_tpm.map { tpm_psi -> [ [ id: tpm_psi.baseName ] , tpm_psi] },
-                ch_samplesheet,
+                ch_samplesheet_file,
                 ch_contrastsheet,
                 params.suppa_per_local_event,
                 params.generateevents_boundary,
@@ -437,8 +421,8 @@ workflow RNASPLICE {
             ch_salmon_results.collect { it -> it[1] },
             ch_gtf,
             ch_transcript_fasta,
-            ch_samplesheet,
-            ch_contrastsheet,
+            ch_samplesheet_file,
+            ch_contrastsheet_file,
             params.isoformswitchanalyzer_alpha,
             params.isoformswitchanalyzer_dIF,
         )

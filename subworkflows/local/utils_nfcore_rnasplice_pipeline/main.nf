@@ -32,6 +32,7 @@ workflow PIPELINE_INITIALISATION {
     outdir            //  string: The output directory where the results will be saved
     input             //  string: Path to input samplesheet
     source            //  string: Type of input data [fastq, genome_bam, transcriptome_bam, salmon_results]
+    contrasts         //  string: Path to the contrasts sheet
     help              // boolean: Display help message and exit
     help_full         // boolean: Show the full help message
     show_hidden       // boolean: Show hidden parameters in the help message
@@ -108,8 +109,9 @@ workflow PIPELINE_INITIALISATION {
     //
     // The samplesheet columns depend on --source, so it is validated against the schema
     // matching the declared source, selected by `samplesheetSchema`, which errors on an
-    // unknown --source. The reads channel emitted here is what every downstream consumer
-    // works from.
+    // unknown --source. This is the only place the pipeline itself reads the samplesheet:
+    // what is emitted here is a parsed channel for the consumers that need the values and
+    // the validated path for the processes that read the sheet themselves.
     //
 
     def samplesheet_rows = samplesheetToList(input, samplesheetSchema(source))
@@ -155,10 +157,31 @@ workflow PIPELINE_INITIALISATION {
             .set { ch_samplesheet }
     }
 
+    //
+    // Create channel from the contrasts file provided through params.contrasts
+    //
+    // Validated here next to the samplesheet, so each sheet is read once and both are
+    // emitted the same way: the rows for the consumers that work from the values, the
+    // validated path for the processes that read the sheet themselves.
+    //
+
+    channel
+        .fromList(samplesheetToList(contrasts, "${projectDir}/assets/schema_contrasts.json"))
+        .map { row ->
+            // Every column of the contrastsheet is a meta field, so a row comes back as a
+            // single element list holding the meta map, not as the map itself
+            def meta = row[0]
+            validateInputContrastsheet([[meta]])
+            return [ contrast: meta.contrast, treatment: meta.treatment, control: meta.control ]
+        }
+        .set { ch_contrastsheet }
+
     emit:
-    samplesheet      = ch_samplesheet                                  // channel: [ val(meta), [ files ] ]
-    samplesheet_file = channel.value(file(input, checkIfExists: true)) // channel: path(samplesheet.csv)
-    versions         = ch_versions
+    samplesheet        = ch_samplesheet                                      // channel: [ val(meta), [ files ] ]
+    samplesheet_file   = channel.value(file(input, checkIfExists: true))     // channel: path(samplesheet.csv)
+    contrastsheet      = ch_contrastsheet                                    // channel: [ contrast, treatment, control ]
+    contrastsheet_file = channel.value(file(contrasts, checkIfExists: true)) // channel: path(contrastsheet.csv)
+    versions           = ch_versions
 }
 
 /*

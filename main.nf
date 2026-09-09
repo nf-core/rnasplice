@@ -191,8 +191,10 @@ include { PREPARE_GENOME          } from './subworkflows/local/prepare_genome'
 workflow NFCORE_RNASPLICE {
 
     take:
-    ch_reads       // channel: [ val(meta), [ files ] ], the parsed and validated samplesheet
-    ch_samplesheet // channel: path(samplesheet.csv), for the processes that parse it themselves
+    ch_samplesheet       // channel: [ val(meta), [ files ] ], the parsed samplesheet
+    ch_samplesheet_file  // channel: path(samplesheet.csv), for the processes that read it
+    ch_contrastsheet     // channel: [ contrast, treatment, control ], the parsed contrasts
+    ch_contrastsheet_file // channel: path(contrastsheet.csv), for the processes that read it
 
     main:
 
@@ -215,15 +217,14 @@ workflow NFCORE_RNASPLICE {
         is_aws_igenome,
     )
 
-    ch_contrastsheet = channel.value(file(params.contrasts, checkIfExists: true))
-
     //
     // WORKFLOW: Run pipeline
     //
     RNASPLICE(
-        ch_reads,
         ch_samplesheet,
+        ch_samplesheet_file,
         ch_contrastsheet,
+        ch_contrastsheet_file,
         PREPARE_GENOME.out.fasta,
         PREPARE_GENOME.out.gtf,
         PREPARE_GENOME.out.transcript_fasta,
@@ -261,6 +262,7 @@ workflow {
         params.outdir,
         params.input,
         params.source,
+        params.contrasts,
         params.help,
         params.help_full,
         params.show_hidden
@@ -271,7 +273,9 @@ workflow {
     //
     NFCORE_RNASPLICE(
         PIPELINE_INITIALISATION.out.samplesheet,
-        PIPELINE_INITIALISATION.out.samplesheet_file
+        PIPELINE_INITIALISATION.out.samplesheet_file,
+        PIPELINE_INITIALISATION.out.contrastsheet,
+        PIPELINE_INITIALISATION.out.contrastsheet_file
     )
 
     //
