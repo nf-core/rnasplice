@@ -1,0 +1,69 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "leafcutter"
+description: Extract exon-exon junctions from aligned reads with regtools and cluster them into intron clusters with LeafCutter
+keywords:
+  - leafcutter
+  - regtools
+  - junctions
+  - intron clustering
+  - splicing
+components:
+  - regtools/junctionsextract
+  - leafcutter/clusterregtools
+input:
+  - ch_genome_bam:
+      type: file
+      description: |
+        The input channel containing the coordinate sorted genome BAM files to extract
+        junctions from
+        Structure: [ val(meta), path(bam) ]
+      pattern: "*.bam"
+  - ch_genome_bam_index:
+      type: file
+      description: |
+        The input channel containing the genome BAM index files, joined to `ch_genome_bam`
+        on the meta map
+        Structure: [ val(meta), path(bai) ]
+      pattern: "*.bai"
+output:
+  - juncs:
+      type: file
+      description: |
+        Channel containing the per sample junction files
+        Structure: [ val(meta), path(junc) ]
+      pattern: "*.junc"
+  - counts:
+      type: file
+      description: |
+        Channel containing the intron excision counts per cluster and sample, across samples
+        Structure: [ val(meta), path(counts) ]
+      pattern: "*_perind*.counts.gz"
+  - numers:
+      type: file
+      description: |
+        Channel containing the intron excision numerators per cluster and sample, across samples
+        Structure: [ val(meta), path(numers) ]
+      pattern: "*_perind_numers*.counts.gz"
+  - pooled:
+      type: file
+      description: |
+        Channel containing the junction counts pooled over all samples
+        Structure: [ val(meta), path(pooled) ]
+      pattern: "*_pooled"
+  - refined:
+      type: file
+      description: |
+        Channel containing the intron clusters after refinement
+        Structure: [ val(meta), path(refined) ]
+      pattern: "*_refined"
+  - sortedlibs:
+      type: file
+      description: |
+        Channel containing the list of the junction files in the order they were clustered
+        Structure: [ val(meta), path(sortedlibs) ]
+      pattern: "*_sortedlibs"
+authors:
+  - "@valentinoruggieri"
+  - "@piplus2"
+maintainers:
+  - "@piplus2"

@@ -1,0 +1,146 @@
+{
+    "human chrX": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "ERR188383"
+                    },
+                    "ERR188383.junc:md5,96acfa76bce6b9ff02582298996e143b"
+                ],
+                [
+                    {
+                        "id": "ERR188428"
+                    },
+                    "ERR188428.junc:md5,1efd29f5a1a4d719609429d530f5ea8b"
+                ],
+                [
+                    {
+                        "id": "ERR188454"
+                    },
+                    "ERR188454.junc:md5,7688445ffa0f1c446acee80174c3f7f3"
+                ],
+                [
+                    {
+                        "id": "ERR204916"
+                    },
+                    "ERR204916.junc:md5,a7cc95083e8bfbdfec3b49a49639f6d8"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "lc"
+                    },
+                    [
+                        "lc_perind.counts.gz:md5,563c8882e395c67d112a02a8de77de25",
+                        "lc_perind_numers.counts.gz:md5,23cce1c06aef55ea6f3ca642288c66b5"
+                    ]
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "lc"
+                    },
+                    "lc_perind_numers.counts.gz:md5,23cce1c06aef55ea6f3ca642288c66b5"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "lc"
+                    },
+                    "lc_pooled:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "lc"
+                    },
+                    "lc_refined:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "lc"
+                    },
+                    "lc_sortedlibs:md5,de8c5c512e43f549f32762dd9faa6c5b"
+                ]
+            ]
+        ],
+        "timestamp": "2026-09-10T15:24:50.126076387",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    },
+    "human chrX - stub": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "ERR188383"
+                    },
+                    "ERR188383.junc:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "ERR188428"
+                    },
+                    "ERR188428.junc:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "lc"
+                    },
+                    [
+                        "lc_perind.counts.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                        "lc_perind_numers.counts.gz:md5,68b329da9893e34099c7d8ad5cb9c940"
+                    ]
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "lc"
+                    },
+                    "lc_perind_numers.counts.gz:md5,68b329da9893e34099c7d8ad5cb9c940"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "lc"
+                    },
+                    "lc_pooled:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "lc"
+                    },
+                    "lc_refined:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "lc"
+                    },
+                    "lc_sortedlibs:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ]
+        ],
+        "timestamp": "2026-09-10T15:23:48.524054419",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    }
+}
