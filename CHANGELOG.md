@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #258 - Add pipeline level nf-tests for `--source genome_bam`, `transcriptome_bam` and `salmon_results`, which had no test coverage (by @piplus2)
 - #261 - Add a pipeline nf-test for samples split over several runs (by @piplus2)
 - #263 - Accept optional `strandedness` and `single_end` columns when starting from `--source genome_bam` or `transcriptome_bam`, defaulting to `unstranded` and paired end (requested by @albamasmalavila, done by @piplus2)
+- #264 - Add an nf-test for the `DEXSEQ_DTU` module, which had no test coverage (by @piplus2)
 
 ### Changed
 
