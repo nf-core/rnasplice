@@ -48,6 +48,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #261 - The pipeline parses the samplesheet and the contrastsheet once each, in `PIPELINE_INITIALISATION` (by @piplus2)
 - #261 - Remove the unused `INPUT_CHECK` subworkflow (by @piplus2)
 - #264 - Move the `DRIMSEQ_DEXSEQ_DTU` subworkflow to the nf-core subworkflow template (by @piplus2)
+- #268 - Move the `EDGER_DEU` subworkflow to the nf-core subworkflow template. It now emits the `EDGER_EXON` results and the featureCounts tables, which it ran but discarded (by @piplus2)
 
 ### Fixed
 

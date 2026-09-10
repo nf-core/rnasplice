@@ -1,0 +1,91 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "edger_deu"
+description: Flatten a GTF annotation into exonic features, count reads per feature in each sample and test for differential exon usage and expression with edgeR
+keywords:
+  - edger
+  - deu
+  - differential exon usage
+  - splicing
+  - featurecounts
+components:
+  - subread/flattengtf
+  - subread/featurecounts
+  - edger/exon
+input:
+  - gtf:
+      type: file
+      description: |
+        The input channel containing the GTF annotation to flatten into exonic features
+        Structure: [ path(gtf) ]
+      pattern: "*.gtf"
+  - ch_genome_bam:
+      type: file
+      description: |
+        The input channel containing the genome BAM files to count reads from. The `strandedness`
+        and `single_end` keys of the meta map determine how `SUBREAD_FEATURECOUNTS` counts them
+        Structure: [ val(meta), path(bam) ]
+      pattern: "*.bam"
+  - ch_samplesheet:
+      type: file
+      description: |
+        The input channel containing the samplesheet, which assigns each sample to a condition
+        Structure: [ path(samplesheet) ]
+      pattern: "*.csv"
+  - ch_contrastsheet:
+      type: file
+      description: |
+        The input channel containing the contrastsheet, which lists the conditions to compare
+        Structure: [ path(contrastsheet) ]
+      pattern: "*.csv"
+output:
+  - featureCounts_counts:
+      type: file
+      description: |
+        Channel containing the per sample exonic feature count tables
+        Structure: [ val(meta), path(counts) ]
+      pattern: "*.featureCounts.tsv"
+  - featureCounts_summary:
+      type: file
+      description: |
+        Channel containing the per sample featureCounts assignment summaries, which are
+        collected for MultiQC
+        Structure: [ val(meta), path(summary) ]
+      pattern: "*.featureCounts.tsv.summary"
+  - edger_exon_dge:
+      type: file
+      description: |
+        Channel containing the `DGEList` object holding the counts of every sample
+        Structure: [ val(meta), path(rds) ]
+      pattern: "DGEList.rds"
+  - edger_exon_glm:
+      type: file
+      description: |
+        Channel containing the `DGEGLM` object holding the fitted model
+        Structure: [ val(meta), path(rds) ]
+      pattern: "DGEGLM.rds"
+  - edger_exon_lrt:
+      type: file
+      description: |
+        Channel containing the `DGELRT` objects of the exon expression and exon usage tests
+        Structure: [ val(meta), path(rds) ]
+      pattern: "DGELRT.*.rds"
+  - edger_exon_csv:
+      type: file
+      description: |
+        Channel containing the exon expression results and the exon usage results per contrast,
+        the latter at simes, gene and exon level
+        Structure: [ val(meta), path(csv) ]
+      pattern: "contrast_*.csv"
+  - edger_exon_pdf:
+      type: file
+      description: |
+        Channel containing the exon usage plots of the top significant genes per contrast
+        Structure: [ val(meta), path(pdf) ]
+      pattern: "contrast_*.pdf"
+authors:
+  - "@bensouthgate"
+  - "@jma1991"
+  - "@valentinoruggieri"
+  - "@piplus2"
+maintainers:
+  - "@piplus2"

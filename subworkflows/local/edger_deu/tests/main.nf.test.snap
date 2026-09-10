@@ -1,0 +1,251 @@
+{
+    "human chrX": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "ERR188383",
+                        "single_end": false,
+                        "strandedness": "unstranded"
+                    },
+                    "ERR188383.featureCounts.tsv.summary:md5,c8e40fac34d9cab0cddf744feea72622"
+                ],
+                [
+                    {
+                        "id": "ERR188428",
+                        "single_end": false,
+                        "strandedness": "unstranded"
+                    },
+                    "ERR188428.featureCounts.tsv.summary:md5,a17f623b6862384fc9f54ebdd4286b66"
+                ],
+                [
+                    {
+                        "id": "ERR188454",
+                        "single_end": false,
+                        "strandedness": "unstranded"
+                    },
+                    "ERR188454.featureCounts.tsv.summary:md5,2868e96d572ae0e9a1ea1129a8d1676d"
+                ],
+                [
+                    {
+                        "id": "ERR204916",
+                        "single_end": false,
+                        "strandedness": "unstranded"
+                    },
+                    "ERR204916.featureCounts.tsv.summary:md5,a7f693e0186f00a14a698175ee39c8ec"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "ERR188383",
+                        "single_end": false,
+                        "strandedness": "unstranded"
+                    },
+                    "ERR188383.featureCounts.tsv"
+                ],
+                [
+                    {
+                        "id": "ERR188428",
+                        "single_end": false,
+                        "strandedness": "unstranded"
+                    },
+                    "ERR188428.featureCounts.tsv"
+                ],
+                [
+                    {
+                        "id": "ERR188454",
+                        "single_end": false,
+                        "strandedness": "unstranded"
+                    },
+                    "ERR188454.featureCounts.tsv"
+                ],
+                [
+                    {
+                        "id": "ERR204916",
+                        "single_end": false,
+                        "strandedness": "unstranded"
+                    },
+                    "ERR204916.featureCounts.tsv"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "edger_exon"
+                    },
+                    [
+                        "contrast_GBR-YRI.usage.exon.csv:md5,f102b5c2619cd811ddc04d7569b797ba",
+                        "contrast_GBR-YRI.usage.gene.csv:md5,8ebb5e11ba7a4c63ab56f9a61f9eccb6",
+                        "contrast_GBR-YRI.usage.simes.csv:md5,13a3730955b862752c2b0a08b9415280",
+                        "contrast_YRI-GBR.usage.exon.csv:md5,11c3f911f66d62b24b9dc048891a37f9",
+                        "contrast_YRI-GBR.usage.gene.csv:md5,586b678f3ae96e383a5456e42c37e6a9",
+                        "contrast_YRI-GBR.usage.simes.csv:md5,f1715819025c665bc1ba08bcfab4a3a3"
+                    ]
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "edger_exon"
+                    },
+                    [
+                        "contrast_GBR-YRI.exprs.csv",
+                        "contrast_YRI-GBR.exprs.csv"
+                    ]
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "edger_exon"
+                    },
+                    [
+                        "contrast_GBR-YRI.usage.exon.pdf",
+                        "contrast_GBR-YRI.usage.gene.pdf",
+                        "contrast_GBR-YRI.usage.simes.pdf",
+                        "contrast_YRI-GBR.usage.exon.pdf",
+                        "contrast_YRI-GBR.usage.gene.pdf",
+                        "contrast_YRI-GBR.usage.simes.pdf"
+                    ]
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "edger_exon"
+                    },
+                    "DGEList.rds"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "edger_exon"
+                    },
+                    "DGEGLM.rds"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "edger_exon"
+                    },
+                    [
+                        "DGELRT.exprs.rds",
+                        "DGELRT.usage.rds"
+                    ]
+                ]
+            ]
+        ],
+        "timestamp": "2026-09-10T11:28:18.249049892",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    },
+    "human chrX - stub": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "ERR188383",
+                        "single_end": false,
+                        "strandedness": "unstranded"
+                    },
+                    "ERR188383.featureCounts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "ERR188428",
+                        "single_end": false,
+                        "strandedness": "unstranded"
+                    },
+                    "ERR188428.featureCounts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "ERR188383",
+                        "single_end": false,
+                        "strandedness": "unstranded"
+                    },
+                    "ERR188383.featureCounts.tsv.summary:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "ERR188428",
+                        "single_end": false,
+                        "strandedness": "unstranded"
+                    },
+                    "ERR188428.featureCounts.tsv.summary:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "edger_exon"
+                    },
+                    "DGEList.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "edger_exon"
+                    },
+                    "DGEGLM.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "edger_exon"
+                    },
+                    [
+                        "DGELRT.exprs.rds:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "DGELRT.usage.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "edger_exon"
+                    },
+                    [
+                        "contrast_GBR-YRI.exprs.csv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "contrast_GBR-YRI.usage.exon.csv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "contrast_GBR-YRI.usage.gene.csv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "contrast_GBR-YRI.usage.simes.csv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "contrast_YRI-GBR.exprs.csv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "contrast_YRI-GBR.usage.exon.csv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "contrast_YRI-GBR.usage.gene.csv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "contrast_YRI-GBR.usage.simes.csv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "edger_exon"
+                    },
+                    [
+                        "contrast_GBR-YRI.usage.exon.pdf:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "contrast_GBR-YRI.usage.gene.pdf:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "contrast_GBR-YRI.usage.simes.pdf:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "contrast_YRI-GBR.usage.exon.pdf:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "contrast_YRI-GBR.usage.gene.pdf:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "contrast_YRI-GBR.usage.simes.pdf:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ]
+            ]
+        ],
+        "timestamp": "2026-09-10T11:28:26.873704515",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    }
+}

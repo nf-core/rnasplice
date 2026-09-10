@@ -1,0 +1,93 @@
+// nf-core subworkflows test edger_deu
+nextflow_workflow {
+
+    name "Test Subworkflow EDGER_DEU"
+    script "../main.nf"
+    workflow "EDGER_DEU"
+
+    tag "subworkflows"
+    tag "subworkflows/edger_deu"
+    tag "subread"
+    tag "subread/flattengtf"
+    tag "subread/featurecounts"
+    tag "edger"
+    tag "edger/exon"
+
+    test("human chrX") {
+
+        when {
+            workflow {
+                """
+                input[0] = channel.value(file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true))
+                input[1] = channel.of(
+                    [ [ id:'ERR188383', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188428', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188454', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR204916', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916.Aligned.out.bam', checkIfExists: true) ],
+                )
+                input[2] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true))
+                input[3] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/contrastsheet.csv', checkIfExists: true))
+                """
+            }
+        }
+
+        then {
+            // `SUBREAD_FEATURECOUNTS` runs once per sample, so its channels follow task
+            // completion order and have to be sorted before they can be snapshotted.
+            //
+            // The exon usage tables are snapshotted by content, the exon expression tables,
+            // the plots and the binary objects by name only, following the split the
+            // `EDGER_EXON` module test already establishes
+            assertAll(
+                { assert workflow.success },
+                { assert snapshot(
+                    workflow.out.featureCounts_summary.sort { summary -> summary[0].id },
+                    workflow.out.featureCounts_counts.collect { meta, counts -> [ meta, file(counts).name ] }.sort { counts -> counts[0].id },
+                    workflow.out.edger_exon_csv.collect { meta, csvs -> [ meta, csvs.findAll { csv -> csv.contains('.usage.') } ] },
+                    workflow.out.edger_exon_csv.collect { meta, csvs -> [ meta, csvs.findAll { csv -> csv.endsWith('.exprs.csv') }.collect { csv -> file(csv).name } ] },
+                    workflow.out.edger_exon_pdf.collect { meta, pdfs -> [ meta, pdfs.collect { pdf -> file(pdf).name } ] },
+                    workflow.out.edger_exon_dge.collect { meta, rds -> [ meta, file(rds).name ] },
+                    workflow.out.edger_exon_glm.collect { meta, rds -> [ meta, file(rds).name ] },
+                    workflow.out.edger_exon_lrt.collect { meta, rds -> [ meta, rds.collect { r -> file(r).name } ] }
+                ).match() }
+            )
+        }
+
+    }
+
+    test("human chrX - stub") {
+
+        options "-stub"
+
+        when {
+            workflow {
+                """
+                input[0] = channel.value(file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true))
+                input[1] = channel.of(
+                    [ [ id:'ERR188383', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188428', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true) ],
+                )
+                input[2] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true))
+                input[3] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/contrastsheet.csv', checkIfExists: true))
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert snapshot(
+                    workflow.out.featureCounts_counts.sort { counts -> counts[0].id },
+                    workflow.out.featureCounts_summary.sort { summary -> summary[0].id },
+                    workflow.out.edger_exon_dge,
+                    workflow.out.edger_exon_glm,
+                    workflow.out.edger_exon_lrt,
+                    workflow.out.edger_exon_csv,
+                    workflow.out.edger_exon_pdf
+                ).match() }
+            )
+        }
+
+    }
+
+}
