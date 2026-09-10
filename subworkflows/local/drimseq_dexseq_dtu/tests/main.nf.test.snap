@@ -1,0 +1,172 @@
+{
+    "human chrX - tximport dtuScaledTPM": {
+        "content": [
+            [
+                "samples.tsv:md5,f6e0ec8b6224e91786128ae8c20cb90d"
+            ],
+            [
+                "counts.tsv:md5,9b31ee06901416c3f9e05dc1c0ce30ec"
+            ],
+            [
+                [
+                    {
+                        "id": "GBR-YRI"
+                    },
+                    "getAdjustedPValues.GBR-YRI.tsv:md5,424ce52e24c7118b4f714e28b8089a17"
+                ],
+                [
+                    {
+                        "id": "YRI-GBR"
+                    },
+                    "getAdjustedPValues.YRI-GBR.tsv:md5,7338a3fe6761bf2a38da091c4ba431c4"
+                ]
+            ],
+            [
+                "dmDSdata.rds"
+            ],
+            [
+                "DEXSeqDataSet.GBR-YRI.rds",
+                "DEXSeqDataSet.YRI-GBR.rds"
+            ],
+            [
+                "DEXSeqResults.GBR-YRI.rds",
+                "DEXSeqResults.YRI-GBR.rds"
+            ],
+            [
+                "DEXSeqResults.GBR-YRI.tsv",
+                "DEXSeqResults.YRI-GBR.tsv"
+            ],
+            [
+                "perGeneQValue.GBR-YRI.rds",
+                "perGeneQValue.YRI-GBR.rds"
+            ],
+            [
+                "perGeneQValue.GBR-YRI.tsv",
+                "perGeneQValue.YRI-GBR.tsv"
+            ],
+            [
+                [
+                    {
+                        "id": "GBR-YRI"
+                    },
+                    "stageRTx.GBR-YRI.rds"
+                ],
+                [
+                    {
+                        "id": "YRI-GBR"
+                    },
+                    "stageRTx.YRI-GBR.rds"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "GBR-YRI"
+                    },
+                    "getAdjustedPValues.GBR-YRI.rds"
+                ],
+                [
+                    {
+                        "id": "YRI-GBR"
+                    },
+                    "getAdjustedPValues.YRI-GBR.rds"
+                ]
+            ]
+        ],
+        "timestamp": "2026-09-10T09:08:49.473489088",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    },
+    "human chrX - tximport dtuScaledTPM - stub": {
+        "content": [
+            [
+                "dmDSdata.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+            ],
+            [
+                "samples.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+            ],
+            [
+                "counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+            ],
+            [
+                [
+                    "DEXSeqDataSet.GBR-YRI.rds:md5,d41d8cd98f00b204e9800998ecf8427e",
+                    "DEXSeqDataSet.YRI-GBR.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    "DEXSeqResults.GBR-YRI.rds:md5,d41d8cd98f00b204e9800998ecf8427e",
+                    "DEXSeqResults.YRI-GBR.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    "DEXSeqResults.GBR-YRI.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                    "DEXSeqResults.YRI-GBR.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    "perGeneQValue.GBR-YRI.rds:md5,d41d8cd98f00b204e9800998ecf8427e",
+                    "perGeneQValue.YRI-GBR.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    "perGeneQValue.GBR-YRI.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                    "perGeneQValue.YRI-GBR.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "GBR-YRI"
+                    },
+                    "stageRTx.GBR-YRI.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "YRI-GBR"
+                    },
+                    "stageRTx.YRI-GBR.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "GBR-YRI"
+                    },
+                    "getAdjustedPValues.GBR-YRI.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "YRI-GBR"
+                    },
+                    "getAdjustedPValues.YRI-GBR.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "GBR-YRI"
+                    },
+                    "getAdjustedPValues.GBR-YRI.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "YRI-GBR"
+                    },
+                    "getAdjustedPValues.YRI-GBR.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ]
+        ],
+        "timestamp": "2026-09-10T09:09:05.259123541",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    }
+}

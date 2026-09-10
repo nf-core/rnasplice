@@ -46,6 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #257 - `DEXSEQ_DEU` emits the DEXSeq exon count tables sorted by file name, and takes an explicit `prepare_annotation` input instead of reading `params.gff_dexseq` (by @piplus2)
 - #261 - The pipeline parses the samplesheet and the contrastsheet once each, in `PIPELINE_INITIALISATION` (by @piplus2)
 - #261 - Remove the unused `INPUT_CHECK` subworkflow (by @piplus2)
+- #264 - Move the `DRIMSEQ_DEXSEQ_DTU` subworkflow to the nf-core subworkflow template (by @piplus2)
 
 ### Fixed
 
@@ -79,6 +80,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #261 - Fix single condition rMATS runs, which aborted before producing any output (by @piplus2)
 - #261 - Fix samples split over several samplesheet rows, whose fastq files were passed on without being concatenated (by @piplus2)
 - #263 - **Breaking change**: `DEXSEQ_COUNT` no longer counts BAM input as forward stranded, it follows the samplesheet `strandedness`, so DEXSeq results change for BAM samplesheets that do not set the column (reported by @albamasmalavila, fix by @piplus2)
+- #264 - Fix the `DEXSEQ_DTU` stub, which wrote file names the process outputs did not match, so a stub run of the DTU path failed (by @piplus2)
 
 ## v1.0.5 - 2024-11-03
 
