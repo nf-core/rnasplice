@@ -27,7 +27,8 @@ process DEXSEQ_DTU {
     """
     run_dexseq_dtu.R ${drimseq_sample_data} \\
         ${drimseq_contrast_data} \\
-        ${drimseq_d_counts}
+        ${drimseq_d_counts} \\
+        ${task.cpus}
     """
 
     stub:
