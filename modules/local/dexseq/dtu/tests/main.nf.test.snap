@@ -1,0 +1,162 @@
+{
+    "human chrX - drimseq filtered - stub": {
+        "content": [
+            {
+                "0": [
+                    [
+                        "DEXSeqDataSet.GBR-YRI.rds:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "DEXSeqDataSet.YRI-GBR.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "1": [
+                    [
+                        "DEXSeqResults.GBR-YRI.rds:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "DEXSeqResults.YRI-GBR.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "2": [
+                    [
+                        "DEXSeqResults.GBR-YRI.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "DEXSeqResults.YRI-GBR.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "3": [
+                    [
+                        "perGeneQValue.GBR-YRI.rds:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "perGeneQValue.YRI-GBR.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "4": [
+                    [
+                        "perGeneQValue.GBR-YRI.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "perGeneQValue.YRI-GBR.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "5": [
+                    [
+                        "DEXSEQ_DTU",
+                        "r-base",
+                        "4.5.3"
+                    ]
+                ],
+                "6": [
+                    [
+                        "DEXSEQ_DTU",
+                        "bioconductor-dexseq",
+                        "1.56.0"
+                    ]
+                ],
+                "dexseq_exon_dataset_rds": [
+                    [
+                        "DEXSeqDataSet.GBR-YRI.rds:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "DEXSeqDataSet.YRI-GBR.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "dexseq_exon_results_rds": [
+                    [
+                        "DEXSeqResults.GBR-YRI.rds:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "DEXSeqResults.YRI-GBR.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "dexseq_exon_results_tsv": [
+                    [
+                        "DEXSeqResults.GBR-YRI.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "DEXSeqResults.YRI-GBR.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "dexseq_gene_results_rds": [
+                    [
+                        "perGeneQValue.GBR-YRI.rds:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "perGeneQValue.YRI-GBR.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "dexseq_gene_results_tsv": [
+                    [
+                        "perGeneQValue.GBR-YRI.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "perGeneQValue.YRI-GBR.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "versions_R": [
+                    [
+                        "DEXSEQ_DTU",
+                        "r-base",
+                        "4.5.3"
+                    ]
+                ],
+                "versions_dexseq": [
+                    [
+                        "DEXSEQ_DTU",
+                        "bioconductor-dexseq",
+                        "1.56.0"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-09-10T09:18:21.017158343",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    },
+    "human chrX - drimseq filtered": {
+        "content": [
+            [
+                "DEXSeqDataSet.GBR-YRI.rds",
+                "DEXSeqDataSet.YRI-GBR.rds"
+            ],
+            [
+                "DEXSeqResults.GBR-YRI.rds",
+                "DEXSeqResults.YRI-GBR.rds"
+            ],
+            [
+                "perGeneQValue.GBR-YRI.rds",
+                "perGeneQValue.YRI-GBR.rds"
+            ],
+            [
+                [
+                    "DEXSeqResults.GBR-YRI.tsv",
+                    "groupID\tfeatureID\texonBaseMean\tdispersion\tstat\tpvalue\tpadj\tGBR\tYRI\tlog2fold_YRI_GBR\tcountData.1\tcountData.2\tcountData.3\tcountData.4",
+                    19
+                ],
+                [
+                    "DEXSeqResults.YRI-GBR.tsv",
+                    "groupID\tfeatureID\texonBaseMean\tdispersion\tstat\tpvalue\tpadj\tYRI\tGBR\tlog2fold_GBR_YRI\tcountData.1\tcountData.2\tcountData.3\tcountData.4",
+                    19
+                ]
+            ],
+            [
+                [
+                    "perGeneQValue.GBR-YRI.tsv",
+                    "groupID\tpadj",
+                    9
+                ],
+                [
+                    "perGeneQValue.YRI-GBR.tsv",
+                    "groupID\tpadj",
+                    9
+                ]
+            ],
+            {
+                "versions_R": [
+                    [
+                        "DEXSEQ_DTU",
+                        "r-base",
+                        "4.5.3"
+                    ]
+                ],
+                "versions_dexseq": [
+                    [
+                        "DEXSEQ_DTU",
+                        "bioconductor-dexseq",
+                        "1.56.0"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-09-10T09:54:10.206796262",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    }
+}

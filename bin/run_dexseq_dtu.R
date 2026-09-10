@@ -6,20 +6,26 @@
 
 # Load required packages
 library(BiocParallel)
+library(parallel)
 library(DEXSeq)
-
-# Register parallel backend
-BPPARAM <- MulticoreParam(workers = parallel::detectCores() - 1)
 
 # Parse command arguments
 argv <- commandArgs(trailingOnly = TRUE)
 argc <- length(argv)
 if (argc < 3) {
-  stop("Usage: run_dexseq_dtu.R <samples_table> <contrasts_table> <counts_table>")
+  stop("Usage: run_dexseq_dtu.R <samples_table> <contrasts_table> <counts_table> [ncores]")
 }
 samples <- argv[1]
 contrasts <- argv[2]
 counts <- argv[3]
+ncores <- if (argc >= 4) as.integer(argv[4]) else 1
+
+# Register parallel backend
+if (ncores > 1) {
+  BPPARAM <- MulticoreParam(workers = ncores)
+} else {
+  BPPARAM <- SerialParam()
+}
 
 #############################
 ## Define helper functions ##
@@ -37,7 +43,7 @@ splitByContrast <- function(object, contrast) {
 
 DEXSeqPipeline <- function(object, BPPARAM = BiocParallel::bpparam()) {
   object <- estimateSizeFactors(object)
-  object <- estimateDispersions(object, BPPARAM = BPPARAM)
+  object <- estimateDispersions(object, BPPARAM = SerialParam())
   object <- testForDEU(object, BPPARAM = BPPARAM)
   object <- estimateExonFoldChanges(object, BPPARAM = BPPARAM)
   object

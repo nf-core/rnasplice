@@ -27,22 +27,23 @@ process DEXSEQ_DTU {
     """
     run_dexseq_dtu.R ${drimseq_sample_data} \\
         ${drimseq_contrast_data} \\
-        ${drimseq_d_counts}
+        ${drimseq_d_counts} \\
+        ${task.cpus}
     """
 
     stub:
     def args = task.ext.args ?: ''
-    def prefix1 = task.ext.prefix ?: "DEXSeqDataSet"
-    def prefix2 = task.ext.prefix ?: "DEXSeqResults"
-    def prefix3 = task.ext.prefix ?: "perGeneQValue"
     """
-    echo $args
+    echo ${args}
 
-    touch ${prefix1}.rds
-    touch ${prefix1}.tsv
-    touch ${prefix2}.rds
-    touch ${prefix2}.tsv
-    touch ${prefix3}.rds
-    touch ${prefix3}.tsv
+    # `run_dexseq_dtu.R` names its output files after the contrast, which it builds by
+    # joining the treatment and the control column of the contrast table with a dash
+    for contrast in \$(tail -n +2 ${drimseq_contrast_data} | awk -F ',' '{ print \$2 "-" \$3 }'); do
+        touch DEXSeqDataSet.\${contrast}.rds
+        touch DEXSeqResults.\${contrast}.rds
+        touch DEXSeqResults.\${contrast}.tsv
+        touch perGeneQValue.\${contrast}.rds
+        touch perGeneQValue.\${contrast}.tsv
+    done
     """
 }

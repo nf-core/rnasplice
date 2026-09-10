@@ -1,0 +1,114 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "drimseq_dexseq_dtu"
+description: Filter a tximport transcript quantification with DRIMSeq, test for differential transcript usage with DEXSeq and stage the results with stageR
+keywords:
+  - drimseq
+  - dexseq
+  - stager
+  - dtu
+  - differential transcript usage
+  - splicing
+components:
+  - drimseq/dmfilter
+  - dexseq/dtu
+  - stager
+input:
+  - txi:
+      type: file
+      description: |
+        The input channel containing the tximport object holding the transcript level
+        counts, either scaled TPM (`txi.s.rds`) or DTU scaled TPM (`txi.dtu.rds`)
+        Structure: [ path(txi) ]
+      pattern: "*.txi*.rds"
+  - tximport_tx2gene:
+      type: file
+      description: |
+        The input channel containing the transcript to gene mapping written by tximport
+        Structure: [ path(tx2gene) ]
+      pattern: "*.tximport.tx2gene.tsv"
+  - samplesheet:
+      type: file
+      description: |
+        The input channel containing the samplesheet, which assigns each sample to a condition
+        Structure: [ path(samplesheet) ]
+      pattern: "*.csv"
+  - contrastsheet:
+      type: file
+      description: |
+        The input channel containing the contrastsheet, which lists the conditions to compare
+        Structure: [ path(contrastsheet) ]
+      pattern: "*.csv"
+output:
+  - drimseq_dataset_rds:
+      type: file
+      description: |
+        Channel containing the filtered `dmDSdata` object
+        Structure: [ path(rds) ]
+      pattern: "dmDSdata.rds"
+  - drimseq_samples_tsv:
+      type: file
+      description: |
+        Channel containing the sample data of the filtered `dmDSdata` object
+        Structure: [ path(tsv) ]
+      pattern: "samples.tsv"
+  - drimseq_counts_tsv:
+      type: file
+      description: |
+        Channel containing the transcript counts of the filtered `dmDSdata` object
+        Structure: [ path(tsv) ]
+      pattern: "counts.tsv"
+  - dexseq_exon_dataset_rds:
+      type: file
+      description: |
+        Channel containing the `DEXSeqDataSet` objects, one per contrast
+        Structure: [ path(rds) ]
+      pattern: "DEXSeqDataSet.*.rds"
+  - dexseq_exon_results_rds:
+      type: file
+      description: |
+        Channel containing the transcript level `DEXSeqResults` objects, one per contrast
+        Structure: [ path(rds) ]
+      pattern: "DEXSeqResults.*.rds"
+  - dexseq_exon_results_tsv:
+      type: file
+      description: |
+        Channel containing the transcript level results as TSV, one per contrast
+        Structure: [ path(tsv) ]
+      pattern: "DEXSeqResults.*.tsv"
+  - dexseq_gene_results_rds:
+      type: file
+      description: |
+        Channel containing the gene level q-values, one per contrast
+        Structure: [ path(rds) ]
+      pattern: "perGeneQValue.*.rds"
+  - dexseq_gene_results_tsv:
+      type: file
+      description: |
+        Channel containing the gene level q-values as TSV, one per contrast
+        Structure: [ path(tsv) ]
+      pattern: "perGeneQValue.*.tsv"
+  - stager_rds:
+      type: file
+      description: |
+        Channel containing the `stageRTx` objects, one per contrast
+        Structure: [ val(meta), path(rds) ]
+      pattern: "stageRTx.*.rds"
+  - stager_padj_rds:
+      type: file
+      description: |
+        Channel containing the stage wise adjusted p-values, one per contrast
+        Structure: [ val(meta), path(rds) ]
+      pattern: "getAdjustedPValues.*.rds"
+  - stager_padj_tsv:
+      type: file
+      description: |
+        Channel containing the stage wise adjusted p-values as TSV, one per contrast
+        Structure: [ val(meta), path(tsv) ]
+      pattern: "getAdjustedPValues.*.tsv"
+authors:
+  - "@bensouthgate"
+  - "@jma1991"
+  - "@valentinoruggieri"
+  - "@piplus2"
+maintainers:
+  - "@piplus2"

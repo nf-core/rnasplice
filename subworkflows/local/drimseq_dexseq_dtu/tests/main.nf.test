@@ -1,0 +1,139 @@
+// nf-core subworkflows test drimseq_dexseq_dtu
+nextflow_workflow {
+
+    name "Test Subworkflow DRIMSEQ_DEXSEQ_DTU"
+    script "../main.nf"
+    workflow "DRIMSEQ_DEXSEQ_DTU"
+
+    tag "subworkflows"
+    tag "subworkflows/drimseq_dexseq_dtu"
+    tag "drimseq"
+    tag "drimseq/dmfilter"
+    tag "dexseq"
+    tag "dexseq/dtu"
+    tag "stager"
+    tag "untar"
+
+    // The drimseq tarball holds the dtuScaledTPM tximport object
+    // (salmon.merged.txi.dtu.rds) plus the matching tximport.tx2gene.tsv
+    // and samplesheet.csv, so it provides the first three subworkflow inputs
+    setup {
+        run("UNTAR", alias: "UNTAR_DRIMSEQ") {
+            script '../../../../modules/nf-core/untar/main.nf'
+            process {
+            """
+            input[0] = [
+                [ id: 'test' ],
+                file(params.pipelines_testdata_base_path + 'testdata/drimseq/drimseq_testdata.tar.gz', checkIfExists: true)
+            ]
+            """
+            }
+        }
+    }
+
+    test("human chrX - tximport dtuScaledTPM") {
+
+        when {
+            workflow {
+                """
+                UNTAR_DRIMSEQ.out.untar
+                    .multiMap { _meta, dir ->
+                        txi         : file(dir.toString() + '/salmon.merged.txi.dtu.rds', checkIfExists: true)
+                        tx2gene     : file(dir.toString() + '/tximport.tx2gene.tsv', checkIfExists: true)
+                        samplesheet : file(dir.toString() + '/samplesheet.csv', checkIfExists: true)
+                    }
+                    .set { ch_drimseq }
+
+                input[0] = ch_drimseq.txi
+                input[1] = ch_drimseq.tx2gene
+                input[2] = ch_drimseq.samplesheet
+                input[3] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/contrastsheet.csv', checkIfExists: true))
+                """
+            }
+        }
+
+        then {
+            // `STAGER` runs once per contrast, so its channels follow task completion
+            // order and have to be sorted before they can be snapshotted.
+            //
+            // The DRIMSeq tables are filtered input, so their content is snapshotted, but
+            // everything downstream of DEXSeq is not reproducible across machines, which
+            // is why tests/.nftignore already excludes those tables from the pipeline
+            // level snapshots. They are snapshotted by shape instead: file name, header
+            // and row count
+            assertAll(
+                { assert workflow.success },
+                { assert snapshot(
+                    workflow.out.drimseq_samples_tsv,
+                    workflow.out.drimseq_counts_tsv,
+                    workflow.out.drimseq_dataset_rds.flatten().collect { rds -> file(rds).name },
+                    workflow.out.dexseq_exon_dataset_rds.flatten().collect { rds -> file(rds).name },
+                    workflow.out.dexseq_exon_results_rds.flatten().collect { rds -> file(rds).name },
+                    workflow.out.dexseq_gene_results_rds.flatten().collect { rds -> file(rds).name },
+                    workflow.out.dexseq_exon_results_tsv.flatten().collect { tsv ->
+                        def lines = path(tsv).readLines()
+                        [ file(tsv).name, lines[0], lines.size() ]
+                    },
+                    workflow.out.dexseq_gene_results_tsv.flatten().collect { tsv ->
+                        def lines = path(tsv).readLines()
+                        [ file(tsv).name, lines[0], lines.size() ]
+                    },
+                    workflow.out.stager_rds.collect { meta, rds -> [ meta, file(rds).name ] }.sort { rds -> rds[0].id },
+                    workflow.out.stager_padj_rds.collect { meta, rds -> [ meta, file(rds).name ] }.sort { rds -> rds[0].id },
+                    workflow.out.stager_padj_tsv.collect { meta, tsv ->
+                        def lines = path(tsv).readLines()
+                        [ meta, file(tsv).name, lines[0], lines.size() ]
+                    }.sort { padj -> padj[0].id }
+                ).match() }
+            )
+        }
+
+    }
+
+    test("human chrX - tximport dtuScaledTPM - stub") {
+
+        options "-stub"
+
+        when {
+            workflow {
+                """
+                UNTAR_DRIMSEQ.out.untar
+                    .multiMap { _meta, dir ->
+                        txi         : file(dir.toString() + '/salmon.merged.txi.dtu.rds', checkIfExists: true)
+                        tx2gene     : file(dir.toString() + '/tximport.tx2gene.tsv', checkIfExists: true)
+                        samplesheet : file(dir.toString() + '/samplesheet.csv', checkIfExists: true)
+                    }
+                    .set { ch_drimseq }
+
+                input[0] = ch_drimseq.txi
+                input[1] = ch_drimseq.tx2gene
+                input[2] = ch_drimseq.samplesheet
+                input[3] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/contrastsheet.csv', checkIfExists: true))
+                """
+            }
+        }
+
+        then {
+            // `STAGER` runs once per contrast, so its channels follow task completion
+            // order and have to be sorted before they can be snapshotted
+            assertAll(
+                { assert workflow.success },
+                { assert snapshot(
+                    workflow.out.drimseq_dataset_rds,
+                    workflow.out.drimseq_samples_tsv,
+                    workflow.out.drimseq_counts_tsv,
+                    workflow.out.dexseq_exon_dataset_rds,
+                    workflow.out.dexseq_exon_results_rds,
+                    workflow.out.dexseq_exon_results_tsv,
+                    workflow.out.dexseq_gene_results_rds,
+                    workflow.out.dexseq_gene_results_tsv,
+                    workflow.out.stager_rds.sort { rds -> rds[0].id },
+                    workflow.out.stager_padj_rds.sort { rds -> rds[0].id },
+                    workflow.out.stager_padj_tsv.sort { tsv -> tsv[0].id }
+                ).match() }
+            )
+        }
+
+    }
+
+}

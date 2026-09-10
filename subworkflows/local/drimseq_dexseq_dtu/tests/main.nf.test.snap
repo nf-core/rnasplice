@@ -1,0 +1,192 @@
+{
+    "human chrX - tximport dtuScaledTPM": {
+        "content": [
+            [
+                "samples.tsv:md5,f6e0ec8b6224e91786128ae8c20cb90d"
+            ],
+            [
+                "counts.tsv:md5,9b31ee06901416c3f9e05dc1c0ce30ec"
+            ],
+            [
+                "dmDSdata.rds"
+            ],
+            [
+                "DEXSeqDataSet.GBR-YRI.rds",
+                "DEXSeqDataSet.YRI-GBR.rds"
+            ],
+            [
+                "DEXSeqResults.GBR-YRI.rds",
+                "DEXSeqResults.YRI-GBR.rds"
+            ],
+            [
+                "perGeneQValue.GBR-YRI.rds",
+                "perGeneQValue.YRI-GBR.rds"
+            ],
+            [
+                [
+                    "DEXSeqResults.GBR-YRI.tsv",
+                    "groupID\tfeatureID\texonBaseMean\tdispersion\tstat\tpvalue\tpadj\tGBR\tYRI\tlog2fold_YRI_GBR\tcountData.1\tcountData.2\tcountData.3\tcountData.4",
+                    19
+                ],
+                [
+                    "DEXSeqResults.YRI-GBR.tsv",
+                    "groupID\tfeatureID\texonBaseMean\tdispersion\tstat\tpvalue\tpadj\tYRI\tGBR\tlog2fold_GBR_YRI\tcountData.1\tcountData.2\tcountData.3\tcountData.4",
+                    19
+                ]
+            ],
+            [
+                [
+                    "perGeneQValue.GBR-YRI.tsv",
+                    "groupID\tpadj",
+                    9
+                ],
+                [
+                    "perGeneQValue.YRI-GBR.tsv",
+                    "groupID\tpadj",
+                    9
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "GBR-YRI"
+                    },
+                    "stageRTx.GBR-YRI.rds"
+                ],
+                [
+                    {
+                        "id": "YRI-GBR"
+                    },
+                    "stageRTx.YRI-GBR.rds"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "GBR-YRI"
+                    },
+                    "getAdjustedPValues.GBR-YRI.rds"
+                ],
+                [
+                    {
+                        "id": "YRI-GBR"
+                    },
+                    "getAdjustedPValues.YRI-GBR.rds"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "GBR-YRI"
+                    },
+                    "getAdjustedPValues.GBR-YRI.tsv",
+                    "geneID\ttxID\tgene\ttranscript",
+                    19
+                ],
+                [
+                    {
+                        "id": "YRI-GBR"
+                    },
+                    "getAdjustedPValues.YRI-GBR.tsv",
+                    "geneID\ttxID\tgene\ttranscript",
+                    19
+                ]
+            ]
+        ],
+        "timestamp": "2026-09-10T09:54:57.817001917",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    },
+    "human chrX - tximport dtuScaledTPM - stub": {
+        "content": [
+            [
+                "dmDSdata.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+            ],
+            [
+                "samples.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+            ],
+            [
+                "counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+            ],
+            [
+                [
+                    "DEXSeqDataSet.GBR-YRI.rds:md5,d41d8cd98f00b204e9800998ecf8427e",
+                    "DEXSeqDataSet.YRI-GBR.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    "DEXSeqResults.GBR-YRI.rds:md5,d41d8cd98f00b204e9800998ecf8427e",
+                    "DEXSeqResults.YRI-GBR.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    "DEXSeqResults.GBR-YRI.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                    "DEXSeqResults.YRI-GBR.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    "perGeneQValue.GBR-YRI.rds:md5,d41d8cd98f00b204e9800998ecf8427e",
+                    "perGeneQValue.YRI-GBR.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    "perGeneQValue.GBR-YRI.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                    "perGeneQValue.YRI-GBR.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "GBR-YRI"
+                    },
+                    "stageRTx.GBR-YRI.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "YRI-GBR"
+                    },
+                    "stageRTx.YRI-GBR.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "GBR-YRI"
+                    },
+                    "getAdjustedPValues.GBR-YRI.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "YRI-GBR"
+                    },
+                    "getAdjustedPValues.YRI-GBR.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "GBR-YRI"
+                    },
+                    "getAdjustedPValues.GBR-YRI.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "YRI-GBR"
+                    },
+                    "getAdjustedPValues.YRI-GBR.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ]
+        ],
+        "timestamp": "2026-09-10T09:09:05.259123541",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    }
+}
