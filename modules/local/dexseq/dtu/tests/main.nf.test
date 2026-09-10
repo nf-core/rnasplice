@@ -63,14 +63,25 @@ nextflow_process {
         }
 
         then {
+            // The numbers DEXSeq writes are not reproducible across machines, which is why
+            // tests/.nftignore already excludes these tables from the pipeline level
+            // snapshots, so the tables are snapshotted by shape: file name, header and row
+            // count. The header carries the contrast (`GBR`, `YRI`, `log2fold_YRI_GBR`),
+            // so a contrast wired up the wrong way round still fails the test
             assert process.success
             assertAll(
                 { assert snapshot(
-                    process.out.dexseq_exon_results_tsv,
-                    process.out.dexseq_gene_results_tsv,
                     process.out.dexseq_exon_dataset_rds.flatten().collect { rds -> file(rds).name },
                     process.out.dexseq_exon_results_rds.flatten().collect { rds -> file(rds).name },
                     process.out.dexseq_gene_results_rds.flatten().collect { rds -> file(rds).name },
+                    process.out.dexseq_exon_results_tsv.flatten().collect { tsv ->
+                        def lines = path(tsv).readLines()
+                        [ file(tsv).name, lines[0], lines.size() ]
+                    },
+                    process.out.dexseq_gene_results_tsv.flatten().collect { tsv ->
+                        def lines = path(tsv).readLines()
+                        [ file(tsv).name, lines[0], lines.size() ]
+                    },
                     process.out.findAll { key, _val -> key.startsWith('versions') }
                 ).match() }
             )

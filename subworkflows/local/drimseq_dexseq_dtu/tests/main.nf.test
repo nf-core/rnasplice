@@ -54,21 +54,36 @@ nextflow_workflow {
 
         then {
             // `STAGER` runs once per contrast, so its channels follow task completion
-            // order and have to be sorted before they can be snapshotted
+            // order and have to be sorted before they can be snapshotted.
+            //
+            // The DRIMSeq tables are filtered input, so their content is snapshotted, but
+            // everything downstream of DEXSeq is not reproducible across machines, which
+            // is why tests/.nftignore already excludes those tables from the pipeline
+            // level snapshots. They are snapshotted by shape instead: file name, header
+            // and row count
             assertAll(
                 { assert workflow.success },
                 { assert snapshot(
                     workflow.out.drimseq_samples_tsv,
                     workflow.out.drimseq_counts_tsv,
-                    workflow.out.stager_padj_tsv.sort { padj -> padj[0].id },
                     workflow.out.drimseq_dataset_rds.flatten().collect { rds -> file(rds).name },
                     workflow.out.dexseq_exon_dataset_rds.flatten().collect { rds -> file(rds).name },
                     workflow.out.dexseq_exon_results_rds.flatten().collect { rds -> file(rds).name },
-                    workflow.out.dexseq_exon_results_tsv.flatten().collect { tsv -> file(tsv).name },
                     workflow.out.dexseq_gene_results_rds.flatten().collect { rds -> file(rds).name },
-                    workflow.out.dexseq_gene_results_tsv.flatten().collect { tsv -> file(tsv).name },
+                    workflow.out.dexseq_exon_results_tsv.flatten().collect { tsv ->
+                        def lines = path(tsv).readLines()
+                        [ file(tsv).name, lines[0], lines.size() ]
+                    },
+                    workflow.out.dexseq_gene_results_tsv.flatten().collect { tsv ->
+                        def lines = path(tsv).readLines()
+                        [ file(tsv).name, lines[0], lines.size() ]
+                    },
                     workflow.out.stager_rds.collect { meta, rds -> [ meta, file(rds).name ] }.sort { rds -> rds[0].id },
-                    workflow.out.stager_padj_rds.collect { meta, rds -> [ meta, file(rds).name ] }.sort { rds -> rds[0].id }
+                    workflow.out.stager_padj_rds.collect { meta, rds -> [ meta, file(rds).name ] }.sort { rds -> rds[0].id },
+                    workflow.out.stager_padj_tsv.collect { meta, tsv ->
+                        def lines = path(tsv).readLines()
+                        [ meta, file(tsv).name, lines[0], lines.size() ]
+                    }.sort { padj -> padj[0].id }
                 ).match() }
             )
         }

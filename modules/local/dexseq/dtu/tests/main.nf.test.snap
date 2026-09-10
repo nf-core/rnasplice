@@ -101,18 +101,6 @@
     "human chrX - drimseq filtered": {
         "content": [
             [
-                [
-                    "DEXSeqResults.GBR-YRI.tsv:md5,3c34849755d2fafeed778ae810b94b73",
-                    "DEXSeqResults.YRI-GBR.tsv:md5,81df860f49cb0dc33b567719f4c43209"
-                ]
-            ],
-            [
-                [
-                    "perGeneQValue.GBR-YRI.tsv:md5,6a9a3452a65243619944e3473f873a70",
-                    "perGeneQValue.YRI-GBR.tsv:md5,2819801e209ef0a4962e4f089c7c5ac8"
-                ]
-            ],
-            [
                 "DEXSeqDataSet.GBR-YRI.rds",
                 "DEXSeqDataSet.YRI-GBR.rds"
             ],
@@ -123,6 +111,30 @@
             [
                 "perGeneQValue.GBR-YRI.rds",
                 "perGeneQValue.YRI-GBR.rds"
+            ],
+            [
+                [
+                    "DEXSeqResults.GBR-YRI.tsv",
+                    "groupID\tfeatureID\texonBaseMean\tdispersion\tstat\tpvalue\tpadj\tGBR\tYRI\tlog2fold_YRI_GBR\tcountData.1\tcountData.2\tcountData.3\tcountData.4",
+                    19
+                ],
+                [
+                    "DEXSeqResults.YRI-GBR.tsv",
+                    "groupID\tfeatureID\texonBaseMean\tdispersion\tstat\tpvalue\tpadj\tYRI\tGBR\tlog2fold_GBR_YRI\tcountData.1\tcountData.2\tcountData.3\tcountData.4",
+                    19
+                ]
+            ],
+            [
+                [
+                    "perGeneQValue.GBR-YRI.tsv",
+                    "groupID\tpadj",
+                    9
+                ],
+                [
+                    "perGeneQValue.YRI-GBR.tsv",
+                    "groupID\tpadj",
+                    9
+                ]
             ],
             {
                 "versions_R": [
@@ -141,7 +153,7 @@
                 ]
             }
         ],
-        "timestamp": "2026-09-10T09:18:12.142109676",
+        "timestamp": "2026-09-10T09:54:10.206796262",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.3"

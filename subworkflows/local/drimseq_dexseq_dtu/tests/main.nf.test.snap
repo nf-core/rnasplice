@@ -8,20 +8,6 @@
                 "counts.tsv:md5,9b31ee06901416c3f9e05dc1c0ce30ec"
             ],
             [
-                [
-                    {
-                        "id": "GBR-YRI"
-                    },
-                    "getAdjustedPValues.GBR-YRI.tsv:md5,424ce52e24c7118b4f714e28b8089a17"
-                ],
-                [
-                    {
-                        "id": "YRI-GBR"
-                    },
-                    "getAdjustedPValues.YRI-GBR.tsv:md5,7338a3fe6761bf2a38da091c4ba431c4"
-                ]
-            ],
-            [
                 "dmDSdata.rds"
             ],
             [
@@ -33,16 +19,32 @@
                 "DEXSeqResults.YRI-GBR.rds"
             ],
             [
-                "DEXSeqResults.GBR-YRI.tsv",
-                "DEXSeqResults.YRI-GBR.tsv"
-            ],
-            [
                 "perGeneQValue.GBR-YRI.rds",
                 "perGeneQValue.YRI-GBR.rds"
             ],
             [
-                "perGeneQValue.GBR-YRI.tsv",
-                "perGeneQValue.YRI-GBR.tsv"
+                [
+                    "DEXSeqResults.GBR-YRI.tsv",
+                    "groupID\tfeatureID\texonBaseMean\tdispersion\tstat\tpvalue\tpadj\tGBR\tYRI\tlog2fold_YRI_GBR\tcountData.1\tcountData.2\tcountData.3\tcountData.4",
+                    19
+                ],
+                [
+                    "DEXSeqResults.YRI-GBR.tsv",
+                    "groupID\tfeatureID\texonBaseMean\tdispersion\tstat\tpvalue\tpadj\tYRI\tGBR\tlog2fold_GBR_YRI\tcountData.1\tcountData.2\tcountData.3\tcountData.4",
+                    19
+                ]
+            ],
+            [
+                [
+                    "perGeneQValue.GBR-YRI.tsv",
+                    "groupID\tpadj",
+                    9
+                ],
+                [
+                    "perGeneQValue.YRI-GBR.tsv",
+                    "groupID\tpadj",
+                    9
+                ]
             ],
             [
                 [
@@ -71,9 +73,27 @@
                     },
                     "getAdjustedPValues.YRI-GBR.rds"
                 ]
+            ],
+            [
+                [
+                    {
+                        "id": "GBR-YRI"
+                    },
+                    "getAdjustedPValues.GBR-YRI.tsv",
+                    "geneID\ttxID\tgene\ttranscript",
+                    19
+                ],
+                [
+                    {
+                        "id": "YRI-GBR"
+                    },
+                    "getAdjustedPValues.YRI-GBR.tsv",
+                    "geneID\ttxID\tgene\ttranscript",
+                    19
+                ]
             ]
         ],
-        "timestamp": "2026-09-10T09:08:49.473489088",
+        "timestamp": "2026-09-10T09:54:57.817001917",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.3"
