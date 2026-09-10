@@ -18,16 +18,16 @@ nextflow_workflow {
             workflow {
                 """
                 input[0] = channel.of(
-                    [ [ id:'ERR188383' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
-                    [ [ id:'ERR188428' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true) ],
-                    [ [ id:'ERR188454' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454.Aligned.out.bam', checkIfExists: true) ],
-                    [ [ id:'ERR204916' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188383', strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188428', strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188454', strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR204916', strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916.Aligned.out.bam', checkIfExists: true) ],
                 )
                 input[1] = channel.of(
-                    [ [ id:'ERR188383' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam.bai', checkIfExists: true) ],
-                    [ [ id:'ERR188428' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam.bai', checkIfExists: true) ],
-                    [ [ id:'ERR188454' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454.Aligned.out.bam.bai', checkIfExists: true) ],
-                    [ [ id:'ERR204916' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916.Aligned.out.bam.bai', checkIfExists: true) ],
+                    [ [ id:'ERR188383', strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam.bai', checkIfExists: true) ],
+                    [ [ id:'ERR188428', strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam.bai', checkIfExists: true) ],
+                    [ [ id:'ERR188454', strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454.Aligned.out.bam.bai', checkIfExists: true) ],
+                    [ [ id:'ERR204916', strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916.Aligned.out.bam.bai', checkIfExists: true) ],
                 )
                 """
             }
@@ -39,15 +39,61 @@ nextflow_workflow {
             // clustering outputs come from a single task and need no sorting.
             //
             // The clustering outputs snapshotted here are empty, which is a limit of these
-            // fixtures rather than of the pipeline: `testdata/ERR*.Aligned.out.bam` carry no
-            // `XS` tag, so regtools writes `?` in the strand column of every junction and
-            // `leafcutter-cluster` discards them all. The pipeline itself now asks STAR for
-            // the tag whenever `--leafcutter` is set (#272), a path this subworkflow test
-            // cannot reach because it takes BAMs as input. `tests/leafcutter.nf.test` covers
-            // it end to end and asserts that the clusters are not empty; what this test
-            // pins down is the wiring and everything up to the clustering
+            // fixtures rather than of the pipeline: an unstranded sample can only take the
+            // strand from an `XS` tag and `testdata/ERR*.Aligned.out.bam` carry none, so
+            // regtools writes `?` in the strand column of every junction and
+            // `leafcutter-cluster` discards them all. The pipeline asks STAR for the tag on
+            // the unstranded samples whenever `--leafcutter` is set (#272), a path a
+            // subworkflow taking BAMs as input cannot reach; `tests/leafcutter.nf.test`
+            // covers it end to end and asserts that the clusters are not empty. The stranded
+            // case below takes the strand from the read orientation and needs no tag
             assertAll(
                 { assert workflow.success },
+                { assert snapshot(
+                    workflow.out.juncs.sort { junc -> junc[0].id },
+                    workflow.out.counts,
+                    workflow.out.numers,
+                    workflow.out.pooled,
+                    workflow.out.refined,
+                    workflow.out.sortedlibs
+                ).match() }
+            )
+        }
+
+    }
+
+    test("human chrX - reverse stranded") {
+
+        when {
+            workflow {
+                """
+                input[0] = channel.of(
+                    [ [ id:'ERR188383', strandedness:'reverse' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188428', strandedness:'reverse' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188454', strandedness:'reverse' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR204916', strandedness:'reverse' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916.Aligned.out.bam', checkIfExists: true) ],
+                )
+                input[1] = channel.of(
+                    [ [ id:'ERR188383', strandedness:'reverse' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam.bai', checkIfExists: true) ],
+                    [ [ id:'ERR188428', strandedness:'reverse' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam.bai', checkIfExists: true) ],
+                    [ [ id:'ERR188454', strandedness:'reverse' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454.Aligned.out.bam.bai', checkIfExists: true) ],
+                    [ [ id:'ERR204916', strandedness:'reverse' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916.Aligned.out.bam.bai', checkIfExists: true) ],
+                )
+                """
+            }
+        }
+
+        then {
+            // These GEUVADIS libraries are in fact unstranded, so calling them reverse
+            // stranded leaves regtools reading the strand off an orientation that carries
+            // none and the clusters are not biologically meaningful. What the case does
+            // exercise is the stranded path, the one `--source genome_bam` depends on: the
+            // junctions reach `leafcutter-cluster` with a strand without any `XS` tag, and
+            // the clustering outputs come back non empty
+            assertAll(
+                { assert workflow.success },
+                { assert path(workflow.out.pooled[0][1]).size() > 0 },
+                { assert path(workflow.out.refined[0][1]).size() > 0 },
                 { assert snapshot(
                     workflow.out.juncs.sort { junc -> junc[0].id },
                     workflow.out.counts,
@@ -69,12 +115,12 @@ nextflow_workflow {
             workflow {
                 """
                 input[0] = channel.of(
-                    [ [ id:'ERR188383' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
-                    [ [ id:'ERR188428' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188383', strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188428', strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true) ],
                 )
                 input[1] = channel.of(
-                    [ [ id:'ERR188383' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam.bai', checkIfExists: true) ],
-                    [ [ id:'ERR188428' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam.bai', checkIfExists: true) ],
+                    [ [ id:'ERR188383', strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam.bai', checkIfExists: true) ],
+                    [ [ id:'ERR188428', strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam.bai', checkIfExists: true) ],
                 )
                 """
             }

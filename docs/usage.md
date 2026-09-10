@@ -260,6 +260,16 @@ SUPPA then reads the `PSI` for the events and the transcript expression values f
 
 Using `dpsi` file and `psivec` file, events are clustered according to `PSI` values across conditions.
 
+### LeafCutter
+
+[LeafCutter](https://davidaknowles.github.io/leafcutter/) quantifies splicing by clustering the introns that spliced reads span. It runs with `--leafcutter` when `--aligner` is `star` or `star_salmon`, or with `--source genome_bam`.
+
+Every junction it clusters needs a strand, and where that strand comes from depends on the samplesheet `strandedness`:
+
+- `forward` and `reverse`: the strand follows from the orientation of the reads, which regtools reads off the BAM file. Nothing else is needed, so BAM files given with `--source genome_bam` work as they are.
+
+- `unstranded`: there is no orientation to take the strand from, so it has to come from the aligner `XS` tag. STAR is asked to infer it from the splice motif (`--outSAMstrandField intronMotif`) for the unstranded samples of a `--leafcutter` run. STAR then also drops the spliced alignments whose strand it cannot infer, around 0.1% of the alignments of the test dataset, so the BAM file of an unstranded sample differs slightly from the one the same run without `--leafcutter` writes, and that same BAM file is what rMATS, DEXSeq, edgeR and MISO read. A BAM file given with `--source genome_bam` is taken as it is: unless it already carries `XS` tags its junctions have no strand, LeafCutter discards them and the clusters come out empty, which the pipeline warns about.
+
 ## Running the pipeline
 
 The typical command for running the pipeline is as follows:

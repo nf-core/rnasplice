@@ -15,7 +15,9 @@ input:
       type: file
       description: |
         The input channel containing the coordinate sorted genome BAM files to extract
-        junctions from
+        junctions from. `meta.strandedness` picks where regtools takes the junction strand
+        from: the read orientation for a 'forward' or 'reverse' library, the aligner `XS`
+        tag for an 'unstranded' one
         Structure: [ val(meta), path(bam) ]
       pattern: "*.bam"
   - ch_genome_bam_index:

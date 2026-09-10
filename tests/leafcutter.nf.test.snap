@@ -502,7 +502,7 @@
                 "lc_pooled:md5,8f80c9d20aba26039eadf12699b72654",
                 "lc_refined:md5,55f90296bc3895f5717674878e9f906f",
                 "lc_sortedlibs:md5,de8c5c512e43f549f32762dd9faa6c5b",
-                "versions.yml:md5,ebeca317f09379de19cd6afbff64443f",
+                "versions.yml:md5,31b5080ddf7766862891c1154d82c0b9",
                 "ERR188383.SJ.out.tab:md5,ed9af397969c9e49a6edb8c1128a1873",
                 "ERR188428.SJ.out.tab:md5,96eac7951ac33bbea0abcd005d372332",
                 "ERR188454.SJ.out.tab:md5,b82bc9b6d74ffeba9236215e4642a6ed",
@@ -521,10 +521,10 @@
                 "ERR204916.stats:md5,96e43a84a93df111bb37e0a242936052"
             ]
         ],
-        "timestamp": "2026-09-10T16:15:50.009570183",
+        "timestamp": "2026-09-10T18:03:13.500688541",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.3"
+            "nextflow": "26.04.4"
         }
     }
 }

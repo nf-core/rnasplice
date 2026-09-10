@@ -22,6 +22,7 @@ include { LEAFCUTTER                                                      } from
 
 include { rmatsReadError                                                  } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
 include { rmatsStrandednessError                                          } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
+include { leafcutterUnstrandedBamWarn                                     } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
 include { multiqcTsvFromList                                              } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
 include { paramsSummaryMultiqc                                            } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { methodsDescriptionText                                          } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
@@ -269,6 +270,12 @@ workflow RNASPLICE {
         }
 
         if (params.leafcutter == true) {
+            // A user supplied BAM file was not aligned by this pipeline, so nothing asked
+            // STAR for the XS tag an unstranded sample needs to get a junction strand
+            if (params.source == 'genome_bam') {
+                leafcutterUnstrandedBamWarn(ch_samplesheet)
+            }
+
             LEAFCUTTER(ch_genome_bam, ch_genome_bam_index)
         }
     }

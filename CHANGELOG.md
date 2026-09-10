@@ -51,6 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #264 - Move the `DRIMSEQ_DEXSEQ_DTU` subworkflow to the nf-core subworkflow template (by @piplus2)
 - #268 - Move the `EDGER_DEU` subworkflow to the nf-core subworkflow template. It now emits the `EDGER_EXON` results and the featureCounts tables, which it ran but discarded (by @piplus2)
 - #270 - Move the `LEAFCUTTER` subworkflow to the nf-core subworkflow template. Its `juncs` output is now the per sample `[ meta, junc ]` tuples, instead of a single list flattening the meta maps in with the paths (by @piplus2)
+- #272 - `--leafcutter` now clusters stranded samples given with `--source genome_bam`, which needed no alignment by the pipeline in the first place, and warns for unstranded ones, whose junctions have no strand unless the BAM files carry `XS` tags (by @piplus2)
 
 ### Fixed
 
@@ -88,7 +89,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #266 - Fix `DEXSEQ_DTU`, which ignored `task.cpus` and ran DEXSeq on every core of the host, as `parallel::detectCores()` does not see the container cpu limit. It now takes the worker count from `task.cpus` and defaults to `SerialParam()`, as `DEXSEQ_EXON` has since #225 (by @piplus2)
 - #267 - Fix `SPLIT_FILES`, whose stub wrote an unescaped `$` that Nextflow 26.08-edge refuses to parse, taking the whole pipeline down with it as `SUPPA` could no longer import the module (by @piplus2)
 - #271 - Fix `--leafcutter`, which aborted at `REGTOOLS_JUNCTIONSEXTRACT` with `invalid option -- 'i'`. The intron length arguments were the `-i`/`-I` of regtools 0.5.x, which 1.0.0 spells `-m`/`-M` (by @piplus2)
-- #272 - Fix `--leafcutter` clustering nothing. The samples reach LeafCutter without a strand unless STAR writes the `XS` tag, so `--outSAMstrandField intronMotif` is now passed to `STAR_ALIGN` when `--leafcutter` is set. Only that case is affected, BAMs of runs without `--leafcutter` are unchanged (by @piplus2)
+- #272 - Fix `--leafcutter` clustering nothing. regtools now takes the junction strand from the samplesheet `strandedness`, and STAR is asked for the `XS` tag (`--outSAMstrandField intronMotif`) only for the unstranded samples that have nowhere else to take it from (by @piplus2)
 
 ## v1.0.5 - 2024-11-03
 
