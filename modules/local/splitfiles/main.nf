@@ -37,7 +37,7 @@ process SPLIT_FILES {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        suppa_split_file: "$(Rscript --version 2>&1 | sed -n '1p' | sed 's/.*version //; s/ (.*//')"
+        suppa_split_file: "\$(Rscript --version 2>&1 | sed -n '1p' | sed 's/.*version //; s/ (.*//')"
     END_VERSIONS
     """
 }

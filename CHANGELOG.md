@@ -83,6 +83,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #263 - **Breaking change**: `DEXSEQ_COUNT` no longer counts BAM input as forward stranded, it follows the samplesheet `strandedness`, so DEXSeq results change for BAM samplesheets that do not set the column (reported by @albamasmalavila, fix by @piplus2)
 - #264 - Fix the `DEXSEQ_DTU` stub, which wrote file names the process outputs did not match, so a stub run of the DTU path failed (by @piplus2)
 - #266 - Fix `DEXSEQ_DTU`, which ignored `task.cpus` and ran DEXSeq on every core of the host, as `parallel::detectCores()` does not see the container cpu limit. It now takes the worker count from `task.cpus` and defaults to `SerialParam()`, as `DEXSEQ_EXON` has since #225 (by @piplus2)
+- #267 - Fix `SPLIT_FILES`, whose stub wrote an unescaped `$` that Nextflow 26.08-edge refuses to parse, taking the whole pipeline down with it as `SUPPA` could no longer import the module (by @piplus2)
 
 ## v1.0.5 - 2024-11-03
 
