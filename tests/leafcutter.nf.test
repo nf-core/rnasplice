@@ -20,10 +20,10 @@ nextflow_pipeline {
             // stable_content: All files in ${params.outdir}/ with stable content
             def stable_content = getAllFilesFromDir(params.outdir, ignoreFile: 'tests/.nftignore')
 
-            // The samples are unstranded, so LeafCutter only sees a strand if STAR wrote the
-            // XS tag. Assert on the clusters rather than on the run succeeding: without the
-            // tag every junction is strandless, leafcutter-cluster discards them all and the
-            // pipeline still completes, with empty results
+            // The samples are unstranded, so their junctions only get a strand once
+            // `STRAND_JUNCTIONS` has read the splice motifs. Assert on the clusters rather
+            // than on the run succeeding: strandless junctions are all discarded by
+            // leafcutter-cluster and the pipeline still completes, with empty results
             def counts = path("${params.outdir}/star_salmon/leafcutter/lc_perind.counts.gz").linesGzip
 
             assert workflow.success

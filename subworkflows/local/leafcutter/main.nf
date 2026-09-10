@@ -6,11 +6,14 @@ include { REGTOOLS_JUNCTIONSEXTRACT as REGTOOLS_JUNCTIONSEXTRACT_FR } from '../.
 include { REGTOOLS_JUNCTIONSEXTRACT as REGTOOLS_JUNCTIONSEXTRACT_RF } from '../../../modules/nf-core/regtools/junctionsextract/main'
 include { REGTOOLS_JUNCTIONSEXTRACT as REGTOOLS_JUNCTIONSEXTRACT_XS } from '../../../modules/nf-core/regtools/junctionsextract/main'
 include { LEAFCUTTER_CLUSTERREGTOOLS } from '../../../modules/nf-core/leafcutter/clusterregtools/main'
+include { STRAND_JUNCTIONS } from '../../../modules/local/strand_junctions/main'
 
 workflow LEAFCUTTER {
     take:
     ch_genome_bam // channel: [ val(meta), path(bam) ]
     ch_genome_bam_index // channel: [ val(meta), path(bai) ]
+    ch_fasta // channel: [ val(meta), path(fasta), path(fai) ]
+    ch_gtf // channel: [ val(meta), path(gtf) ]
 
     main:
 
@@ -22,8 +25,9 @@ workflow LEAFCUTTER {
     // be told where to take the strand from. A stranded library has it in the orientation
     // of its reads, which regtools reads off the BAM: `FR` for a forward (second strand)
     // library, `RF` for a reverse (first strand) one. An unstranded library has no
-    // orientation to read it from and is left with the aligner `XS` tag, which STAR only
-    // writes when asked to infer the strand from the splice motif, see `conf/modules.config`
+    // orientation to read it from, so it is run with `XS`, which takes the strand from the
+    // aligner tag of that name where there is one, and `STRAND_JUNCTIONS` then fills in
+    // the junctions left strandless from the splice motif and the annotation
     ch_bam_bai = ch_genome_bam
         .join(ch_genome_bam_index)
         .branch { meta, _bam, _bai ->
@@ -36,9 +40,15 @@ workflow LEAFCUTTER {
     REGTOOLS_JUNCTIONSEXTRACT_RF(ch_bam_bai.reverse, 'RF')
     REGTOOLS_JUNCTIONSEXTRACT_XS(ch_bam_bai.unstranded, 'XS')
 
+    //
+    // MODULE: STRAND_JUNCTIONS
+    //
+
+    STRAND_JUNCTIONS(REGTOOLS_JUNCTIONSEXTRACT_XS.out.junc, ch_fasta, ch_gtf)
+
     ch_junc = REGTOOLS_JUNCTIONSEXTRACT_FR.out.junc
         .mix(REGTOOLS_JUNCTIONSEXTRACT_RF.out.junc)
-        .mix(REGTOOLS_JUNCTIONSEXTRACT_XS.out.junc)
+        .mix(STRAND_JUNCTIONS.out.junc)
 
     //
     // MODULE: LEAFCUTTER_CLUSTERREGTOOLS

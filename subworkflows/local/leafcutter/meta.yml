@@ -10,14 +10,15 @@ keywords:
 components:
   - regtools/junctionsextract
   - leafcutter/clusterregtools
+  - strand_junctions
 input:
   - ch_genome_bam:
       type: file
       description: |
         The input channel containing the coordinate sorted genome BAM files to extract
-        junctions from. `meta.strandedness` picks where regtools takes the junction strand
-        from: the read orientation for a 'forward' or 'reverse' library, the aligner `XS`
-        tag for an 'unstranded' one
+        junctions from. `meta.strandedness` picks where the junction strand comes from: the
+        read orientation for a 'forward' or 'reverse' library, and for an 'unstranded' one
+        the aligner `XS` tag where there is one, then the splice motif and the annotation
         Structure: [ val(meta), path(bam) ]
       pattern: "*.bam"
   - ch_genome_bam_index:
@@ -27,11 +28,26 @@ input:
         on the meta map
         Structure: [ val(meta), path(bai) ]
       pattern: "*.bai"
+  - ch_fasta:
+      type: file
+      description: |
+        The genome FASTA and its index, which give the splice motif of the junctions of an
+        unstranded sample
+        Structure: [ val(meta2), path(fasta), path(fai) ]
+      pattern: "*.{fa,fasta}"
+  - ch_gtf:
+      type: file
+      description: |
+        The GTF annotation, which gives a strand to the introns of an unstranded sample
+        whose motif is non-canonical
+        Structure: [ val(meta3), path(gtf) ]
+      pattern: "*.gtf"
 output:
   - juncs:
       type: file
       description: |
-        Channel containing the per sample junction files
+        Channel containing the per sample junction files, with the strand of every junction
+        that could be given one
         Structure: [ val(meta), path(junc) ]
       pattern: "*.junc"
   - counts:

@@ -520,25 +520,6 @@ def skipAlignmentWarn() {
 }
 
 //
-// Print a warning if LeafCutter is run on unstranded BAM input, whose junctions carry a
-// strand only if the BAM files happen to have XS tags
-//
-def leafcutterUnstrandedBamWarn(samples) {
-    samples
-        .filter { meta, _files -> meta.strandedness == 'unstranded' }
-        .map { meta, _files -> meta.id }
-        .collect()
-        .map { ids ->
-            if (!ids) {
-                return
-            }
-            log.warn(
-                "=============================================================================\n" + "  LeafCutter takes the junction strand of an unstranded sample from the aligner\n" + "  XS tag, which the pipeline only asks STAR for when it does the alignment itself.\n" + "  The junctions of a BAM file without the tag have no strand and are discarded,\n" + "  which leaves the clusters empty. Samples: ${ids.join(', ')}.\n\n" + "  Set 'strandedness' in the samplesheet if the library is stranded.\n" + "==================================================================================="
-            )
-        }
-}
-
-//
 // Exit pipeline if rMATS requested with mixed single and paired end samples
 //
 def rmatsReadError(samples) {

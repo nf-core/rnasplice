@@ -11,8 +11,36 @@ nextflow_workflow {
     tag "regtools/junctionsextract"
     tag "leafcutter"
     tag "leafcutter/clusterregtools"
+    tag "strand_junctions"
+    tag "gunzip"
+    tag "samtools"
+    tag "samtools/faidx"
 
     test("human chrX") {
+
+        setup {
+            run("GUNZIP") {
+                script "../../../../modules/nf-core/gunzip/main.nf"
+                process {
+                    """
+                    input[0] = channel.of([
+                        [ id:'genome' ],
+                        file(params.pipelines_testdata_base_path + 'reference/X.fa.gz', checkIfExists: true)
+                    ])
+                    """
+                }
+            }
+
+            run("SAMTOOLS_FAIDX") {
+                script "../../../../modules/nf-core/samtools/faidx/main.nf"
+                process {
+                    """
+                    input[0] = GUNZIP.out.gunzip.map { meta, fasta -> [ meta, fasta, [] ] }
+                    input[1] = false
+                    """
+                }
+            }
+        }
 
         when {
             workflow {
@@ -29,6 +57,11 @@ nextflow_workflow {
                     [ [ id:'ERR188454', strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454.Aligned.out.bam.bai', checkIfExists: true) ],
                     [ [ id:'ERR204916', strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916.Aligned.out.bam.bai', checkIfExists: true) ],
                 )
+                input[2] = GUNZIP.out.gunzip.join(SAMTOOLS_FAIDX.out.fai).first()
+                input[3] = channel.value([
+                    [ id:'genome' ],
+                    file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
+                ])
                 """
             }
         }
@@ -38,17 +71,14 @@ nextflow_workflow {
             // completion order and has to be sorted before it can be snapshotted. The
             // clustering outputs come from a single task and need no sorting.
             //
-            // The clustering outputs snapshotted here are empty, which is a limit of these
-            // fixtures rather than of the pipeline: an unstranded sample can only take the
-            // strand from an `XS` tag and `testdata/ERR*.Aligned.out.bam` carry none, so
-            // regtools writes `?` in the strand column of every junction and
-            // `leafcutter-cluster` discards them all. The pipeline asks STAR for the tag on
-            // the unstranded samples whenever `--leafcutter` is set (#272), a path a
-            // subworkflow taking BAMs as input cannot reach; `tests/leafcutter.nf.test`
-            // covers it end to end and asserts that the clusters are not empty. The stranded
-            // case below takes the strand from the read orientation and needs no tag
+            // These BAM files carry no `XS` tag, so regtools leaves every junction
+            // strandless and it is `STRAND_JUNCTIONS` that gives them a strand, from the
+            // splice motif in the genome and from the annotation. The clusters below are
+            // what that produces; `tests/leafcutter.nf.test` covers the same path from fastq
             assertAll(
                 { assert workflow.success },
+                { assert path(workflow.out.pooled[0][1]).size() > 0 },
+                { assert path(workflow.out.refined[0][1]).size() > 0 },
                 { assert snapshot(
                     workflow.out.juncs.sort { junc -> junc[0].id },
                     workflow.out.counts,
@@ -79,6 +109,10 @@ nextflow_workflow {
                     [ [ id:'ERR188454', strandedness:'reverse' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454.Aligned.out.bam.bai', checkIfExists: true) ],
                     [ [ id:'ERR204916', strandedness:'reverse' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916.Aligned.out.bam.bai', checkIfExists: true) ],
                 )
+                // A stranded sample takes its strand from the read orientation, so
+                // `STRAND_JUNCTIONS` never runs and needs no genome
+                input[2] = channel.value([ [ id:'genome' ], [], [] ])
+                input[3] = channel.value([ [ id:'genome' ], [] ])
                 """
             }
         }
@@ -122,6 +156,8 @@ nextflow_workflow {
                     [ [ id:'ERR188383', strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam.bai', checkIfExists: true) ],
                     [ [ id:'ERR188428', strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam.bai', checkIfExists: true) ],
                 )
+                input[2] = channel.value([ [ id:'genome' ], [], [] ])
+                input[3] = channel.value([ [ id:'genome' ], [] ])
                 """
             }
         }

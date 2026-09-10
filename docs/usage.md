@@ -262,13 +262,44 @@ Using `dpsi` file and `psivec` file, events are clustered according to `PSI` val
 
 ### LeafCutter
 
-[LeafCutter](https://davidaknowles.github.io/leafcutter/) quantifies splicing by clustering the introns that spliced reads span. It runs with `--leafcutter` when `--aligner` is `star` or `star_salmon`, or with `--source genome_bam`.
+[LeafCutter](https://davidaknowles.github.io/leafcutter/) quantifies splicing by clustering the introns that spliced reads span. It runs when `--leafcutter` is set, with `--aligner star` or `--aligner star_salmon`, and with `--source genome_bam`.
 
-Every junction it clusters needs a strand, and where that strand comes from depends on the samplesheet `strandedness`:
+Every junction LeafCutter clusters needs a strand, and one that has none is discarded. Where the strand comes from depends on the samplesheet `strandedness`:
 
-- `forward` and `reverse`: the strand follows from the orientation of the reads, which regtools reads off the BAM file. Nothing else is needed, so BAM files given with `--source genome_bam` work as they are.
+- `forward` and `reverse`: from the orientation of the reads, which regtools reads off the BAM file itself. Nothing else is needed, so BAM files given with `--source genome_bam` work as they are.
 
-- `unstranded`: there is no orientation to take the strand from, so it has to come from the aligner `XS` tag. STAR is asked to infer it from the splice motif (`--outSAMstrandField intronMotif`) for the unstranded samples of a `--leafcutter` run. STAR then also drops the spliced alignments whose strand it cannot infer, around 0.1% of the alignments of the test dataset, so the BAM file of an unstranded sample differs slightly from the one the same run without `--leafcutter` writes, and that same BAM file is what rMATS, DEXSeq, edgeR and MISO read. A BAM file given with `--source genome_bam` is taken as it is: unless it already carries `XS` tags its junctions have no strand, LeafCutter discards them and the clusters come out empty, which the pipeline warns about.
+- `unstranded`: from the splice motif. The two bases at each end of every strandless intron are read out of the genome, and the intron takes `+` for GT-AG, GC-AG and AT-AC and `-` for their reverse complements. An intron whose motif is non-canonical is looked up in the GTF and takes the strand of the transcript it belongs to. An intron that is in neither keeps no strand, and the clustering drops it.
+
+> [!IMPORTANT]
+> For **unstranded** libraries, the LeafCutter results of this pipeline are **not identical** to the ones you get by following LeafCutter's own instructions.
+>
+> LeafCutter documents aligning with STAR's `--outSAMstrandField intronMotif`, which makes STAR write the strand it infers from the splice motif into an `XS` tag on each spliced alignment. This pipeline deliberately does not pass that flag, and infers the strand from the genome afterwards instead. The reason is that the flag does more than add a tag: STAR also **suppresses the spliced alignments whose strand it cannot infer**, and those same BAM files are what rMATS, DEXSeq, edgeR and MISO read. Measured on the pipeline's test dataset, enabling it removes about 0.1% of the alignments and moves about 44 read ends per sample from multi-mapping to uniquely mapped, which crosses the MAPQ threshold `DEXSEQ_COUNT` applies and the multi-mapper filter featureCounts applies. An alternative splicing pipeline should not change the input of four of its analyses because a fifth one was switched on.
+>
+> What this costs LeafCutter, measured on the same dataset: of the junctions the STAR route strands, this route strands 98.7%. The difference is about 37 junctions per sample, every one of them non-canonical, absent from the annotation and supported by a single read. STAR gives those a strand only because they happen to share an alignment with a canonical junction, so the strand is inherited from a neighbour rather than observed. Junctions that are canonical, or annotated, are stranded identically by both routes.
+>
+> If you need LeafCutter's documented behaviour exactly, pass the flag yourself with `-c`, keeping the rest of the `STAR_ALIGN` arguments as `conf/modules.config` sets them, and be aware that the alignments the other analyses see change with it:
+>
+> ```groovy
+> process {
+>     withName: 'STAR_ALIGN' {
+>         ext.args = { [
+>             '--quantMode TranscriptomeSAM',
+>             '--twopassMode Basic',
+>             '--outSAMtype BAM Unsorted',
+>             '--readFilesCommand gunzip -c',
+>             '--runRNGseed 0',
+>             '--outFilterMultimapNmax 20',
+>             '--alignSJDBoverhangMin 1',
+>             '--outSAMattributes NH HI AS NM MD',
+>             '--quantTranscriptomeSAMoutput BanSingleEnd',
+>             '--outSAMstrandField intronMotif',
+>             params.save_unaligned ? '--outReadsUnmapped Fastx' : ''
+>         ].join(' ').trim() }
+>     }
+> }
+> ```
+
+A BAM file given with `--source genome_bam` that already carries `XS` tags is stranded from those tags first, and only the junctions left over go through the motif and the annotation.
 
 ## Running the pipeline
 

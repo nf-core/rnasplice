@@ -1,0 +1,111 @@
+// nf-core modules test strand_junctions
+nextflow_process {
+
+    name "Test Process STRAND_JUNCTIONS"
+    script "../main.nf"
+    process "STRAND_JUNCTIONS"
+
+    tag "modules"
+    tag "modules_local"
+    tag "strand_junctions"
+
+    setup {
+        // A 300 base contig of A, with a splice motif planted at the ends of the introns
+        // the four junction records span: one canonical on each strand, one non-canonical
+        // that the GTF below annotates, and one that is in neither
+        def bases = new StringBuilder('A' * 300)
+        def plant = { int pos, String motif -> bases.replace(pos - 1, pos - 1 + motif.length(), motif) }
+        plant(51, 'GT')
+        plant(149, 'AG')
+        plant(171, 'CT')
+        plant(249, 'AC')
+        plant(261, 'AA')
+        plant(279, 'TT')
+        plant(291, 'CC')
+        plant(294, 'GG')
+
+        def fasta = file("${outputDir}/genome.fa")
+        fasta.text = ">chr1\n" + bases.toString().toList().collate(60)*.join('').join('\n') + "\n"
+
+        // The index of the FASTA written just above: 300 bases from byte 6, 60 to a line
+        // and 61 bytes to a line with the line break
+        file("${outputDir}/genome.fa.fai").text = "chr1\t300\t6\t60\t61\n"
+
+        // A transcript whose two exons leave the non-canonical intron 261-280 between them
+        file("${outputDir}/genome.gtf").text = [
+            "chr1\ttest\texon\t241\t260\t.\t-\t.\tgene_id \"g1\"; transcript_id \"t1\";",
+            "chr1\ttest\texon\t281\t300\t.\t-\t.\tgene_id \"g1\"; transcript_id \"t1\";",
+        ].join("\n") + "\n"
+
+        // The BED12 regtools writes, with a 10 base anchor on each side of the intron and
+        // no strand on any of them
+        file("${outputDir}/test.junc").text = [
+            [ 'chr1',  40, 160, 'JUNC1', 1, '?',  40, 160, '255,0,0', 2, '10,10', '0,110' ],
+            [ 'chr1', 160, 260, 'JUNC2', 1, '?', 160, 260, '255,0,0', 2, '10,10', '0,90'  ],
+            [ 'chr1', 250, 290, 'JUNC3', 1, '?', 250, 290, '255,0,0', 2, '10,10', '0,30'  ],
+            [ 'chr1', 280, 300, 'JUNC4', 1, '?', 280, 300, '255,0,0', 2, '10,5',  '0,15'  ],
+        ].collect { record -> record.join("\t") }.join("\n") + "\n"
+    }
+
+    test("strandless junctions - motif and annotation") {
+
+        when {
+            process {
+                """
+                input[0] = [ [ id:'test' ], file("${outputDir}/test.junc", checkIfExists: true) ]
+                input[1] = [ [ id:'genome' ], file("${outputDir}/genome.fa", checkIfExists: true), file("${outputDir}/genome.fa.fai", checkIfExists: true) ]
+                input[2] = [ [ id:'genome' ], file("${outputDir}/genome.gtf", checkIfExists: true) ]
+                """
+            }
+        }
+
+        then {
+            def strands = path(process.out.junc[0][1]).readLines().collect { line -> line.split('\t')[5] }
+
+            assertAll(
+                { assert process.success },
+                // GT..AG, so the intron can only be read on the plus strand
+                { assert strands[0] == '+' },
+                // CT..AC, the same motif seen on the minus strand
+                { assert strands[1] == '-' },
+                // AA..TT is no motif at all, but the GTF has the intron in a transcript
+                // on the minus strand
+                { assert strands[2] == '-' },
+                // In neither, so it keeps no strand and the clustering will drop it
+                { assert strands[3] == '?' },
+                { assert snapshot(
+                    process.out.junc,
+                    process.out.findAll { key, _val -> key.startsWith('versions') }
+                ).match() }
+            )
+        }
+
+    }
+
+    test("strandless junctions - motif and annotation - stub") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = [ [ id:'test' ], file("${outputDir}/test.junc", checkIfExists: true) ]
+                input[1] = [ [ id:'genome' ], file("${outputDir}/genome.fa", checkIfExists: true), file("${outputDir}/genome.fa.fai", checkIfExists: true) ]
+                input[2] = [ [ id:'genome' ], file("${outputDir}/genome.gtf", checkIfExists: true) ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(
+                    process.out.junc,
+                    process.out.findAll { key, _val -> key.startsWith('versions') }
+                ).match() }
+            )
+        }
+
+    }
+
+}
