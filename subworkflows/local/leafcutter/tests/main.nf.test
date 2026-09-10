@@ -38,14 +38,14 @@ nextflow_workflow {
             // completion order and has to be sorted before it can be snapshotted. The
             // clustering outputs come from a single task and need no sorting.
             //
-            // The clustering outputs snapshotted here are EMPTY, and that is a known bug,
-            // not the expected result: `*_pooled` and `*_refined` are zero byte and the
-            // counts tables hold a header and no rows. The test BAMs carry no `XS` tag, as
-            // the pipeline does not run STAR with `--outSAMstrandField intronMotif`, so
-            // regtools writes `?` in the strand column of every junction and
-            // `leafcutter-cluster` discards them all. See #272. The junction files
-            // themselves are real, so this snapshot does pin down everything up to the
-            // clustering, and it will show the clusters appearing once #272 is fixed
+            // The clustering outputs snapshotted here are empty, which is a limit of these
+            // fixtures rather than of the pipeline: `testdata/ERR*.Aligned.out.bam` carry no
+            // `XS` tag, so regtools writes `?` in the strand column of every junction and
+            // `leafcutter-cluster` discards them all. The pipeline itself now asks STAR for
+            // the tag whenever `--leafcutter` is set (#272), a path this subworkflow test
+            // cannot reach because it takes BAMs as input. `tests/leafcutter.nf.test` covers
+            // it end to end and asserts that the clusters are not empty; what this test
+            // pins down is the wiring and everything up to the clustering
             assertAll(
                 { assert workflow.success },
                 { assert snapshot(

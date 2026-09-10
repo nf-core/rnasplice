@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #258 - Add pipeline level nf-tests for `--source genome_bam`, `transcriptome_bam` and `salmon_results`, which had no test coverage (by @piplus2)
 - #261 - Add a pipeline nf-test for samples split over several runs (by @piplus2)
 - #263 - Accept optional `strandedness` and `single_end` columns when starting from `--source genome_bam` or `transcriptome_bam`, defaulting to `unstranded` and paired end (requested by @albamasmalavila, done by @piplus2)
+- #272 - Add a `test_leafcutter` profile and a pipeline level nf-test for `--leafcutter`, which had no test coverage at all (by @piplus2)
 - #264 - Add an nf-test for the `DEXSEQ_DTU` module, which had no test coverage (by @piplus2)
 
 ### Changed
@@ -86,7 +87,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #264 - Fix the `DEXSEQ_DTU` stub, which wrote file names the process outputs did not match, so a stub run of the DTU path failed (by @piplus2)
 - #266 - Fix `DEXSEQ_DTU`, which ignored `task.cpus` and ran DEXSeq on every core of the host, as `parallel::detectCores()` does not see the container cpu limit. It now takes the worker count from `task.cpus` and defaults to `SerialParam()`, as `DEXSEQ_EXON` has since #225 (by @piplus2)
 - #267 - Fix `SPLIT_FILES`, whose stub wrote an unescaped `$` that Nextflow 26.08-edge refuses to parse, taking the whole pipeline down with it as `SUPPA` could no longer import the module (by @piplus2)
-- #271 - Fix `--leafcutter`, which aborted at `REGTOOLS_JUNCTIONSEXTRACT` with `invalid option -- 'i'`. The intron length arguments were the `-i`/`-I` of regtools 0.5.x, which 1.0.0 spells `-m`/`-M`. Note that `--leafcutter` still produces empty results, see #272 (by @piplus2)
+- #271 - Fix `--leafcutter`, which aborted at `REGTOOLS_JUNCTIONSEXTRACT` with `invalid option -- 'i'`. The intron length arguments were the `-i`/`-I` of regtools 0.5.x, which 1.0.0 spells `-m`/`-M` (by @piplus2)
+- #272 - Fix `--leafcutter` clustering nothing. The samples reach LeafCutter without a strand unless STAR writes the `XS` tag, so `--outSAMstrandField intronMotif` is now passed to `STAR_ALIGN` when `--leafcutter` is set. Only that case is affected, BAMs of runs without `--leafcutter` are unchanged (by @piplus2)
 
 ## v1.0.5 - 2024-11-03
 
