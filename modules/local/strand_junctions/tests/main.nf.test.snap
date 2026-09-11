@@ -15,10 +15,10 @@
                 ]
             }
         ],
-        "timestamp": "2026-09-10T18:37:46.772946904",
+        "timestamp": "2026-09-11T10:32:32.473403022",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.4"
+            "nextflow": "26.04.1"
         }
     },
     "strandless junctions - motif and annotation": {
@@ -28,7 +28,7 @@
                     {
                         "id": "test"
                     },
-                    "test.junc:md5,18794bdbab4e2bb1856fc8356512cd1a"
+                    "test.junc:md5,6b0c3689fc57ab14bdd90f101223fba1"
                 ]
             ],
             {
@@ -37,10 +37,10 @@
                 ]
             }
         ],
-        "timestamp": "2026-09-10T18:37:41.765060723",
+        "timestamp": "2026-09-11T10:32:27.118420759",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.4"
+            "nextflow": "26.04.1"
         }
     }
 }
