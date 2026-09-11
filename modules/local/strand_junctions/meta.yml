@@ -1,0 +1,64 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "strand_junctions"
+description: Give a strand to the junction records regtools left strandless, from the splice motif in the genome and from the annotation
+keywords:
+  - junctions
+  - splicing
+  - strand
+  - leafcutter
+tools:
+  - "python":
+      description: "Python is a programming language that lets you work quickly and integrate systems more effectively"
+      homepage: "https://www.python.org"
+      documentation: "https://docs.python.org"
+      licence: ["Python-2.0"]
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information, e.g. `[ id:'sample1' ]`
+    - junc:
+        type: file
+        description: Junction file in the BED12 format regtools writes, whose strand column may hold `?`
+        pattern: "*.junc"
+  - - meta2:
+        type: map
+        description: |
+          Groovy Map containing reference information, e.g. `[ id:'genome' ]`
+    - fasta:
+        type: file
+        description: Uncompressed genome FASTA file the junction coordinates refer to
+        pattern: "*.{fa,fasta}"
+    - fai:
+        type: file
+        description: FASTA index of `fasta`, used to read the intron boundaries without loading the genome
+        pattern: "*.fai"
+  - - meta3:
+        type: map
+        description: |
+          Groovy Map containing annotation information, e.g. `[ id:'genome' ]`
+    - gtf:
+        type: file
+        description: GTF annotation, whose transcripts give a strand to the introns with a non-canonical motif
+        pattern: "*.gtf"
+output:
+  junc:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information, e.g. `[ id:'sample1' ]`
+      - "stranded/*.junc":
+          type: file
+          description: |
+            The same junction records, with a strand wherever the splice motif or the annotation
+            gave one. A junction that is neither canonical nor annotated keeps its `?`
+          pattern: "*.junc"
+  versions_python:
+    - "versions.yml":
+        type: file
+        description: File containing software versions
+        pattern: "versions.yml"
+authors:
+  - "@piplus2"
+maintainers:
+  - "@piplus2"

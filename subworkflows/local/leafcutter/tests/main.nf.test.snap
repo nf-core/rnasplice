@@ -1,0 +1,234 @@
+{
+    "human chrX": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "ERR188383",
+                        "strandedness": "unstranded"
+                    },
+                    "ERR188383.junc:md5,b78b0de69c08c2e767ca6700746104df"
+                ],
+                [
+                    {
+                        "id": "ERR188428",
+                        "strandedness": "unstranded"
+                    },
+                    "ERR188428.junc:md5,d16121e66af13e90aec24ccf82cd01b5"
+                ],
+                [
+                    {
+                        "id": "ERR188454",
+                        "strandedness": "unstranded"
+                    },
+                    "ERR188454.junc:md5,2abf48cdcdcdef0c26691e2a4d4ea20c"
+                ],
+                [
+                    {
+                        "id": "ERR204916",
+                        "strandedness": "unstranded"
+                    },
+                    "ERR204916.junc:md5,761b07883f896ce94bfbe5c445de5014"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "lc"
+                    },
+                    [
+                        "lc_perind.counts.gz:md5,00db9695c30c56b1c626481614e7aa21",
+                        "lc_perind_numers.counts.gz:md5,792ead545e64d6c6cb71d5c2e5b6ead1"
+                    ]
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "lc"
+                    },
+                    "lc_perind_numers.counts.gz:md5,792ead545e64d6c6cb71d5c2e5b6ead1"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "lc"
+                    },
+                    "lc_pooled:md5,0db6f917fd63a5677ef43e280aae9304"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "lc"
+                    },
+                    "lc_refined:md5,5ad0f8f34e809232b4f387674d1a75d3"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "lc"
+                    },
+                    "lc_sortedlibs:md5,de8c5c512e43f549f32762dd9faa6c5b"
+                ]
+            ]
+        ],
+        "timestamp": "2026-09-10T18:38:57.545302743",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.4"
+        }
+    },
+    "human chrX - reverse stranded": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "ERR188383",
+                        "strandedness": "reverse"
+                    },
+                    "ERR188383.junc:md5,53ffd2f9f67f8ceddde8e538326b531e"
+                ],
+                [
+                    {
+                        "id": "ERR188428",
+                        "strandedness": "reverse"
+                    },
+                    "ERR188428.junc:md5,f18b7276ef4f70b884a21247b6a74d84"
+                ],
+                [
+                    {
+                        "id": "ERR188454",
+                        "strandedness": "reverse"
+                    },
+                    "ERR188454.junc:md5,901505e025d7aad1110a2dedc00aea97"
+                ],
+                [
+                    {
+                        "id": "ERR204916",
+                        "strandedness": "reverse"
+                    },
+                    "ERR204916.junc:md5,4c22cb7692db8d9929e32ec0c71f544c"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "lc"
+                    },
+                    [
+                        "lc_perind.counts.gz:md5,d70f10c858f94447c424d9844e2265dd",
+                        "lc_perind_numers.counts.gz:md5,4479d9da47f276b7372cab7ecba4254e"
+                    ]
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "lc"
+                    },
+                    "lc_perind_numers.counts.gz:md5,4479d9da47f276b7372cab7ecba4254e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "lc"
+                    },
+                    "lc_pooled:md5,e85090a699ed9c70bf68ada4181b006d"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "lc"
+                    },
+                    "lc_refined:md5,3a3dae564a7717968e660d07d9a4c013"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "lc"
+                    },
+                    "lc_sortedlibs:md5,de8c5c512e43f549f32762dd9faa6c5b"
+                ]
+            ]
+        ],
+        "timestamp": "2026-09-10T18:39:07.243686087",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.4"
+        }
+    },
+    "human chrX - stub": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "ERR188383",
+                        "strandedness": "unstranded"
+                    },
+                    "ERR188383.junc:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "ERR188428",
+                        "strandedness": "unstranded"
+                    },
+                    "ERR188428.junc:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "lc"
+                    },
+                    [
+                        "lc_perind.counts.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                        "lc_perind_numers.counts.gz:md5,68b329da9893e34099c7d8ad5cb9c940"
+                    ]
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "lc"
+                    },
+                    "lc_perind_numers.counts.gz:md5,68b329da9893e34099c7d8ad5cb9c940"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "lc"
+                    },
+                    "lc_pooled:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "lc"
+                    },
+                    "lc_refined:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "lc"
+                    },
+                    "lc_sortedlibs:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ]
+        ],
+        "timestamp": "2026-09-10T18:39:14.878381243",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.4"
+        }
+    }
+}

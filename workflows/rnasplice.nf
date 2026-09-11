@@ -59,6 +59,7 @@ workflow RNASPLICE {
     ch_contrastsheet // channel: [ contrast, treatment, control ], the parsed contrasts
     ch_contrastsheet_file // channel: file(contrastsheet), for the processes that read it
     ch_fasta // channel: path of genome fasta
+    ch_fai // channel: [ val(meta), path(fai) ], the genome fasta index
     ch_gtf // channel: path of genome gtf
     ch_transcript_fasta // channel: path of transcript fasta
     ch_dexseq_gff
@@ -269,7 +270,14 @@ workflow RNASPLICE {
         }
 
         if (params.leafcutter == true) {
-            LEAFCUTTER(ch_genome_bam, ch_genome_bam_index)
+            // The genome and the annotation are what give a strand to the junctions of an
+            // unstranded sample, see the subworkflow
+            LEAFCUTTER(
+                ch_genome_bam,
+                ch_genome_bam_index,
+                ch_fasta.combine(ch_fai).map { fasta, _meta, fai -> [[id: fasta.baseName], fasta, fai] }.first(),
+                ch_gtf.map { gtf -> [[id: gtf.baseName], gtf] }.first(),
+            )
         }
     }
 

@@ -1,0 +1,60 @@
+nextflow_pipeline {
+
+    name "Test pipeline with LeafCutter"
+    script "../main.nf"
+    profile "test_leafcutter"
+    tag "pipeline"
+
+    test("-profile test_leafcutter") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+        }
+
+        then {
+            // stable_path: All files + folders in ${params.outdir}/ with a stable path
+            def stable_path = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,json,txt}'])
+
+            // stable_content: All files in ${params.outdir}/ with stable content
+            def stable_content = getAllFilesFromDir(params.outdir, ignoreFile: 'tests/.nftignore')
+
+            // The samples are unstranded, so their junctions only get a strand once
+            // `STRAND_JUNCTIONS` has read the splice motifs. Assert on the clusters rather
+            // than on the run succeeding: strandless junctions are all discarded by
+            // leafcutter-cluster and the pipeline still completes, with empty results
+            def counts = path("${params.outdir}/star_salmon/leafcutter/lc_perind.counts.gz").linesGzip
+
+            assert workflow.success
+
+            assertAll(
+                { assert counts.size() > 1 },
+                { assert counts[0].startsWith('chrom ') },
+                { assert path("${params.outdir}/star_salmon/leafcutter/lc_pooled").size() > 0 },
+                { assert path("${params.outdir}/star_salmon/leafcutter/lc_refined").size() > 0 },
+                { assert snapshot(
+                    // Remove Nextflow version to prevent cross-version testing failures
+                    removeNextflowVersion("$outputDir/pipeline_info/nf_core_rnasplice_software_mqc_versions.yml"),
+
+                    // Snapshot the clean directory structure
+                    stable_path,
+
+                    // Snapshot the deterministic data file contents
+                    stable_content
+                ).match() }
+            )
+        }
+
+        cleanup {
+            // Only prune/delete on CI - keeping local VM state intact prevents
+            // cross-test launchDir wipes that break nf-test snapshot walks.
+            if (System.getenv("CI") == "true") {
+                if (System.getenv("NFT_PROFILE")?.contains("docker")) {
+                    "docker system prune -a -f --volumes".execute()
+                }
+                new File("${launchDir}").deleteDir()
+            }
+        }
+    }
+}

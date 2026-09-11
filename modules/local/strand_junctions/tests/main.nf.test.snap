@@ -1,0 +1,46 @@
+{
+    "strandless junctions - motif and annotation - stub": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.junc:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            {
+                "versions_python": [
+                    "versions.yml:md5,90a1c7df54fca5bab0351c66cccd7903"
+                ]
+            }
+        ],
+        "timestamp": "2026-09-11T10:32:32.473403022",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.1"
+        }
+    },
+    "strandless junctions - motif and annotation": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.junc:md5,6b0c3689fc57ab14bdd90f101223fba1"
+                ]
+            ],
+            {
+                "versions_python": [
+                    "versions.yml:md5,2a17c1a1ab7b58c95a0dbfa294988d14"
+                ]
+            }
+        ],
+        "timestamp": "2026-09-11T10:32:27.118420759",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.1"
+        }
+    }
+}

@@ -1,0 +1,87 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "leafcutter"
+description: Extract exon-exon junctions from aligned reads with regtools and cluster them into intron clusters with LeafCutter
+keywords:
+  - leafcutter
+  - regtools
+  - junctions
+  - intron clustering
+  - splicing
+components:
+  - regtools/junctionsextract
+  - leafcutter/clusterregtools
+  - strand_junctions
+input:
+  - ch_genome_bam:
+      type: file
+      description: |
+        The input channel containing the coordinate sorted genome BAM files to extract
+        junctions from. `meta.strandedness` picks where the junction strand comes from: the
+        read orientation for a 'forward' or 'reverse' library, and for an 'unstranded' one
+        the aligner `XS` tag where there is one, then the splice motif and the annotation
+        Structure: [ val(meta), path(bam) ]
+      pattern: "*.bam"
+  - ch_genome_bam_index:
+      type: file
+      description: |
+        The input channel containing the genome BAM index files, joined to `ch_genome_bam`
+        on the meta map
+        Structure: [ val(meta), path(bai) ]
+      pattern: "*.bai"
+  - ch_fasta:
+      type: file
+      description: |
+        The genome FASTA and its index, which give the splice motif of the junctions of an
+        unstranded sample
+        Structure: [ val(meta2), path(fasta), path(fai) ]
+      pattern: "*.{fa,fasta}"
+  - ch_gtf:
+      type: file
+      description: |
+        The GTF annotation, which gives a strand to the introns of an unstranded sample
+        whose motif is non-canonical
+        Structure: [ val(meta3), path(gtf) ]
+      pattern: "*.gtf"
+output:
+  - juncs:
+      type: file
+      description: |
+        Channel containing the per sample junction files, with the strand of every junction
+        that could be given one
+        Structure: [ val(meta), path(junc) ]
+      pattern: "*.junc"
+  - counts:
+      type: file
+      description: |
+        Channel containing the intron excision counts per cluster and sample, across samples
+        Structure: [ val(meta), path(counts) ]
+      pattern: "*_perind*.counts.gz"
+  - numers:
+      type: file
+      description: |
+        Channel containing the intron excision numerators per cluster and sample, across samples
+        Structure: [ val(meta), path(numers) ]
+      pattern: "*_perind_numers*.counts.gz"
+  - pooled:
+      type: file
+      description: |
+        Channel containing the junction counts pooled over all samples
+        Structure: [ val(meta), path(pooled) ]
+      pattern: "*_pooled"
+  - refined:
+      type: file
+      description: |
+        Channel containing the intron clusters after refinement
+        Structure: [ val(meta), path(refined) ]
+      pattern: "*_refined"
+  - sortedlibs:
+      type: file
+      description: |
+        Channel containing the list of the junction files in the order they were clustered
+        Structure: [ val(meta), path(sortedlibs) ]
+      pattern: "*_sortedlibs"
+authors:
+  - "@valentinoruggieri"
+  - "@piplus2"
+maintainers:
+  - "@piplus2"

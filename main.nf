@@ -226,6 +226,7 @@ workflow NFCORE_RNASPLICE {
         ch_contrastsheet,
         ch_contrastsheet_file,
         PREPARE_GENOME.out.fasta,
+        PREPARE_GENOME.out.fai,
         PREPARE_GENOME.out.gtf,
         PREPARE_GENOME.out.transcript_fasta,
         PREPARE_GENOME.out.dexseq_gff,

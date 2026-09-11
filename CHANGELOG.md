@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #258 - Add pipeline level nf-tests for `--source genome_bam`, `transcriptome_bam` and `salmon_results`, which had no test coverage (by @piplus2)
 - #261 - Add a pipeline nf-test for samples split over several runs (by @piplus2)
 - #263 - Accept optional `strandedness` and `single_end` columns when starting from `--source genome_bam` or `transcriptome_bam`, defaulting to `unstranded` and paired end (requested by @albamasmalavila, done by @piplus2)
+- #272 - Add a `test_leafcutter` profile and a pipeline level nf-test for `--leafcutter`, which had no test coverage at all (by @piplus2)
+- #272 - Add the `STRAND_JUNCTIONS` module, which gives the junctions of an unstranded sample a strand from the splice motif and the annotation (by @piplus2)
 - #264 - Add an nf-test for the `DEXSEQ_DTU` module, which had no test coverage (by @piplus2)
 
 ### Changed
@@ -49,6 +51,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #261 - Remove the unused `INPUT_CHECK` subworkflow (by @piplus2)
 - #264 - Move the `DRIMSEQ_DEXSEQ_DTU` subworkflow to the nf-core subworkflow template (by @piplus2)
 - #268 - Move the `EDGER_DEU` subworkflow to the nf-core subworkflow template. It now emits the `EDGER_EXON` results and the featureCounts tables, which it ran but discarded (by @piplus2)
+- #270 - Move the `LEAFCUTTER` subworkflow to the nf-core subworkflow template. Its `juncs` output is now the per sample `[ meta, junc ]` tuples, instead of a single list flattening the meta maps in with the paths (by @piplus2)
+- #272 - `--leafcutter` now works with `--source genome_bam`, whatever the strandedness, since the junction strand no longer has to come from the alignment. For unstranded libraries the clusters differ slightly from LeafCutter's documented STAR route, see the LeafCutter section of `docs/usage.md` (by @piplus2)
 
 ### Fixed
 
@@ -85,6 +89,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #264 - Fix the `DEXSEQ_DTU` stub, which wrote file names the process outputs did not match, so a stub run of the DTU path failed (by @piplus2)
 - #266 - Fix `DEXSEQ_DTU`, which ignored `task.cpus` and ran DEXSeq on every core of the host, as `parallel::detectCores()` does not see the container cpu limit. It now takes the worker count from `task.cpus` and defaults to `SerialParam()`, as `DEXSEQ_EXON` has since #225 (by @piplus2)
 - #267 - Fix `SPLIT_FILES`, whose stub wrote an unescaped `$` that Nextflow 26.08-edge refuses to parse, taking the whole pipeline down with it as `SUPPA` could no longer import the module (by @piplus2)
+- #271 - Fix `--leafcutter`, which aborted at `REGTOOLS_JUNCTIONSEXTRACT` with `invalid option -- 'i'`. The intron length arguments were the `-i`/`-I` of regtools 0.5.x, which 1.0.0 spells `-m`/`-M` (by @piplus2)
+- #272 - Fix `--leafcutter` clustering nothing. regtools now takes the junction strand from the samplesheet `strandedness`, and the junctions of an unstranded sample are stranded afterwards from the splice motif and the annotation, so the BAM files the other analyses read are left alone (by @piplus2)
 
 ## v1.0.5 - 2024-11-03
 
