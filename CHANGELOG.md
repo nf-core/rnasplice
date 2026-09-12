@@ -91,6 +91,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #267 - Fix `SPLIT_FILES`, whose stub wrote an unescaped `$` that Nextflow 26.08-edge refuses to parse, taking the whole pipeline down with it as `SUPPA` could no longer import the module (by @piplus2)
 - #271 - Fix `--leafcutter`, which aborted at `REGTOOLS_JUNCTIONSEXTRACT` with `invalid option -- 'i'`. The intron length arguments were the `-i`/`-I` of regtools 0.5.x, which 1.0.0 spells `-m`/`-M` (by @piplus2)
 - #272 - Fix `--leafcutter` clustering nothing. regtools now takes the junction strand from the samplesheet `strandedness`, and the junctions of an unstranded sample are stranded afterwards from the splice motif and the annotation, so the BAM files the other analyses read are left alone (by @piplus2)
+- #275 - Fix missing yaml from singularity container in `GTFGENEFILTER` (reported by @srira25, fix by @piplus2)
 
 ## v1.0.5 - 2024-11-03
 

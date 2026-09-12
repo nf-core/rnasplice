@@ -4,7 +4,7 @@ process GTFGENEFILTER {
 
     conda "${moduleDir}/environment.yml"
     container "${workflow.containerEngine in ['singularity', 'apptainer'] && !task.ext.singularity_pull_docker_container ?
-        'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/61/61df02ee0aef7b6fedab6906a1c054cdb2bc35dafba13d510b9c8f380708a339/data' :
+        'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/cc/ccb85ed494ff7aa8804521b395fc51a113dc3f3cc7aa319f9fba8d97292c6dbe/data' :
         'community.wave.seqera.io/library/python_pyyaml:0610af27e7c352fd' }"
 
     input:
