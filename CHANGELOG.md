@@ -92,7 +92,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #271 - Fix `--leafcutter`, which aborted at `REGTOOLS_JUNCTIONSEXTRACT` with `invalid option -- 'i'`. The intron length arguments were the `-i`/`-I` of regtools 0.5.x, which 1.0.0 spells `-m`/`-M` (by @piplus2)
 - #272 - Fix `--leafcutter` clustering nothing. regtools now takes the junction strand from the samplesheet `strandedness`, and the junctions of an unstranded sample are stranded afterwards from the splice motif and the annotation, so the BAM files the other analyses read are left alone (by @piplus2)
 - #275 - Fix missing yaml from singularity container in `GTFGENEFILTER` (reported by @srira25, fix by @piplus2)
-- #277 - Fix missing pyyaml from singularity container in `STRAND_JUNCTIONS` (by @piplus2)
+- #277 - Fix missing pyyaml from singularity container in `STRAND_JUNCTIONS` and `CLUSTERGROUPS` (by @piplus2)
 
 ## v1.0.5 - 2024-11-03
 
