@@ -1,0 +1,11 @@
+--2026-09-13 11:02:22--  http://neuro.debian.net/lists/xenial.us-ca.full
+Resolving neuro.debian.net (neuro.debian.net)... 129.170.233.11
+Connecting to neuro.debian.net (neuro.debian.net)|129.170.233.11|:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 262
+Saving to: ‘STDOUT’
+
+-                                                                     0%[                                                                                                                                                                   ]       0  --.-KB/s               -                                                                   100%[==================================================================================================================================================================>]     262  --.-KB/s    in 0s      
+
+2026-09-13 11:02:22 (27.2 MB/s) - written to stdout [262/262]
+
