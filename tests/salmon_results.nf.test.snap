@@ -38,8 +38,8 @@
                     "gunzip": 1.13
                 },
                 "ISOFORMSWITCHANALYZER": {
-                    "bioconductor-isoformswitchanalyzer": "2.2.0",
-                    "r-base": "4.3.2"
+                    "bioconductor-isoformswitchanalyzer": "2.12.0",
+                    "r-base": "4.5.3"
                 },
                 "MAKE_TRANSCRIPTS_FASTA": {
                     "rsem": "1.3.1",
@@ -92,6 +92,11 @@
                 "isoformswitchanalyzer/isoformswitchanalyzer_isoformfeatures.csv",
                 "isoformswitchanalyzer/isoformswitchanalyzer_summary.csv",
                 "isoformswitchanalyzer/results",
+                "isoformswitchanalyzer/results/GBR_vs_YRI",
+                "isoformswitchanalyzer/results/GBR_vs_YRI/1_switch_plot_RPL10_aka_RPL10.pdf",
+                "isoformswitchanalyzer/results/YRI_vs_GBR",
+                "isoformswitchanalyzer/results/YRI_vs_GBR/1_switch_plot_RPL10_aka_RPL10.pdf",
+                "isoformswitchanalyzer/results/common_switch_consequences.pdf",
                 "isoformswitchanalyzer/switchlist.rds",
                 "mergeevents",
                 "mergeevents/genes_chrX.ioe",
@@ -273,15 +278,14 @@
                 "salmon/tximport/tximport.tx2gene.tsv"
             ],
             [
-                "isoformswitchanalyzer_isoformfeatures.csv:md5,a227d42afbcc590b4e949075cde4a5b6",
-                "isoformswitchanalyzer_summary.csv:md5,4b2ab1b387ded8f479d7cfa96893e93b",
+                "isoformswitchanalyzer_summary.csv:md5,8cb2a864dbf6d26df508842d83a25bdb",
                 "genes_chrX.ioi:md5,6c9ee3567554e3f74186b4c17ec777d6"
             ]
         ],
-        "timestamp": "2026-09-07T19:55:52.390384017",
+        "timestamp": "2026-09-14T09:33:02.530765961",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.1"
+            "nextflow": "26.04.4"
         }
     }
 }

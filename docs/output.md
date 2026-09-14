@@ -413,13 +413,14 @@ Finally, this portion of the pipeline will run [stageR](https://bioconductor.org
       - `02_switch_plot_gene5.pdf`
       - `03_switch_plot_gene6.pdf`
     - `...`
+    - `common_switch_consequences.pdf`
   - `isoformswitchanalyzer_isoformfeatures.csv`
   - `isoformswitchanalyzer_summary.csv`
   - `switchlist.rds`
 
 </details>
 
-If [IsoformSwitchAnalyzeR](https://www.bioconductor.org/packages/release/bioc/html/IsoformSwitchAnalyzeR.html) finds genes with isoform switches, it produces plots visualizing these switches. A separate set of switch plots is created for each contrast if that contrast contains significant switches. Further two .csv files are created, a summary and the main results. The .rds of the main R list is also returned.
+If [IsoformSwitchAnalyzeR](https://www.bioconductor.org/packages/release/bioc/html/IsoformSwitchAnalyzeR.html) finds genes with isoform switches, it produces plots visualizing these switches. A separate set of switch plots is created for each contrast if that contrast contains significant switches, and `common_switch_consequences.pdf` summarises the consequences of the switches across all contrasts. Further two .csv files are created, a summary and the main results. The .rds of the main R list is also returned.
 
 ## Event-based analysis
 

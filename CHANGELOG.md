@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #272 - Add a `test_leafcutter` profile and a pipeline level nf-test for `--leafcutter`, which had no test coverage at all (by @piplus2)
 - #272 - Add the `STRAND_JUNCTIONS` module, which gives the junctions of an unstranded sample a strand from the splice motif and the annotation (by @piplus2)
 - #264 - Add an nf-test for the `DEXSEQ_DTU` module, which had no test coverage (by @piplus2)
+- #280 - Add an nf-test for the `ISOFORMSWITCHANALYZER` module, which had no test coverage (by @piplus2)
 
 ### Changed
 
@@ -53,6 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #268 - Move the `EDGER_DEU` subworkflow to the nf-core subworkflow template. It now emits the `EDGER_EXON` results and the featureCounts tables, which it ran but discarded (by @piplus2)
 - #270 - Move the `LEAFCUTTER` subworkflow to the nf-core subworkflow template. Its `juncs` output is now the per sample `[ meta, junc ]` tuples, instead of a single list flattening the meta maps in with the paths (by @piplus2)
 - #272 - `--leafcutter` now works with `--source genome_bam`, whatever the strandedness, since the junction strand no longer has to come from the alignment. For unstranded libraries the clusters differ slightly from LeafCutter's documented STAR route, see the LeafCutter section of `docs/usage.md` (by @piplus2)
+- #280 - Refactor `ISOFORMSWITCHANALYZER` to the nf-core module template and update `IsoformSwitchAnalyzeR` 2.2.0 -> 2.12.0 (R 4.3 -> 4.5). `bin/run_isoformswitchanalyzer.R` is now a module template (by @piplus2)
 
 ### Fixed
 
@@ -93,6 +95,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #272 - Fix `--leafcutter` clustering nothing. regtools now takes the junction strand from the samplesheet `strandedness`, and the junctions of an unstranded sample are stranded afterwards from the splice motif and the annotation, so the BAM files the other analyses read are left alone (by @piplus2)
 - #275 - Fix missing yaml from singularity container in `GTFGENEFILTER` (reported by @srira25, fix by @piplus2)
 - #277 - Fix missing pyyaml from singularity container in `STRAND_JUNCTIONS`, `CLUSTERGROUPS` and `MISOPY_SETTINGS` (by @piplus2)
+- #280 - Fix `ISOFORMSWITCHANALYZER` writing `common_switch_consequences.pdf` next to the `results` directory instead of inside it, so it was never published (by @piplus2)
 
 ## v1.0.5 - 2024-11-03
 
