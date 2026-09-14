@@ -131,3 +131,6 @@ trimgalore/*fastq.gz_trimming_report.txt
 **/*.miso
 **/*.pickle
 **/*.shelve.*
+
+# IsoformSwitchAnalyzeR
+isoformswitchanalyzer/isoformswitchanalyzer_isoformfeatures.csv

@@ -1,4 +1,5 @@
 #!/usr/bin/env Rscript
+
 # Scripts adjusted from Bioconductor and IsoformSwitchAnalyzeR source code
 # Please see following for details:
 # https://bioconductor.org/packages/devel/bioc/vignettes/IsoformSwitchAnalyzeR/inst/doc/IsoformSwitchAnalyzeR.html
@@ -6,23 +7,29 @@
 # https://github.com/kvittingseerup/IsoformSwitchAnalyzeR
 # respectivly
 
-# Parse command arguments
+# NOTE: This file is a Nextflow template. Nextflow interpolates the process
+#       variables and treats the backslash as an escape character, therefore
+#       R's list/data.frame operator must be written as a backslash followed
+#       by a dollar sign, and every literal backslash must be doubled.
 
-argv <- commandArgs(trailingOnly = TRUE)
 
-salmon_output <- getwd()
+# Read the process inputs
 
-gtf <- argv[1]
+salmon_output <- getwd() # every Salmon quant directory is staged here
 
-transcript_sequences <- argv[2]
+gtf <- '$gtf'
 
-samplesheet <- argv[3]
+transcript_sequences <- '$transcript_sequences'
 
-contrastsheet <- argv[4]
+samplesheet <- '$samplesheet'
 
-alpha <- as.numeric(argv[5]) # Must be >= 0 and <= 1
+contrastsheet <- '$contrastsheet'
 
-dIFcutoff <- as.numeric(argv[6]) # Must be >= 0 and <= 1
+alpha <- as.numeric('$alpha') # Must be >= 0 and <= 1
+
+dIFcutoff <- as.numeric('$dIF') # Must be >= 0 and <= 1
+
+pathToOutput <- 'results'
 
 
 # Attach required packages
@@ -42,7 +49,7 @@ isoformSwitchAnalysisPart1 <- function(
     alpha               = NULL,
     dIFcutoff           = NULL
 ) {
-    isConditional <- switchAnalyzeRlist$sourceId != 'preDefinedSwitches'
+    isConditional <- switchAnalyzeRlist\$sourceId != 'preDefinedSwitches'
 
     # preFilter
     if(isConditional) {
@@ -60,7 +67,7 @@ isoformSwitchAnalysisPart1 <- function(
     # Test isoform switches
     if(isConditional) {
 
-        if(any( switchAnalyzeRlist$conditions$nrReplicates > 5)) {
+        if(any( switchAnalyzeRlist\$conditions\$nrReplicates > 5)) {
             switchAnalyzeRlist <-
                 isoformSwitchTestSatuRn(
                     switchAnalyzeRlist,
@@ -81,7 +88,7 @@ isoformSwitchAnalysisPart1 <- function(
                 )
         }
 
-        if (nrow(switchAnalyzeRlist$isoformSwitchAnalysis) == 0) {
+        if (nrow(switchAnalyzeRlist\$isoformSwitchAnalysis) == 0) {
             stop('No isoform switches were identified with the current cutoffs.')
         }
     }
@@ -89,7 +96,7 @@ isoformSwitchAnalysisPart1 <- function(
 
     # Predict ORF
 
-    if ( is.null(switchAnalyzeRlist$orfAnalysis) ) {
+    if ( is.null(switchAnalyzeRlist\$orfAnalysis) ) {
 
         # Add known annoation
 
@@ -101,7 +108,7 @@ isoformSwitchAnalysisPart1 <- function(
 
         # Predict novel once (if any are missing)
 
-        if ( any( switchAnalyzeRlist$orfAnalysis$orf_origin == 'not_annotated_yet' )) {
+        if ( any( switchAnalyzeRlist\$orfAnalysis\$orf_origin == 'not_annotated_yet' )) {
             switchAnalyzeRlist <- analyzeNovelIsoformORF(
                 switchAnalyzeRlist = switchAnalyzeRlist,
                 analysisAllIsoformsWithoutORF = TRUE,
@@ -182,11 +189,7 @@ isoformSwitchAnalysisPart2 <- function(
     # Make overall consequences
 
     pdf(
-        file = paste(
-            pathToOutput,
-            'common_switch_consequences.pdf',
-            sep = ''
-        ),
+        file = file.path(pathToOutput, 'common_switch_consequences.pdf'),
         width = 10,
         height = 7
     )
@@ -249,6 +252,11 @@ isoformSwitchAnalysisCombined <- function(
 }
 
 
+# Create the output directory
+
+dir.create(pathToOutput, showWarnings = FALSE)
+
+
 # Load Salmon output
 
 salmonQuant <- importIsoformExpression(
@@ -287,8 +295,8 @@ if (file.exists(contrastsheet)) {
 # Build swtich list
 
 SwitchList <- importRdata(
-    isoformCountMatrix   = salmonQuant$counts,
-    isoformRepExpression = salmonQuant$abundance,
+    isoformCountMatrix   = salmonQuant\$counts,
+    isoformRepExpression = salmonQuant\$abundance,
     designMatrix         = design,
     isoformExonAnnoation = gtf,
     isoformNtFasta       = transcript_sequences,
@@ -305,7 +313,7 @@ tryCatch({
     SwitchList <- isoformSwitchAnalysisCombined(
         SwitchList,
         pathToGTF = gtf,
-        pathToOutput = "results",
+        pathToOutput = pathToOutput,
         alpha = alpha,
         dIFcutoff = dIFcutoff
     )
@@ -322,7 +330,7 @@ tryCatch({
 
     # Save isoformFeatures as csv
 
-    write.csv(SwitchList$isoformFeatures, "isoformswitchanalyzer_isoformfeatures.csv")
+    write.csv(SwitchList\$isoformFeatures, "isoformswitchanalyzer_isoformfeatures.csv")
 
 }, error = function(e) {
 
@@ -348,10 +356,20 @@ tryCatch({
 saveRDS(SwitchList, "switchlist.rds")
 
 
-####################################
-########### Session info ###########
-####################################
+# Save the software versions to disk
 
-# Print sessioninfo to standard out
+writeLines(
+    c(
+        '"${task.process}":',
+        paste0("    r-base: ", paste(R.version[["major"]], R.version[["minor"]], sep = ".")),
+        paste0("    bioconductor-isoformswitchanalyzer: ", as.character(packageVersion("IsoformSwitchAnalyzeR")))
+    ),
+    "versions.yml"
+)
+
+
+# Print session information
+
 citation("IsoformSwitchAnalyzeR")
+
 sessionInfo()

@@ -1,0 +1,116 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "isoformswitchanalyzer"
+description: Identify isoform switches between conditions from Salmon quantifications
+  with IsoformSwitchAnalyzeR, predict their functional consequences and plot the top
+  switching genes of every contrast
+keywords:
+  - IsoformSwitchAnalyzeR
+  - isoform switch
+  - differential transcript usage
+  - alternative splicing
+  - salmon
+tools:
+  - "IsoformSwitchAnalyzeR":
+      description: "Analysis of alternative splicing and isoform switches with predicted
+        functional consequences (e.g. gain/loss of protein domains etc.) from quantification
+        of all types of RNASeq by tools such as Kallisto, Salmon, StringTie, Cufflinks/Cuffdiff
+        etc."
+      homepage: "https://bioconductor.org/packages/IsoformSwitchAnalyzeR"
+      documentation: "https://bioconductor.org/packages/release/bioc/vignettes/IsoformSwitchAnalyzeR/inst/doc/IsoformSwitchAnalyzeR.html"
+      tool_dev_url: "https://github.com/kvittingseerup/IsoformSwitchAnalyzeR"
+      doi: "10.1093/bioinformatics/btz247"
+      licence: ["GPL-2.0-or-later"]
+      identifier: biotools:isoformswitchanalyzer
+
+input:
+  - salmon_output:
+      type: directory
+      description: One Salmon quant directory per sample, each holding a `quant.sf`.
+        The directory names must match the `sample` column of the samplesheet
+      pattern: "*"
+  - gtf:
+      type: file
+      description: GTF annotation the transcripts were quantified against
+      pattern: "*.gtf"
+      ontologies:
+        - edam: "http://edamontology.org/format_2306" # GTF
+  - transcript_sequences:
+      type: file
+      description: Nucleotide sequences of the annotated transcripts, named by
+        transcript id as in the GTF
+      pattern: "*.{fa,fasta}"
+      ontologies:
+        - edam: "http://edamontology.org/format_1929" # FASTA
+  - samplesheet:
+      type: file
+      description: Comma-separated sample sheet with at least `sample` and `condition`
+        column headers
+      pattern: "*.csv"
+      ontologies:
+        - edam: "http://edamontology.org/format_3752" # CSV
+  - contrastsheet:
+      type: file
+      description: Comma-separated contrast sheet with `treatment` and `control`
+        column headers naming the conditions to compare. Every pair of conditions
+        is compared when the file does not exist
+      pattern: "*.csv"
+      ontologies:
+        - edam: "http://edamontology.org/format_3752" # CSV
+  - alpha:
+      type: float
+      description: FDR cutoff below which an isoform switch is called significant
+  - dIF:
+      type: float
+      description: Minimum absolute difference in isoform fraction between the two
+        conditions for an isoform switch to be called
+
+output:
+  isoformswitchanalyzer_summary:
+    - "isoformswitchanalyzer_summary.csv":
+        type: file
+        description: Number of switching isoforms, switches and genes per contrast
+          and combined. Holds the error message instead when no switch was found
+        pattern: "isoformswitchanalyzer_summary.csv"
+        ontologies:
+          - edam: "http://edamontology.org/format_3752" # CSV
+  isoformswitchanalyzer_isoformFeatures:
+    - "isoformswitchanalyzer_isoformfeatures.csv":
+        type: file
+        description: The `isoformFeatures` table of the switchAnalyzeRlist with the
+          expression, isoform fraction, switch q-value and consequences of every
+          isoform in every contrast. Empty when no switch was found
+        pattern: "isoformswitchanalyzer_isoformfeatures.csv"
+        ontologies:
+          - edam: "http://edamontology.org/format_3752" # CSV
+  switchlist_rds:
+    - "switchlist.rds":
+        type: file
+        description: Serialised switchAnalyzeRlist object
+        pattern: "switchlist.rds"
+  results:
+    - "results":
+        type: directory
+        description: One subdirectory per contrast with a switch plot PDF per switching
+          gene, plus the common switch consequences PDF
+        pattern: "results"
+  versions_isoformswitchanalyzer:
+    - "versions.yml":
+        type: file
+        description: File containing software versions
+        pattern: "versions.yml"
+        ontologies:
+          - edam: "http://edamontology.org/format_3750" # YAML
+
+topics:
+  versions:
+    - "versions.yml":
+        type: file
+        description: File containing software versions
+        pattern: "versions.yml"
+        ontologies:
+          - edam: "http://edamontology.org/format_3750" # YAML
+authors:
+  - "@bensouthgate"
+  - "@piplus2"
+maintainers:
+  - "@piplus2"

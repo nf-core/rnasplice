@@ -1,0 +1,165 @@
+// nf-core modules test isoformswitchanalyzer
+nextflow_process {
+
+    name "Test Process ISOFORMSWITCHANALYZER"
+    script "../main.nf"
+    process "ISOFORMSWITCHANALYZER"
+    config "./nextflow.config"
+
+    tag "modules"
+    tag "modules_local"
+    tag "isoformswitchanalyzer"
+    tag "untar"
+    tag "gunzip"
+    tag "gffread"
+
+    // The salmon_quant tarball holds one quant directory per sample (ERR188383,
+    // ERR188428, ERR188454, ERR204916), quantified against reference/genes_chrX.gtf.
+    // The test-datasets carry no transcript fasta, so it is extracted from the
+    // chrX genome with gffread -w, as the pipeline does with rsem-prepare-reference
+    setup {
+        run("UNTAR", alias: "UNTAR_SALMON_QUANT") {
+            script '../../../nf-core/untar/main.nf'
+            process {
+            """
+            input[0] = [
+                [ id: 'test' ],
+                file(params.pipelines_testdata_base_path + 'testdata/salmon_quant/salmon_quant.tar.gz', checkIfExists: true)
+            ]
+            """
+            }
+        }
+
+        run("GUNZIP") {
+            script '../../../nf-core/gunzip/main.nf'
+            process {
+            """
+            input[0] = [
+                [ id: 'X' ],
+                file(params.pipelines_testdata_base_path + 'reference/X.fa.gz', checkIfExists: true)
+            ]
+            """
+            }
+        }
+
+        run("GFFREAD") {
+            script '../../../nf-core/gffread/main.nf'
+            process {
+            """
+            input[0] = [
+                [ id: 'genes_chrX' ],
+                file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
+            ]
+            input[1] = GUNZIP.out.gunzip.map { _meta, fasta -> fasta }
+            """
+            }
+        }
+    }
+
+    test("human chrX - salmon quant") {
+
+        when {
+            process {
+                """
+                input[0] = UNTAR_SALMON_QUANT.out.untar
+                    .map { _meta, dir -> file(dir.toString() + '/ERR*', type: 'dir', checkIfExists: true) }
+                input[1] = file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
+                input[2] = GFFREAD.out.gffread_fasta.map { _meta, fasta -> fasta }
+                input[3] = file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true)
+                input[4] = file(params.pipelines_testdata_base_path + 'samplesheet/contrastsheet.csv', checkIfExists: true)
+                input[5] = 0.05
+                input[6] = 0.1
+                """
+            }
+        }
+
+        then {
+            // The switch summary only holds counts, so it is snapshotted by content.
+            // The isoform features table carries the DEXSeq statistics, which are not
+            // reproducible across machines, so it is snapshotted by shape: header and
+            // row count. The plots are listed by name, one per switching gene and
+            // contrast, and the binary object only by name
+            assert process.success
+            assertAll(
+                { assert snapshot(
+                    process.out.isoformswitchanalyzer_summary,
+                    process.out.isoformswitchanalyzer_isoformFeatures.collect { csv ->
+                        def lines = path(csv).readLines()
+                        [ file(csv).name, lines[0], lines.size() ]
+                    },
+                    process.out.switchlist_rds.collect { rds -> file(rds).name },
+                    process.out.results.collect { dir ->
+                        getAllFilesFromDir(dir, relative: true)
+                    },
+                    process.out.findAll { key, _val -> key.startsWith('versions') }
+                ).match() }
+            )
+        }
+
+    }
+
+    test("human chrX - salmon quant - no switches") {
+
+        // A dIF cutoff no isoform reaches: the analysis stops after the switch test,
+        // the summary holds the error message and the features table is empty
+        when {
+            process {
+                """
+                input[0] = UNTAR_SALMON_QUANT.out.untar
+                    .map { _meta, dir -> file(dir.toString() + '/ERR*', type: 'dir', checkIfExists: true) }
+                input[1] = file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
+                input[2] = GFFREAD.out.gffread_fasta.map { _meta, fasta -> fasta }
+                input[3] = file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true)
+                input[4] = file(params.pipelines_testdata_base_path + 'samplesheet/contrastsheet.csv', checkIfExists: true)
+                input[5] = 0.05
+                input[6] = 0.99
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assertAll(
+                { assert snapshot(
+                    process.out.isoformswitchanalyzer_summary,
+                    process.out.isoformswitchanalyzer_isoformFeatures,
+                    process.out.switchlist_rds.collect { rds -> file(rds).name },
+                    process.out.results.collect { dir ->
+                        getAllFilesFromDir(dir, relative: true)
+                    },
+                    process.out.findAll { key, _val -> key.startsWith('versions') }
+                ).match() }
+            )
+        }
+
+    }
+
+    test("human chrX - salmon quant - stub") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = UNTAR_SALMON_QUANT.out.untar
+                    .map { _meta, dir -> file(dir.toString() + '/ERR*', type: 'dir', checkIfExists: true) }
+                input[1] = file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
+                input[2] = GFFREAD.out.gffread_fasta.map { _meta, fasta -> fasta }
+                input[3] = file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true)
+                input[4] = file(params.pipelines_testdata_base_path + 'samplesheet/contrastsheet.csv', checkIfExists: true)
+                input[5] = 0.05
+                input[6] = 0.1
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assertAll(
+                { assert snapshot(process.out).match() }
+            )
+        }
+
+    }
+
+}
