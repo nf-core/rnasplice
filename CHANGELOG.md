@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #272 - Add the `STRAND_JUNCTIONS` module, which gives the junctions of an unstranded sample a strand from the splice motif and the annotation (by @piplus2)
 - #264 - Add an nf-test for the `DEXSEQ_DTU` module, which had no test coverage (by @piplus2)
 - #281 - Add an nf-test for the `ISOFORMSWITCHANALYZER` module, which had no test coverage (by @piplus2)
+- #281 - Redraw the pipeline metro map with [nf-metro](https://github.com/seqeralabs/nf-metro), now covering LeafCutter, the `--source` inputs and the coverage tracks. The `.mmd` source lives next to the SVG in `docs/images/` (by @piplus2)
 
 ### Changed
 

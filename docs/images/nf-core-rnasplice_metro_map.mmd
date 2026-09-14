@@ -1,0 +1,115 @@
+%%metro title: nf-core/rnasplice
+%%metro logo: nf-core-rnasplice_logo_light.png | nf-core-rnasplice_logo_dark.png
+%%metro style: nfcore
+%%metro center_ports: true
+%%metro compact_offsets: true
+%%metro files: fastq_in | FASTQ | Reads
+%%metro file: genome_bam_in | BAM | Genome
+%%metro file: transcriptome_bam_in | BAM | Transcriptome
+%%metro dir: salmon_in | Salmon | Quant
+%%metro file: bigwig_out | BW | Coverage
+%%metro file: report_out | HTML | MultiQC
+%%metro off_track: genome_bam_in, transcriptome_bam_in, salmon_in
+%%metro line: deu | Differential exon usage (DEU) | #e63946
+%%metro line: dtu | Differential transcript usage (DTU) | #4361ee
+%%metro line: event | Event-based splicing | #f39c12
+%%metro line: qc | QC & visualisation | #2db572
+%%metro legend: bl
+%%metro grid: preprocessing | 0,0
+%%metro grid: alignment | 1,0
+%%metro grid: quantification | 1,1
+%%metro grid: exon_analysis | 2,0
+%%metro grid: transcript_analysis | 2,1
+%%metro grid: reporting | 3,0
+
+graph LR
+    subgraph preprocessing [Pre-processing]
+        fastq_in[ ]
+        cat_fastq[cat]
+        fastqc_raw[FastQC]
+        trimgalore[Trim Galore!]
+        fastqc_trim[FastQC]
+
+        fastq_in -->|deu,dtu,event,qc| cat_fastq
+        cat_fastq -->|deu,dtu,event,qc| fastqc_raw
+        fastqc_raw -->|deu,dtu,event,qc| trimgalore
+        trimgalore -->|deu,dtu,event,qc| fastqc_trim
+    end
+
+    subgraph alignment [Genome alignment]
+        genome_bam_in[ ]
+        star[STAR]
+        samtools[SAMtools]
+
+        star -->|deu,event,qc| samtools
+        genome_bam_in -->|deu,event,qc| samtools
+    end
+
+    subgraph quantification [Transcript quantification]
+        transcriptome_bam_in[ ]
+        salmon_in[ ]
+        salmon[Salmon]
+        tximport[tximport]
+
+        transcriptome_bam_in -->|dtu,event| salmon
+        salmon -->|dtu,event| tximport
+        salmon_in -->|dtu,event| tximport
+    end
+
+    subgraph exon_analysis [Exon & junction based analysis]
+        htseq[HTSeq]
+        dexseq_exon[DEXSeq]
+        featurecounts[featureCounts]
+        edger[edgeR]
+        rmats[rMATS]
+        regtools[regtools]
+        leafcutter[LeafCutter]
+
+        htseq -->|deu| dexseq_exon
+        featurecounts -->|deu| edger
+        regtools -->|event| leafcutter
+    end
+
+    subgraph transcript_analysis [Transcript based analysis]
+        drimseq[DRIMSeq]
+        dexseq_dtu[DEXSeq]
+        stager[stageR]
+        isar[IsoformSwitchAnalyzeR]
+        suppa_events[SUPPA events]
+        suppa_psi[SUPPA PSI]
+        suppa_diff[SUPPA diffSplice]
+        suppa_cluster[SUPPA cluster]
+
+        drimseq -->|dtu| dexseq_dtu
+        dexseq_dtu -->|dtu| stager
+        suppa_events -->|event| suppa_psi
+        suppa_psi -->|event| suppa_diff
+        suppa_diff -->|event| suppa_cluster
+    end
+
+    subgraph reporting [Visualisation & reporting]
+        miso[MISO sashimi]
+        bedtools[BEDTools]
+        bigwig[bedGraphToBigWig]
+        multiqc[MultiQC]
+        bigwig_out[ ]
+        report_out[ ]
+
+        bedtools -->|qc| bigwig
+        bigwig -->|qc| bigwig_out
+        multiqc -->|qc| report_out
+    end
+
+    %% Inter-section edges
+    fastqc_trim -->|deu,dtu,event,qc| star
+    star -->|dtu,event| salmon
+    samtools -->|deu| htseq
+    samtools -->|deu| featurecounts
+    samtools -->|event| rmats
+    samtools -->|event| regtools
+    samtools -->|qc| miso
+    samtools -->|qc| bedtools
+    samtools -->|qc| multiqc
+    tximport -->|dtu| drimseq
+    tximport -->|event| suppa_events
+    salmon -->|dtu| isar
