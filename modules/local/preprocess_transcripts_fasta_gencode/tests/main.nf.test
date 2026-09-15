@@ -1,0 +1,97 @@
+// nf-core modules test preprocess_transcripts_fasta_gencode
+nextflow_process {
+
+    name "Test Process PREPROCESS_TRANSCRIPTS_FASTA_GENCODE"
+    script "../main.nf"
+    process "PREPROCESS_TRANSCRIPTS_FASTA_GENCODE"
+
+    tag "modules"
+    tag "modules_local"
+    tag "preprocess_transcripts_fasta_gencode"
+
+    // Two records with GENCODE headers, whose `|` separated fields the module cuts
+    // down to the first one, written plain and gzipped
+    setup {
+        def records = [
+            '>ENST00000456328.2|ENSG00000290825.1|-|-|DDX11L2-202|DDX11L2|1657|lncRNA|',
+            'GTGGAAAACTTTTCAGTGGCTGTGACAGGTTACAGAAGAAGATTGGAGGGGGGAAGGGGAG',
+            '>ENST00000450305.2|ENSG00000223972.6|OTTHUMG00000000961.2|OTTHUMT00000002844.2|DDX11L1-201|DDX11L1|632|transcribed_unprocessed_pseudogene|',
+            'ACTCAAGATAATGATGAGTAAAGAATATATTTCTAACAACAAAAAGGAAATTTGATAGTA',
+        ]
+        def fasta = records.join('\n') + '\n'
+        file("${outputDir}/gencode.transcripts.fa").text = fasta
+        new java.util.zip.GZIPOutputStream(file("${outputDir}/gencode.transcripts.fa.gz").newOutputStream()).withStream { out ->
+            out.write(fasta.bytes)
+        }
+    }
+
+    test("gencode fasta") {
+
+        when {
+            process {
+                """
+                input[0] = [ [ id:'test' ], file("${outputDir}/gencode.transcripts.fa", checkIfExists: true) ]
+                """
+            }
+        }
+
+        then {
+            def headers = path(process.out.fasta[0][1]).readLines().findAll { line -> line.startsWith('>') }
+            assertAll(
+                { assert process.success },
+                { assert headers == [ '>ENST00000456328.2', '>ENST00000450305.2' ] },
+                { assert snapshot(
+                    process.out.fasta,
+                    process.out.findAll { key, _val -> key.startsWith('versions') }
+                ).match() }
+            )
+        }
+
+    }
+
+    test("gencode fasta - gzipped") {
+
+        when {
+            process {
+                """
+                input[0] = [ [ id:'test' ], file("${outputDir}/gencode.transcripts.fa.gz", checkIfExists: true) ]
+                """
+            }
+        }
+
+        then {
+            def headers = path(process.out.fasta[0][1]).readLines().findAll { line -> line.startsWith('>') }
+            assertAll(
+                { assert process.success },
+                { assert headers == [ '>ENST00000456328.2', '>ENST00000450305.2' ] },
+                { assert snapshot(
+                    process.out.fasta,
+                    process.out.findAll { key, _val -> key.startsWith('versions') }
+                ).match() }
+            )
+        }
+
+    }
+
+    test("gencode fasta - stub") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = [ [ id:'test' ], file("${outputDir}/gencode.transcripts.fa.gz", checkIfExists: true) ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(process.out).match() }
+            )
+        }
+
+    }
+
+}
