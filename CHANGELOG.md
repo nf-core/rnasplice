@@ -56,6 +56,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #270 - Move the `LEAFCUTTER` subworkflow to the nf-core subworkflow template. Its `juncs` output is now the per sample `[ meta, junc ]` tuples, instead of a single list flattening the meta maps in with the paths (by @piplus2)
 - #272 - `--leafcutter` now works with `--source genome_bam`, whatever the strandedness, since the junction strand no longer has to come from the alignment. For unstranded libraries the clusters differ slightly from LeafCutter's documented STAR route, see the LeafCutter section of `docs/usage.md` (by @piplus2)
 - #281 - Refactor `ISOFORMSWITCHANALYZER` to the nf-core module template and update `IsoformSwitchAnalyzeR` 2.2.0 -> 2.12.0 (R 4.3 -> 4.5). `bin/run_isoformswitchanalyzer.R` is now a module template (by @piplus2)
+- #284 - Refactor `PREPROCESS_TRANSCRIPTS_FASTA_GENCODE` to the nf-core module template, with `environment.yml`, `meta.yml`, a stub and nf-tests. It reports the `coreutils` version of `cut`, which does the work, instead of `sed` (by @piplus2)
 
 ### Fixed
 
@@ -87,6 +88,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #258 - Fix `ISOFORMSWITCHANALYZER` receiving the `.tar.gz` archives instead of the extracted Salmon directories with `--source salmon_results`. `TX2GENE_TXIMPORT` extracts them and now emits them (by @piplus2)
 - #261 - Fix the paired rMATS sample order when a sample spans several samplesheet rows (by @piplus2)
 - #261 - Fix single condition rMATS runs, which aborted before producing any output (by @piplus2)
+- #284 - Fix `--gencode` with `--transcript_fasta` aborting in `PREPARE_GENOME`, as `PREPROCESS_TRANSCRIPTS_FASTA_GENCODE` dropped the meta map the downstream channel expects (by @piplus2)
 - #261 - Fix samples split over several samplesheet rows, whose fastq files were passed on without being concatenated (by @piplus2)
 - #263 - **Breaking change**: `DEXSEQ_COUNT` no longer counts BAM input as forward stranded, it follows the samplesheet `strandedness`, so DEXSeq results change for BAM samplesheets that do not set the column (reported by @albamasmalavila, fix by @piplus2)
 - #264 - Fix the `DEXSEQ_DTU` stub, which wrote file names the process outputs did not match, so a stub run of the DTU path failed (by @piplus2)
