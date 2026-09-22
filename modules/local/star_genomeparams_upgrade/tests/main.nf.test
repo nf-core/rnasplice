@@ -34,9 +34,12 @@ nextflow_process {
                 // The parameters STAR wrote for the index itself must survive untouched
                 { assert params_file.text.contains('genomeSAindexNbases\t14') },
                 { assert params_file.text.contains('sjdbOverhang\t100') },
-                // The binary index files are linked through unchanged
+                // The binary index files are copied through unchanged. They must be real files:
+                // an object storage work directory cannot represent a symlink, see nf-core/rnaseq#1911
                 { assert file("${process.out.index[0][1]}/SA").text == 'legacy SA\n' },
                 { assert file("${process.out.index[0][1]}/Genome").text == 'legacy Genome\n' },
+                { assert !java.nio.file.Files.isSymbolicLink(java.nio.file.Paths.get("${process.out.index[0][1]}/SA")) },
+                { assert !java.nio.file.Files.isSymbolicLink(java.nio.file.Paths.get("${process.out.index[0][1]}/Genome")) },
                 { assert snapshot(process.out.versions_gawk).match() }
             )
         }
@@ -86,7 +89,8 @@ nextflow_process {
         then {
             assertAll(
                 { assert process.success },
-                { assert file("${process.out.index[0][1]}/genomeParameters.txt").exists() }
+                { assert file("${process.out.index[0][1]}/genomeParameters.txt").exists() },
+                { assert !java.nio.file.Files.isSymbolicLink(java.nio.file.Paths.get("${process.out.index[0][1]}/SA")) }
             )
         }
 

@@ -21,13 +21,14 @@ process STAR_GENOMEPARAMS_UPGRADE {
     """
     mkdir -p star
 
-    # The binary index files are identical between STAR 2.6.x and 2.7.x, so link them through untouched
+    # The binary index files are identical between STAR 2.6.x and 2.7.x, so copy them through untouched.
+    # Object storage backed work directories cannot represent a symlink, see nf-core/rnaseq#1911.
     for f in input_index/*; do
         name=\$(basename "\$f")
         if [ "\$name" = "genomeParameters.txt" ]; then
             continue
         fi
-        ln -s "\$(readlink -f "\$f")" "star/\$name"
+        cp -r "\$(readlink -f "\$f")" "star/\$name"
     done
 
     # Rewrite only the metadata STAR 2.7.4a+ validates. A modern index matches none of these rules
@@ -56,7 +57,7 @@ process STAR_GENOMEPARAMS_UPGRADE {
     """
     mkdir -p star
     for f in input_index/*; do
-        ln -s "\$(readlink -f "\$f")" "star/\$(basename "\$f")"
+        cp -r "\$(readlink -f "\$f")" "star/\$(basename "\$f")"
     done
     """
 }
