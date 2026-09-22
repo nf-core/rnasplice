@@ -67,7 +67,6 @@ workflow RNASPLICE {
     ch_star_index // channel: path of star index
     ch_suppa_tpm
     ch_chrom_sizes
-    is_aws_igenome
     multiqc_config // parameter value pass-through
     multiqc_logo // parameter value pass-through
     multiqc_methods_description // parameter value pass-through
@@ -189,7 +188,6 @@ workflow RNASPLICE {
                 ch_star_index.map { index -> [[:], index] },
                 ch_gtf.map { gtf -> [[:], gtf] },
                 params.star_ignore_sjdbgtf,
-                is_aws_igenome,
                 ch_fasta.map { fasta -> [[:], fasta, []] },
             )
             ch_genome_bam = ALIGN_STAR.out.bam           // [meta, bam]

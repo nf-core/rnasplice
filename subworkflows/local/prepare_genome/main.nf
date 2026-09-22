@@ -2,25 +2,25 @@
 // Uncompress and prepare reference genome files
 //
 
-include { GUNZIP as GUNZIP_FASTA                              } from '../../../modules/nf-core/gunzip'
-include { GUNZIP as GUNZIP_GTF                                } from '../../../modules/nf-core/gunzip'
-include { GUNZIP as GUNZIP_GFF                                } from '../../../modules/nf-core/gunzip'
-include { GUNZIP as GUNZIP_TRANSCRIPT_FASTA                   } from '../../../modules/nf-core/gunzip'
-include { GUNZIP as GUNZIP_GFF_DEXSEQ                         } from '../../../modules/nf-core/gunzip'
-include { GUNZIP as GUNZIP_SUPPA_TPM                          } from '../../../modules/nf-core/gunzip'
+include { GUNZIP as GUNZIP_FASTA                          } from '../../../modules/nf-core/gunzip'
+include { GUNZIP as GUNZIP_GTF                            } from '../../../modules/nf-core/gunzip'
+include { GUNZIP as GUNZIP_GFF                            } from '../../../modules/nf-core/gunzip'
+include { GUNZIP as GUNZIP_TRANSCRIPT_FASTA               } from '../../../modules/nf-core/gunzip'
+include { GUNZIP as GUNZIP_GFF_DEXSEQ                     } from '../../../modules/nf-core/gunzip'
+include { GUNZIP as GUNZIP_SUPPA_TPM                      } from '../../../modules/nf-core/gunzip'
 
-include { UNTAR as UNTAR_STAR_INDEX                           } from '../../../modules/nf-core/untar'
-include { UNTAR as UNTAR_SALMON_INDEX                         } from '../../../modules/nf-core/untar'
+include { UNTAR as UNTAR_STAR_INDEX                       } from '../../../modules/nf-core/untar'
+include { UNTAR as UNTAR_SALMON_INDEX                     } from '../../../modules/nf-core/untar'
 
-include { SAMTOOLS_FAIDX                                      } from '../../../modules/nf-core/samtools/faidx'
-include { GFFREAD                                             } from '../../../modules/nf-core/gffread'
-include { STAR_GENOMEGENERATE                                 } from '../../../modules/nf-core/star/genomegenerate'
-include { STAR_GENOMEGENERATE as STAR_GENOMEGENERATE_IGENOMES } from '../../../modules/nf-core/star/genomegenerate'
-include { SALMON_INDEX                                        } from '../../../modules/nf-core/salmon/index'
-include { RSEM_PREPAREREFERENCE as MAKE_TRANSCRIPTS_FASTA     } from '../../../modules/nf-core/rsem/preparereference'
+include { SAMTOOLS_FAIDX                                  } from '../../../modules/nf-core/samtools/faidx'
+include { GFFREAD                                         } from '../../../modules/nf-core/gffread'
+include { STAR_GENOMEGENERATE                             } from '../../../modules/nf-core/star/genomegenerate'
+include { SALMON_INDEX                                    } from '../../../modules/nf-core/salmon/index'
+include { RSEM_PREPAREREFERENCE as MAKE_TRANSCRIPTS_FASTA } from '../../../modules/nf-core/rsem/preparereference'
 
-include { GTFGENEFILTER                                       } from '../../../modules/local/gtfgenefilter'
-include { PREPROCESS_TRANSCRIPTS_FASTA_GENCODE                } from '../../../modules/local/preprocess_transcripts_fasta_gencode'
+include { GTFGENEFILTER                                   } from '../../../modules/local/gtfgenefilter'
+include { PREPROCESS_TRANSCRIPTS_FASTA_GENCODE            } from '../../../modules/local/preprocess_transcripts_fasta_gencode'
+include { STAR_GENOMEPARAMS_UPGRADE                       } from '../../../modules/local/star_genomeparams_upgrade'
 
 workflow PREPARE_GENOME {
     take:
@@ -33,7 +33,6 @@ workflow PREPARE_GENOME {
     gff_dexseq //      file: /path/to/dexseq/genome.gff
     suppa_tpm //      file: /path/to/suppa/quant.tpm
     gencode //   boolean: whether gene annotation is from gencode
-    is_aws_igenome //   boolean: whether the genome files are from AWS iGenomes
 
     main:
 
@@ -105,27 +104,20 @@ workflow PREPARE_GENOME {
     //
     // Uncompress STAR index or generate from scratch if required
     //
-    // The rest of the AWS iGenomes reference files are meant to be used with STAR 2.6.1d,
-    // so `STAR_GENOMEGENERATE_IGENOMES` is the same nf-core module pinned to a STAR 2.6.1d
-    // container in `conf/modules.config`, as `STAR_ALIGN_IGENOMES` is.
-    //
     ch_star_index = channel.empty()
     if (params.source == 'fastq' && !params.skip_alignment && (params.aligner == 'star' || params.aligner == 'star_salmon')) {
         if (star_index) {
-            if (star_index.endsWith('.tar.gz')) {
-                ch_star_index = UNTAR_STAR_INDEX([[:], star_index]).untar
-            }
-            else {
-                ch_star_index = channel.value([[:], file(star_index, checkIfExists: true)])
-            }
+            def ch_star_index_raw = star_index.endsWith('.tar.gz')
+                ? UNTAR_STAR_INDEX([[:], star_index]).untar
+                : channel.value([[:], file(star_index, checkIfExists: true)])
+
+            // A supplied index may have been built with STAR 2.6.x, as the AWS iGenomes ones were,
+            // which STAR 2.7.4a and later refuse to read. `STAR_GENOMEPARAMS_UPGRADE` rewrites the
+            // `genomeParameters.txt` metadata that changed and leaves a modern index untouched.
+            ch_star_index = STAR_GENOMEPARAMS_UPGRADE(ch_star_index_raw).index
         }
         else {
-            if (is_aws_igenome) {
-                ch_star_index = STAR_GENOMEGENERATE_IGENOMES(ch_fasta, ch_gtf).index
-            }
-            else {
-                ch_star_index = STAR_GENOMEGENERATE(ch_fasta, ch_gtf).index
-            }
+            ch_star_index = STAR_GENOMEGENERATE(ch_fasta, ch_gtf).index
         }
     }
 

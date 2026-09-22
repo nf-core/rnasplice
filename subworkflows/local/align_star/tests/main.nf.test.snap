@@ -366,7 +366,7 @@
             "nextflow": "26.04.3"
         }
     },
-    "homo_sapiens - paired_end - igenomes": {
+    "homo_sapiens - paired_end - seq_center": {
         "content": [
             [
                 [
@@ -474,149 +474,10 @@
                 ]
             ]
         ],
-        "timestamp": "2026-09-07T09:36:37.994002706",
+        "timestamp": "2026-09-22T18:44:29.713080985",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.3"
-        }
-    },
-    "homo_sapiens - paired_end - igenomes - stub": {
-        "content": [
-            {
-                "bam": [
-                    [
-                        {
-                            "id": "test",
-                            "single_end": false
-                        },
-                        "test_sorted.bam:md5,d41d8cd98f00b204e9800998ecf8427e"
-                    ]
-                ],
-                "bam_sorted": [
-                    [
-                        {
-                            "id": "test",
-                            "single_end": false
-                        },
-                        "test.sortedByCoord.out.bam:md5,d41d8cd98f00b204e9800998ecf8427e"
-                    ]
-                ],
-                "bam_transcript": [
-                    [
-                        {
-                            "id": "test",
-                            "single_end": false
-                        },
-                        "test.toTranscriptome.out.bam:md5,d41d8cd98f00b204e9800998ecf8427e"
-                    ]
-                ],
-                "fastq": [
-                    [
-                        {
-                            "id": "test",
-                            "single_end": false
-                        },
-                        [
-                            "test.unmapped_1.fastq.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
-                            "test.unmapped_2.fastq.gz:md5,68b329da9893e34099c7d8ad5cb9c940"
-                        ]
-                    ]
-                ],
-                "flagstat": [
-                    [
-                        {
-                            "id": "test",
-                            "single_end": false
-                        },
-                        "test.flagstat:md5,67394650dbae96d1a4fcc70484822159"
-                    ]
-                ],
-                "idxstats": [
-                    [
-                        {
-                            "id": "test",
-                            "single_end": false
-                        },
-                        "test.idxstats:md5,d41d8cd98f00b204e9800998ecf8427e"
-                    ]
-                ],
-                "index": [
-                    [
-                        {
-                            "id": "test",
-                            "single_end": false
-                        },
-                        "test_sorted.bam.bai:md5,d41d8cd98f00b204e9800998ecf8427e"
-                    ]
-                ],
-                "log_final": [
-                    [
-                        {
-                            "id": "test",
-                            "single_end": false
-                        },
-                        "test.Log.final.out:md5,d41d8cd98f00b204e9800998ecf8427e"
-                    ]
-                ],
-                "log_out": [
-                    [
-                        {
-                            "id": "test",
-                            "single_end": false
-                        },
-                        "test.Log.out:md5,d41d8cd98f00b204e9800998ecf8427e"
-                    ]
-                ],
-                "log_progress": [
-                    [
-                        {
-                            "id": "test",
-                            "single_end": false
-                        },
-                        "test.Log.progress.out:md5,d41d8cd98f00b204e9800998ecf8427e"
-                    ]
-                ],
-                "orig_bam": [
-                    [
-                        {
-                            "id": "test",
-                            "single_end": false
-                        },
-                        [
-                            "test.Aligned.sortedByCoord.out.bam:md5,d41d8cd98f00b204e9800998ecf8427e",
-                            "test.sortedByCoord.out.bam:md5,d41d8cd98f00b204e9800998ecf8427e",
-                            "testXd.out.bam:md5,d41d8cd98f00b204e9800998ecf8427e"
-                        ]
-                    ]
-                ],
-                "stats": [
-                    [
-                        {
-                            "id": "test",
-                            "single_end": false
-                        },
-                        "test.stats:md5,d41d8cd98f00b204e9800998ecf8427e"
-                    ]
-                ],
-                "tab": [
-                    [
-                        {
-                            "id": "test",
-                            "single_end": false
-                        },
-                        [
-                            "test.ReadsPerGene.out.tab:md5,d41d8cd98f00b204e9800998ecf8427e",
-                            "test.SJ.out.tab:md5,d41d8cd98f00b204e9800998ecf8427e",
-                            "test.tab:md5,d41d8cd98f00b204e9800998ecf8427e"
-                        ]
-                    ]
-                ]
-            }
-        ],
-        "timestamp": "2026-09-22T12:41:13.096390732",
-        "meta": {
-            "nf-test": "0.9.5",
-            "nextflow": "26.04.3"
+            "nextflow": "26.04.4"
         }
     }
 }

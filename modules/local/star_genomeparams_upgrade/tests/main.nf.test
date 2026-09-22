@@ -1,0 +1,95 @@
+nextflow_process {
+
+    name "Test Process STAR_GENOMEPARAMS_UPGRADE"
+    script "../main.nf"
+    process "STAR_GENOMEPARAMS_UPGRADE"
+
+    tag "modules"
+    tag "modules_local"
+    tag "star_genomeparams_upgrade"
+
+    test("legacy index - star 2.6.x") {
+
+        when {
+            process {
+                """
+                input[0] = channel.of([
+                    [ id:'test' ],
+                    file("\${projectDir}/modules/local/star_genomeparams_upgrade/tests/legacy_index", checkIfExists: true)
+                ])
+                """
+            }
+        }
+
+        then {
+            def params_file = file("${process.out.index[0][1]}/genomeParameters.txt")
+            assertAll(
+                { assert process.success },
+                // The version STAR 2.7.4a and later validate, and the fields it expects alongside it
+                { assert params_file.text.contains('versionGenome\t2.7.4a') },
+                { assert !params_file.text.contains('20201') },
+                { assert params_file.text.contains('genomeType\tFull') },
+                { assert params_file.text.contains('genomeTransformType\tNone') },
+                { assert params_file.text.contains('genomeTransformVCF\t-') },
+                // The parameters STAR wrote for the index itself must survive untouched
+                { assert params_file.text.contains('genomeSAindexNbases\t14') },
+                { assert params_file.text.contains('sjdbOverhang\t100') },
+                // The binary index files are linked through unchanged
+                { assert file("${process.out.index[0][1]}/SA").text == 'legacy SA\n' },
+                { assert file("${process.out.index[0][1]}/Genome").text == 'legacy Genome\n' },
+                { assert snapshot(process.out.versions_gawk).match() }
+            )
+        }
+
+    }
+
+    test("modern index - passed through unchanged") {
+
+        when {
+            process {
+                """
+                input[0] = channel.of([
+                    [ id:'test' ],
+                    file("\${projectDir}/modules/local/star_genomeparams_upgrade/tests/modern_index", checkIfExists: true)
+                ])
+                """
+            }
+        }
+
+        then {
+            def params_file = file("${process.out.index[0][1]}/genomeParameters.txt")
+            def original = file("${projectDir}/modules/local/star_genomeparams_upgrade/tests/modern_index/genomeParameters.txt")
+            assertAll(
+                { assert process.success },
+                { assert params_file.text == original.text },
+                { assert file("${process.out.index[0][1]}/SA").text == 'modern SA\n' }
+            )
+        }
+
+    }
+
+    test("legacy index - stub") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = channel.of([
+                    [ id:'test' ],
+                    file("\${projectDir}/modules/local/star_genomeparams_upgrade/tests/legacy_index", checkIfExists: true)
+                ])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert file("${process.out.index[0][1]}/genomeParameters.txt").exists() }
+            )
+        }
+
+    }
+
+}

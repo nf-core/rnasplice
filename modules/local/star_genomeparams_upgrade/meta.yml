@@ -1,0 +1,67 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "star_genomeparams_upgrade"
+description: Rewrite the `genomeParameters.txt` of a STAR index built with STAR 2.6.x
+  so that STAR 2.7.4a and later accept it, passing the binary index files through untouched
+keywords:
+  - star
+  - index
+  - igenomes
+  - compatibility
+tools:
+  - "gawk":
+      description: "GNU awk, a pattern scanning and processing language"
+      homepage: "https://www.gnu.org/software/gawk/"
+      documentation: "https://www.gnu.org/software/gawk/manual/gawk.html"
+      licence: ["GPL-3.0-or-later"]
+      identifier: ""
+
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing reference information
+          e.g. [ id:'test' ]
+    - index:
+        type: directory
+        description: STAR index directory, which may have been built with STAR 2.6.x
+        pattern: "*/"
+
+output:
+  index:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing reference information
+            e.g. [ id:'test' ]
+      - "star":
+          type: directory
+          description: STAR index whose `genomeParameters.txt` declares a version STAR
+            2.7.4a and later accept, with the binary index files linked through unchanged
+          pattern: "star/"
+  versions_gawk:
+    - - ${task.process}:
+          type: string
+          description: The process the versions were collected from
+      - gawk:
+          type: string
+          description: The tool name
+      - awk -Wversion | sed '1!d; s/.*Awk //; s/,.*//':
+          type: eval
+          description: The expression to obtain the version of the tool
+
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The process the versions were collected from
+      - gawk:
+          type: string
+          description: The tool name
+      - awk -Wversion | sed '1!d; s/.*Awk //; s/,.*//':
+          type: eval
+          description: The expression to obtain the version of the tool
+authors:
+  - "@pinin4fjords"
+  - "@piplus2"
+maintainers:
+  - "@piplus2"
