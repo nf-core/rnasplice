@@ -10,7 +10,6 @@ nextflow_workflow {
     tag "star"
     tag "star/align"
     tag "star/genomegenerate"
-    tag "star_genomegenerate_igenomes"
     tag "subworkflows/bam_sort_stats_samtools"
     tag "samtools"
     tag "samtools/sort"
@@ -159,8 +158,8 @@ nextflow_workflow {
         config "./nextflow.seq_center.config"
 
         setup {
-            run("STAR_GENOMEGENERATE_IGENOMES") {
-                script "../../../../modules/local/star_genomegenerate_igenomes/main.nf"
+            run("STAR_GENOMEGENERATE", alias: "STAR_GENOMEGENERATE_IGENOMES") {
+                script "../../../../modules/nf-core/star/genomegenerate/main.nf"
                 process {
                     """
                     input[0] = channel.of([
@@ -288,8 +287,8 @@ nextflow_workflow {
         options "-stub"
 
         setup {
-            run("STAR_GENOMEGENERATE_IGENOMES") {
-                script "../../../../modules/local/star_genomegenerate_igenomes/main.nf"
+            run("STAR_GENOMEGENERATE", alias: "STAR_GENOMEGENERATE_IGENOMES") {
+                script "../../../../modules/nf-core/star/genomegenerate/main.nf"
                 process {
                     """
                     input[0] = channel.of([
