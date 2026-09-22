@@ -2,9 +2,9 @@
 // Alignment with STAR
 //
 
-include { STAR_ALIGN              } from '../../../modules/nf-core/star/align/main'
-include { STAR_ALIGN_IGENOMES     } from '../../../modules/local/star_align_igenomes'
-include { BAM_SORT_STATS_SAMTOOLS } from '../../../subworkflows/nf-core/bam_sort_stats_samtools'
+include { STAR_ALIGN                        } from '../../../modules/nf-core/star/align/main'
+include { STAR_ALIGN as STAR_ALIGN_IGENOMES } from '../../../modules/nf-core/star/align/main'
+include { BAM_SORT_STATS_SAMTOOLS           } from '../../../subworkflows/nf-core/bam_sort_stats_samtools'
 
 workflow ALIGN_STAR {
     take:
@@ -12,8 +12,6 @@ workflow ALIGN_STAR {
     index // channel: /path/to/star/index/
     gtf // channel: /path/to/genome.gtf
     star_ignore_sjdbgtf // boolean: when using pre-built STAR indices do not re-extract and use splice junctions from the GTF file
-    seq_platform // string : sequencing platform
-    seq_center // string : sequencing center
     is_aws_igenome // boolean: whether the genome files are from AWS iGenomes
     fasta // channel: /path/to/fasta
 
@@ -21,6 +19,10 @@ workflow ALIGN_STAR {
 
     //
     // Map reads with STAR
+    //
+    // AWS iGenomes ships STAR indices built with STAR 2.6.1d, which STAR 2.7.x cannot read.
+    // `STAR_ALIGN_IGENOMES` is the same nf-core module, pinned to a STAR 2.6.1d container
+    // and given the legacy arguments in `conf/modules.config`.
     //
 
     ch_orig_bam = channel.empty()
@@ -33,7 +35,7 @@ workflow ALIGN_STAR {
     ch_tab = channel.empty()
 
     if (is_aws_igenome) {
-        STAR_ALIGN_IGENOMES(reads, index, gtf, star_ignore_sjdbgtf, seq_platform, seq_center)
+        STAR_ALIGN_IGENOMES(reads, index, gtf, star_ignore_sjdbgtf)
         ch_orig_bam = STAR_ALIGN_IGENOMES.out.bam
         ch_log_final = STAR_ALIGN_IGENOMES.out.log_final
         ch_log_out = STAR_ALIGN_IGENOMES.out.log_out

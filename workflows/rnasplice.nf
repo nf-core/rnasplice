@@ -189,8 +189,6 @@ workflow RNASPLICE {
                 ch_star_index.map { index -> [[:], index] },
                 ch_gtf.map { gtf -> [[:], gtf] },
                 params.star_ignore_sjdbgtf,
-                '',
-                params.seq_center ?: '',
                 is_aws_igenome,
                 ch_fasta.map { fasta -> [[:], fasta, []] },
             )
