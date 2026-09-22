@@ -60,6 +60,11 @@
                         "git_sha": "6d46786420b4d7bc88eba026eb389c0c5535d120",
                         "installed_by": ["modules"]
                     },
+                    "rmats/prep": {
+                        "branch": "master",
+                        "git_sha": "93b0719a5885b85a0ea6257b0c8bc4b1c5260308",
+                        "installed_by": ["modules"]
+                    },
                     "rsem/preparereference": {
                         "branch": "master",
                         "git_sha": "6d46786420b4d7bc88eba026eb389c0c5535d120",
