@@ -4,6 +4,7 @@
     "title": "nf-core/rnasplice pipeline - params.input schema (genome_bam source)",
     "description": "Schema for the file provided with params.input when --source genome_bam",
     "type": "array",
+    "uniqueEntries": ["sample"],
     "items": {
         "type": "object",
         "properties": {

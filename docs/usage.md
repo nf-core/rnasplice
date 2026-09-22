@@ -92,6 +92,8 @@ TREATMENT_REP3,treatment,reverse,false,AEG588A6.Aligned.out.bam
 
 Neither the library type nor the read type can be read from a BAM file, so both come from the samplesheet: `strandedness` defaults to `unstranded` and `single_end` to `false` (paired end), which keeps samplesheets without those columns valid. They are passed on to the tools that need them, here DEXSeq, featureCounts (edgeR) and rMATS. Note that DEXSeq used to count BAM input as forward stranded and now follows `strandedness`.
 
+Unlike the fastq source, the pipeline does not merge several rows of the same sample: the `sample` names must be unique for the BAM and Salmon sources, so merge the runs of a sample beforehand.
+
 This configuration allows the pipeline to run the "dexseq_exon", "edger_exon" and "rmats" analysis methods.
 
 #### Transcriptome BAM files

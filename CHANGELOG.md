@@ -60,6 +60,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #284 - Refactor `PREPROCESS_TRANSCRIPTS_FASTA_GENCODE` to the nf-core module template, with `environment.yml`, `meta.yml`, a stub and nf-tests. It reports the `coreutils` version of `cut`, which does the work, instead of `sed` (by @piplus2)
 - #285 - Replace the local `RMATS_PREP` module with the nf-core `rmats/prep` module, which preps each BAM file once and on its own instead of every BAM file of a contrast in one go, and refactor `RMATS_POST` to the nf-core module template, with `environment.yml`, `meta.yml`, a stub and the `--paired-stats`, `--cstat` and `--novelSS` options in `ext.args`. It also reports the `PAIRADISE` version (by @piplus2)
 - #285 - The rMATS `.rmats` files are published to `rmats/prep/{sample}.rmats` and the results of a contrast to `rmats/{contrast}{_paired}/`, with the log next to the folder. The intermediate `tmp/` folder of the post step is no longer published (by @piplus2)
+- #285 - The samplesheet of `--source genome_bam`, `transcriptome_bam` and `salmon_results` must have unique `sample` names, which the schema now checks up front. Duplicates already collided in the per sample outputs, since only the fastq source merges the runs of a sample (by @piplus2)
 
 ### Fixed
 
