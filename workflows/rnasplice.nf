@@ -247,12 +247,8 @@ workflow RNASPLICE {
                 ch_samples,
                 ch_contrastsheet,
                 ch_genome_bam_conditions,
-                ch_gtf,
+                ch_gtf.map { gtf -> [[:], gtf] },
                 params.rmats_read_len,
-                params.rmats_splice_diff_cutoff,
-                params.rmats_novel_splice_site,
-                params.rmats_min_intron_len,
-                params.rmats_max_exon_len,
                 params.rmats_paired_stats,
             )
         }

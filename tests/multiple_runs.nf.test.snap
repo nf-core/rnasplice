@@ -25,6 +25,7 @@
                     "star": "2.7.10a"
                 },
                 "RMATS_POST": {
+                    "pairadise": 1.0,
                     "rmats": "4.3.0"
                 },
                 "RMATS_PREP": {
@@ -79,10 +80,10 @@
                 }
             }
         ],
-        "timestamp": "2026-09-09T11:02:14.727903054",
+        "timestamp": "2026-09-22T10:24:32.804506028",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.4"
+            "nextflow": "26.04.3"
         }
     }
 }

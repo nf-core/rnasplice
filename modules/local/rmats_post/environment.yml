@@ -1,6 +1,8 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/environment-schema.json
 channels:
-  - bioconda
   - conda-forge
+  - bioconda
 dependencies:
-  - bioconda::rmats=4.3.0
   - bioconda::r-pairadise=1.0.0
+  - bioconda::rmats=4.3.0

@@ -118,14 +118,8 @@ trimgalore/*fastq.gz_trimming_report.txt
 {salmon,star_salmon}/salmon.merged.transcript_tpm.tsv
 
 # rMATS
-{salmon,star_salmon}/rmats/**/rMATS_result_*.txt
-{salmon,star_salmon}/rmats/**/pairadise_*.txt
-{salmon,star_salmon}/rmats/**/_read_outcomes_by_bam.txt
-{salmon,star_salmon}/rmats/**/*.rmats
-{salmon,star_salmon}/rmats/*/rmats_temp/*_read_outcomes_by_bam.txt
-{salmon,star_salmon}/rmats/*/rmats_temp/*.rmats
+{salmon,star_salmon}/rmats/prep/*.rmats
 {salmon,star_salmon}/rmats/bamlist/*.txt
-{salmon,star_salmon}/rmats/*/rmats_post/*.txt
 
 # MISO
 **/*.miso

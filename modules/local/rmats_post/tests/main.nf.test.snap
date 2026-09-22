@@ -1,0 +1,526 @@
+{
+    "two conditions - paired": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "GBR-YRI",
+                        "treatment": "GBR",
+                        "control": "YRI"
+                    },
+                    [
+                        "A3SS.MATS.JC.txt:md5,53ec92a7e49419a7002066acb47bf7a5",
+                        "A3SS.MATS.JCEC.txt:md5,26d567fff9c26b69796921498f9ab4ea",
+                        "A5SS.MATS.JC.txt:md5,169fcde281abdeb7b67e1d099cd9aed6",
+                        "A5SS.MATS.JCEC.txt:md5,7f5ae1e9d770e2575cfaeb76412cef8a",
+                        "MXE.MATS.JC.txt:md5,94b464242fd78bc090f4fd6e05048a01",
+                        "MXE.MATS.JCEC.txt:md5,9e971a6fb507629b560efa24af119765",
+                        "RI.MATS.JC.txt:md5,6e0393312b6b02bf742b727db0c6a6f6",
+                        "RI.MATS.JCEC.txt:md5,66db59f5e84daede36e1fbe52f3d36c1",
+                        "SE.MATS.JC.txt:md5,86f1f4a3748e7dc6871829ae5902864a",
+                        "SE.MATS.JCEC.txt:md5,09e8a1434387f92822d1a026baae2435"
+                    ]
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "GBR-YRI",
+                        "treatment": "GBR",
+                        "control": "YRI"
+                    },
+                    [
+                        "fromGTF.A3SS.txt:md5,9f892da719f08e59a1e449a47b055c1f",
+                        "fromGTF.A5SS.txt:md5,f1591b7fea6cf5cb3dab599babd61171",
+                        "fromGTF.MXE.txt:md5,521c20b5a358a2e12074908862b959e4",
+                        "fromGTF.RI.txt:md5,6ddf3665862248f46b06bc514bb5bfcf",
+                        "fromGTF.SE.txt:md5,f4b7b59a5dff000a24e15997f706129c",
+                        "fromGTF.novelJunction.A3SS.txt:md5,bebea6df7f097bb18f3b1a905107699c",
+                        "fromGTF.novelJunction.A5SS.txt:md5,98d637f5ea85e7a2c91e439f8e68ec6b",
+                        "fromGTF.novelJunction.MXE.txt:md5,afe28d2bba43be9edc54755155e35086",
+                        "fromGTF.novelJunction.RI.txt:md5,e2a74ae18201bf75c048905806b0c246",
+                        "fromGTF.novelJunction.SE.txt:md5,7f80f8f3087d2c10493a165e342c4a79",
+                        "fromGTF.novelSpliceSite.A3SS.txt:md5,f760b66749d1e42595b50c689583ac7c",
+                        "fromGTF.novelSpliceSite.A5SS.txt:md5,f760b66749d1e42595b50c689583ac7c",
+                        "fromGTF.novelSpliceSite.MXE.txt:md5,0c41e04b81f335801f85af04ef0ae3e3",
+                        "fromGTF.novelSpliceSite.RI.txt:md5,5014acbbac2bd06d27e322bccf7499f7",
+                        "fromGTF.novelSpliceSite.SE.txt:md5,bfb5abe47d6cfc54f7209ca921bf58b4"
+                    ]
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "GBR-YRI",
+                        "treatment": "GBR",
+                        "control": "YRI"
+                    },
+                    [
+                        "JC.raw.input.A3SS.txt:md5,e0e2e558fbaa0ef5fb3d7737d10ea8d8",
+                        "JC.raw.input.A5SS.txt:md5,cd8bb99126aebc70c5ecbd181cbeca32",
+                        "JC.raw.input.MXE.txt:md5,3d0c5647a33b331e88436e5083ffead5",
+                        "JC.raw.input.RI.txt:md5,8ec96107852611a1ab7844f6a5857c04",
+                        "JC.raw.input.SE.txt:md5,0927b409736629d5b7fb6d41411f37e8",
+                        "JCEC.raw.input.A3SS.txt:md5,4eab95ed94b4b44506bdd3ed8d92a2d1",
+                        "JCEC.raw.input.A5SS.txt:md5,491c8ff91adfe2ea25c4907298da3129",
+                        "JCEC.raw.input.MXE.txt:md5,7004a429353532fbf86125f2dcefe64d",
+                        "JCEC.raw.input.RI.txt:md5,811005304c9161ef53efdee390cf92c4",
+                        "JCEC.raw.input.SE.txt:md5,3077c2b44bc08041d79a41c2e763c285"
+                    ]
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "GBR-YRI",
+                        "treatment": "GBR",
+                        "control": "YRI"
+                    },
+                    "summary.txt:md5,7f27ee7ece5cc5baeb2de83bd20057f7"
+                ]
+            ],
+            {
+                "versions_pairadise": [
+                    [
+                        "RMATS_POST",
+                        "pairadise",
+                        "1.0"
+                    ]
+                ],
+                "versions_rmats": [
+                    [
+                        "RMATS_POST",
+                        "rmats",
+                        "4.3.0"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-09-22T10:08:35.740343884",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    },
+    "two conditions - unpaired": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "GBR-YRI",
+                        "treatment": "GBR",
+                        "control": "YRI"
+                    },
+                    [
+                        "A3SS.MATS.JC.txt:md5,6207cb4ffefaf7bea09f462437680fc7",
+                        "A3SS.MATS.JCEC.txt:md5,d8bac4c8a6d615923009a04636530dd0",
+                        "A5SS.MATS.JC.txt:md5,5a01c53be6c908fefc8e40de72193e81",
+                        "A5SS.MATS.JCEC.txt:md5,ddc729d999903a31276cb8a9dc3f5b74",
+                        "MXE.MATS.JC.txt:md5,7bfb790823b89ff4f5852a5e1f2c3f35",
+                        "MXE.MATS.JCEC.txt:md5,776f94a78e5f0c7a618793ae37f38d1f",
+                        "RI.MATS.JC.txt:md5,b96a1a7f31f602c333646dda929e8dfd",
+                        "RI.MATS.JCEC.txt:md5,d4fab97fb11ea5105bd6c91632eddc01",
+                        "SE.MATS.JC.txt:md5,5c9bd34ae2e336afb51f4294fdcad731",
+                        "SE.MATS.JCEC.txt:md5,98926aa87617a3c92102e04f88ff27b8"
+                    ]
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "GBR-YRI",
+                        "treatment": "GBR",
+                        "control": "YRI"
+                    },
+                    [
+                        "fromGTF.A3SS.txt:md5,9f892da719f08e59a1e449a47b055c1f",
+                        "fromGTF.A5SS.txt:md5,f1591b7fea6cf5cb3dab599babd61171",
+                        "fromGTF.MXE.txt:md5,521c20b5a358a2e12074908862b959e4",
+                        "fromGTF.RI.txt:md5,6ddf3665862248f46b06bc514bb5bfcf",
+                        "fromGTF.SE.txt:md5,f4b7b59a5dff000a24e15997f706129c",
+                        "fromGTF.novelJunction.A3SS.txt:md5,bebea6df7f097bb18f3b1a905107699c",
+                        "fromGTF.novelJunction.A5SS.txt:md5,98d637f5ea85e7a2c91e439f8e68ec6b",
+                        "fromGTF.novelJunction.MXE.txt:md5,afe28d2bba43be9edc54755155e35086",
+                        "fromGTF.novelJunction.RI.txt:md5,e2a74ae18201bf75c048905806b0c246",
+                        "fromGTF.novelJunction.SE.txt:md5,7f80f8f3087d2c10493a165e342c4a79",
+                        "fromGTF.novelSpliceSite.A3SS.txt:md5,f760b66749d1e42595b50c689583ac7c",
+                        "fromGTF.novelSpliceSite.A5SS.txt:md5,f760b66749d1e42595b50c689583ac7c",
+                        "fromGTF.novelSpliceSite.MXE.txt:md5,0c41e04b81f335801f85af04ef0ae3e3",
+                        "fromGTF.novelSpliceSite.RI.txt:md5,5014acbbac2bd06d27e322bccf7499f7",
+                        "fromGTF.novelSpliceSite.SE.txt:md5,bfb5abe47d6cfc54f7209ca921bf58b4"
+                    ]
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "GBR-YRI",
+                        "treatment": "GBR",
+                        "control": "YRI"
+                    },
+                    [
+                        "JC.raw.input.A3SS.txt:md5,e0e2e558fbaa0ef5fb3d7737d10ea8d8",
+                        "JC.raw.input.A5SS.txt:md5,cd8bb99126aebc70c5ecbd181cbeca32",
+                        "JC.raw.input.MXE.txt:md5,3d0c5647a33b331e88436e5083ffead5",
+                        "JC.raw.input.RI.txt:md5,8ec96107852611a1ab7844f6a5857c04",
+                        "JC.raw.input.SE.txt:md5,0927b409736629d5b7fb6d41411f37e8",
+                        "JCEC.raw.input.A3SS.txt:md5,4eab95ed94b4b44506bdd3ed8d92a2d1",
+                        "JCEC.raw.input.A5SS.txt:md5,491c8ff91adfe2ea25c4907298da3129",
+                        "JCEC.raw.input.MXE.txt:md5,7004a429353532fbf86125f2dcefe64d",
+                        "JCEC.raw.input.RI.txt:md5,811005304c9161ef53efdee390cf92c4",
+                        "JCEC.raw.input.SE.txt:md5,3077c2b44bc08041d79a41c2e763c285"
+                    ]
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "GBR-YRI",
+                        "treatment": "GBR",
+                        "control": "YRI"
+                    },
+                    "summary.txt:md5,9840c9af8914dd87d46f0c1569252231"
+                ]
+            ],
+            {
+                "versions_pairadise": [
+                    [
+                        "RMATS_POST",
+                        "pairadise",
+                        "1.0"
+                    ]
+                ],
+                "versions_rmats": [
+                    [
+                        "RMATS_POST",
+                        "rmats",
+                        "4.3.0"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-09-22T10:07:56.310884538",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    },
+    "two conditions - stub": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "GBR-YRI",
+                            "treatment": "GBR",
+                            "control": "YRI"
+                        },
+                        [
+                            "A3SS.MATS.JC.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "A3SS.MATS.JCEC.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "A5SS.MATS.JC.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "A5SS.MATS.JCEC.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "MXE.MATS.JC.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "MXE.MATS.JCEC.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "RI.MATS.JC.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "RI.MATS.JCEC.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "SE.MATS.JC.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "SE.MATS.JCEC.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ]
+                ],
+                "1": [
+                    [
+                        {
+                            "id": "GBR-YRI",
+                            "treatment": "GBR",
+                            "control": "YRI"
+                        },
+                        [
+                            "fromGTF.A3SS.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "fromGTF.A5SS.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "fromGTF.MXE.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "fromGTF.RI.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "fromGTF.SE.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "fromGTF.novelJunction.A3SS.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "fromGTF.novelJunction.A5SS.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "fromGTF.novelJunction.MXE.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "fromGTF.novelJunction.RI.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "fromGTF.novelJunction.SE.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "fromGTF.novelSpliceSite.A3SS.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "fromGTF.novelSpliceSite.A5SS.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "fromGTF.novelSpliceSite.MXE.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "fromGTF.novelSpliceSite.RI.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "fromGTF.novelSpliceSite.SE.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ]
+                ],
+                "2": [
+                    [
+                        {
+                            "id": "GBR-YRI",
+                            "treatment": "GBR",
+                            "control": "YRI"
+                        },
+                        [
+                            "JC.raw.input.A3SS.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "JC.raw.input.A5SS.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "JC.raw.input.MXE.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "JC.raw.input.RI.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "JC.raw.input.SE.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "JCEC.raw.input.A3SS.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "JCEC.raw.input.A5SS.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "JCEC.raw.input.MXE.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "JCEC.raw.input.RI.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "JCEC.raw.input.SE.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ]
+                ],
+                "3": [
+                    [
+                        {
+                            "id": "GBR-YRI",
+                            "treatment": "GBR",
+                            "control": "YRI"
+                        },
+                        "summary.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "4": [
+                    [
+                        {
+                            "id": "GBR-YRI",
+                            "treatment": "GBR",
+                            "control": "YRI"
+                        },
+                        "GBR-YRI.log:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "5": [
+                    [
+                        "RMATS_POST",
+                        "rmats",
+                        "4.3.0"
+                    ]
+                ],
+                "6": [
+                    [
+                        "RMATS_POST",
+                        "pairadise",
+                        "1.0"
+                    ]
+                ],
+                "from_gtf": [
+                    [
+                        {
+                            "id": "GBR-YRI",
+                            "treatment": "GBR",
+                            "control": "YRI"
+                        },
+                        [
+                            "fromGTF.A3SS.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "fromGTF.A5SS.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "fromGTF.MXE.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "fromGTF.RI.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "fromGTF.SE.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "fromGTF.novelJunction.A3SS.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "fromGTF.novelJunction.A5SS.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "fromGTF.novelJunction.MXE.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "fromGTF.novelJunction.RI.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "fromGTF.novelJunction.SE.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "fromGTF.novelSpliceSite.A3SS.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "fromGTF.novelSpliceSite.A5SS.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "fromGTF.novelSpliceSite.MXE.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "fromGTF.novelSpliceSite.RI.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "fromGTF.novelSpliceSite.SE.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ]
+                ],
+                "log": [
+                    [
+                        {
+                            "id": "GBR-YRI",
+                            "treatment": "GBR",
+                            "control": "YRI"
+                        },
+                        "GBR-YRI.log:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "mats": [
+                    [
+                        {
+                            "id": "GBR-YRI",
+                            "treatment": "GBR",
+                            "control": "YRI"
+                        },
+                        [
+                            "A3SS.MATS.JC.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "A3SS.MATS.JCEC.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "A5SS.MATS.JC.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "A5SS.MATS.JCEC.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "MXE.MATS.JC.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "MXE.MATS.JCEC.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "RI.MATS.JC.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "RI.MATS.JCEC.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "SE.MATS.JC.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "SE.MATS.JCEC.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ]
+                ],
+                "raw_input": [
+                    [
+                        {
+                            "id": "GBR-YRI",
+                            "treatment": "GBR",
+                            "control": "YRI"
+                        },
+                        [
+                            "JC.raw.input.A3SS.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "JC.raw.input.A5SS.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "JC.raw.input.MXE.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "JC.raw.input.RI.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "JC.raw.input.SE.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "JCEC.raw.input.A3SS.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "JCEC.raw.input.A5SS.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "JCEC.raw.input.MXE.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "JCEC.raw.input.RI.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "JCEC.raw.input.SE.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ]
+                ],
+                "summary": [
+                    [
+                        {
+                            "id": "GBR-YRI",
+                            "treatment": "GBR",
+                            "control": "YRI"
+                        },
+                        "summary.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "versions_pairadise": [
+                    [
+                        "RMATS_POST",
+                        "pairadise",
+                        "1.0"
+                    ]
+                ],
+                "versions_rmats": [
+                    [
+                        "RMATS_POST",
+                        "rmats",
+                        "4.3.0"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-09-22T10:08:50.893049235",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    },
+    "single condition": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "GBR_profiling",
+                        "treatment": "GBR",
+                        "control": ""
+                    },
+                    [
+                        "A3SS.MATS.JC.txt:md5,4a8e1db3e739d59d51fb501d2f7a2cc7",
+                        "A3SS.MATS.JCEC.txt:md5,5be72c49f0128db156414567cf4fc3d8",
+                        "A5SS.MATS.JC.txt:md5,9a2114174f9ee55fe068d1ddfd347bab",
+                        "A5SS.MATS.JCEC.txt:md5,7135a412a0e5e731230d61f86935225b",
+                        "MXE.MATS.JC.txt:md5,99f13449de705fa1899a3124ff3255a3",
+                        "MXE.MATS.JCEC.txt:md5,c467a12a6b5924116dbe8ec2f25e5ffa",
+                        "RI.MATS.JC.txt:md5,ea9d17a99cec92bd51f3f61077d9b9a0",
+                        "RI.MATS.JCEC.txt:md5,6a8f7e21741bc4c313c6d1f6d15a4530",
+                        "SE.MATS.JC.txt:md5,af7992f3c23834a36935509a1d413b93",
+                        "SE.MATS.JCEC.txt:md5,29a3e8b782aa412bc03ece652b02bf63"
+                    ]
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "GBR_profiling",
+                        "treatment": "GBR",
+                        "control": ""
+                    },
+                    [
+                        "fromGTF.A3SS.txt:md5,479e769cc5ce9ecd6c8365ae4f1d243b",
+                        "fromGTF.A5SS.txt:md5,f1591b7fea6cf5cb3dab599babd61171",
+                        "fromGTF.MXE.txt:md5,10fdfd192837a1774439a481df235e6e",
+                        "fromGTF.RI.txt:md5,6ddf3665862248f46b06bc514bb5bfcf",
+                        "fromGTF.SE.txt:md5,881a700192f9e6d0821ed9c14762b55d",
+                        "fromGTF.novelJunction.A3SS.txt:md5,ef1a062ba673d23349dc3f654986e693",
+                        "fromGTF.novelJunction.A5SS.txt:md5,98d637f5ea85e7a2c91e439f8e68ec6b",
+                        "fromGTF.novelJunction.MXE.txt:md5,fda7d96771b4ccba99dac3eb0e15c916",
+                        "fromGTF.novelJunction.RI.txt:md5,e2a74ae18201bf75c048905806b0c246",
+                        "fromGTF.novelJunction.SE.txt:md5,c3b4e1731f04f81b7bed49d54a31b85e",
+                        "fromGTF.novelSpliceSite.A3SS.txt:md5,f760b66749d1e42595b50c689583ac7c",
+                        "fromGTF.novelSpliceSite.A5SS.txt:md5,f760b66749d1e42595b50c689583ac7c",
+                        "fromGTF.novelSpliceSite.MXE.txt:md5,0c41e04b81f335801f85af04ef0ae3e3",
+                        "fromGTF.novelSpliceSite.RI.txt:md5,5014acbbac2bd06d27e322bccf7499f7",
+                        "fromGTF.novelSpliceSite.SE.txt:md5,bfb5abe47d6cfc54f7209ca921bf58b4"
+                    ]
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "GBR_profiling",
+                        "treatment": "GBR",
+                        "control": ""
+                    },
+                    [
+                        "JC.raw.input.A3SS.txt:md5,7a799ff41755f8470cd34c0e40a6301f",
+                        "JC.raw.input.A5SS.txt:md5,f9aa0591de0464c35c2d469a4b306a44",
+                        "JC.raw.input.MXE.txt:md5,723ae21c5661168eb32e13b26814af7f",
+                        "JC.raw.input.RI.txt:md5,5b3c885f839cd30e5959ea8c724fd196",
+                        "JC.raw.input.SE.txt:md5,d026b2c664d5fea9ee0665b00a61f52a",
+                        "JCEC.raw.input.A3SS.txt:md5,c69cdc4ece420078adf2c51b915650ac",
+                        "JCEC.raw.input.A5SS.txt:md5,ac1b29d749bac53d7412ae66cd984eb2",
+                        "JCEC.raw.input.MXE.txt:md5,f04e01fe9f3bf533e4164d6c6e720178",
+                        "JCEC.raw.input.RI.txt:md5,dff5d4a631c0bcc07eab3a12b109fb3e",
+                        "JCEC.raw.input.SE.txt:md5,a5e046f25f51c3c6d05328641d376c65"
+                    ]
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "GBR_profiling",
+                        "treatment": "GBR",
+                        "control": ""
+                    },
+                    "summary.txt:md5,16e1ddf196eba71f0aacab142fe14643"
+                ]
+            ],
+            {
+                "versions_pairadise": [
+                    [
+                        "RMATS_POST",
+                        "pairadise",
+                        "1.0"
+                    ]
+                ],
+                "versions_rmats": [
+                    [
+                        "RMATS_POST",
+                        "rmats",
+                        "4.3.0"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-09-22T10:08:43.503606068",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    }
+}
