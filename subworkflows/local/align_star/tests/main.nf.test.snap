@@ -498,7 +498,7 @@
                             "id": "test",
                             "single_end": false
                         },
-                        "test.Aligned.sortedByCoord.out.bam:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        "test.sortedByCoord.out.bam:md5,d41d8cd98f00b204e9800998ecf8427e"
                     ]
                 ],
                 "bam_transcript": [
@@ -507,7 +507,7 @@
                             "id": "test",
                             "single_end": false
                         },
-                        "test.Aligned.toTranscriptome.out.bam:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        "test.toTranscriptome.out.bam:md5,d41d8cd98f00b204e9800998ecf8427e"
                     ]
                 ],
                 "fastq": [
@@ -583,8 +583,9 @@
                             "single_end": false
                         },
                         [
-                            "test.Aligned.out.bam:md5,d41d8cd98f00b204e9800998ecf8427e",
-                            "test.Aligned.sortedByCoord.out.bam:md5,d41d8cd98f00b204e9800998ecf8427e"
+                            "test.Aligned.sortedByCoord.out.bam:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "test.sortedByCoord.out.bam:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "testXd.out.bam:md5,d41d8cd98f00b204e9800998ecf8427e"
                         ]
                     ]
                 ],
@@ -603,12 +604,16 @@
                             "id": "test",
                             "single_end": false
                         },
-                        "test.SJ.out.tab:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        [
+                            "test.ReadsPerGene.out.tab:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "test.SJ.out.tab:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "test.tab:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
                     ]
                 ]
             }
         ],
-        "timestamp": "2026-09-07T09:36:53.590347562",
+        "timestamp": "2026-09-22T12:41:13.096390732",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.3"

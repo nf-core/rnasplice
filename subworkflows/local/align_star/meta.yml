@@ -9,7 +9,6 @@ keywords:
   - bam
 components:
   - star/align
-  - star_align_igenomes
   - bam_sort_stats_samtools
 input:
   - reads:
@@ -34,23 +33,12 @@ input:
       description: |
         When using pre-built STAR indices do not re-extract and use splice junctions from the GTF file
         Structure: [ val(star_ignore_sjdbgtf) ]
-  - seq_platform:
-      type: string
-      description: |
-        Sequencing platform written to the BAM read group line, or an empty string to omit it.
-        Only used when `is_aws_igenome` is true
-        Structure: [ val(seq_platform) ]
-  - seq_center:
-      type: string
-      description: |
-        Sequencing center written to the BAM read group line, or an empty string to omit it.
-        Only used when `is_aws_igenome` is true
-        Structure: [ val(seq_center) ]
   - is_aws_igenome:
       type: boolean
       description: |
-        Whether the genome files come from AWS iGenomes, in which case the STAR 2.6.1d based
-        `STAR_ALIGN_IGENOMES` module is used instead of `STAR_ALIGN`
+        Whether the genome files come from AWS iGenomes, whose STAR indices were built with STAR 2.6.1d.
+        If true, `star/align` runs as `STAR_ALIGN_IGENOMES`, which `conf/modules.config` pins to a
+        STAR 2.6.1d container
         Structure: [ val(is_aws_igenome) ]
   - fasta:
       type: file
