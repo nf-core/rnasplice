@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #264 - Add an nf-test for the `DEXSEQ_DTU` module, which had no test coverage (by @piplus2)
 - #281 - Add an nf-test for the `ISOFORMSWITCHANALYZER` module, which had no test coverage (by @piplus2)
 - #281 - Redraw the pipeline metro map with [nf-metro](https://github.com/seqeralabs/nf-metro), now covering LeafCutter, the `--source` inputs and the coverage tracks. The `.mmd` source lives next to the SVG in `docs/images/` (by @piplus2)
+- #285 - Add nf-tests for the `RMATS_POST` module, which had no test coverage: unpaired, paired, single condition and stub (by @piplus2)
 
 ### Changed
 
@@ -57,6 +58,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #272 - `--leafcutter` now works with `--source genome_bam`, whatever the strandedness, since the junction strand no longer has to come from the alignment. For unstranded libraries the clusters differ slightly from LeafCutter's documented STAR route, see the LeafCutter section of `docs/usage.md` (by @piplus2)
 - #281 - Refactor `ISOFORMSWITCHANALYZER` to the nf-core module template and update `IsoformSwitchAnalyzeR` 2.2.0 -> 2.12.0 (R 4.3 -> 4.5). `bin/run_isoformswitchanalyzer.R` is now a module template (by @piplus2)
 - #284 - Refactor `PREPROCESS_TRANSCRIPTS_FASTA_GENCODE` to the nf-core module template, with `environment.yml`, `meta.yml`, a stub and nf-tests. It reports the `coreutils` version of `cut`, which does the work, instead of `sed` (by @piplus2)
+- #285 - Replace the local `RMATS_PREP` module with the nf-core `rmats/prep` module, which preps each BAM file once and on its own instead of every BAM file of a contrast in one go, and refactor `RMATS_POST` to the nf-core module template, with `environment.yml`, `meta.yml`, a stub and the `--paired-stats`, `--cstat` and `--novelSS` options in `ext.args`. It also reports the `PAIRADISE` version (by @piplus2)
+- #285 - The rMATS `.rmats` files are published to `rmats/prep/{sample}.rmats` and the results of a contrast to `rmats/{contrast}{_paired}/`, with the log next to the folder. The intermediate `tmp/` folder of the post step is no longer published (by @piplus2)
+- #285 - The samplesheet of `--source genome_bam`, `transcriptome_bam` and `salmon_results` must have unique `sample` names, which the schema now checks up front. Duplicates already collided in the per sample outputs, since only the fastq source merges the runs of a sample (by @piplus2)
 
 ### Fixed
 

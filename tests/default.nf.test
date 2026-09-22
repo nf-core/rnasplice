@@ -15,7 +15,7 @@ nextflow_pipeline {
         then {
             // stable_path: All files + folders in ${params.outdir}/ with a stable path
             // CRITICAL: We pass the ignoreFile here so MISO timestamped directories are NOT collected
-            def stable_path = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,json,txt}', 'misopy/miso_data/*/batch-logs/*.{log,txt}', 'misopy/miso_data/*/logs/*.{log,txt}','{salmon,star_salmon}/rmats/*/rmats_temp/*.{rmats,txt}'])
+            def stable_path = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,json,txt}', 'misopy/miso_data/*/batch-logs/*.{log,txt}', 'misopy/miso_data/*/logs/*.{log,txt}'])
 
             // stable_content: All files in ${params.outdir}/ with stable content
             // We pass the ignoreFile here so non-deterministic files are NOT hashed

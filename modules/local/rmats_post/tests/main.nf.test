@@ -1,0 +1,183 @@
+// nf-core modules test rmats_post
+nextflow_process {
+
+    name "Test Process RMATS_POST"
+    script "../main.nf"
+    process "RMATS_POST"
+    config "./nextflow.config"
+
+    tag "modules"
+    tag "modules_local"
+    tag "rmats_post"
+    tag "rmats"
+    tag "rmats/prep"
+
+    // Two GBR and two YRI samples of the pipeline test data. The bam lists name the
+    // BAM files exactly as the prep step records them in the `.rmats` files
+    setup {
+        file("${outputDir}/GBR_bamlist.txt").text = 'ERR188383.Aligned.out.bam,ERR188428.Aligned.out.bam'
+        file("${outputDir}/YRI_bamlist.txt").text = 'ERR188454.Aligned.out.bam,ERR204916.Aligned.out.bam'
+
+        run("RMATS_PREP") {
+            script "../../../nf-core/rmats/prep/main.nf"
+            process {
+                """
+                input[0] = channel.of(
+                    [ [ id:'ERR188383', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188428', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188454', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR204916', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916.Aligned.out.bam', checkIfExists: true) ],
+                )
+                input[1] = [ [ id:'genome' ], file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true) ]
+                input[2] = 40
+                """
+            }
+        }
+    }
+
+    test("two conditions - unpaired") {
+
+        when {
+            process {
+                """
+                input[0] = RMATS_PREP.out.rmats
+                    .map { _meta, rmats -> rmats }
+                    .collect()
+                    .map { rmats -> [
+                        [ id:'GBR-YRI', treatment:'GBR', control:'YRI' ],
+                        rmats.sort { rmats_file -> rmats_file.name },
+                        file("${outputDir}/GBR_bamlist.txt", checkIfExists: true),
+                        file("${outputDir}/YRI_bamlist.txt", checkIfExists: true)
+                    ] }
+                input[1] = [ [ id:'genome' ], file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true) ]
+                input[2] = 40
+                """
+            }
+        }
+
+        then {
+            def summary = path(process.out.summary[0][1]).readLines()
+            assertAll(
+                { assert process.success },
+                { assert summary[0].startsWith('EventType') },
+                { assert path(process.out.log[0][1]).text.contains('Done processing count files.') },
+                { assert snapshot(
+                    process.out.mats,
+                    process.out.from_gtf,
+                    process.out.raw_input,
+                    process.out.summary,
+                    process.out.findAll { key, _val -> key.startsWith('versions') }
+                ).match() }
+            )
+        }
+
+    }
+
+    test("two conditions - paired") {
+
+        when {
+            params {
+                paired_stats = true
+            }
+            process {
+                """
+                input[0] = RMATS_PREP.out.rmats
+                    .map { _meta, rmats -> rmats }
+                    .collect()
+                    .map { rmats -> [
+                        [ id:'GBR-YRI', treatment:'GBR', control:'YRI' ],
+                        rmats.sort { rmats_file -> rmats_file.name },
+                        file("${outputDir}/GBR_bamlist.txt", checkIfExists: true),
+                        file("${outputDir}/YRI_bamlist.txt", checkIfExists: true)
+                    ] }
+                input[1] = [ [ id:'genome' ], file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true) ]
+                input[2] = 40
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert path(process.out.log[0][1]).text.contains('Done processing count files.') },
+                { assert snapshot(
+                    process.out.mats,
+                    process.out.from_gtf,
+                    process.out.raw_input,
+                    process.out.summary,
+                    process.out.findAll { key, _val -> key.startsWith('versions') }
+                ).match() }
+            )
+        }
+
+    }
+
+    test("single condition") {
+
+        when {
+            process {
+                """
+                input[0] = RMATS_PREP.out.rmats
+                    .filter { meta, _rmats -> meta.id in [ 'ERR188383', 'ERR188428' ] }
+                    .map { _meta, rmats -> rmats }
+                    .collect()
+                    .map { rmats -> [
+                        [ id:'GBR_profiling', treatment:'GBR', control:'' ],
+                        rmats.sort { rmats_file -> rmats_file.name },
+                        file("${outputDir}/GBR_bamlist.txt", checkIfExists: true),
+                        []
+                    ] }
+                input[1] = [ [ id:'genome' ], file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true) ]
+                input[2] = 40
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert path(process.out.log[0][1]).text.contains('Done processing count files.') },
+                { assert snapshot(
+                    process.out.mats,
+                    process.out.from_gtf,
+                    process.out.raw_input,
+                    process.out.summary,
+                    process.out.findAll { key, _val -> key.startsWith('versions') }
+                ).match() }
+            )
+        }
+
+    }
+
+    test("two conditions - stub") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = RMATS_PREP.out.rmats
+                    .map { _meta, rmats -> rmats }
+                    .collect()
+                    .map { rmats -> [
+                        [ id:'GBR-YRI', treatment:'GBR', control:'YRI' ],
+                        rmats.sort { rmats_file -> rmats_file.name },
+                        file("${outputDir}/GBR_bamlist.txt", checkIfExists: true),
+                        file("${outputDir}/YRI_bamlist.txt", checkIfExists: true)
+                    ] }
+                input[1] = [ [ id:'genome' ], file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true) ]
+                input[2] = 40
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(process.out).match() }
+            )
+        }
+
+    }
+
+}

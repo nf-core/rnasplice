@@ -4,6 +4,7 @@
     "title": "nf-core/rnasplice pipeline - params.input schema (salmon_results source)",
     "description": "Schema for the file provided with params.input when --source salmon_results",
     "type": "array",
+    "uniqueEntries": ["sample"],
     "items": {
         "type": "object",
         "properties": {

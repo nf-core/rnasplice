@@ -1,0 +1,182 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "rmats_post"
+description: Detect and count the alternative splicing events of a contrast from the
+  `.rmats` files of the rMATS prep step, and test them for differential splicing
+keywords:
+  - splicing
+  - RNA-Seq
+  - alternative splicing
+  - differential splicing
+  - rMATS
+tools:
+  - "rmats":
+      description: "MATS is a computational tool to detect differential alternative
+        splicing events from RNA-Seq data."
+      homepage: "https://github.com/Xinglab/rmats-turbo"
+      documentation: "https://github.com/Xinglab/rmats-turbo/blob/v4.3.0/README.md"
+      doi: "10.1038/s41596-023-00944-2"
+      licence:
+        - "FreeBSD for non-commercial use, see LICENSE file"
+      identifier: biotools:rmats
+  - "pairadise":
+      description: "PAIRADISE, the paired statistical model rMATS runs with `--paired-stats`"
+      homepage: "https://github.com/Xinglab/PAIRADISE"
+      documentation: "https://github.com/Xinglab/PAIRADISE"
+      doi: "10.1016/j.ajhg.2020.07.005"
+      licence: ["MIT"]
+      identifier: ""
+
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing contrast information
+          e.g. `[ id:'treatment-control', treatment:'treatment', control:'control' ]`
+    - rmats:
+        type: file
+        description: The `.rmats` files written by the rMATS prep step for every sample
+          of the contrast, one per BAM file
+        pattern: "*.rmats"
+        ontologies: []
+    - bam_list1:
+        type: file
+        description: Text file with a comma separated list of the BAM files of the
+          first condition. The file names must match the ones recorded in the `.rmats`
+          files by the prep step
+        pattern: "*.txt"
+        ontologies:
+          - edam: http://edamontology.org/format_2330
+    - bam_list2:
+        type: file
+        description: Text file with a comma separated list of the BAM files of the
+          second condition, in the same format as `bam_list1`. Optional, without it
+          rMATS counts the events of the first condition with `--statoff`
+        pattern: "*.txt"
+        ontologies:
+          - edam: http://edamontology.org/format_2330
+  - - meta2:
+        type: map
+        description: Groovy Map containing genome information
+    - gtf:
+        type: file
+        description: Annotation GTF file, the same one given to the prep step
+        pattern: "*.{gtf}"
+        ontologies:
+          - edam: http://edamontology.org/format_2306
+  - read_length:
+      type: integer
+      description: Read length in bases, the same one given to the prep step
+
+output:
+  mats:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing contrast information
+            e.g. `[ id:'treatment-control', treatment:'treatment', control:'control' ]`
+      - ${prefix}/*.MATS.{JC,JCEC}.txt:
+          type: file
+          description: Differential splicing results for each event type (SE, MXE,
+            A3SS, A5SS, RI), counting junction reads only (JC) or junction and exon
+            body reads (JCEC)
+          pattern: "*.MATS.{JC,JCEC}.txt"
+          ontologies:
+            - edam: http://edamontology.org/format_3475
+  from_gtf:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing contrast information
+            e.g. `[ id:'treatment-control', treatment:'treatment', control:'control' ]`
+      - ${prefix}/fromGTF.*.txt:
+          type: file
+          description: The events of each type detected from the annotation, plus the
+            ones involving a novel junction or a novel splice site
+          pattern: "fromGTF.*.txt"
+          ontologies:
+            - edam: http://edamontology.org/format_3475
+  raw_input:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing contrast information
+            e.g. `[ id:'treatment-control', treatment:'treatment', control:'control' ]`
+      - ${prefix}/{JC,JCEC}.raw.input.*.txt:
+          type: file
+          description: Raw inclusion and skipping counts per sample for each event
+            type, the input of the statistical model
+          pattern: "{JC,JCEC}.raw.input.*.txt"
+          ontologies:
+            - edam: http://edamontology.org/format_3475
+  summary:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing contrast information
+            e.g. `[ id:'treatment-control', treatment:'treatment', control:'control' ]`
+      - ${prefix}/summary.txt:
+          type: file
+          description: Number of events of each type, total and significant
+          pattern: "summary.txt"
+          ontologies:
+            - edam: http://edamontology.org/format_2330
+  log:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing contrast information
+            e.g. `[ id:'treatment-control', treatment:'treatment', control:'control' ]`
+      - ${prefix}.log:
+          type: file
+          description: Standard output of the rMATS post step
+          pattern: "*.log"
+          ontologies:
+            - edam: http://edamontology.org/format_2330
+  versions_rmats:
+    - - ${task.process}:
+          type: string
+          description: The process the versions were collected from
+      - rmats:
+          type: string
+          description: The tool name
+      - rmats.py --version | sed -e "s/v//g":
+          type: eval
+          description: The expression to obtain the version of the tool
+  versions_pairadise:
+    - - ${task.process}:
+          type: string
+          description: The process the versions were collected from
+      - pairadise:
+          type: string
+          description: The tool name
+      - Rscript -e "cat(as.character(packageVersion('PAIRADISE')))":
+          type: eval
+          description: The expression to obtain the version of the tool
+
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The process the versions were collected from
+      - rmats:
+          type: string
+          description: The tool name
+      - rmats.py --version | sed -e "s/v//g":
+          type: eval
+          description: The expression to obtain the version of the tool
+    - - ${task.process}:
+          type: string
+          description: The process the versions were collected from
+      - pairadise:
+          type: string
+          description: The tool name
+      - Rscript -e "cat(as.character(packageVersion('PAIRADISE')))":
+          type: eval
+          description: The expression to obtain the version of the tool
+authors:
+  - "@asmaali98"
+  - "@bensouthgate"
+  - "@jma1991"
+  - "@piplus2"
+maintainers:
+  - "@piplus2"

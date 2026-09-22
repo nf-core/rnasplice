@@ -430,14 +430,15 @@ If [IsoformSwitchAnalyzeR](https://www.bioconductor.org/packages/release/bioc/ht
 <summary>Output files</summary>
 
 - `rmats/`
-  - `{contrast}/rmats_temp/*`: Folder containing .txt and .rmats files which are input for rmats_post step.
-  - `{contrast}/rmats_prep.log`: Log file generated for rmats_prep step.
-  - `{contrast}/rmats_post{_paired}/*`: Folder containing results of differential alternative splicing in .txt files. A suffix `_paired` is added to the folder name if the paired analysis option is used.
-  - `{contrast}/rmats_post{_paired}.log`: Log file generated for rmats_post step.
+  - `prep/{sample}.rmats`: Splicing graph and candidate reads of each sample, the output of the rMATS prep step and the input of the post step.
+  - `prep/{sample}_read_outcomes_by_bam.txt`: Number of reads of each sample used by rMATS, and how many were dropped for each reason (clipped, not paired, unexpected length and so on).
+  - `bamlist/{condition}_bamlist.txt`: Comma separated list of the BAM files of each condition, as given to rMATS.
+  - `{contrast}{_paired}/*`: Folder containing the results of differential alternative splicing of the contrast in .txt files. A suffix `_paired` is added to the folder name if the paired analysis option is used.
+  - `{contrast}{_paired}.log`: Log file of the rMATS post step of the contrast.
 
 </details>
 
-[rMATS](https://github.com/Xinglab/rmats-turbo) is a tool which runs differential alternative splicing analysis on RNA-seq data. We implement the tool from BAM files after STAR alignment. Further details regarding rMATS output can be found [here](https://github.com/Xinglab/rmats-turbo/blob/v4.1.2/README.md#output), and these files are saved within the `rmats_post/` folder.
+[rMATS](https://github.com/Xinglab/rmats-turbo) is a tool which runs differential alternative splicing analysis on RNA-seq data. We implement the tool from BAM files after STAR alignment. The prep step reads each BAM file once, then the post step of each contrast detects and counts the splicing events from the `.rmats` files of its samples and tests them for differential splicing. Further details regarding rMATS output can be found [here](https://github.com/Xinglab/rmats-turbo/blob/v4.3.0/README.md#output), and these files are saved within the `{contrast}/` folder. With a single condition the contrast is named `{condition}_profiling` and the events are only counted, not tested.
 
 ### SUPPA2
 

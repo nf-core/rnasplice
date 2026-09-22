@@ -2,9 +2,9 @@
 // rMATS differential splicing analysis
 //
 
-include { CREATE_BAMLIST         } from '../../../modules/local/create_bamlist'
-include { RMATS_PREP             } from '../../../modules/local/rmats_prep'
-include { RMATS_POST             } from '../../../modules/local/rmats_post'
+include { CREATE_BAMLIST } from '../../../modules/local/create_bamlist'
+include { RMATS_PREP     } from '../../../modules/nf-core/rmats/prep'
+include { RMATS_POST     } from '../../../modules/local/rmats_post'
 
 
 workflow RMATS {
@@ -12,15 +12,21 @@ workflow RMATS {
     ch_samples               // channel: [ sample_id, condition ], in samplesheet order
     ch_contrastsheet         // channel: [ contrast, treatment, control ]
     ch_genome_bam_conditions // channel: [ condition, meta, bam ]
-    gtf                      // channel: path(genome.gtf)
-    rmats_read_len
-    rmats_splice_diff_cutoff
-    rmats_novel_splice_site
-    rmats_min_intron_len
-    rmats_max_exon_len
-    rmats_paired_stats
+    ch_gtf                   // channel: [ meta, gtf ]
+    rmats_read_len           // integer: --readLength of both rMATS steps
+    rmats_paired_stats       // boolean: pair the treatment and control samples
 
     main:
+
+    //
+    // The prep step reads each BAM file once, whatever the number of contrasts it
+    // takes part in, and records it in a `.rmats` file under the BAM file name
+    //
+    RMATS_PREP(
+        ch_genome_bam_conditions.map { _condition, meta, bam -> [ meta, bam ] },
+        ch_gtf,
+        rmats_read_len,
+    )
 
     //
     // Samples grouped by condition, keeping the samplesheet order, which is what the
@@ -189,48 +195,48 @@ workflow RMATS {
     // CREATE_BAMLIST only writes the second bam list when there is a second condition,
     // so single condition contrasts join with no bam list 2. It has to become an empty
     // list rather than an empty string, which a `path` input rejects
-    ch_prep_ready = ch_all_contrasts_bamlist
+    ch_bam_lists = ch_all_contrasts_bamlist
         .join( CREATE_BAMLIST.out.bam_list1, by: 0 )
         .join( CREATE_BAMLIST.out.bam_list2, by: 0, remainder: true )
-        .map { contrast, cond1, meta1, bam1, cond2, meta2, bam2, bam1_txt, bam2_txt ->
-            return [ contrast, cond1, meta1, bam1, bam1_txt, cond2, meta2, bam2, bam2_txt ?: [] ]
+        .map { contrast, cond1, meta1, _bam1, cond2, meta2, _bam2, bam_list1, bam_list2 ->
+            [ contrast, cond1, meta1, cond2, meta2, bam_list1, bam_list2 ?: [] ]
         }
 
-    RMATS_PREP(
-        gtf,
-        ch_prep_ready,
-        rmats_read_len,
-        rmats_splice_diff_cutoff,
-        rmats_novel_splice_site,
-        rmats_min_intron_len,
-        rmats_max_exon_len,
-    )
+    // The post step of a contrast takes the `.rmats` files of every sample in its bam
+    // lists. The bam lists carry the BAM file names, which is what rMATS matches the
+    // `.rmats` files by, so the samples of a contrast are looked up by sample id here
+    ch_rmats_by_sample = RMATS_PREP.out.rmats
+        .map { meta, rmats -> [ meta.id, rmats ] }
 
-    ch_post_ready = ch_prep_ready
-        .join( RMATS_PREP.out.rmats_temp, by: 0 )
-        .map { contrast, cond1, meta1, bam1, bam1_txt, cond2, meta2, bam2, bam2_txt, rmats_temp ->
-            [ contrast, cond1, meta1, bam1, bam1_txt, cond2, meta2, bam2, bam2_txt, rmats_temp ]
+    ch_contrast_rmats = ch_bam_lists
+        .flatMap { contrast, _cond1, meta1, _cond2, meta2, _bam_list1, _bam_list2 ->
+            (meta1 + meta2).collect { meta -> [ meta.id, contrast ] }
+        }
+        .combine( ch_rmats_by_sample, by: 0 )
+        .map { _sample_id, contrast, rmats -> [ contrast, rmats ] }
+        .groupTuple()
+
+    ch_post_ready = ch_bam_lists
+        .join( ch_contrast_rmats, by: 0 )
+        .map { contrast, cond1, _meta1, cond2, _meta2, bam_list1, bam_list2, rmats ->
+            def meta = [ id: contrast, treatment: cond1, control: cond2 ]
+            // Sorted so that the task hash does not depend on the order the prep tasks
+            // finished in
+            [ meta, rmats.sort { rmats_file -> rmats_file.name }, bam_list1, bam_list2 ]
         }
 
     RMATS_POST(
-        gtf,
         ch_post_ready,
+        ch_gtf,
         rmats_read_len,
-        rmats_splice_diff_cutoff,
-        rmats_novel_splice_site,
-        rmats_min_intron_len,
-        rmats_max_exon_len,
-        rmats_paired_stats,
     )
 
-    ch_rmats_prep     = RMATS_PREP.out.rmats_temp
-    ch_rmats_prep_log = RMATS_PREP.out.log
-    ch_rmats_post     = RMATS_POST.out.rmats_post
-    ch_rmats_post_log = RMATS_POST.out.log
-
     emit:
-    rmats_prep     = ch_rmats_prep
-    rmats_prep_log = ch_rmats_prep_log
-    rmats_post     = ch_rmats_post
-    rmats_post_log = ch_rmats_post_log
+    rmats         = RMATS_PREP.out.rmats         // channel: [ meta, rmats ]
+    read_outcomes = RMATS_PREP.out.read_outcomes // channel: [ meta, txt ]
+    mats          = RMATS_POST.out.mats          // channel: [ meta, [ txt ] ]
+    from_gtf      = RMATS_POST.out.from_gtf      // channel: [ meta, [ txt ] ]
+    raw_input     = RMATS_POST.out.raw_input     // channel: [ meta, [ txt ] ]
+    summary       = RMATS_POST.out.summary       // channel: [ meta, txt ]
+    post_log      = RMATS_POST.out.log           // channel: [ meta, log ]
 }
