@@ -2,25 +2,25 @@
 // Uncompress and prepare reference genome files
 //
 
-include { GUNZIP as GUNZIP_FASTA                          } from '../../../modules/nf-core/gunzip'
-include { GUNZIP as GUNZIP_GTF                            } from '../../../modules/nf-core/gunzip'
-include { GUNZIP as GUNZIP_GFF                            } from '../../../modules/nf-core/gunzip'
-include { GUNZIP as GUNZIP_TRANSCRIPT_FASTA               } from '../../../modules/nf-core/gunzip'
-include { GUNZIP as GUNZIP_GFF_DEXSEQ                     } from '../../../modules/nf-core/gunzip'
-include { GUNZIP as GUNZIP_SUPPA_TPM                      } from '../../../modules/nf-core/gunzip'
+include { GUNZIP as GUNZIP_FASTA                              } from '../../../modules/nf-core/gunzip'
+include { GUNZIP as GUNZIP_GTF                                } from '../../../modules/nf-core/gunzip'
+include { GUNZIP as GUNZIP_GFF                                } from '../../../modules/nf-core/gunzip'
+include { GUNZIP as GUNZIP_TRANSCRIPT_FASTA                   } from '../../../modules/nf-core/gunzip'
+include { GUNZIP as GUNZIP_GFF_DEXSEQ                         } from '../../../modules/nf-core/gunzip'
+include { GUNZIP as GUNZIP_SUPPA_TPM                          } from '../../../modules/nf-core/gunzip'
 
-include { UNTAR as UNTAR_STAR_INDEX                       } from '../../../modules/nf-core/untar'
-include { UNTAR as UNTAR_SALMON_INDEX                     } from '../../../modules/nf-core/untar'
+include { UNTAR as UNTAR_STAR_INDEX                           } from '../../../modules/nf-core/untar'
+include { UNTAR as UNTAR_SALMON_INDEX                         } from '../../../modules/nf-core/untar'
 
-include { SAMTOOLS_FAIDX                                  } from '../../../modules/nf-core/samtools/faidx'
-include { GFFREAD                                         } from '../../../modules/nf-core/gffread'
-include { STAR_GENOMEGENERATE                             } from '../../../modules/nf-core/star/genomegenerate'
-include { STAR_GENOMEGENERATE_IGENOMES                    } from '../../../modules/local/star_genomegenerate_igenomes'
-include { SALMON_INDEX                                    } from '../../../modules/nf-core/salmon/index'
-include { RSEM_PREPAREREFERENCE as MAKE_TRANSCRIPTS_FASTA } from '../../../modules/nf-core/rsem/preparereference'
+include { SAMTOOLS_FAIDX                                      } from '../../../modules/nf-core/samtools/faidx'
+include { GFFREAD                                             } from '../../../modules/nf-core/gffread'
+include { STAR_GENOMEGENERATE                                 } from '../../../modules/nf-core/star/genomegenerate'
+include { STAR_GENOMEGENERATE as STAR_GENOMEGENERATE_IGENOMES } from '../../../modules/nf-core/star/genomegenerate'
+include { SALMON_INDEX                                        } from '../../../modules/nf-core/salmon/index'
+include { RSEM_PREPAREREFERENCE as MAKE_TRANSCRIPTS_FASTA     } from '../../../modules/nf-core/rsem/preparereference'
 
-include { GTFGENEFILTER                                   } from '../../../modules/local/gtfgenefilter'
-include { PREPROCESS_TRANSCRIPTS_FASTA_GENCODE            } from '../../../modules/local/preprocess_transcripts_fasta_gencode'
+include { GTFGENEFILTER                                       } from '../../../modules/local/gtfgenefilter'
+include { PREPROCESS_TRANSCRIPTS_FASTA_GENCODE                } from '../../../modules/local/preprocess_transcripts_fasta_gencode'
 
 workflow PREPARE_GENOME {
     take:
@@ -104,6 +104,10 @@ workflow PREPARE_GENOME {
 
     //
     // Uncompress STAR index or generate from scratch if required
+    //
+    // The rest of the AWS iGenomes reference files are meant to be used with STAR 2.6.1d,
+    // so `STAR_GENOMEGENERATE_IGENOMES` is the same nf-core module pinned to a STAR 2.6.1d
+    // container in `conf/modules.config`, as `STAR_ALIGN_IGENOMES` is.
     //
     ch_star_index = channel.empty()
     if (params.source == 'fastq' && !params.skip_alignment && (params.aligner == 'star' || params.aligner == 'star_salmon')) {
