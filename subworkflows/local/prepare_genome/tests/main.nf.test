@@ -63,26 +63,32 @@ nextflow_workflow {
 
     }
 
-    test("homo_sapiens - compressed inputs, gff and supplied indices") {
+    test("homo_sapiens - gzipped inputs, gff and supplied indices") {
 
         when {
             workflow {
                 """
-                // No test dataset carries an uncompressed Salmon index or a SUPPA TPM table, and
-                // the subworkflow only passes them through, so small stand-ins are written here
-                def salmon_index = file("${outputDir}/salmon_index")
-                salmon_index.mkdirs()
-                file("${outputDir}/salmon_index/versionInfo.json").text = '{}\\n'
-                file("${outputDir}/quant.tpm").text = 'sample1\\ttranscript1\\t1.0\\n'
+                // The test datasets carry no gzipped GFF3, transcript FASTA or SUPPA TPM table, nor
+                // an uncompressed Salmon index, so they are written here. The Salmon index and the
+                // TPM table are only passed through, so small stand-ins do
+                def gzip = { src, dest ->
+                    def out = new java.util.zip.GZIPOutputStream(file(dest).newOutputStream())
+                    out.write(file(src).bytes)
+                    out.close()
+                    dest
+                }
+                file("${workDir}/salmon_index").mkdirs()
+                file("${workDir}/salmon_index/versionInfo.json").text = '{}\\n'
+                file("${workDir}/quant.tpm").text = 'sample1\\ttranscript1\\t1.0\\n'
 
                 input[0]  = params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta.gz'
                 input[1]  = null
-                input[2]  = params.pipelines_testdata_base_path + 'reference/genes_chrX.gff3'
-                input[3]  = params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/transcriptome.fasta'
+                input[2]  = gzip.call(params.pipelines_testdata_base_path + 'reference/genes_chrX.gff3', "${workDir}/genes_chrX.gff3.gz")
+                input[3]  = gzip.call(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/transcriptome.fasta', "${workDir}/transcriptome.fasta.gz")
                 input[4]  = params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/index/star/star.tar.gz'
-                input[5]  = "${outputDir}/salmon_index"
+                input[5]  = "${workDir}/salmon_index"
                 input[6]  = params.pipelines_testdata_base_path + 'testdata/dexseq/genes_chrX.DEXSeq.gff.gz'
-                input[7]  = "${outputDir}/quant.tpm"
+                input[7]  = gzip.call("${workDir}/quant.tpm", "${workDir}/quant.tpm.gz")
                 input[8]  = true
                 input[9]  = 'fastq'
                 input[10] = 'star_salmon'
@@ -111,19 +117,28 @@ nextflow_workflow {
 
     }
 
-    test("homo_sapiens - genome_bam source - no indices") {
+    test("homo_sapiens - genome_bam source - gzipped gtf - no indices") {
 
         when {
             workflow {
                 """
+                // The test datasets carry no gzipped GTF or SUPPA TPM table, so they are written here
+                def gzip = { src, dest ->
+                    def out = new java.util.zip.GZIPOutputStream(file(dest).newOutputStream())
+                    out.write(file(src).bytes)
+                    out.close()
+                    dest
+                }
+                file("${workDir}/quant.tpm").text = 'sample1\\ttranscript1\\t1.0\\n'
+
                 input[0]  = params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta'
-                input[1]  = params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.gtf'
+                input[1]  = gzip.call(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.gtf', "${workDir}/genome.gtf.gz")
                 input[2]  = null
                 input[3]  = params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/transcriptome.fasta'
                 input[4]  = params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/index/star/star.tar.gz'
                 input[5]  = null
                 input[6]  = null
-                input[7]  = null
+                input[7]  = "${workDir}/quant.tpm"
                 input[8]  = false
                 input[9]  = 'genome_bam'
                 input[10] = 'star_salmon'
@@ -143,7 +158,8 @@ nextflow_workflow {
                     workflow.out.fai,
                     workflow.out.chrom_sizes,
                     workflow.out.gtf,
-                    workflow.out.transcript_fasta
+                    workflow.out.transcript_fasta,
+                    workflow.out.suppa_tpm
                 ).match() }
             )
         }
