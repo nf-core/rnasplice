@@ -1,0 +1,201 @@
+// nf-core subworkflows test prepare_genome
+nextflow_workflow {
+
+    name "Test Subworkflow PREPARE_GENOME"
+    script "../main.nf"
+    workflow "PREPARE_GENOME"
+
+    tag "subworkflows"
+    tag "subworkflows/prepare_genome"
+    tag "gunzip"
+    tag "untar"
+    tag "samtools"
+    tag "samtools/faidx"
+    tag "gffread"
+    tag "star"
+    tag "star/genomegenerate"
+    tag "salmon"
+    tag "salmon/index"
+    tag "rsem"
+    tag "rsem/preparereference"
+    tag "gtfgenefilter"
+    tag "preprocess_transcripts_fasta_gencode"
+    tag "star_genomeparams_upgrade"
+
+    test("homo_sapiens - fasta and gtf - build indices") {
+
+        when {
+            workflow {
+                """
+                input[0]  = params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta'
+                input[1]  = params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.gtf'
+                input[2]  = null
+                input[3]  = null
+                input[4]  = null
+                input[5]  = null
+                input[6]  = null
+                input[7]  = null
+                input[8]  = false
+                input[9]  = 'fastq'
+                input[10] = 'star'
+                input[11] = 'salmon'
+                input[12] = false
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert snapshot(
+                    workflow.out.fasta,
+                    workflow.out.fai,
+                    workflow.out.chrom_sizes,
+                    workflow.out.gtf,
+                    workflow.out.transcript_fasta,
+                    workflow.out.star_index.collect { index -> file(index).list().sort() },
+                    workflow.out.salmon_index.collect { index -> file(index).name },
+                    workflow.out.dexseq_gff,
+                    workflow.out.suppa_tpm
+                ).match() }
+            )
+        }
+
+    }
+
+    test("homo_sapiens - gzipped inputs, gff and supplied indices") {
+
+        when {
+            workflow {
+                """
+                // The test datasets carry no gzipped GFF3, transcript FASTA or SUPPA TPM table, nor
+                // an uncompressed Salmon index, so they are written here. The Salmon index and the
+                // TPM table are only passed through, so small stand-ins do
+                def gzip = { src, dest ->
+                    def out = new java.util.zip.GZIPOutputStream(file(dest).newOutputStream())
+                    out.write(file(src).bytes)
+                    out.close()
+                    dest
+                }
+                file("${workDir}/salmon_index").mkdirs()
+                file("${workDir}/salmon_index/versionInfo.json").text = '{}\\n'
+                file("${workDir}/quant.tpm").text = 'sample1\\ttranscript1\\t1.0\\n'
+
+                input[0]  = params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta.gz'
+                input[1]  = null
+                input[2]  = gzip.call(params.pipelines_testdata_base_path + 'reference/genes_chrX.gff3', "${workDir}/genes_chrX.gff3.gz")
+                input[3]  = gzip.call(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/transcriptome.fasta', "${workDir}/transcriptome.fasta.gz")
+                input[4]  = params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/index/star/star.tar.gz'
+                input[5]  = "${workDir}/salmon_index"
+                input[6]  = params.pipelines_testdata_base_path + 'testdata/dexseq/genes_chrX.DEXSeq.gff.gz'
+                input[7]  = gzip.call("${workDir}/quant.tpm", "${workDir}/quant.tpm.gz")
+                input[8]  = true
+                input[9]  = 'fastq'
+                input[10] = 'star_salmon'
+                input[11] = 'salmon'
+                input[12] = false
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert snapshot(
+                    workflow.out.fasta,
+                    workflow.out.fai,
+                    workflow.out.chrom_sizes,
+                    workflow.out.gtf,
+                    workflow.out.transcript_fasta,
+                    workflow.out.star_index.collect { index -> file(index).list().sort() },
+                    workflow.out.salmon_index.collect { index -> file(index).name },
+                    workflow.out.dexseq_gff,
+                    workflow.out.suppa_tpm
+                ).match() }
+            )
+        }
+
+    }
+
+    test("homo_sapiens - genome_bam source - gzipped gtf - no indices") {
+
+        when {
+            workflow {
+                """
+                // The test datasets carry no gzipped GTF or SUPPA TPM table, so they are written here
+                def gzip = { src, dest ->
+                    def out = new java.util.zip.GZIPOutputStream(file(dest).newOutputStream())
+                    out.write(file(src).bytes)
+                    out.close()
+                    dest
+                }
+                file("${workDir}/quant.tpm").text = 'sample1\\ttranscript1\\t1.0\\n'
+
+                input[0]  = params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta'
+                input[1]  = gzip.call(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.gtf', "${workDir}/genome.gtf.gz")
+                input[2]  = null
+                input[3]  = params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/transcriptome.fasta'
+                input[4]  = params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/index/star/star.tar.gz'
+                input[5]  = null
+                input[6]  = null
+                input[7]  = "${workDir}/quant.tpm"
+                input[8]  = false
+                input[9]  = 'genome_bam'
+                input[10] = 'star_salmon'
+                input[11] = 'salmon'
+                input[12] = false
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.star_index.size() == 0 },
+                { assert workflow.out.salmon_index.size() == 0 },
+                { assert snapshot(
+                    workflow.out.fasta,
+                    workflow.out.fai,
+                    workflow.out.chrom_sizes,
+                    workflow.out.gtf,
+                    workflow.out.transcript_fasta,
+                    workflow.out.suppa_tpm
+                ).match() }
+            )
+        }
+
+    }
+
+    test("homo_sapiens - fasta and gtf - build indices - stub") {
+
+        options "-stub"
+
+        when {
+            workflow {
+                """
+                input[0]  = params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta'
+                input[1]  = params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.gtf'
+                input[2]  = null
+                input[3]  = null
+                input[4]  = null
+                input[5]  = null
+                input[6]  = null
+                input[7]  = null
+                input[8]  = false
+                input[9]  = 'fastq'
+                input[10] = 'star'
+                input[11] = 'salmon'
+                input[12] = false
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert snapshot(sanitizeOutput(workflow.out)).match() }
+            )
+        }
+
+    }
+}

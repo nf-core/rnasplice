@@ -212,6 +212,10 @@ workflow NFCORE_RNASPLICE {
         params.gff_dexseq,
         params.suppa_tpm,
         params.gencode,
+        params.source,
+        params.aligner,
+        params.pseudo_aligner,
+        params.skip_alignment,
     )
 
     //
