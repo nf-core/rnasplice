@@ -64,6 +64,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #286 - Replace the local `STAR_ALIGN_IGENOMES` module with the nf-core `star/align` module, aliased and pinned in `conf/modules.config` to the STAR 2.6.1d container that reads the AWS iGenomes indices. The `--seq_center` read group tag is set in `ext.args` and now applies to every STAR alignment, not only to the iGenomes path (by @piplus2)
 - #287 - Replace the local `STAR_GENOMEGENERATE_IGENOMES` module with the nf-core `star/genomegenerate` module, aliased and pinned in `conf/modules.config` to the same STAR 2.6.1d container as `STAR_ALIGN_IGENOMES` (by @piplus2)
 - #289 - Drop the STAR 2.6.1d pin. A supplied STAR index now goes through the new `STAR_GENOMEPARAMS_UPGRADE` module, which rewrites the `genomeParameters.txt` metadata that STAR 2.7.4a and later validate and copies the binary index files through untouched, so the AWS iGenomes indices work with a single STAR version. This removes the `STAR_ALIGN_IGENOMES` and `STAR_GENOMEGENERATE_IGENOMES` aliases, the legacy `--quantTranscriptomeBan` argument and the `is_aws_igenome` flag (suggested by @pinin4fjords, done by @piplus2)
+- #290 - Move the `PREPARE_GENOME` subworkflow to the nf-core subworkflow template. It takes `--source`, `--aligner`, `--pseudo_aligner` and `--skip_alignment` as inputs instead of reading `params`, and the GTF converted from `--gff` is named after the GFF file instead of `null.gtf` (by @piplus2)
 
 ### Fixed
 
@@ -106,6 +107,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #275 - Fix missing yaml from singularity container in `GTFGENEFILTER` (reported by @srira25, fix by @piplus2)
 - #277 - Fix missing pyyaml from singularity container in `STRAND_JUNCTIONS`, `CLUSTERGROUPS` and `MISOPY_SETTINGS` (by @piplus2)
 - #281 - Fix `ISOFORMSWITCHANALYZER` writing `common_switch_consequences.pdf` next to the `results` directory instead of inside it, so it was never published (by @piplus2)
+- #290 - Fix an uncompressed `--salmon_index` or `--suppa_tpm`, which reached `SALMON_QUANT` and `SUPPA` still wrapped with an empty meta map (by @piplus2)
 
 ## v1.0.5 - 2024-11-03
 

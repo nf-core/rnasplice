@@ -1,0 +1,149 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "prepare_genome"
+description: Uncompress the reference genome files and build the genome index, transcript FASTA and aligner indices that were not supplied
+keywords:
+  - genome
+  - reference
+  - index
+  - star
+  - salmon
+  - gunzip
+  - untar
+components:
+  - gunzip
+  - untar
+  - samtools/faidx
+  - gffread
+  - star/genomegenerate
+  - salmon/index
+  - rsem/preparereference
+  - gtfgenefilter
+  - preprocess_transcripts_fasta_gencode
+  - star_genomeparams_upgrade
+input:
+  - fasta:
+      type: string
+      description: |
+        Path to the genome FASTA file, gzipped or not
+      pattern: "*.{fa,fasta}{,.gz}"
+  - gtf:
+      type: string
+      description: |
+        Path to the GTF annotation file, gzipped or not. Takes precedence over `gff`
+      pattern: "*.gtf{,.gz}"
+  - gff:
+      type: string
+      description: |
+        Path to the GFF3 annotation file, gzipped or not, converted to GTF with gffread when no `gtf` is given
+      pattern: "*.{gff,gff3}{,.gz}"
+  - transcript_fasta:
+      type: string
+      description: |
+        Path to the transcript FASTA file, gzipped or not. When not given, it is built from the
+        genome FASTA and the annotation with RSEM
+      pattern: "*.{fa,fasta}{,.gz}"
+  - star_index:
+      type: string
+      description: |
+        Path to the STAR index directory, or a `.tar.gz` archive of it. When not given, it is
+        built from the genome FASTA and the annotation
+  - salmon_index:
+      type: string
+      description: |
+        Path to the Salmon index directory, or a `.tar.gz` archive of it. When not given, it is
+        built from the genome FASTA and the transcript FASTA for the `salmon` pseudo aligner
+  - gff_dexseq:
+      type: string
+      description: |
+        Path to the flattened DEXSeq GFF annotation, gzipped or not
+      pattern: "*.gff{,.gz}"
+  - suppa_tpm:
+      type: string
+      description: |
+        Path to the SUPPA transcript TPM table, gzipped or not
+      pattern: "*.tpm{,.gz}"
+  - gencode:
+      type: boolean
+      description: |
+        Whether the annotation is from GENCODE, in which case the transcript FASTA headers are
+        trimmed to the transcript ID
+  - source:
+      type: string
+      description: |
+        Type of input data. The aligner indices are only prepared for `fastq`
+      enum: ["fastq", "genome_bam", "transcriptome_bam", "salmon_results"]
+  - aligner:
+      type: string
+      description: |
+        Genome aligner, the STAR index is prepared for both values
+      enum: ["star", "star_salmon"]
+  - pseudo_aligner:
+      type: string
+      description: |
+        Pseudo aligner, the Salmon index is prepared for `salmon`
+      enum: ["salmon"]
+  - skip_alignment:
+      type: boolean
+      description: |
+        Whether the genome alignment is skipped, in which case no STAR index is prepared
+output:
+  - fasta:
+      type: file
+      description: |
+        Channel containing the uncompressed genome FASTA file
+        Structure: [ path(fasta) ]
+      pattern: "*.{fa,fasta}"
+  - fai:
+      type: file
+      description: |
+        Channel containing the genome FASTA index
+        Structure: [ val(meta), path(fai) ]
+      pattern: "*.fai"
+  - chrom_sizes:
+      type: file
+      description: |
+        Channel containing the chromosome sizes of the genome
+        Structure: [ val(meta), path(sizes) ]
+      pattern: "*.sizes"
+  - gtf:
+      type: file
+      description: |
+        Channel containing the uncompressed GTF annotation, or the one converted from the GFF3 annotation
+        Structure: [ path(gtf) ]
+      pattern: "*.gtf"
+  - transcript_fasta:
+      type: file
+      description: |
+        Channel containing the uncompressed transcript FASTA file, or the one built with RSEM
+        Structure: [ path(fasta) ]
+      pattern: "*.{fa,fasta}"
+  - star_index:
+      type: directory
+      description: |
+        Channel containing the STAR index directory, empty when no STAR alignment is run
+        Structure: [ path(index) ]
+  - salmon_index:
+      type: directory
+      description: |
+        Channel containing the Salmon index directory, empty when Salmon is not run or no index is needed
+        Structure: [ path(index) ]
+  - dexseq_gff:
+      type: file
+      description: |
+        Channel containing the uncompressed flattened DEXSeq GFF annotation, empty when none is given
+        Structure: [ path(gff) ]
+      pattern: "*.gff"
+  - suppa_tpm:
+      type: file
+      description: |
+        Channel containing the uncompressed SUPPA transcript TPM table, empty when none is given
+        Structure: [ path(tpm) ]
+      pattern: "*.tpm"
+authors:
+  - "@asmaali98"
+  - "@bensouthgate"
+  - "@jma1991"
+  - "@valentinoruggieri"
+  - "@piplus2"
+maintainers:
+  - "@piplus2"
