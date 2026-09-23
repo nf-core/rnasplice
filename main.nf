@@ -198,8 +198,6 @@ workflow NFCORE_RNASPLICE {
 
     main:
 
-    def is_aws_igenome = params.fasta && params.gtf && (file(params.fasta).getName() - '.gz' == 'genome.fa') && (file(params.gtf).getName() - '.gz' == 'genes.gtf')
-
     //
     // SUBWORKFLOW: Prepare reference genome files
     //
@@ -214,7 +212,6 @@ workflow NFCORE_RNASPLICE {
         params.gff_dexseq,
         params.suppa_tpm,
         params.gencode,
-        is_aws_igenome,
     )
 
     //
@@ -234,7 +231,6 @@ workflow NFCORE_RNASPLICE {
         PREPARE_GENOME.out.star_index,
         PREPARE_GENOME.out.suppa_tpm,
         PREPARE_GENOME.out.chrom_sizes,
-        is_aws_igenome,
         params.multiqc_config,
         params.multiqc_logo,
         params.multiqc_methods_description,

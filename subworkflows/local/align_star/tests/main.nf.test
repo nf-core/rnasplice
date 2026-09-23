@@ -54,8 +54,7 @@ nextflow_workflow {
                     file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.gtf', checkIfExists: true)
                 ])
                 input[3] = false
-                input[4] = false
-                input[5] = channel.of([
+                input[4] = channel.of([
                     [ id:'test_fasta' ],
                     file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta', checkIfExists: true),
                     file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta.fai', checkIfExists: true)
@@ -120,8 +119,7 @@ nextflow_workflow {
                     file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.gtf', checkIfExists: true)
                 ])
                 input[3] = false
-                input[4] = false
-                input[5] = channel.of([
+                input[4] = channel.of([
                     [ id:'test_fasta' ],
                     file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta', checkIfExists: true),
                     file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta.fai', checkIfExists: true)
@@ -153,12 +151,12 @@ nextflow_workflow {
 
     }
 
-    test("homo_sapiens - paired_end - igenomes") {
+    test("homo_sapiens - paired_end - seq_center") {
 
         config "./nextflow.seq_center.config"
 
         setup {
-            run("STAR_GENOMEGENERATE", alias: "STAR_GENOMEGENERATE_IGENOMES") {
+            run("STAR_GENOMEGENERATE") {
                 script "../../../../modules/nf-core/star/genomegenerate/main.nf"
                 process {
                     """
@@ -185,14 +183,13 @@ nextflow_workflow {
                         file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/fastq/test_rnaseq_2.fastq.gz', checkIfExists: true)
                     ]
                 ])
-                input[1] = STAR_GENOMEGENERATE_IGENOMES.out.index
+                input[1] = STAR_GENOMEGENERATE.out.index
                 input[2] = channel.of([
                     [ id:'test_gtf' ],
                     file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.gtf', checkIfExists: true)
                 ])
                 input[3] = false
-                input[4] = true
-                input[5] = channel.of([
+                input[4] = channel.of([
                     [ id:'test_fasta' ],
                     file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta', checkIfExists: true),
                     file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta.fai', checkIfExists: true)
@@ -263,8 +260,7 @@ nextflow_workflow {
                     file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.gtf', checkIfExists: true)
                 ])
                 input[3] = false
-                input[4] = false
-                input[5] = channel.of([
+                input[4] = channel.of([
                     [ id:'test_fasta' ],
                     file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta', checkIfExists: true),
                     file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta.fai', checkIfExists: true)
@@ -281,62 +277,4 @@ nextflow_workflow {
         }
 
     }
-
-    test("homo_sapiens - paired_end - igenomes - stub") {
-
-        options "-stub"
-
-        setup {
-            run("STAR_GENOMEGENERATE", alias: "STAR_GENOMEGENERATE_IGENOMES") {
-                script "../../../../modules/nf-core/star/genomegenerate/main.nf"
-                process {
-                    """
-                    input[0] = channel.of([
-                        [ id:'test_fasta' ],
-                        file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta', checkIfExists: true)
-                    ])
-                    input[1] = channel.of([
-                        [ id:'test_gtf' ],
-                        file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.gtf', checkIfExists: true)
-                    ])
-                    """
-                }
-            }
-        }
-
-        when {
-            workflow {
-                """
-                input[0] = channel.of([
-                    [ id:'test', single_end:false ],
-                    [
-                        file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/fastq/test_rnaseq_1.fastq.gz', checkIfExists: true),
-                        file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/fastq/test_rnaseq_2.fastq.gz', checkIfExists: true)
-                    ]
-                ])
-                input[1] = STAR_GENOMEGENERATE_IGENOMES.out.index
-                input[2] = channel.of([
-                    [ id:'test_gtf' ],
-                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.gtf', checkIfExists: true)
-                ])
-                input[3] = false
-                input[4] = true
-                input[5] = channel.of([
-                    [ id:'test_fasta' ],
-                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta', checkIfExists: true),
-                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta.fai', checkIfExists: true)
-                ])
-                """
-            }
-        }
-
-        then {
-            assertAll(
-                { assert workflow.success },
-                { assert snapshot(sanitizeOutput(workflow.out)).match() }
-            )
-        }
-
-    }
-
 }

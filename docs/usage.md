@@ -183,7 +183,7 @@ For nf-core/rnasplice to run it requires a FASTA file and GTF file. These can be
 
 If a GTF is not available a GFF may be used by specifying the `--gff` parameter. This will convert the GFF file into a GTF.
 
-As in [nf-core/rnaseq](https://github.com/nf-core/rnaseq) if you are using a genome downloaded from AWS iGenomes and using `--aligner star_salmon` (default) the version of STAR to use for the alignment will be auto-detected (see [#808](https://github.com/nf-core/rnaseq/issues/808)).
+The STAR indices of AWS iGenomes were built with STAR 2.6.x, whose `genomeParameters.txt` STAR 2.7.4a and later refuse to read. A supplied STAR index is passed through `STAR_GENOMEPARAMS_UPGRADE` first, which rewrites that metadata and leaves the binary index files alone, so the pipeline runs one STAR version throughout. An index built with a recent STAR is left untouched.
 
 Please note if you are using [GENCODE](https://www.gencodegenes.org/) reference genome files please specify the `--gencode` parameter. This is because reference files which come from GENCODE are different to ENSEMBL reference files and this can impact the running of the pipeline. Specifying this parameter can help to mitigate these differences. Furthermore it should be noted that when using GENCODE reference files if you are running Salmon, the `--gencode` flag will also be passed to the index building step (see [this issue](https://github.com/COMBINE-lab/salmon/issues/15)).
 

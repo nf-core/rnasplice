@@ -33,13 +33,6 @@ input:
       description: |
         When using pre-built STAR indices do not re-extract and use splice junctions from the GTF file
         Structure: [ val(star_ignore_sjdbgtf) ]
-  - is_aws_igenome:
-      type: boolean
-      description: |
-        Whether the genome files come from AWS iGenomes, whose STAR indices were built with STAR 2.6.1d.
-        If true, `star/align` runs as `STAR_ALIGN_IGENOMES`, which `conf/modules.config` pins to a
-        STAR 2.6.1d container
-        Structure: [ val(is_aws_igenome) ]
   - fasta:
       type: file
       description: |
