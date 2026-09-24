@@ -1,0 +1,111 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "rmats"
+description: Detect differential alternative splicing events between the conditions of each contrast with rMATS, or profile the splicing events of a single condition
+keywords:
+  - rmats
+  - alternative splicing
+  - differential splicing
+  - rna-seq
+  - bam
+components:
+  - rmats/prep
+  - create_bamlist
+  - rmats_post
+input:
+  - ch_samples:
+      type: list
+      description: |
+        Channel containing the sample id and the condition of every sample, in samplesheet order.
+        The paired model pairs the n-th treatment sample with the n-th control sample
+        Structure: [ val(sample_id), val(condition) ]
+  - ch_contrastsheet:
+      type: map
+      description: |
+        Channel containing one map per contrast. Ignored when the samplesheet has a single condition
+        Structure: [ contrast: val(contrast), treatment: val(condition), control: val(condition) ]
+  - ch_bam:
+      type: file
+      description: |
+        Channel containing the genome BAM file of each sample. The meta map must carry the
+        `condition` of the sample
+        Structure: [ val(meta), path(bam) ]
+      pattern: "*.bam"
+  - ch_gtf:
+      type: file
+      description: |
+        Channel containing the GTF annotation
+        Structure: [ val(meta), path(gtf) ]
+      pattern: "*.gtf"
+  - rmats_read_len:
+      type: integer
+      description: |
+        Read length given to `--readLength` in both rMATS steps
+  - rmats_paired_stats:
+      type: boolean
+      description: |
+        Whether treatment and control samples are paired. Every condition of a contrast must then
+        have the same number of samples
+output:
+  - rmats:
+      type: file
+      description: |
+        Channel containing the `.rmats` file of each sample
+        Structure: [ val(meta), path(rmats) ]
+      pattern: "*.rmats"
+  - read_outcomes:
+      type: file
+      description: |
+        Channel containing the read outcomes of the prep step of each sample
+        Structure: [ val(meta), path(txt) ]
+      pattern: "*read_outcomes_by_bam.txt"
+  - bam_list1:
+      type: file
+      description: |
+        Channel containing the comma separated list of the treatment BAM files of each contrast,
+        or of the BAM files of the single condition
+        Structure: [ val(contrast), path(txt) ]
+      pattern: "*_bamlist.txt"
+  - bam_list2:
+      type: file
+      description: |
+        Channel containing the comma separated list of the control BAM files of each contrast,
+        empty in single condition mode
+        Structure: [ val(contrast), path(txt) ]
+      pattern: "*_bamlist.txt"
+  - mats:
+      type: file
+      description: |
+        Channel containing the rMATS results of each alternative splicing event type
+        Structure: [ val(meta), [ path(txt) ] ]
+      pattern: "*.MATS.{JC,JCEC}.txt"
+  - from_gtf:
+      type: file
+      description: |
+        Channel containing the alternative splicing events detected from the annotation and the reads
+        Structure: [ val(meta), [ path(txt) ] ]
+      pattern: "fromGTF.*.txt"
+  - raw_input:
+      type: file
+      description: |
+        Channel containing the event counts that go into the statistical model
+        Structure: [ val(meta), [ path(txt) ] ]
+      pattern: "{JC,JCEC}.raw.input.*.txt"
+  - summary:
+      type: file
+      description: |
+        Channel containing the summary of the significant events of each contrast
+        Structure: [ val(meta), path(txt) ]
+      pattern: "summary.txt"
+  - post_log:
+      type: file
+      description: |
+        Channel containing the log of the post step of each contrast
+        Structure: [ val(meta), path(log) ]
+      pattern: "*.log"
+authors:
+  - "@asmaali98"
+  - "@bensouthgate"
+  - "@jma1991"
+  - "@piplus2"
+maintainers:
+  - "@piplus2"

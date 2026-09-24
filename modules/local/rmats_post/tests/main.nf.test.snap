@@ -426,8 +426,7 @@
                 [
                     {
                         "id": "GBR_profiling",
-                        "treatment": "GBR",
-                        "control": ""
+                        "treatment": "GBR"
                     },
                     [
                         "A3SS.MATS.JC.txt:md5,4a8e1db3e739d59d51fb501d2f7a2cc7",
@@ -447,8 +446,7 @@
                 [
                     {
                         "id": "GBR_profiling",
-                        "treatment": "GBR",
-                        "control": ""
+                        "treatment": "GBR"
                     },
                     [
                         "fromGTF.A3SS.txt:md5,479e769cc5ce9ecd6c8365ae4f1d243b",
@@ -473,8 +471,7 @@
                 [
                     {
                         "id": "GBR_profiling",
-                        "treatment": "GBR",
-                        "control": ""
+                        "treatment": "GBR"
                     },
                     [
                         "JC.raw.input.A3SS.txt:md5,7a799ff41755f8470cd34c0e40a6301f",
@@ -494,8 +491,7 @@
                 [
                     {
                         "id": "GBR_profiling",
-                        "treatment": "GBR",
-                        "control": ""
+                        "treatment": "GBR"
                     },
                     "summary.txt:md5,16e1ddf196eba71f0aacab142fe14643"
                 ]
@@ -517,7 +513,7 @@
                 ]
             }
         ],
-        "timestamp": "2026-09-22T10:08:43.503606068",
+        "timestamp": "2026-09-24T16:01:48.591440262",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.3"

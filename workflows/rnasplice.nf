@@ -233,16 +233,12 @@ workflow RNASPLICE {
         }
 
         if (params.rmats) {
-            ch_genome_bam
-                .map { meta, bam -> [meta.condition, meta, bam] }
-                .set { ch_genome_bam_conditions }
-
             // rMATS pairs treatment and control samples by their position within a
             // condition, so the samplesheet order of `ch_samples` is what it works from
             RMATS(
                 ch_samples,
                 ch_contrastsheet,
-                ch_genome_bam_conditions,
+                ch_genome_bam,
                 ch_gtf.map { gtf -> [[:], gtf] },
                 params.rmats_read_len,
                 params.rmats_paired_stats,
