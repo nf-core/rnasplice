@@ -2,39 +2,39 @@
 // rMATS differential splicing analysis
 //
 
-include { CREATE_BAMLIST } from '../../../modules/local/create_bamlist'
-include { RMATS_PREP     } from '../../../modules/nf-core/rmats/prep'
-include { RMATS_POST     } from '../../../modules/local/rmats_post'
+include { RMATS_PREP } from '../../../modules/nf-core/rmats/prep'
 
+include { CREATE_BAMLIST } from '../../../modules/local/create_bamlist'
+include { RMATS_POST } from '../../../modules/local/rmats_post'
 
 workflow RMATS {
     take:
-    ch_samples               // channel: [ sample_id, condition ], in samplesheet order
-    ch_contrastsheet         // channel: [ contrast, treatment, control ]
-    ch_genome_bam_conditions // channel: [ condition, meta, bam ]
-    ch_gtf                   // channel: [ meta, gtf ]
-    rmats_read_len           // integer: --readLength of both rMATS steps
-    rmats_paired_stats       // boolean: pair the treatment and control samples
+    ch_samples // channel: [ val(sample_id), val(condition) ], in samplesheet order
+    ch_contrastsheet // channel: [ contrast:, treatment:, control: ]
+    ch_bam // channel: [ val(meta), path(bam) ], meta.condition is required
+    ch_gtf // channel: [ val(meta), path(gtf) ]
+    rmats_read_len // integer: --readLength of both rMATS steps
+    rmats_paired_stats // boolean: pair the treatment and control samples
 
     main:
 
     //
-    // The prep step reads each BAM file once, whatever the number of contrasts it
-    // takes part in, and records it in a `.rmats` file under the BAM file name
+    // MODULE: RMATS_PREP
     //
+
+    // The prep step reads each BAM file once, whatever the number of contrasts it takes
+    // part in, and records it in a `.rmats` file under the BAM file name
     RMATS_PREP(
-        ch_genome_bam_conditions.map { _condition, meta, bam -> [ meta, bam ] },
+        ch_bam,
         ch_gtf,
         rmats_read_len,
     )
 
     //
-    // Samples grouped by condition, keeping the samplesheet order, which is what the
-    // paired model pairs treatment and control samples by. Technical replicates share
-    // a sample id, so they collapse into a single entry.
-    //
-    // This is the only view of the samplesheet rMATS needs: how many conditions there
-    // are, and the order of the samples within each of them.
+    // Sample ids grouped by condition, in samplesheet order, which is what the paired
+    // model pairs treatment and control samples by. This is the only view of the
+    // samplesheet rMATS needs: how many conditions there are, and the order of the
+    // samples within each of them.
     //
     ch_condition_samples = ch_samples
         .toList()
@@ -50,193 +50,116 @@ workflow RMATS {
         }
 
     //
-    // SINGLE CONDITION MODE
+    // The samples of each rMATS run: [ contrast, cond1, ids1, cond2, ids2 ]
     //
+
     // With one condition there is nothing to contrast, so it is profiled on its own and
-    // the second half of the tuple stays empty.
-    //
-    ch_single_bamlist = ch_genome_bam_conditions
-        .groupTuple(by: 0)
-        .combine( ch_condition_samples )
-        .filter { _condition, _metas, _bams, by_condition -> by_condition.size() == 1 }
-        .map { condition, metas, bams, _by_condition ->
-            [ "${condition}_profiling", condition, metas, bams, '', [], [] ]
-        }
-
-    //
-    // TWO CONDITIONS MODE
-    //
-    // The contrastsheet only makes sense with more than one condition, so its rows are
-    // dropped in single condition mode.
-    //
-    ch_contrasts = ch_contrastsheet
-        .combine( ch_condition_samples )
-        .filter { _row, by_condition -> by_condition.size() > 1 }
-        .map { row, _by_condition -> row }
-
-    if (rmats_paired_stats) {
-
-        //
-        // PAIRED SAMPLES
-        //
-
-        // Position of each sample within its condition, which is how a treatment sample
-        // is matched to its control counterpart
-        ch_sample_index = ch_condition_samples
-            .flatMap { by_condition ->
-                by_condition.collectMany { _condition, sample_ids ->
-                    sample_ids.withIndex().collect { sample_id, idx -> [ sample_id, idx ] }
-                }
-            }
-
-        ch_genome_bam_conditions
-            .multiMap { condition, meta, bam ->
-                tx:   [ condition, meta, bam ]
-                ctrl: [ condition, meta, bam ]
-            }
-            .set { ch_bams_fork }
-
-        ch_indexed_bams_tx = ch_bams_fork.tx
-            .map { condition, meta, bam -> [ meta.id, condition, meta, bam ] }
-            .join( ch_sample_index, by: 0 )
-            .map { _id, condition, meta, bam, idx -> [ condition, idx, meta, bam ] }
-
-        ch_indexed_bams_ctrl = ch_bams_fork.ctrl
-            .map { condition, meta, bam -> [ meta.id, condition, meta, bam ] }
-            .join( ch_sample_index, by: 0 )
-            .map { _id, condition, meta, bam, idx -> [ condition, idx, meta, bam ] }
-
-
-        // Build per-contrast pairs keyed by contrast__sample_id
-        ch_tx = ch_contrasts
-            .map { row -> [ row.treatment, row ] }           // key: treatment condition
-            .combine( ch_indexed_bams_tx, by: 0 )            // match BAMs by condition
-            .map { _condition, row, idx, meta, bam ->
-                [ row.contrast, meta.id, idx, row, meta, bam ]  // key: contrast + sample id (separate)
-            }
-
-        ch_ctrl = ch_contrasts
-            .map { row -> [ row.control, row ] }             // key: control condition
-            .combine( ch_indexed_bams_ctrl, by: 0 )          // match BAMs by condition
-            .map { _condition, row, idx, meta, bam ->
-                [ row.contrast, meta.id, idx, row, meta, bam ]  // same contrast + sample id
-            }
-
-        // Join treatment and control on contrast__sample_id
-        ch_fully_paired = ch_tx
-            .join( ch_ctrl, by: [0, 2] )  // join on both contrast AND sample id
-            .map { _contrast, _sample_id, tx_idx, tx_row, tx_meta, tx_bam, ctrl_idx, _ctrl_row, ctrl_meta, ctrl_bam ->
-                tx_row + [
-                    tx_idx   : tx_idx,
-                    tx_meta  : tx_meta,
-                    tx_bam   : tx_bam,
-                    ctrl_idx : ctrl_idx,
-                    ctrl_meta: ctrl_meta,
-                    ctrl_bam : ctrl_bam
-                ]
-            }
-
-        ch_contrasts_bamlist = ch_fully_paired
-            .map { it -> [ it.contrast, it ] }
-            .groupTuple(by: 0)
-            .map { contrast, pairs ->
-                def cond1  = pairs[0].treatment
-                def cond2  = pairs[0].control
-                def sorted = pairs.sort { it -> it.tx_idx }
-                def meta1  = sorted.collect { it -> it.tx_meta }
-                def bam1   = sorted.collect { it -> it.tx_bam }
-                def meta2  = sorted.collect { it -> it.ctrl_meta }
-                def bam2   = sorted.collect { it -> it.ctrl_bam }
-
-                if (meta1.size() != meta2.size()) {
-                    error(
-                        "Paired rMATS contrast '${contrast}': unequal sample counts — " +
-                        "${cond1}: ${meta1.collect { it -> it.id }}, " +
-                        "${cond2}: ${meta2.collect { it -> it.id }}. " +
-                        "Each sample ID must appear in both conditions."
-                    )
-                }
-
-                return [ contrast, cond1, meta1, bam1, cond2, meta2, bam2 ]
-            }
-
-    } else {
-
-        //
-        // UNPAIRED SAMPLES
-        //
-
-        ch_grouped_bams = ch_genome_bam_conditions
-            .groupTuple(by: 0)
-
-        ch_contrasts_bamlist = ch_contrasts
-            .map { row -> [ row.treatment, row ] }
-            .join( ch_grouped_bams, by: 0 )
-            .map { _tx, row, tx_metas, tx_bams ->
-                [ row.control, row + [ tx_metas: tx_metas, tx_bams: tx_bams ] ]
-            }
-            .join( ch_grouped_bams, by: 0 )
-            .map { _ctrl, row, ctrl_metas, ctrl_bams ->
-                [ row.contrast, row.treatment, row.tx_metas, row.tx_bams, row.control, ctrl_metas, ctrl_bams ]
-            }
+    // the second condition stays empty
+    ch_single_samples = ch_condition_samples.flatMap { by_condition ->
+        by_condition.size() == 1
+            ? by_condition.collect { condition, ids -> ["${condition}_profiling".toString(), condition, ids, '', []] }
+            : []
     }
+
+    // The contrastsheet only makes sense with more than one condition, so its rows are
+    // dropped in single condition mode
+    ch_contrast_samples = ch_contrastsheet
+        .combine(ch_condition_samples)
+        .filter { _row, by_condition -> by_condition.size() > 1 }
+        .map { row, by_condition ->
+            [row.treatment, row.control].each { condition ->
+                if (!by_condition.containsKey(condition)) {
+                    error("rMATS contrast '${row.contrast}': condition '${condition}' has no sample in the samplesheet")
+                }
+            }
+            def ids1 = by_condition[row.treatment]
+            def ids2 = by_condition[row.control]
+            // The paired model matches the n-th treatment sample with the n-th control one
+            if (rmats_paired_stats && ids1.size() != ids2.size()) {
+                error("Paired rMATS contrast '${row.contrast}': unequal sample counts, ${row.treatment}: ${ids1}, ${row.control}: ${ids2}. Each treatment sample needs a control counterpart.")
+            }
+            return [row.contrast, row.treatment, ids1, row.control, ids2]
+        }
 
     // Exactly one of the two is populated, so rMATS runs off a single set of tuples
     // whichever mode the samplesheet puts it in
-    ch_all_contrasts_bamlist = ch_single_bamlist.mix( ch_contrasts_bamlist )
+    ch_run_samples = ch_single_samples.mix(ch_contrast_samples)
+
+    // One entry per sample of a run: [ sample_id, contrast, condition number, position ]
+    ch_run_sample_index = ch_run_samples.flatMap { contrast, _cond1, ids1, _cond2, ids2 ->
+        def entries1 = ids1.withIndex().collect { sample_id, idx -> [sample_id, contrast, 1, idx] }
+        def entries2 = ids2.withIndex().collect { sample_id, idx -> [sample_id, contrast, 2, idx] }
+        return entries1 + entries2
+    }
+
+    //
+    // MODULE: CREATE_BAMLIST
+    //
+
+    // The BAM files of each run, in samplesheet order within each condition
+    ch_run_bams = ch_run_sample_index
+        .combine(ch_bam.map { meta, bam -> [meta.id, bam] }, by: 0)
+        .map { _sample_id, contrast, cond_num, idx, bam -> [contrast, [cond_num, idx, bam]] }
+        .groupTuple()
+        .map { contrast, entries ->
+            def sorted = entries.sort { a, b -> a[0] <=> b[0] ?: a[1] <=> b[1] }
+            def bam1 = sorted.findAll { entry -> entry[0] == 1 }.collect { entry -> entry[2] }
+            def bam2 = sorted.findAll { entry -> entry[0] == 2 }.collect { entry -> entry[2] }
+            [contrast, bam1, bam2]
+        }
+
+    ch_bamlist_input = ch_run_samples
+        .join(ch_run_bams, by: 0)
+        .map { contrast, cond1, _ids1, cond2, _ids2, bam1, bam2 ->
+            [contrast, cond1, bam1, cond2, bam2]
+        }
 
     CREATE_BAMLIST(
-        ch_all_contrasts_bamlist
-            .map { contrast, cond1, _meta1, bam1, cond2, _meta2, bam2 ->
-                [ contrast, cond1, bam1, cond2, bam2 ]
-            }
+        ch_bamlist_input
     )
 
-    // CREATE_BAMLIST only writes the second bam list when there is a second condition,
-    // so single condition contrasts join with no bam list 2. It has to become an empty
-    // list rather than an empty string, which a `path` input rejects
-    ch_bam_lists = ch_all_contrasts_bamlist
-        .join( CREATE_BAMLIST.out.bam_list1, by: 0 )
-        .join( CREATE_BAMLIST.out.bam_list2, by: 0, remainder: true )
-        .map { contrast, cond1, meta1, _bam1, cond2, meta2, _bam2, bam_list1, bam_list2 ->
-            [ contrast, cond1, meta1, cond2, meta2, bam_list1, bam_list2 ?: [] ]
-        }
+    //
+    // MODULE: RMATS_POST
+    //
 
-    // The post step of a contrast takes the `.rmats` files of every sample in its bam
-    // lists. The bam lists carry the BAM file names, which is what rMATS matches the
-    // `.rmats` files by, so the samples of a contrast are looked up by sample id here
-    ch_rmats_by_sample = RMATS_PREP.out.rmats
-        .map { meta, rmats -> [ meta.id, rmats ] }
-
-    ch_contrast_rmats = ch_bam_lists
-        .flatMap { contrast, _cond1, meta1, _cond2, meta2, _bam_list1, _bam_list2 ->
-            (meta1 + meta2).collect { meta -> [ meta.id, contrast ] }
-        }
-        .combine( ch_rmats_by_sample, by: 0 )
-        .map { _sample_id, contrast, rmats -> [ contrast, rmats ] }
+    // The post step of a run takes the `.rmats` files of every sample in its bam lists.
+    // The bam lists carry the BAM file names, which is what rMATS matches the `.rmats`
+    // files by, so the samples of a run are looked up by sample id here
+    ch_run_rmats = ch_run_sample_index
+        .map { sample_id, contrast, _cond_num, _idx -> [sample_id, contrast] }
+        .combine(RMATS_PREP.out.rmats.map { meta, rmats -> [meta.id, rmats] }, by: 0)
+        .map { _sample_id, contrast, rmats -> [contrast, rmats] }
         .groupTuple()
 
-    ch_post_ready = ch_bam_lists
-        .join( ch_contrast_rmats, by: 0 )
-        .map { contrast, cond1, _meta1, cond2, _meta2, bam_list1, bam_list2, rmats ->
-            def meta = [ id: contrast, treatment: cond1, control: cond2 ]
+    // CREATE_BAMLIST only writes the second bam list when there is a second condition,
+    // so a single condition run joins with no bam list 2. It has to become an empty list
+    // rather than an empty string, which a `path` input rejects
+    ch_post_input = ch_run_samples
+        .join(CREATE_BAMLIST.out.bam_list1, by: 0)
+        .join(CREATE_BAMLIST.out.bam_list2, by: 0, remainder: true)
+        .join(ch_run_rmats, by: 0)
+        .map { contrast, cond1, _ids1, cond2, _ids2, bam_list1, bam_list2, rmats ->
+            // A single condition run has no control, so its meta map has no control key
+            def meta = cond2 ? [id: contrast, treatment: cond1, control: cond2] : [id: contrast, treatment: cond1]
             // Sorted so that the task hash does not depend on the order the prep tasks
             // finished in
-            [ meta, rmats.sort { rmats_file -> rmats_file.name }, bam_list1, bam_list2 ]
+            [meta, rmats.sort { rmats_file -> rmats_file.name }, bam_list1, bam_list2 ?: []]
         }
 
     RMATS_POST(
-        ch_post_ready,
+        ch_post_input,
         ch_gtf,
         rmats_read_len,
     )
 
     emit:
-    rmats         = RMATS_PREP.out.rmats         // channel: [ meta, rmats ]
-    read_outcomes = RMATS_PREP.out.read_outcomes // channel: [ meta, txt ]
-    mats          = RMATS_POST.out.mats          // channel: [ meta, [ txt ] ]
-    from_gtf      = RMATS_POST.out.from_gtf      // channel: [ meta, [ txt ] ]
-    raw_input     = RMATS_POST.out.raw_input     // channel: [ meta, [ txt ] ]
-    summary       = RMATS_POST.out.summary       // channel: [ meta, txt ]
-    post_log      = RMATS_POST.out.log           // channel: [ meta, log ]
+    rmats = RMATS_PREP.out.rmats // channel: [ val(meta), path(rmats) ]
+    read_outcomes = RMATS_PREP.out.read_outcomes // channel: [ val(meta), path(txt) ]
+    bam_list1 = CREATE_BAMLIST.out.bam_list1 // channel: [ val(contrast), path(txt) ]
+    bam_list2 = CREATE_BAMLIST.out.bam_list2 // channel: [ val(contrast), path(txt) ]
+    mats = RMATS_POST.out.mats // channel: [ val(meta), [ path(txt) ] ]
+    from_gtf = RMATS_POST.out.from_gtf // channel: [ val(meta), [ path(txt) ] ]
+    raw_input = RMATS_POST.out.raw_input // channel: [ val(meta), [ path(txt) ] ]
+    summary = RMATS_POST.out.summary // channel: [ val(meta), path(txt) ]
+    post_log = RMATS_POST.out.log // channel: [ val(meta), path(log) ]
 }

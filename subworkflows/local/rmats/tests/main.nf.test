@@ -1,0 +1,239 @@
+// nf-core subworkflows test rmats
+nextflow_workflow {
+
+    name "Test Subworkflow RMATS"
+    script "../main.nf"
+    workflow "RMATS"
+    config "./nextflow.config"
+
+    tag "subworkflows"
+    tag "subworkflows/rmats"
+    tag "rmats"
+    tag "rmats/prep"
+    tag "create_bamlist"
+    tag "rmats_post"
+
+    // Two GBR and two YRI samples of the pipeline test data
+
+    test("homo_sapiens - two contrasts - unpaired") {
+
+        when {
+            params {
+                rmats_paired_stats = false
+            }
+            workflow {
+                """
+                input[0] = channel.of(
+                    [ 'ERR188383', 'GBR' ],
+                    [ 'ERR188428', 'GBR' ],
+                    [ 'ERR188454', 'YRI' ],
+                    [ 'ERR204916', 'YRI' ],
+                )
+                input[1] = channel.of(
+                    [ contrast:'GBR-YRI', treatment:'GBR', control:'YRI' ],
+                    [ contrast:'YRI-GBR', treatment:'YRI', control:'GBR' ],
+                )
+                input[2] = channel.of(
+                    [ [ id:'ERR188383', condition:'GBR', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188428', condition:'GBR', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188454', condition:'YRI', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR204916', condition:'YRI', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916.Aligned.out.bam', checkIfExists: true) ],
+                )
+                input[3] = [ [ id:'genome' ], file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true) ]
+                input[4] = 40
+                input[5] = false
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                // Each BAM file is prepped once, however many contrasts it takes part in
+                { assert workflow.out.rmats.size() == 4 },
+                { assert snapshot(
+                    workflow.out.rmats.collect { meta, rmats -> [ meta, file(rmats).name ] },
+                    workflow.out.read_outcomes,
+                    workflow.out.bam_list1,
+                    workflow.out.bam_list2,
+                    workflow.out.mats,
+                    workflow.out.from_gtf,
+                    workflow.out.raw_input,
+                    workflow.out.summary
+                ).match() }
+            )
+        }
+
+    }
+
+    test("homo_sapiens - one contrast - paired") {
+
+        when {
+            params {
+                rmats_paired_stats = true
+            }
+            workflow {
+                """
+                input[0] = channel.of(
+                    [ 'ERR188383', 'GBR' ],
+                    [ 'ERR188428', 'GBR' ],
+                    [ 'ERR188454', 'YRI' ],
+                    [ 'ERR204916', 'YRI' ],
+                )
+                input[1] = channel.of(
+                    [ contrast:'GBR-YRI', treatment:'GBR', control:'YRI' ],
+                )
+                input[2] = channel.of(
+                    [ [ id:'ERR188383', condition:'GBR', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188428', condition:'GBR', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188454', condition:'YRI', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR204916', condition:'YRI', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916.Aligned.out.bam', checkIfExists: true) ],
+                )
+                input[3] = [ [ id:'genome' ], file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true) ]
+                input[4] = 40
+                input[5] = true
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert snapshot(
+                    workflow.out.rmats.collect { meta, rmats -> [ meta, file(rmats).name ] },
+                    workflow.out.read_outcomes,
+                    workflow.out.bam_list1,
+                    workflow.out.bam_list2,
+                    workflow.out.mats,
+                    workflow.out.from_gtf,
+                    workflow.out.raw_input,
+                    workflow.out.summary
+                ).match() }
+            )
+        }
+
+    }
+
+    test("homo_sapiens - single condition") {
+
+        when {
+            params {
+                rmats_paired_stats = false
+            }
+            workflow {
+                """
+                input[0] = channel.of(
+                    [ 'ERR188383', 'GBR' ],
+                    [ 'ERR188428', 'GBR' ],
+                )
+                input[1] = channel.of(
+                    [ contrast:'GBR-YRI', treatment:'GBR', control:'YRI' ],
+                )
+                input[2] = channel.of(
+                    [ [ id:'ERR188383', condition:'GBR', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188428', condition:'GBR', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true) ],
+                )
+                input[3] = [ [ id:'genome' ], file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true) ]
+                input[4] = 40
+                input[5] = false
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.bam_list2.size() == 0 },
+                { assert snapshot(
+                    workflow.out.rmats.collect { meta, rmats -> [ meta, file(rmats).name ] },
+                    workflow.out.read_outcomes,
+                    workflow.out.bam_list1,
+                    workflow.out.bam_list2,
+                    workflow.out.mats,
+                    workflow.out.from_gtf,
+                    workflow.out.raw_input,
+                    workflow.out.summary
+                ).match() }
+            )
+        }
+
+    }
+
+    test("homo_sapiens - one contrast - paired - unequal sample counts") {
+
+        when {
+            params {
+                rmats_paired_stats = true
+            }
+            workflow {
+                """
+                input[0] = channel.of(
+                    [ 'ERR188383', 'GBR' ],
+                    [ 'ERR188428', 'GBR' ],
+                    [ 'ERR188454', 'YRI' ],
+                )
+                input[1] = channel.of(
+                    [ contrast:'GBR-YRI', treatment:'GBR', control:'YRI' ],
+                )
+                input[2] = channel.of(
+                    [ [ id:'ERR188383', condition:'GBR', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188428', condition:'GBR', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188454', condition:'YRI', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454.Aligned.out.bam', checkIfExists: true) ],
+                )
+                input[3] = [ [ id:'genome' ], file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true) ]
+                input[4] = 40
+                input[5] = true
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.failed },
+                { assert workflow.stdout.any { line -> line.contains("Paired rMATS contrast 'GBR-YRI': unequal sample counts") } }
+            )
+        }
+
+    }
+
+    test("homo_sapiens - one contrast - unpaired - stub") {
+
+        options "-stub"
+
+        when {
+            params {
+                rmats_paired_stats = false
+            }
+            workflow {
+                """
+                input[0] = channel.of(
+                    [ 'ERR188383', 'GBR' ],
+                    [ 'ERR188428', 'GBR' ],
+                    [ 'ERR188454', 'YRI' ],
+                    [ 'ERR204916', 'YRI' ],
+                )
+                input[1] = channel.of(
+                    [ contrast:'GBR-YRI', treatment:'GBR', control:'YRI' ],
+                )
+                input[2] = channel.of(
+                    [ [ id:'ERR188383', condition:'GBR', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188428', condition:'GBR', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188454', condition:'YRI', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR204916', condition:'YRI', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916.Aligned.out.bam', checkIfExists: true) ],
+                )
+                input[3] = [ [ id:'genome' ], file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true) ]
+                input[4] = 40
+                input[5] = false
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert snapshot(sanitizeOutput(workflow.out)).match() }
+            )
+        }
+
+    }
+}
