@@ -122,7 +122,7 @@ nextflow_process {
                     .map { _meta, rmats -> rmats }
                     .collect()
                     .map { rmats -> [
-                        [ id:'GBR_profiling', treatment:'GBR', control:'' ],
+                        [ id:'GBR_profiling', treatment:'GBR' ],
                         rmats.sort { rmats_file -> rmats_file.name },
                         file("${outputDir}/GBR_bamlist.txt", checkIfExists: true),
                         []
