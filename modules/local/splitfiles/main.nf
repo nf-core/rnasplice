@@ -1,5 +1,5 @@
 process SPLIT_FILES {
-    tag "${tpm_psi}"
+    tag "${meta.id}"
     label 'process_low'
 
     conda "${moduleDir}/environment.yml"
@@ -8,36 +8,59 @@ process SPLIT_FILES {
         'community.wave.seqera.io/library/r-base:4.6.1--e4f1a108384f0df8' }"
 
     input:
-    tuple val(meta), path(tpm_psi)
-    path samplesheet
-    val output_type  // either .tpm or .psi
-    val calc_ranges  // true/false calculate ranges
+    tuple val(meta), path(tpm_psi), val(samples)
+    val extension // either 'tpm' or 'psi'
 
     output:
-    path "*.tpm"        , optional : true , emit: tpms
-    path "*.psi"        , optional : true , emit: psis
-    path "*_ranges.txt" , optional : true , emit: ranges
-    path "versions.yml", topic: versions, emit: versions_r
+    tuple val(meta), path("${prefix}.${extension}"), emit: split
+    tuple val("${task.process}"), val('r-base'), eval('R --version 2>&1 | head -n 1 | sed "s/^.*version //; s/ .*$//"'), topic: versions, emit: versions_r
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    template 'suppa_split_file.R'
+    prefix = task.ext.prefix ?: "${meta.id}"
+    if (!['tpm', 'psi'].contains(extension)) {
+        error("SPLIT_FILES: extension must be 'tpm' or 'psi', got '${extension}'")
+    }
+    // The samples as an R character vector, in the order of the columns to write
+    def samples_r = samples.collect { sample -> "\"${sample}\"" }.join(', ')
+    """
+    Rscript - <<'EOF'
+    samples <- c(${samples_r})
+
+    # The header of a SUPPA matrix has one field less than its rows, so the first
+    # column becomes the row names. The values are read as text, so that they are
+    # written back as SUPPA wrote them, its 'nan' included
+    input_data <- read.csv(
+        "${tpm_psi}",
+        sep          = "\\t",
+        header       = TRUE,
+        check.names  = FALSE,
+        colClasses   = "character",
+        na.strings   = character(0)
+    )
+
+    missing <- setdiff(samples, colnames(input_data))
+    if (length(missing) > 0) {
+        stop("samples missing from ${tpm_psi}: ", paste(missing, collapse = ", "), call. = FALSE)
+    }
+
+    write.table(
+        input_data[, samples, drop = FALSE],
+        file  = "${prefix}.${extension}",
+        quote = FALSE,
+        sep   = "\\t"
+    )
+    EOF
+    """
 
     stub:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: ''
+    prefix = task.ext.prefix ?: "${meta.id}"
     """
     echo ${args}
 
-    touch ${prefix}.tpm
-    touch ${prefix}.psi
-    touch ${prefix}_ranges.txt
-
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        suppa_split_file: "\$(Rscript --version 2>&1 | sed -n '1p' | sed 's/.*version //; s/ (.*//')"
-    END_VERSIONS
+    touch ${prefix}.${extension}
     """
 }
