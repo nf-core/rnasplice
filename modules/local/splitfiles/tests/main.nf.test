@@ -53,10 +53,7 @@ nextflow_process {
                 // The values are copied as they are
                 { assert lines[1] == 'ENST01\t3.5\t1.5' },
                 { assert lines[3] == 'ENST03\t9\t7' },
-                { assert snapshot(
-                    process.out.split,
-                    process.out.findAll { key, _val -> key.startsWith('versions') }
-                ).match() }
+                { assert snapshot(sanitizeOutput(process.out)).match() }
             )
         }
 
