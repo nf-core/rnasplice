@@ -81,10 +81,7 @@ nextflow_process {
                 { assert file(process.out.split[0][1]).name == 'test_YRI.psi' },
                 { assert lines[0] == 'YRI1\tYRI2' },
                 { assert lines[1] == 'ENSG01;SE:chrX:100-200:300-400:+\t0.2\tnan' },
-                { assert snapshot(
-                    process.out.split,
-                    process.out.findAll { key, _val -> key.startsWith('versions') }
-                ).match() }
+                { assert snapshot(sanitizeOutput(process.out)).match() }
             )
         }
 
