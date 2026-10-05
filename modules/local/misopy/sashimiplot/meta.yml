@@ -21,57 +21,56 @@ input:
   - - meta:
         type: map
         description: |
-          Groovy Map containing samples information
-          e.g. `[ id:'samples1' ]`
-    - miso_data:
-        type: file
-        description: MISO output data files
-        pattern: "*"
-        ontologies: []
+          Groovy Map containing information on the set of samples plotted together
+          e.g. `[ id:'miso' ]`
     - bam_files:
         type: file
-        description: BAM files
+        description: Coordinate sorted BAM files of the samples to plot, the ones
+          the settings file lists
         pattern: "*.bam"
         ontologies:
-          - edam: "http://edamontology.org/format_2572"
+          - edam: "http://edamontology.org/format_2572" # BAM
     - bai_files:
         type: file
-        description: BAM index files
+        description: Indices of the BAM files
         pattern: "*.bai"
         ontologies:
-          - edam: "http://edamontology.org/format_2573"
+          - edam: "http://edamontology.org/format_3327" # BAI
+    - miso_data:
+        type: directory
+        description: MISO output directories of the samples, as written by
+          `MISOPY_RUN`, the ones the settings file lists
+    - miso_settings:
+        type: file
+        description: Sashimi plot settings file, listing the BAM files and MISO
+          output directories to plot and the figure layout
+        pattern: "*.txt"
+        ontologies: []
+    - miso_gene:
+        type: string
+        description: ID of the gene or event to plot, as named in the MISO index
   - - meta2:
         type: map
         description: |
           Groovy Map containing genome information
           e.g. `[ id:'genome1' ]`
     - miso_index:
-        type: file
-        description: Processed MISO index file
-        pattern: "*.{shelve.*,pickle}"
-        ontologies: []
-  - miso_settings:
-      type: file
-      description: MISO settings file
-      pattern: "*.settings"
-      ontologies: []
-  - miso_gene:
-      type: string
-      description: MISO gene identifier
-      pattern: "*"
+        type: directory
+        description: MISO index directory, as written by `index_gff`
 
 output:
   sashimi_plot:
     - - meta:
           type: map
           description: |
-            Groovy Map containing samples information
-            e.g. `[ id:'samples1' ]`
-      - "*.png":
+            Groovy Map containing information on the set of samples plotted together
+            e.g. `[ id:'miso' ]`
+      - "*.pdf":
           type: file
-          description: Sashimi plot output files
-          pattern: "*.png"
-          ontologies: []
+          description: Sashimi plot of the gene or event, named after it
+          pattern: "*.pdf"
+          ontologies:
+            - edam: "http://edamontology.org/format_3508" # PDF
   versions_python:
     - - ${task.process}:
           type: string

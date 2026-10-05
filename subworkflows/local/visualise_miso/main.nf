@@ -108,5 +108,5 @@ workflow VISUALISE_MISO {
     miso_index    = ch_miso_index                      // channel: [ val(meta), path(index) ]
     miso_data     = ch_miso_data                       // channel: [ val(meta), path(miso_data/*) ]
     miso_settings = MISOPY_SETTINGS.out.miso_settings  // channel: [ val(meta), path(miso_settings.txt) ]
-    miso_sashimi  = MISOPY_SASHIMIPLOT.out.sashimi_plot // channel: [ val(meta), path(*.{pdf,png}) ]
+    miso_sashimi  = MISOPY_SASHIMIPLOT.out.sashimi_plot // channel: [ val(meta), path(*.pdf) ]
 }

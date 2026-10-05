@@ -81,7 +81,7 @@ output:
       description: |
         Channel containing the sashimi plots, one per requested event
         Structure: [ val(meta), path(sashimi_plot) ]
-      pattern: "*.{pdf,png}"
+      pattern: "*.pdf"
 authors:
   - "@valentinoruggieri"
   - "@piplus2"

@@ -12,7 +12,7 @@ process MISOPY_SASHIMIPLOT {
     tuple val(meta2), path(miso_index)
 
     output:
-    tuple val(meta), path("*.{pdf,png}"), emit: sashimi_plot
+    tuple val(meta), path("*.pdf")      , emit: sashimi_plot
     tuple val("${task.process}"), val('python'), eval('python --version 2>&1 | sed "s/Python //g"'), topic: versions, emit: versions_python
     tuple val("${task.process}"), val('misopy'), eval('python -c "import pkg_resources; print(pkg_resources.get_distribution(\'misopy\').version)"'), topic: versions, emit: versions_misopy
 
@@ -31,24 +31,15 @@ process MISOPY_SASHIMIPLOT {
         --output-dir ${prefix} \\
         $args
 
-    if [[ -f ${prefix}/*.png ]]; then
-        mv ${prefix}/*.png .
-    else
-        mv ${prefix}/*.pdf .
-    fi
+    # sashimi_plot only writes PDF files: MISO has a PNG option, but nothing turns it on
+    mv ${prefix}/*.pdf .
     """
 
     stub:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}"
     """
     echo $args
 
-    mkdir -p ${prefix}
-    for event in ${miso_gene}; do
-        touch ${prefix}/\${event}.pdf
-    done
-
-    mv ${prefix}/*.pdf .
+    touch ${miso_gene}.pdf
     """
 }

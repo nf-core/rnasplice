@@ -1,0 +1,138 @@
+// nf-core modules test misopy/sashimiplot
+nextflow_process {
+
+    name "Test Process MISOPY_SASHIMIPLOT"
+    script "../main.nf"
+    process "MISOPY_SASHIMIPLOT"
+    config "./nextflow.config"
+
+    tag "modules"
+    tag "modules_local"
+    tag "misopy"
+    tag "misopy/sashimiplot"
+    tag "misopy/run"
+    tag "misopysettings"
+    tag "misopy/index"
+    tag "gffread"
+    tag "gffread/gtf2gff3"
+
+    // The MISO index of the human chrX test annotation, the MISO run of one sample on
+    // it and the settings file that points sashimi_plot at both. MISO records the path
+    // of the index in its output, so the run and the plot have to share the index
+    // MISOPY_INDEX writes, as in the VISUALISE_MISO subworkflow
+    setup {
+        run("GFFREAD_GTF2GFF3") {
+            script "../../../gffread/gtf2gff3/main.nf"
+            process {
+                """
+                input[0] = [
+                    [ id:'genes_chrX' ],
+                    file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
+                ]
+                """
+            }
+        }
+
+        run("MISOPY_INDEX") {
+            script "../../../../nf-core/misopy/index/main.nf"
+            process {
+                """
+                input[0] = GFFREAD_GTF2GFF3.out.gff3
+                """
+            }
+        }
+
+        run("MISOPY_RUN") {
+            script "../../run/main.nf"
+            process {
+                """
+                input[0] = [
+                    [ id:'ERR188383' ],
+                    file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true),
+                    file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam.bai', checkIfExists: true)
+                ]
+                input[1] = MISOPY_INDEX.out.miso_index
+                """
+            }
+        }
+
+        run("MISOPY_SETTINGS") {
+            script "../../../misopysettings/main.nf"
+            process {
+                """
+                input[0] = MISOPY_RUN.out.miso.map { _meta, miso -> [
+                    [ id:'miso' ],
+                    [ file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
+                    [ miso ]
+                ] }
+                input[1] = 7
+                input[2] = 7
+                """
+            }
+        }
+    }
+
+    test("human chrX - one gene") {
+
+        when {
+            process {
+                """
+                input[0] = MISOPY_RUN.out.miso
+                    .combine(MISOPY_SETTINGS.out.miso_settings)
+                    .map { _meta, miso, meta, settings -> [
+                        meta,
+                        [ file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
+                        [ file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam.bai', checkIfExists: true) ],
+                        [ miso ],
+                        settings,
+                        'ENSG00000147403'
+                    ] }
+                input[1] = MISOPY_INDEX.out.miso_index
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                // A PDF holds timestamps, so only its name and its header are stable
+                { assert file(process.out.sashimi_plot[0][1]).name == 'ENSG00000147403.pdf' },
+                { assert path(process.out.sashimi_plot[0][1]).bytes[0..3] == '%PDF'.bytes },
+                { assert snapshot(
+                    sanitizeOutput(process.out, unstableKeys: ['sashimi_plot'])
+                ).match() }
+            )
+        }
+
+    }
+
+    test("human chrX - one gene - stub") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id:'miso' ],
+                    [ file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
+                    [ file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam.bai', checkIfExists: true) ],
+                    [],
+                    [],
+                    'ENSG00000147403'
+                ]
+                input[1] = [ [ id:'genes_chrX' ], [] ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(sanitizeOutput(process.out)).match() }
+            )
+        }
+
+    }
+
+}
