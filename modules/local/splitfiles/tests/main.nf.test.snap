@@ -1,16 +1,16 @@
 {
     "tpm - one condition": {
         "content": [
-            [
-                [
-                    {
-                        "id": "test_GBR",
-                        "condition": "GBR"
-                    },
-                    "test_GBR.tpm:md5,94e541bfc849a527c2be98bd3dd36839"
-                ]
-            ],
             {
+                "split": [
+                    [
+                        {
+                            "id": "test_GBR",
+                            "condition": "GBR"
+                        },
+                        "test_GBR.tpm:md5,94e541bfc849a527c2be98bd3dd36839"
+                    ]
+                ],
                 "versions_r": [
                     [
                         "SPLIT_FILES",
@@ -20,7 +20,7 @@
                 ]
             }
         ],
-        "timestamp": "2026-10-03T10:48:14.780759057",
+        "timestamp": "2026-10-05T13:19:10.565842221",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.1"
@@ -28,16 +28,16 @@
     },
     "psi - one condition": {
         "content": [
-            [
-                [
-                    {
-                        "id": "test_YRI",
-                        "condition": "YRI"
-                    },
-                    "test_YRI.psi:md5,2ff4d3445e70f027275534535c017109"
-                ]
-            ],
             {
+                "split": [
+                    [
+                        {
+                            "id": "test_YRI",
+                            "condition": "YRI"
+                        },
+                        "test_YRI.psi:md5,2ff4d3445e70f027275534535c017109"
+                    ]
+                ],
                 "versions_r": [
                     [
                         "SPLIT_FILES",
@@ -47,7 +47,7 @@
                 ]
             }
         ],
-        "timestamp": "2026-10-03T10:48:20.154201918",
+        "timestamp": "2026-10-05T13:19:15.808747864",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.1"
@@ -56,22 +56,6 @@
     "psi - one condition - stub": {
         "content": [
             {
-                "0": [
-                    [
-                        {
-                            "id": "test_GBR",
-                            "condition": "GBR"
-                        },
-                        "test_GBR.psi:md5,d41d8cd98f00b204e9800998ecf8427e"
-                    ]
-                ],
-                "1": [
-                    [
-                        "SPLIT_FILES",
-                        "r-base",
-                        "4.6.1"
-                    ]
-                ],
                 "split": [
                     [
                         {
@@ -90,7 +74,7 @@
                 ]
             }
         ],
-        "timestamp": "2026-10-03T10:48:29.881542909",
+        "timestamp": "2026-10-05T13:19:27.736767013",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.1"
