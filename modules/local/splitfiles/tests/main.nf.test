@@ -1,0 +1,141 @@
+// nf-core modules test splitfiles
+nextflow_process {
+
+    name "Test Process SPLIT_FILES"
+    script "../main.nf"
+    process "SPLIT_FILES"
+
+    tag "modules"
+    tag "modules_local"
+    tag "splitfiles"
+
+    // SUPPA matrices of four samples in two conditions, in the layout tximport and
+    // psiPerEvent write: a header with one field less than the rows, whose first field
+    // is the transcript or event ID. The samples of a condition are not next to each
+    // other, so that taking the right columns shows
+    setup {
+        file("${outputDir}/test.tpm").text = [
+            [ 'GBR1', 'YRI1', 'GBR2', 'YRI2' ],
+            [ 'ENST01', '1.5', '2.5', '3.5', '4.5' ],
+            [ 'ENST02', '0', '10', '20', '30' ],
+            [ 'ENST03', '7', '8', '9', '0.25' ],
+        ].collect { row -> row.join('\t') }.join('\n') + '\n'
+
+        file("${outputDir}/test.psi").text = [
+            [ 'GBR1', 'YRI1', 'GBR2', 'YRI2' ],
+            [ 'ENSG01;SE:chrX:100-200:300-400:+', '0.1', '0.2', '0.3', 'nan' ],
+            [ 'ENSG02;RI:chrX:500:600-700:800:-', '1', '0', '0.5', '0.75' ],
+        ].collect { row -> row.join('\t') }.join('\n') + '\n'
+    }
+
+    test("tpm - one condition") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id:'test_GBR', condition:'GBR' ],
+                    file("${outputDir}/test.tpm", checkIfExists: true),
+                    [ 'GBR2', 'GBR1' ]
+                ]
+                input[1] = 'tpm'
+                """
+            }
+        }
+
+        then {
+            def lines = path(process.out.split[0][1]).readLines()
+            assertAll(
+                { assert process.success },
+                { assert file(process.out.split[0][1]).name == 'test_GBR.tpm' },
+                // The columns come in the order of the samples given
+                { assert lines[0] == 'GBR2\tGBR1' },
+                // The values are copied as they are
+                { assert lines[1] == 'ENST01\t3.5\t1.5' },
+                { assert lines[3] == 'ENST03\t9\t7' },
+                { assert snapshot(sanitizeOutput(process.out)).match() }
+            )
+        }
+
+    }
+
+    test("psi - one condition") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id:'test_YRI', condition:'YRI' ],
+                    file("${outputDir}/test.psi", checkIfExists: true),
+                    [ 'YRI1', 'YRI2' ]
+                ]
+                input[1] = 'psi'
+                """
+            }
+        }
+
+        then {
+            def lines = path(process.out.split[0][1]).readLines()
+            assertAll(
+                { assert process.success },
+                { assert file(process.out.split[0][1]).name == 'test_YRI.psi' },
+                { assert lines[0] == 'YRI1\tYRI2' },
+                { assert lines[1] == 'ENSG01;SE:chrX:100-200:300-400:+\t0.2\tnan' },
+                { assert snapshot(sanitizeOutput(process.out)).match() }
+            )
+        }
+
+    }
+
+    test("tpm - sample missing from the matrix") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id:'test_GBR', condition:'GBR' ],
+                    file("${outputDir}/test.tpm", checkIfExists: true),
+                    [ 'GBR1', 'GBR3' ]
+                ]
+                input[1] = 'tpm'
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.failed },
+                { assert process.stdout.any { line -> line.contains('samples missing from test.tpm: GBR3') } ||
+                    process.stderr.any { line -> line.contains('samples missing from test.tpm: GBR3') } }
+            )
+        }
+
+    }
+
+    test("psi - one condition - stub") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id:'test_GBR', condition:'GBR' ],
+                    file("${outputDir}/test.psi", checkIfExists: true),
+                    [ 'GBR1', 'GBR2' ]
+                ]
+                input[1] = 'psi'
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(sanitizeOutput(process.out)).match() }
+            )
+        }
+
+    }
+
+}

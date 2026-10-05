@@ -28,7 +28,7 @@ workflow SUPPA {
 
     ch_gtf                         // [ meta, gtf ]
     ch_tpm                         // [ meta, tpm ]
-    ch_samplesheet                 // path(samplesheet)
+    ch_samples                     // channel: [ val(sample_id), val(condition) ], in samplesheet order
     ch_contrastsheet               // channel: [ contrast, treatment, control ]
     suppa_per_local_event          // params.suppa_per_local_event
     generateevents_boundary        // params.generateevents_boundary
@@ -61,16 +61,31 @@ workflow SUPPA {
 
     main:
 
-    // Split the tpm file (contains all samples) into individual files based on condition
+    // Sample ids of each condition, in samplesheet order: [ condition, [ sample_ids ] ].
+    // The TPM and PSI files of a condition get their columns in this order, which is
+    // what pairs the samples of two conditions in the paired diffSplice model
+
+    ch_condition_samples = ch_samples
+        .map { sample_id, condition -> [ condition, sample_id ] }
+        .unique()
+        .groupTuple()
+
+    // Split the tpm file (contains all samples) into one file per condition
 
     SPLIT_FILES_TPM (
-        ch_tpm,
-        ch_samplesheet,
-        ".tpm",
-        false
+        ch_tpm
+            .combine(ch_condition_samples)
+            .map { meta, tpm, condition, sample_ids ->
+                [ meta + [ id: "${meta.id}_${condition}".toString(), condition: condition ], tpm, sample_ids ]
+            },
+        'tpm'
     )
 
-    ch_split_tpms = SPLIT_FILES_TPM.out.tpms
+    ch_split_tpms = SPLIT_FILES_TPM.out.split
+
+    // TPM file of each condition: [ condition, tpm ]
+
+    ch_tpm_by_condition = ch_split_tpms.map { meta, tpm -> [ meta.condition, tpm ] }
 
     // If per AS local analysis:
 
@@ -113,71 +128,37 @@ workflow SUPPA {
         // Split the PSI files between the conditions
 
         SPLIT_FILES_IOE (
-            ch_events_psi,
-            ch_samplesheet,
-            '.psi',
-            true
+            ch_events_psi
+                .combine(ch_condition_samples)
+                .map { meta, psi, condition, sample_ids ->
+                    [ meta + [ id: "${meta.id}_${condition}".toString(), condition: condition ], psi, sample_ids ]
+                },
+            'psi'
         )
 
-        ch_split_events_psi = SPLIT_FILES_IOE.out.psis
+        ch_split_events_psi = SPLIT_FILES_IOE.out.split
 
         // Calculate differential analysis between conditions
 
         if (diffsplice_local_event) {
 
-            // Create contrasts channel
+            // TPM and PSI files of each condition: [ condition, tpm, psi ]
 
-            ch_suppa_local_contrasts_raw = ch_contrastsheet
+            ch_local_tpm_psi = ch_tpm_by_condition
+                .join(ch_split_events_psi.map { meta, psi -> [ meta.condition, psi ] })
 
-            // Add TPM files to contrasts channel
+            // Add the files of the treatment and of the control to each contrast and
+            // create the input channels to the diffsplice process
 
-            SPLIT_FILES_TPM.out.tpms
-                .flatten()
-                .map { it -> [it.baseName, it ] }
-                .multiMap { base, file ->
-                    for_tpm1: [ base, file ]
-                    for_tpm2: [ base, file ]
-                }
-                .set { ch_suppa_local_tpm_conditions }
-
-            ch_suppa_local_contrasts_tpm1 = ch_suppa_local_contrasts_raw
-                .map { it -> [it['treatment'], it] }
-                .combine ( ch_suppa_local_tpm_conditions.for_tpm1, by: 0 )
-                .map { it -> it[1] + ['tpm1': it[2]] }
-
-            ch_suppa_local_contrasts_tpm2 = ch_suppa_local_contrasts_tpm1
-                .map { it -> [it['control'], it] }
-                .combine ( ch_suppa_local_tpm_conditions.for_tpm2, by: 0 )
-                .map { it -> it[1] + ['tpm2': it[2]] }
-
-            // Add PSI files to contrasts channel
-
-            SPLIT_FILES_IOE.out.psis
-                .flatten()
-                .map { it -> [ it.baseName.toString().replaceAll('local_', ''), it ] }
-                .multiMap { base, file ->
-                    for_psi1: [ base, file ]
-                    for_psi2: [ base, file ]
-                }
-                .set { ch_suppa_local_psi_conditions }
-
-            ch_suppa_local_contrasts_psi1 = ch_suppa_local_contrasts_tpm2
-                .map { it -> [it['treatment'], it] }
-                .combine ( ch_suppa_local_psi_conditions.for_psi1, by: 0 )
-                .map { it -> it[1] + ['psi1': it[2]] }
-
-            ch_suppa_local_contrasts_psi2 = ch_suppa_local_contrasts_psi1
-                .map { it -> [it['control'], it] }
-                .combine ( ch_suppa_local_psi_conditions.for_psi2, by: 0 )
-                .map { it -> it[1] + ['psi2': it[2]] }
-
-            // Create input channels to diffsplice process
-
-            ch_split_tpms_events_psi = ch_suppa_local_contrasts_psi2
-                .map { it ->
+            ch_split_tpms_events_psi = ch_contrastsheet
+                .map { contrast -> [ contrast.treatment, contrast ] }
+                .combine(ch_local_tpm_psi, by: 0)
+                .map { _treatment, contrast, tpm1, psi1 -> [ contrast.control, contrast, tpm1, psi1 ] }
+                .combine(ch_local_tpm_psi, by: 0)
+                .map { _control, contrast, tpm1, psi1, tpm2, psi2 ->
                     [
-                        [ id: 'local_' + it.treatment + "-" + it.control ],
-                        it.treatment, it.control, it.tpm1, it.tpm2, it.psi1, it.psi2
+                        [ id: 'local_' + contrast.treatment + "-" + contrast.control ],
+                        contrast.treatment, contrast.control, tpm1, tpm2, psi1, psi2
                     ]
                 }
 
@@ -296,71 +277,37 @@ workflow SUPPA {
         // Split the PSI files between the conditions
 
         SPLIT_FILES_IOI (
-            ch_isoform_psi,
-            ch_samplesheet,
-            '.psi',
-            true
+            ch_isoform_psi
+                .combine(ch_condition_samples)
+                .map { meta, psi, condition, sample_ids ->
+                    [ meta + [ id: "${meta.id}_${condition}".toString(), condition: condition ], psi, sample_ids ]
+                },
+            'psi'
         )
 
-        ch_split_isoform_psi = SPLIT_FILES_IOI.out.psis
+        ch_split_isoform_psi = SPLIT_FILES_IOI.out.split
 
         // Calculate differential analysis between conditions - Transcript level
 
         if (diffsplice_transcript_event) {
 
-            // Create contrasts channel
+            // TPM and PSI files of each condition: [ condition, tpm, psi ]
 
-            ch_suppa_isoform_contrasts_raw = ch_contrastsheet
+            ch_isoform_tpm_psi = ch_tpm_by_condition
+                .join(ch_split_isoform_psi.map { meta, psi -> [ meta.condition, psi ] })
 
-            // Add TPM files to contrasts channel
+            // Add the files of the treatment and of the control to each contrast and
+            // create the input channels to the diffsplice process
 
-            SPLIT_FILES_TPM.out.tpms
-                .flatten()
-                .map { it -> [it.baseName, it ] }
-                .multiMap { base, file ->
-                    for_tpm1: [ base, file ]
-                    for_tpm2: [ base, file ]
-                }
-                .set { ch_suppa_isoform_tpm_conditions }
-
-            ch_suppa_isoform_contrasts_tpm1 = ch_suppa_isoform_contrasts_raw
-                .map { it -> [it['treatment'], it] }
-                .combine ( ch_suppa_isoform_tpm_conditions.for_tpm1, by: 0)
-                .map { it -> it[1] + ['tpm1': it[2]] }
-
-            ch_suppa_isoform_contrasts_tpm2 = ch_suppa_isoform_contrasts_tpm1
-                .map { it -> [it['control'], it] }
-                .combine ( ch_suppa_isoform_tpm_conditions.for_tpm2, by: 0)
-                .map { it -> it[1] + ['tpm2': it[2]] }
-
-            // Add PSI files to contrasts channel
-
-            SPLIT_FILES_IOI.out.psis
-                .flatten()
-                .map { it -> [ it.baseName.toString().replaceAll('transcript_' , ''), it ] }
-                .multiMap { base, file ->
-                    for_psi1: [ base, file ]
-                    for_psi2: [ base, file ]
-                }
-                .set { ch_suppa_isoform_psi_conditions }
-
-            ch_suppa_isoform_contrasts_psi1 = ch_suppa_isoform_contrasts_tpm2
-                .map { it -> [it['treatment'], it] }
-                .combine ( ch_suppa_isoform_psi_conditions.for_psi1, by: 0 )
-                .map { it -> it[1] + ['psi1': it[2]] }
-
-            ch_suppa_isoform_contrasts_psi2 = ch_suppa_isoform_contrasts_psi1
-                .map { it -> [it['control'], it] }
-                .combine ( ch_suppa_isoform_psi_conditions.for_psi2, by: 0 )
-                .map { it -> it[1] + ['psi2': it[2]] }
-
-            // Create input channels to diffsplice process
-
-            ch_split_tpms_isoform_psi = ch_suppa_isoform_contrasts_psi2
-                .map { it ->
+            ch_split_tpms_isoform_psi = ch_contrastsheet
+                .map { contrast -> [ contrast.treatment, contrast ] }
+                .combine(ch_isoform_tpm_psi, by: 0)
+                .map { _treatment, contrast, tpm1, psi1 -> [ contrast.control, contrast, tpm1, psi1 ] }
+                .combine(ch_isoform_tpm_psi, by: 0)
+                .map { _control, contrast, tpm1, psi1, tpm2, psi2 ->
                     [
-                        [ id: 'transcript_' + it.treatment + "-" + it.control ],
-                        it.treatment, it.control, it.tpm1, it.tpm2, it.psi1, it.psi2
+                        [ id: 'transcript_' + contrast.treatment + "-" + contrast.control ],
+                        contrast.treatment, contrast.control, tpm1, tpm2, psi1, psi2
                     ]
                 }
 
@@ -453,9 +400,9 @@ workflow SUPPA {
     suppa_local_psi         = ch_events_psi             //    path: suppa_local.psi
     suppa_isoform_psi       = ch_isoform_psi            //    path: suppa_isoform.psi
 
-    split_suppa_tpms        = ch_split_tpms             //    path: suppa_cond1.tpm, suppa_cond2.tpm
-    split_suppa_local_psi   = ch_split_events_psi       //    path: suppa_local_cond1.psi, suppa_local_cond2.psi
-    split_suppa_isoform_psi = ch_split_isoform_psi      //    path: suppa_isoform_cond1.psi, suppa_isoform_cond2.psi
+    split_suppa_tpms        = ch_split_tpms             //    [ meta, tpm ], one per condition
+    split_suppa_local_psi   = ch_split_events_psi       //    [ meta, psi ], one per condition
+    split_suppa_isoform_psi = ch_split_isoform_psi      //    [ meta, psi ], one per condition
 
     dpsi_local              = ch_events_dpsi            //    path: local.dpsi
     psivec_local            = ch_events_psivec          //    path: local.psivec

@@ -307,7 +307,7 @@ workflow RNASPLICE {
             SUPPA_STAR_SALMON(
                 ch_gtf.map { gtf -> [[ id: gtf.baseName ], gtf] },
                 ch_suppa_tpm.map { tpm_psi -> [[ id: tpm_psi.baseName ], tpm_psi] },
-                ch_samplesheet_file,
+                ch_samples,
                 ch_contrastsheet,
                 params.suppa_per_local_event,
                 params.generateevents_boundary,
@@ -380,7 +380,7 @@ workflow RNASPLICE {
             SUPPA_SALMON(
                 ch_gtf.map { gtf -> [ [ id: gtf.baseName ] , gtf] },
                 ch_suppa_tpm.map { tpm_psi -> [ [ id: tpm_psi.baseName ] , tpm_psi] },
-                ch_samplesheet_file,
+                ch_samples,
                 ch_contrastsheet,
                 params.suppa_per_local_event,
                 params.generateevents_boundary,

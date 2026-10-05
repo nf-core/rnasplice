@@ -1,0 +1,83 @@
+{
+    "tpm - one condition": {
+        "content": [
+            {
+                "split": [
+                    [
+                        {
+                            "id": "test_GBR",
+                            "condition": "GBR"
+                        },
+                        "test_GBR.tpm:md5,94e541bfc849a527c2be98bd3dd36839"
+                    ]
+                ],
+                "versions_r": [
+                    [
+                        "SPLIT_FILES",
+                        "r-base",
+                        "4.6.1"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-10-05T13:19:10.565842221",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.1"
+        }
+    },
+    "psi - one condition": {
+        "content": [
+            {
+                "split": [
+                    [
+                        {
+                            "id": "test_YRI",
+                            "condition": "YRI"
+                        },
+                        "test_YRI.psi:md5,2ff4d3445e70f027275534535c017109"
+                    ]
+                ],
+                "versions_r": [
+                    [
+                        "SPLIT_FILES",
+                        "r-base",
+                        "4.6.1"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-10-05T13:19:15.808747864",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.1"
+        }
+    },
+    "psi - one condition - stub": {
+        "content": [
+            {
+                "split": [
+                    [
+                        {
+                            "id": "test_GBR",
+                            "condition": "GBR"
+                        },
+                        "test_GBR.psi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "versions_r": [
+                    [
+                        "SPLIT_FILES",
+                        "r-base",
+                        "4.6.1"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-10-05T13:19:27.736767013",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.1"
+        }
+    }
+}
