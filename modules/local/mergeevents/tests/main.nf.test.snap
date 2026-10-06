@@ -1,0 +1,74 @@
+{
+    "header only file last": {
+        "content": [
+            {
+                "ioe": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test.merged.ioe:md5,8d207dbf6af904eec3eecc0968986f3d"
+                    ]
+                ],
+                "versions_gawk": [
+                    [
+                        "MERGEEVENTS",
+                        "gawk",
+                        "5.4.1"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-10-06T19:52:49.943777333",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.1"
+        }
+    },
+    "human chrX - suppa events": {
+        "content": [
+            3920,
+            "f1fd904bb6ef2d7fedb408df10b167d7",
+            {
+                "versions_gawk": [
+                    [
+                        "MERGEEVENTS",
+                        "gawk",
+                        "5.4.1"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-10-06T19:52:40.128979859",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.1"
+        }
+    },
+    "human chrX - suppa events - stub": {
+        "content": [
+            {
+                "ioe": [
+                    [
+                        {
+                            "id": "genes_chrX"
+                        },
+                        "genes_chrX.merged.ioe:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "versions_gawk": [
+                    [
+                        "MERGEEVENTS",
+                        "gawk",
+                        "5.4.1"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-10-06T19:52:56.975914389",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.1"
+        }
+    }
+}

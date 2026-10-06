@@ -11,8 +11,8 @@ process MERGEEVENTS {
     tuple val(meta), path(events)
 
     output:
-    tuple val(meta), path("*.ioe"), emit: ioe
-    path "versions.yml", topic: versions, emit: versions_gawk
+    tuple val(meta), path("*.merged.ioe"), emit: ioe
+    tuple val("${task.process}"), val('gawk'), eval('awk --version | head -n 1 | sed "s/GNU Awk //; s/,.*//"'), topic: versions, emit: versions_gawk
 
     when:
     task.ext.when == null || task.ext.when
@@ -23,25 +23,17 @@ process MERGEEVENTS {
     """
     mkdir -p source_ioe
     mv *.ioe source_ioe
-    awk 'FNR==1 && NR!=1 { while (/^seqname/) getline; }  1 {print}' source_ioe/*.ioe > ${prefix}.ioe
 
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        gawk: "\$(gawk --version | sed -n '1s/GNU Awk \\([0-9.]*\\).*/\\1/p')"
-    END_VERSIONS
+    # Keep the header of the first file only
+    awk ${args} 'FNR == 1 && NR != 1 && /^seqname/ { next } { print }' source_ioe/*.ioe > ${prefix}.merged.ioe
     """
 
     stub:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    echo $args
+    echo ${args}
 
-    touch ${prefix}.ioe
-
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        gawk: "\$(gawk --version | sed -n '1s/GNU Awk \\([0-9.]*\\).*/\\1/p')"
-    END_VERSIONS
+    touch ${prefix}.merged.ioe
     """
 }

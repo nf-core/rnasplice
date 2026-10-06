@@ -1,53 +1,73 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
 name: "mergeevents"
-description: "Merge SUPPA alternative splicing events of different types into a single file."
+description: Merge the SUPPA alternative splicing event files of each event type into
+  a single file
 keywords:
   - merge
   - suppa
   - alternative splicing
   - genomics
 tools:
-  - "mergeevents":
-      homepage: "https://github.com/nf-core/rnasplice"
-      description: ""
-      licence: ["MIT"]
+  - "gawk":
+      description: "GNU awk, the GNU implementation of the awk text processing language.
+        The module uses it to concatenate the event files, keeping the header of the
+        first file only."
+      homepage: "https://www.gnu.org/software/gawk/"
+      documentation: "https://www.gnu.org/software/gawk/manual/"
+      tool_dev_url: "https://git.savannah.gnu.org/cgit/gawk.git"
+      licence: ["GPL-3.0-or-later"]
       identifier: ""
 
 input:
   - - meta:
         type: map
         description: |
-          Groovy Map containing events information
-          e.g. `[ id:'events1' ]`
+          Groovy Map containing annotation information
+          e.g. `[ id:'genes' ]`
     - events:
         type: file
-        description: SUPPA alternative splicing events file
+        description: SUPPA `generateEvents` local event files, one per event type, each
+          with a `seqname` header line
         pattern: "*.ioe"
-        ontologies: []
+        ontologies:
+          - edam: "http://edamontology.org/format_3475" # TSV
 
 output:
   ioe:
     - - meta:
           type: map
           description: |
-            Groovy Map containing events information
-            e.g. `[ id:'events1' ]`
-      - "*.ioe":
+            Groovy Map containing annotation information
+            e.g. `[ id:'genes' ]`
+      - "*.merged.ioe":
           type: file
-          description: Merged SUPPA alternative splicing events file
-          pattern: "*.ioe"
-          ontologies: []
+          description: The events of every input file, under a single header line.
+            The `.merged` suffix keeps its name apart from the inputs
+          pattern: "*.merged.ioe"
+          ontologies:
+            - edam: "http://edamontology.org/format_3475" # TSV
   versions_gawk:
-    - "versions.yml":
-        type: file
-        description: Versions file for gawk
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - gawk:
+          type: string
+          description: The name of the tool
+      - awk --version | head -n 1 | sed "s/GNU Awk //; s/,.*//":
+          type: eval
+          description: The expression to obtain the version of the tool
 
 topics:
   versions:
-    - "versions.yml":
-        type: file
-        description: Versions file for gawk
-        pattern: "versions.yml"
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - gawk:
+          type: string
+          description: The name of the tool
+      - awk --version | head -n 1 | sed "s/GNU Awk //; s/,.*//":
+          type: eval
+          description: The expression to obtain the version of the tool
 authors:
   - "@lathikaa"
   - "@piplus2"
