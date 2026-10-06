@@ -16,10 +16,7 @@ nextflow_process {
     tag "gffread"
     tag "gffread/gtf2gff3"
 
-    // The MISO index of the human chrX test annotation, the MISO run of one sample on
-    // it and the settings file that points sashimi_plot at both. MISO records the path
-    // of the index in its output, so the run and the plot have to share the index
-    // MISOPY_INDEX writes, as in the VISUALISE_MISO subworkflow
+    // MISO records the index path in its run output, so run and plot must share the index MISOPY_INDEX writes
     setup {
         run("GFFREAD_GTF2GFF3") {
             script "../../../gffread/gtf2gff3/main.nf"
@@ -98,6 +95,9 @@ nextflow_process {
                 // A PDF holds timestamps, so only its name and its header are stable
                 { assert file(process.out.sashimi_plot[0][1]).name == 'ENSG00000147403.pdf' },
                 { assert path(process.out.sashimi_plot[0][1]).bytes[0..3] == '%PDF'.bytes },
+                // This plot is about 61 kB. A gene without MISO output gives an empty
+                // plot of 17 to 20 kB, so 30 kB tells the two apart
+                { assert file(process.out.sashimi_plot[0][1]).size() > 30000 },
                 { assert snapshot(
                     sanitizeOutput(process.out, unstableKeys: ['sashimi_plot'])
                 ).match() }

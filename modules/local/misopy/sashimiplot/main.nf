@@ -31,7 +31,7 @@ process MISOPY_SASHIMIPLOT {
         --output-dir ${prefix} \\
         $args
 
-    # sashimi_plot only writes PDF files: MISO has a PNG option, but nothing turns it on
+    # sashimi_plot writes PDF only
     mv ${prefix}/*.pdf .
     """
 
