@@ -1,0 +1,95 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "create_bamlist"
+description: Write the comma separated BAM file lists of the conditions of an rMATS
+  run, which rMATS reads with `--b1` and `--b2`
+keywords:
+  - rmats
+  - alternative splicing
+  - bam
+  - helper
+tools:
+  - "sed":
+      description: "GNU sed is a non-interactive stream editor. The module uses it to
+        join the BAM file names of a condition with commas."
+      homepage: "https://www.gnu.org/software/sed/"
+      documentation: "https://www.gnu.org/software/sed/manual/sed.html"
+      licence: ["GPL-3.0-or-later"]
+      identifier: ""
+
+input:
+  - - contrast:
+        type: string
+        description: Name of the rMATS run, the contrast name or, in single condition
+          mode, `<condition>_profiling`
+    - cond1:
+        type: string
+        description: Name of the first condition, the treatment of the contrast
+    - bam1:
+        type: file
+        description: BAM files of the first condition, in the order to list them
+        pattern: "*.bam"
+        ontologies:
+          - edam: "http://edamontology.org/format_2572" # BAM
+    - cond2:
+        type: string
+        description: Name of the second condition, the control of the contrast. Empty
+          in single condition mode
+    - bam2:
+        type: file
+        description: BAM files of the second condition, in the order to list them.
+          An empty list in single condition mode
+        pattern: "*.bam"
+        ontologies:
+          - edam: "http://edamontology.org/format_2572" # BAM
+
+output:
+  bam_list1:
+    - - contrast:
+          type: string
+          description: Name of the rMATS run
+      - ${cond1}_bamlist.txt:
+          type: file
+          description: The BAM file names of the first condition on one comma
+            separated line
+          pattern: "*_bamlist.txt"
+          ontologies:
+            - edam: "http://edamontology.org/format_2330" # Textual format
+  bam_list2:
+    - - contrast:
+          type: string
+          description: Name of the rMATS run
+      - ${cond2}_bamlist.txt:
+          type: file
+          description: The BAM file names of the second condition on one comma
+            separated line. Not written in single condition mode
+          pattern: "*_bamlist.txt"
+          ontologies:
+            - edam: "http://edamontology.org/format_2330" # Textual format
+  versions_sed:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - sed:
+          type: string
+          description: The name of the tool
+      - sed --version 2>&1 | head -n1 | sed "s/.* //":
+          type: eval
+          description: The expression to obtain the version of the tool
+
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - sed:
+          type: string
+          description: The name of the tool
+      - sed --version 2>&1 | head -n1 | sed "s/.* //":
+          type: eval
+          description: The expression to obtain the version of the tool
+authors:
+  - "@jma1991"
+  - "@asmaali98"
+  - "@piplus2"
+maintainers:
+  - "@piplus2"
