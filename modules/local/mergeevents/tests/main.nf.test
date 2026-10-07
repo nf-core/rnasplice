@@ -1,0 +1,130 @@
+// nf-core modules test mergeevents
+nextflow_process {
+
+    name "Test Process MERGEEVENTS"
+    script "../main.nf"
+    process "MERGEEVENTS"
+
+    tag "modules"
+    tag "modules_local"
+    tag "mergeevents"
+    tag "suppa"
+    tag "suppa/generateevents"
+
+    setup {
+        // The local events of the human chrX test annotation, one file per event type,
+        // with the event options the pipeline uses by default
+        run("SUPPA_GENERATEEVENTS") {
+            script "../../../nf-core/suppa/generateevents/main.nf"
+            process {
+                """
+                input[0] = [ [ id:'genes_chrX' ], file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true) ]
+                input[1] = 'ioe'
+                input[2] = true
+                input[3] = 'SE SS MX RI FL'
+                input[4] = 'S'
+                input[5] = 10
+                input[6] = 100
+                """
+            }
+        }
+
+        // An event type with no events gives a file with the header only. Sorted last,
+        // it used to hang the merge
+        def header = 'seqname\tgene_id\tevent_id\talternative_transcripts\ttotal_transcripts'
+        file("${outputDir}/test.A3.ioe").text = [
+            header,
+            'chrX\tG1\tG1;A3:chrX:100-200:100-210:+\tT2\tT1,T2',
+        ].join('\n') + '\n'
+        file("${outputDir}/test.SE.ioe").text = [
+            header,
+            'chrX\tG1\tG1;SE:chrX:100-200:300-400:+\tT1\tT1,T2',
+            'chrX\tG2\tG2;SE:chrX:500-600:700-800:-\tT3\tT3,T4',
+        ].join('\n') + '\n'
+        file("${outputDir}/test.SS.ioe").text = header + '\n'
+    }
+
+    test("human chrX - suppa events") {
+
+        when {
+            process {
+                """
+                input[0] = SUPPA_GENERATEEVENTS.out.events
+                """
+            }
+        }
+
+        then {
+            def lines = path(process.out.ioe[0][1]).readLines()
+            assertAll(
+                { assert process.success },
+                { assert lines[0].startsWith('seqname\t') },
+                { assert lines.count { line -> line.startsWith('seqname') } == 1 },
+                { assert file(process.out.ioe[0][1]).name == 'genes_chrX.ioe' },
+                // generateEvents writes the events and the transcripts of an event in no
+                // stable order, so the snapshot holds the lines with both sorted
+                { assert snapshot(
+                    lines.size(),
+                    lines.collect { line ->
+                        def fields = line.split('\t', -1)
+                        (fields[0..2] + fields[3..4].collect { ids -> ids.tokenize(',').sort().join(',') }).join('\t')
+                    }.sort().join('\n').md5(),
+                    process.out.findAll { key, _val -> key.startsWith('versions') }
+                ).match() }
+            )
+        }
+
+    }
+
+    test("header only file last") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id:'test' ],
+                    [
+                        file("${outputDir}/test.A3.ioe", checkIfExists: true),
+                        file("${outputDir}/test.SE.ioe", checkIfExists: true),
+                        file("${outputDir}/test.SS.ioe", checkIfExists: true),
+                    ]
+                ]
+                """
+            }
+        }
+
+        then {
+            def lines = path(process.out.ioe[0][1]).readLines()
+            assertAll(
+                { assert process.success },
+                { assert lines.size() == 4 },
+                { assert lines[0].startsWith('seqname\t') },
+                { assert lines[1..3]*.split('\t')*.getAt(2) == [ 'G1;A3:chrX:100-200:100-210:+', 'G1;SE:chrX:100-200:300-400:+', 'G2;SE:chrX:500-600:700-800:-' ] },
+                { assert snapshot(sanitizeOutput(process.out)).match() }
+            )
+        }
+
+    }
+
+    test("human chrX - suppa events - stub") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = SUPPA_GENERATEEVENTS.out.events
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(sanitizeOutput(process.out)).match() }
+            )
+        }
+
+    }
+
+}

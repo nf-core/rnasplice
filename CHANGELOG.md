@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #281 - Redraw the pipeline metro map with [nf-metro](https://github.com/seqeralabs/nf-metro), now covering LeafCutter, the `--source` inputs and the coverage tracks. The `.mmd` source lives next to the SVG in `docs/images/` (by @piplus2)
 - #285 - Add nf-tests for the `RMATS_POST` module, which had no test coverage: unpaired, paired, single condition and stub (by @piplus2)
 - #302 - Add nf-tests for the `MISOPY_SASHIMIPLOT` module, which had no test coverage of its own (by @piplus2)
+- #303 - Add nf-tests for the `MERGEEVENTS` module, which had no test coverage (by @piplus2)
 
 ### Changed
 
@@ -112,6 +113,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #281 - Fix `ISOFORMSWITCHANALYZER` writing `common_switch_consequences.pdf` next to the `results` directory instead of inside it, so it was never published (by @piplus2)
 - #290 - Fix an uncompressed `--salmon_index` or `--suppa_tpm`, which reached `SALMON_QUANT` and `SUPPA` still wrapped with an empty meta map (by @piplus2)
 - #291 - Fix `--rmats_paired_stats` with conditions of different sizes, which dropped the samples with no counterpart without a warning instead of stopping with an error. A contrast naming a condition with no sample now also stops with an error instead of being skipped (by @piplus2)
+- #303 - Fix `MERGEEVENTS` hanging when the last SUPPA event file holds no events, only its header (by @piplus2)
 
 ## v1.0.5 - 2024-11-03
 
