@@ -65,13 +65,10 @@ nextflow_process {
                 // The RDS files and the PDF plots are not byte stable, so only their
                 // names are snapshot
                 { assert snapshot(
-                    process.out.dexseq_exon_results_csv.flatten().sort { csv -> file(csv).name },
-                    process.out.dexseq_gene_results_csv.flatten().sort { csv -> file(csv).name },
-                    process.out.dexseq_exon_dataset_rds.flatten().collect { rds -> file(rds).name }.sort(),
-                    process.out.dexseq_exon_results_rds.flatten().collect { rds -> file(rds).name }.sort(),
-                    process.out.dexseq_gene_results_rds.flatten().collect { rds -> file(rds).name }.sort(),
-                    process.out.dexseq_plot_results_pdf.flatten().collect { pdf -> file(pdf).name }.sort(),
-                    process.out.findAll { key, _val -> key.startsWith('versions') }
+                    sanitizeOutput(
+                        process.out,
+                        unstableKeys: ["dexseq_exon_dataset_rds", "dexseq_exon_results_rds", "dexseq_gene_results_rds", "dexseq_plot_results_pdf"]
+                    )
                 ).match() }
             )
         }

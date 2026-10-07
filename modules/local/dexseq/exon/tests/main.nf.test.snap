@@ -1,31 +1,43 @@
 {
     "human chrX - two contrasts": {
         "content": [
-            [
-                "DEXSeqResults.GBR-YRI.csv:md5,85f08bfb0152dc3ffb0084c2527b65b2",
-                "DEXSeqResults.YRI-GBR.csv:md5,a270282a872771f971837fba493be832"
-            ],
-            [
-                "perGeneQValue.GBR-YRI.csv:md5,f5951620bae13901f7875f797d92f4f6",
-                "perGeneQValue.YRI-GBR.csv:md5,f279e0cce3d50b9f7d70fce9734877d6"
-            ],
-            [
-                "DEXSeqDataSet.GBR-YRI.rds",
-                "DEXSeqDataSet.YRI-GBR.rds"
-            ],
-            [
-                "DEXSeqResults.GBR-YRI.rds",
-                "DEXSeqResults.YRI-GBR.rds"
-            ],
-            [
-                "perGeneQValue.GBR-YRI.rds",
-                "perGeneQValue.YRI-GBR.rds"
-            ],
-            [
-                "plotDEXSeq.GBR-YRI.pdf",
-                "plotDEXSeq.YRI-GBR.pdf"
-            ],
             {
+                "dexseq_exon_dataset_rds": [
+                    [
+                        "DEXSeqDataSet.GBR-YRI.rds",
+                        "DEXSeqDataSet.YRI-GBR.rds"
+                    ]
+                ],
+                "dexseq_exon_results_csv": [
+                    [
+                        "DEXSeqResults.GBR-YRI.csv:md5,85f08bfb0152dc3ffb0084c2527b65b2",
+                        "DEXSeqResults.YRI-GBR.csv:md5,a270282a872771f971837fba493be832"
+                    ]
+                ],
+                "dexseq_exon_results_rds": [
+                    [
+                        "DEXSeqResults.GBR-YRI.rds",
+                        "DEXSeqResults.YRI-GBR.rds"
+                    ]
+                ],
+                "dexseq_gene_results_csv": [
+                    [
+                        "perGeneQValue.GBR-YRI.csv:md5,f5951620bae13901f7875f797d92f4f6",
+                        "perGeneQValue.YRI-GBR.csv:md5,f279e0cce3d50b9f7d70fce9734877d6"
+                    ]
+                ],
+                "dexseq_gene_results_rds": [
+                    [
+                        "perGeneQValue.GBR-YRI.rds",
+                        "perGeneQValue.YRI-GBR.rds"
+                    ]
+                ],
+                "dexseq_plot_results_pdf": [
+                    [
+                        "plotDEXSeq.GBR-YRI.pdf",
+                        "plotDEXSeq.YRI-GBR.pdf"
+                    ]
+                ],
                 "versions_R": [
                     [
                         "DEXSEQ_EXON",
@@ -42,7 +54,7 @@
                 ]
             }
         ],
-        "timestamp": "2026-10-07T11:08:10.466390248",
+        "timestamp": "2026-10-07T13:05:59.629664956",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.1"
