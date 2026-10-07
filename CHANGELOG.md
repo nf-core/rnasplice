@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #285 - Add nf-tests for the `RMATS_POST` module, which had no test coverage: unpaired, paired, single condition and stub (by @piplus2)
 - #302 - Add nf-tests for the `MISOPY_SASHIMIPLOT` module, which had no test coverage of its own (by @piplus2)
 - #303 - Add nf-tests for the `MERGEEVENTS` module, which had no test coverage (by @piplus2)
+- #305 - Add nf-tests for the `DEXSEQ_EXON` module, which had no test coverage of its own (by @piplus2)
 
 ### Changed
 

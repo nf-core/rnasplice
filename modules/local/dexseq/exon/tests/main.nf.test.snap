@@ -1,13 +1,13 @@
 {
-    "human chrX": {
+    "human chrX - two contrasts": {
         "content": [
             [
-                [
-                    "ERR188383.clean.count.txt:md5,c555a5a49d32751af3ea3cb244aa61b2",
-                    "ERR188428.clean.count.txt:md5,b8ec3c9de6d8a40fcbf9c887a6e6e810",
-                    "ERR188454.clean.count.txt:md5,efc69da2471a84255ffe81ee24b2d59f",
-                    "ERR204916.clean.count.txt:md5,8d4646e26054b727eaaedbd0706aa99f"
-                ]
+                "DEXSeqResults.GBR-YRI.csv:md5,85f08bfb0152dc3ffb0084c2527b65b2",
+                "DEXSeqResults.YRI-GBR.csv:md5,a270282a872771f971837fba493be832"
+            ],
+            [
+                "perGeneQValue.GBR-YRI.csv:md5,f5951620bae13901f7875f797d92f4f6",
+                "perGeneQValue.YRI-GBR.csv:md5,f279e0cce3d50b9f7d70fce9734877d6"
             ],
             [
                 "DEXSeqDataSet.GBR-YRI.rds",
@@ -22,33 +22,35 @@
                 "perGeneQValue.YRI-GBR.rds"
             ],
             [
-                "DEXSeqResults.GBR-YRI.csv",
-                "DEXSeqResults.YRI-GBR.csv"
-            ],
-            [
-                "perGeneQValue.GBR-YRI.csv",
-                "perGeneQValue.YRI-GBR.csv"
-            ],
-            [
                 "plotDEXSeq.GBR-YRI.pdf",
                 "plotDEXSeq.YRI-GBR.pdf"
-            ]
-        ],
-        "timestamp": "2026-09-07T13:00:49.05752066",
-        "meta": {
-            "nf-test": "0.9.5",
-            "nextflow": "26.04.3"
-        }
-    },
-    "human chrX - stub": {
-        "content": [
+            ],
             {
-                "dexseq_clean_txt": [
+                "versions_R": [
                     [
-                        "ERR188383.clean.count.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
-                        "ERR188428.clean.count.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        "DEXSEQ_EXON",
+                        "r-base",
+                        "4.5.3"
                     ]
                 ],
+                "versions_dexseq": [
+                    [
+                        "DEXSEQ_EXON",
+                        "bioconductor-dexseq",
+                        "1.56.0"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-10-07T11:08:10.466390248",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.1"
+        }
+    },
+    "human chrX - two contrasts - stub": {
+        "content": [
+            {
                 "dexseq_exon_dataset_rds": [
                     [
                         "DEXSeqDataSet.GBR-YRI.rds:md5,d41d8cd98f00b204e9800998ecf8427e",
@@ -84,54 +86,27 @@
                         "plotDEXSeq.GBR-YRI.pdf:md5,d41d8cd98f00b204e9800998ecf8427e",
                         "plotDEXSeq.YRI-GBR.pdf:md5,d41d8cd98f00b204e9800998ecf8427e"
                     ]
+                ],
+                "versions_R": [
+                    [
+                        "DEXSEQ_EXON",
+                        "r-base",
+                        "4.5.3"
+                    ]
+                ],
+                "versions_dexseq": [
+                    [
+                        "DEXSEQ_EXON",
+                        "bioconductor-dexseq",
+                        "1.56.0"
+                    ]
                 ]
             }
         ],
-        "timestamp": "2026-10-07T11:54:51.17186287",
+        "timestamp": "2026-10-07T11:08:23.917912293",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.1"
-        }
-    },
-    "human chrX - user supplied gff": {
-        "content": [
-            [
-                [
-                    "ERR188383.clean.count.txt:md5,c555a5a49d32751af3ea3cb244aa61b2",
-                    "ERR188428.clean.count.txt:md5,b8ec3c9de6d8a40fcbf9c887a6e6e810",
-                    "ERR188454.clean.count.txt:md5,efc69da2471a84255ffe81ee24b2d59f",
-                    "ERR204916.clean.count.txt:md5,8d4646e26054b727eaaedbd0706aa99f"
-                ]
-            ],
-            [
-                "DEXSeqDataSet.GBR-YRI.rds",
-                "DEXSeqDataSet.YRI-GBR.rds"
-            ],
-            [
-                "DEXSeqResults.GBR-YRI.rds",
-                "DEXSeqResults.YRI-GBR.rds"
-            ],
-            [
-                "perGeneQValue.GBR-YRI.rds",
-                "perGeneQValue.YRI-GBR.rds"
-            ],
-            [
-                "DEXSeqResults.GBR-YRI.csv",
-                "DEXSeqResults.YRI-GBR.csv"
-            ],
-            [
-                "perGeneQValue.GBR-YRI.csv",
-                "perGeneQValue.YRI-GBR.csv"
-            ],
-            [
-                "plotDEXSeq.GBR-YRI.pdf",
-                "plotDEXSeq.YRI-GBR.pdf"
-            ]
-        ],
-        "timestamp": "2026-09-07T13:01:45.650519343",
-        "meta": {
-            "nf-test": "0.9.5",
-            "nextflow": "26.04.3"
         }
     }
 }

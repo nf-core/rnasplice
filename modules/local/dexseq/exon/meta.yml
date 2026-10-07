@@ -18,59 +18,81 @@ tools:
       identifier: "biotools:dexseq"
 
 input:
-  - dexseq_clean_counts:
+  - "dexseq_clean_counts/*":
       type: file
       description: |
-        Input file containing the cleaned count data for the DEXSeq analysis. This file should be in a tab-delimited format and contain the following columns: gene_id, exon_id, sample and count.
+        Exon count tables written by `DEXSEQ_COUNT`, one per sample, staged in
+        `dexseq_clean_counts/`. The script reads `<sample>.clean.count.txt` for every
+        `sample` of the samplesheet, so the order of the files does not matter
+      pattern: "*.clean.count.txt"
+      ontologies:
+        - edam: "http://edamontology.org/format_3475" # TSV
   - gff:
       type: file
       description: |
-        Input GFF file containing the gene and exon annotations. This file should be in GFF format and contain the necessary information for the DEXSeq analysis.
+        Flattened DEXSeq annotation, as written by `DEXSEQ_ANNOTATION` or supplied with
+        `--gff_dexseq`
+      pattern: "*.gff"
+      ontologies:
+        - edam: "http://edamontology.org/format_1975" # GFF3
   - samplesheet:
       type: file
       description: |
-        Input file containing the sample data for the DEXSeq analysis. This file should be in a tab-delimited format and contain the following columns: sample, condition and sequencing data path.
+        Samplesheet, a CSV file with at least the `sample` and `condition` columns
+      pattern: "*.csv"
+      ontologies:
+        - edam: "http://edamontology.org/format_3752" # CSV
   - contrastsheet:
       type: file
       description: |
-        Input file containing the contrast data for the DEXSeq analysis. This file should be in a tab-delimited format and contain the following columns: condition and contrast.
+        Contrastsheet, a CSV file with the `contrast`, `treatment` and `control`
+        columns. The output files are named after the `contrast` column
+      pattern: "*.csv"
+      ontologies:
+        - edam: "http://edamontology.org/format_3752" # CSV
   - ntop:
       type: integer
       description: |
-        The number of top genes to plot in the DEXSeq analysis. This parameter specifies how many of the top genes (based on p-value) should be included in the output plots.
+        Number of genes with the lowest p-values to plot for each contrast
       default: 10
 
 output:
   dexseq_exon_dataset_rds:
     - "DEXSeqDataSet.*.rds":
         type: file
-        description: RDS file containing the DEXSeq exon dataset
-        pattern: "*.{rds}"
+        description: DEXSeqDataSet object of each contrast, named after the `contrast` column
+        pattern: "DEXSeqDataSet.*.rds"
   dexseq_exon_results_rds:
     - "DEXSeqResults.*.rds":
         type: file
-        description: RDS file containing the DEXSeq exon results
-        pattern: "*.{rds}"
+        description: DEXSeqResults object of each contrast, named after the `contrast` column
+        pattern: "DEXSeqResults.*.rds"
   dexseq_gene_results_rds:
     - "perGeneQValue.*.rds":
         type: file
-        description: RDS file containing the DEXSeq per gene q-value results
-        pattern: "*.{rds}"
+        description: Per gene q-values of each contrast, named after the `contrast` column
+        pattern: "perGeneQValue.*.rds"
   dexseq_exon_results_csv:
     - "DEXSeqResults.*.csv":
         type: file
-        description: CSV file containing the DEXSeq exon results
-        pattern: "*.{csv}"
+        description: Exon level results of each contrast, named after the `contrast` column
+        pattern: "DEXSeqResults.*.csv"
+        ontologies:
+          - edam: "http://edamontology.org/format_3752" # CSV
   dexseq_gene_results_csv:
     - "perGeneQValue.*.csv":
         type: file
-        description: CSV file containing the DEXSeq per gene q-value results
-        pattern: "*.{csv}"
+        description: Per gene q-values of each contrast, named after the `contrast` column
+        pattern: "perGeneQValue.*.csv"
+        ontologies:
+          - edam: "http://edamontology.org/format_3752" # CSV
   dexseq_plot_results_pdf:
     - "plotDEXSeq.*.pdf":
         type: file
-        description: PDF file containing the DEXSeq results plots
-        pattern: "*.{pdf}"
+        description: Plots of the genes with the lowest p-values in each contrast, named after the `contrast` column
+        pattern: "plotDEXSeq.*.pdf"
+        ontologies:
+          - edam: "http://edamontology.org/format_3508" # PDF
   versions_R:
     - - ${task.process}:
           type: string
@@ -88,7 +110,7 @@ output:
       - bioconductor-dexseq:
           type: string
           description: The name of the tool
-      - Rscript -e "library(DEXSeq); cat(as.character(packageVersion(\'DEXSeq\')))":
+      - Rscript -e "library(DEXSeq); cat(as.character(packageVersion('DEXSeq')))":
           type: eval
           description: The expression to obtain the version of the tool
 topics:
@@ -108,8 +130,10 @@ topics:
       - bioconductor-dexseq:
           type: string
           description: The name of the tool
-      - Rscript -e "library(DEXSeq); cat(as.character(packageVersion(\'DEXSeq\')))":
+      - Rscript -e "library(DEXSeq); cat(as.character(packageVersion('DEXSeq')))":
           type: eval
           description: The expression to obtain the version of the tool
 authors:
   - "@bensouthgate"
+maintainers:
+  - "@piplus2"
