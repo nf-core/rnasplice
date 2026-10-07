@@ -32,16 +32,16 @@ process DEXSEQ_EXON {
     """
 
     stub:
-    def args = task.ext.args ?: ''
-    def prefix = "stub"
     """
-    echo $args
-
-    touch DEXSeqDataSet.${prefix}.rds
-    touch DEXSeqResults.${prefix}.rds
-    touch perGeneQValue.${prefix}.rds
-    touch DEXSeqResults.${prefix}.csv
-    touch perGeneQValue.${prefix}.csv
-    touch plotDEXSeq.${prefix}.pdf
+    # `run_dexseq_exon.R` names its output files after the `contrast` column of the
+    # contrastsheet, which it finds by its header
+    for contrast in \$(awk -F ',' 'NR == 1 { for (i = 1; i <= NF; i++) if (\$i == "contrast") col = i; next } { print \$col }' ${contrastsheet}); do
+        touch DEXSeqDataSet.\${contrast}.rds
+        touch DEXSeqResults.\${contrast}.rds
+        touch perGeneQValue.\${contrast}.rds
+        touch DEXSeqResults.\${contrast}.csv
+        touch perGeneQValue.\${contrast}.csv
+        touch plotDEXSeq.\${contrast}.pdf
+    done
     """
 }

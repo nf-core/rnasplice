@@ -1,0 +1,103 @@
+// nf-core modules test dexseq/exon
+nextflow_process {
+
+    name "Test Process DEXSEQ_EXON"
+    script "../main.nf"
+    process "DEXSEQ_EXON"
+    config "./nextflow.config"
+
+    tag "modules"
+    tag "modules_local"
+    tag "dexseq"
+    tag "dexseq/exon"
+    tag "dexseq/annotation"
+    tag "dexseq/count"
+
+    // The exon counts of two GBR and two YRI samples on the flattened human chrX
+    // annotation, as the DEXSEQ_DEU subworkflow computes them
+    setup {
+        run("DEXSEQ_ANNOTATION") {
+            script "../../annotation/main.nf"
+            process {
+                """
+                input[0] = [ file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true) ]
+                input[1] = false
+                """
+            }
+        }
+
+        run("DEXSEQ_COUNT") {
+            script "../../count/main.nf"
+            process {
+                """
+                input[0] = channel.of(
+                    [ [ id:'ERR188383', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188428', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188454', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR204916', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916.Aligned.out.bam', checkIfExists: true) ],
+                ).combine(DEXSEQ_ANNOTATION.out.gff)
+                input[1] = 10
+                """
+            }
+        }
+    }
+
+    test("human chrX - two contrasts") {
+
+        when {
+            process {
+                """
+                input[0] = DEXSEQ_COUNT.out.dexseq_clean_txt.map { _meta, txt -> txt }.collect()
+                input[1] = DEXSEQ_ANNOTATION.out.gff
+                input[2] = file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true)
+                input[3] = file(params.pipelines_testdata_base_path + 'samplesheet/contrastsheet.csv', checkIfExists: true)
+                input[4] = 10
+                """
+            }
+        }
+
+        then {
+            def exon_csv = path(process.out.dexseq_exon_results_csv.flatten().find { csv -> file(csv).name == 'DEXSeqResults.GBR-YRI.csv' }).readLines()
+            assertAll(
+                { assert process.success },
+                { assert exon_csv[0].startsWith('groupID,featureID,exonBaseMean,dispersion,stat,pvalue,padj,GBR,YRI') },
+                { assert exon_csv.size() > 1 },
+                // The RDS files and the PDF plots are not byte stable, so only their
+                // names are snapshot
+                { assert snapshot(
+                    sanitizeOutput(
+                        process.out,
+                        unstableKeys: ["dexseq_exon_dataset_rds", "dexseq_exon_results_rds", "dexseq_gene_results_rds", "dexseq_plot_results_pdf"]
+                    )
+                ).match() }
+            )
+        }
+
+    }
+
+    test("human chrX - two contrasts - stub") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = DEXSEQ_COUNT.out.dexseq_clean_txt.map { _meta, txt -> txt }.collect()
+                input[1] = DEXSEQ_ANNOTATION.out.gff
+                input[2] = file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true)
+                input[3] = file(params.pipelines_testdata_base_path + 'samplesheet/contrastsheet.csv', checkIfExists: true)
+                input[4] = 10
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(sanitizeOutput(process.out)).match() }
+            )
+        }
+
+    }
+
+}
