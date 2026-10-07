@@ -4,8 +4,8 @@ process CREATE_BAMLIST {
 
     conda "${moduleDir}/environment.yml"
     container "${workflow.containerEngine in ['singularity', 'apptainer'] && !task.ext.singularity_pull_docker_container ?
-        'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/2d/2d2d3fbc9bc617edaba31d8c03a305397730a6ad06070318c242938e399428b0/data' :
-        'community.wave.seqera.io/library/sed:4.10--711bc92627aef086' }"
+        'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/65/65d91e147d41e8367a773f5587cf71b53a18af4eb8494feb8a4e18f423184be3/data' :
+        'community.wave.seqera.io/library/sed:4.9--da997413f41d23b0' }"
 
     input:
     tuple val(contrast), val(cond1), path(bam1), val(cond2), path(bam2)
