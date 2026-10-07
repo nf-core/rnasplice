@@ -60,7 +60,7 @@ nextflow_process {
                 { assert process.success },
                 { assert lines[0].startsWith('seqname\t') },
                 { assert lines.count { line -> line.startsWith('seqname') } == 1 },
-                { assert file(process.out.ioe[0][1]).name == 'genes_chrX.merged.ioe' },
+                { assert file(process.out.ioe[0][1]).name == 'genes_chrX.ioe' },
                 // generateEvents writes the events and the transcripts of an event in no
                 // stable order, so the snapshot holds the lines with both sorted
                 { assert snapshot(

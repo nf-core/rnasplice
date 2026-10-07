@@ -7,7 +7,7 @@
                         {
                             "id": "test"
                         },
-                        "test.merged.ioe:md5,8d207dbf6af904eec3eecc0968986f3d"
+                        "test.ioe:md5,8d207dbf6af904eec3eecc0968986f3d"
                     ]
                 ],
                 "versions_gawk": [
@@ -19,7 +19,7 @@
                 ]
             }
         ],
-        "timestamp": "2026-10-06T19:52:49.943777333",
+        "timestamp": "2026-10-07T10:24:12.749743899",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.1"
@@ -53,7 +53,7 @@
                         {
                             "id": "genes_chrX"
                         },
-                        "genes_chrX.merged.ioe:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        "genes_chrX.ioe:md5,d41d8cd98f00b204e9800998ecf8427e"
                     ]
                 ],
                 "versions_gawk": [
@@ -65,7 +65,7 @@
                 ]
             }
         ],
-        "timestamp": "2026-10-06T19:52:56.975914389",
+        "timestamp": "2026-10-07T10:24:19.841233269",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.1"

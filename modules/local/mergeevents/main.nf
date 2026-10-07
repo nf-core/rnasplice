@@ -8,11 +8,11 @@ process MERGEEVENTS {
         'community.wave.seqera.io/library/gawk:5.4.1--8dd22ef9018762ae' }"
 
     input:
-    tuple val(meta), path(events)
+    tuple val(meta), path(events, stageAs: 'source_ioe/*')
 
     output:
-    tuple val(meta), path("*.merged.ioe"), emit: ioe
-    tuple val("${task.process}"), val('gawk'), eval('awk --version | head -n 1 | sed "s/GNU Awk //; s/,.*//"'), topic: versions, emit: versions_gawk
+    tuple val(meta), path("*.ioe"), emit: ioe
+    tuple val("${task.process}"), val('gawk'), eval('gawk --version | head -n 1 | sed "s/GNU Awk //; s/,.*//"'), topic: versions, emit: versions_gawk
 
     when:
     task.ext.when == null || task.ext.when
@@ -21,11 +21,8 @@ process MERGEEVENTS {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    mkdir -p source_ioe
-    mv *.ioe source_ioe
-
     # Keep the header of the first file only
-    awk ${args} 'FNR == 1 && NR != 1 && /^seqname/ { next } { print }' source_ioe/*.ioe > ${prefix}.merged.ioe
+    gawk ${args} 'FNR == 1 && NR != 1 && /^seqname/ { next } { print }' source_ioe/*.ioe > ${prefix}.ioe
     """
 
     stub:
@@ -34,6 +31,6 @@ process MERGEEVENTS {
     """
     echo ${args}
 
-    touch ${prefix}.merged.ioe
+    touch ${prefix}.ioe
     """
 }

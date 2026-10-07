@@ -27,7 +27,8 @@ input:
     - events:
         type: file
         description: SUPPA `generateEvents` local event files, one per event type, each
-          with a `seqname` header line
+          with a `seqname` header line. They are staged in `source_ioe/`, so that the
+          merged file can take the name of one of them
         pattern: "*.ioe"
         ontologies:
           - edam: "http://edamontology.org/format_3475" # TSV
@@ -39,11 +40,10 @@ output:
           description: |
             Groovy Map containing annotation information
             e.g. `[ id:'genes' ]`
-      - "*.merged.ioe":
+      - "*.ioe":
           type: file
-          description: The events of every input file, under a single header line.
-            The `.merged` suffix keeps its name apart from the inputs
-          pattern: "*.merged.ioe"
+          description: The events of every input file, under a single header line
+          pattern: "*.ioe"
           ontologies:
             - edam: "http://edamontology.org/format_3475" # TSV
   versions_gawk:
@@ -53,7 +53,7 @@ output:
       - gawk:
           type: string
           description: The name of the tool
-      - awk --version | head -n 1 | sed "s/GNU Awk //; s/,.*//":
+      - gawk --version | head -n 1 | sed "s/GNU Awk //; s/,.*//":
           type: eval
           description: The expression to obtain the version of the tool
 
@@ -65,7 +65,7 @@ topics:
       - gawk:
           type: string
           description: The name of the tool
-      - awk --version | head -n 1 | sed "s/GNU Awk //; s/,.*//":
+      - gawk --version | head -n 1 | sed "s/GNU Awk //; s/,.*//":
           type: eval
           description: The expression to obtain the version of the tool
 authors:

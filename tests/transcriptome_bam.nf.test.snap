@@ -100,7 +100,7 @@
             [
                 "genome",
                 "mergeevents",
-                "mergeevents/genes_chrX.merged.ioe",
+                "mergeevents/genes_chrX.ioe",
                 "multiqc",
                 "multiqc/multiqc_data",
                 "multiqc/multiqc_data/llms-full.txt",
@@ -380,7 +380,7 @@
                 "genes_chrX.ioi:md5,6c9ee3567554e3f74186b4c17ec777d6"
             ]
         ],
-        "timestamp": "2026-10-06T20:44:57.781280341",
+        "timestamp": "2026-09-07T19:53:38.579411633",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.1"
