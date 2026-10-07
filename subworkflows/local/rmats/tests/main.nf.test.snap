@@ -312,13 +312,13 @@
                 "bam_list1": [
                     [
                         "GBR-YRI",
-                        "GBR_bamlist.txt:md5,858e657604858ea81a58ce94c8c12900"
+                        "GBR_bamlist.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
                     ]
                 ],
                 "bam_list2": [
                     [
                         "GBR-YRI",
-                        "YRI_bamlist.txt:md5,2a4f7e2a1ba40b40d31c0bf01e3dfd3e"
+                        "YRI_bamlist.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
                     ]
                 ],
                 "from_gtf": [
@@ -487,10 +487,10 @@
                 ]
             }
         ],
-        "timestamp": "2026-09-24T14:20:09.995802622",
+        "timestamp": "2026-10-07T13:30:12.793750102",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.3"
+            "nextflow": "26.04.1"
         }
     },
     "homo_sapiens - two contrasts - unpaired": {

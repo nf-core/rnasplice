@@ -1,0 +1,139 @@
+// nf-core modules test create_bamlist
+nextflow_process {
+
+    name "Test Process CREATE_BAMLIST"
+    script "../main.nf"
+    process "CREATE_BAMLIST"
+
+    tag "modules"
+    tag "modules_local"
+    tag "create_bamlist"
+
+    // Two GBR and two YRI samples of the pipeline test data. The GBR files are given out
+    // of name order, so that the list keeps the order it is given
+
+    test("homo_sapiens - two conditions") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    'GBR-YRI',
+                    'GBR',
+                    [
+                        file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true),
+                        file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true),
+                    ],
+                    'YRI',
+                    [
+                        file(params.pipelines_testdata_base_path + 'testdata/ERR188454.Aligned.out.bam', checkIfExists: true),
+                        file(params.pipelines_testdata_base_path + 'testdata/ERR204916.Aligned.out.bam', checkIfExists: true),
+                    ]
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert file(process.out.bam_list1[0][1]).name == 'GBR_bamlist.txt' },
+                { assert path(process.out.bam_list1[0][1]).text == 'ERR188428.Aligned.out.bam,ERR188383.Aligned.out.bam\n' },
+                { assert file(process.out.bam_list2[0][1]).name == 'YRI_bamlist.txt' },
+                { assert path(process.out.bam_list2[0][1]).text == 'ERR188454.Aligned.out.bam,ERR204916.Aligned.out.bam\n' },
+                { assert snapshot(sanitizeOutput(process.out)).match() }
+            )
+        }
+
+    }
+
+    test("homo_sapiens - one condition") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    'GBR_profiling',
+                    'GBR',
+                    file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true),
+                    '',
+                    []
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert path(process.out.bam_list1[0][1]).text == 'ERR188383.Aligned.out.bam\n' },
+                // There is no second condition, so there is no bam list 2
+                { assert process.out.bam_list2.size() == 0 },
+                { assert snapshot(sanitizeOutput(process.out)).match() }
+            )
+        }
+
+    }
+
+    test("homo_sapiens - two conditions - stub") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = [
+                    'GBR-YRI',
+                    'GBR',
+                    [
+                        file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true),
+                        file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true),
+                    ],
+                    'YRI',
+                    [
+                        file(params.pipelines_testdata_base_path + 'testdata/ERR188454.Aligned.out.bam', checkIfExists: true),
+                        file(params.pipelines_testdata_base_path + 'testdata/ERR204916.Aligned.out.bam', checkIfExists: true),
+                    ]
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(sanitizeOutput(process.out)).match() }
+            )
+        }
+
+    }
+
+    test("homo_sapiens - one condition - stub") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = [
+                    'GBR_profiling',
+                    'GBR',
+                    file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true),
+                    '',
+                    []
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.bam_list2.size() == 0 },
+                { assert snapshot(sanitizeOutput(process.out)).match() }
+            )
+        }
+
+    }
+
+}

@@ -15,7 +15,7 @@
                     "python": "3.14.6"
                 },
                 "CREATE_BAMLIST": {
-                    "sed": 4.7
+                    "sed": 4.9
                 },
                 "DEXSEQ_ANNOTATION": {
                     "htseq": "2.1.2"
@@ -4673,10 +4673,10 @@
                 "genes_chrX.ioi:md5,6c9ee3567554e3f74186b4c17ec777d6"
             ]
         ],
-        "timestamp": "2026-09-22T10:20:33.074978753",
+        "timestamp": "2026-10-07T19:37:42.68675967",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.3"
+            "nextflow": "26.04.1"
         }
     }
 }
