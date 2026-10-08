@@ -2,27 +2,12 @@
     "-profile test_salmon_results": {
         "content": [
             {
-                "CLUSTEREVENTS_IOE": {
-                    "suppa": 2.4
-                },
-                "CLUSTEREVENTS_IOI": {
-                    "suppa": 2.4
-                },
-                "CLUSTERGROUPS_IOE": {
-                    "python": "3.14.6"
-                },
-                "CLUSTERGROUPS_IOI": {
+                "CLUSTERGROUPS": {
                     "python": "3.14.6"
                 },
                 "DEXSEQ_DTU": {
                     "bioconductor-dexseq": "1.56.0",
                     "r-base": "4.5.3"
-                },
-                "DIFFSPLICE_IOE": {
-                    "suppa": 2.4
-                },
-                "DIFFSPLICE_IOI": {
-                    "suppa": 2.4
                 },
                 "DRIMSEQ_DMFILTER": {
                     "bioconductor-drimseq": "1.18.0",
@@ -51,10 +36,7 @@
                 "SAMTOOLS_FAIDX": {
                     "samtools": 1.24
                 },
-                "SPLIT_FILES_IOE": {
-                    "r-base": "4.6.1"
-                },
-                "SPLIT_FILES_IOI": {
+                "SPLIT_FILES_PSI": {
                     "r-base": "4.6.1"
                 },
                 "SPLIT_FILES_TPM": {
@@ -62,6 +44,12 @@
                 },
                 "STAGER": {
                     "stageR": "1.32.0"
+                },
+                "SUPPA_CLUSTEREVENTS": {
+                    "suppa": 2.4
+                },
+                "SUPPA_DIFFSPLICE": {
+                    "suppa": 2.4
                 },
                 "SUPPA_GENERATEEVENTS_IOE": {
                     "suppa": 2.4
@@ -98,8 +86,6 @@
                 "isoformswitchanalyzer/results/YRI_vs_GBR/1_switch_plot_RPL10_aka_RPL10.pdf",
                 "isoformswitchanalyzer/results/common_switch_consequences.pdf",
                 "isoformswitchanalyzer/switchlist.rds",
-                "mergeevents",
-                "mergeevents/genes_chrX.ioe",
                 "multiqc",
                 "multiqc/multiqc_data",
                 "multiqc/multiqc_data/llms-full.txt",
@@ -145,6 +131,10 @@
                 "salmon/suppa/clusterevents/per_local_event/local_GBR-YRI.clustvec",
                 "salmon/suppa/clusterevents/per_local_event/local_YRI-GBR.clustvec",
                 "salmon/suppa/clustergroups",
+                "salmon/suppa/clustergroups/local_GBR-YRI_groups.txt",
+                "salmon/suppa/clustergroups/local_YRI-GBR_groups.txt",
+                "salmon/suppa/clustergroups/transcript_GBR-YRI_groups.txt",
+                "salmon/suppa/clustergroups/transcript_YRI-GBR_groups.txt",
                 "salmon/suppa/diffsplice",
                 "salmon/suppa/diffsplice/per_isoform",
                 "salmon/suppa/diffsplice/per_isoform/transcript_GBR-YRI.dpsi",
@@ -174,6 +164,8 @@
                 "salmon/suppa/generate_events/per_local_event/genes_chrX_RI_strict.ioe",
                 "salmon/suppa/generate_events/per_local_event/genes_chrX_SE_strict.gtf",
                 "salmon/suppa/generate_events/per_local_event/genes_chrX_SE_strict.ioe",
+                "salmon/suppa/generate_events/per_local_event/merged_events",
+                "salmon/suppa/generate_events/per_local_event/merged_events/genes_chrX.ioe",
                 "salmon/suppa/psi_per_isoform",
                 "salmon/suppa/psi_per_isoform/suppa_tpm.psi_isoform.psi",
                 "salmon/suppa/psi_per_local_event",
@@ -279,13 +271,17 @@
             ],
             [
                 "isoformswitchanalyzer_summary.csv:md5,8cb2a864dbf6d26df508842d83a25bdb",
+                "local_GBR-YRI_groups.txt:md5,e9636d1c0a5cb00df8cedc61642a5d52",
+                "local_YRI-GBR_groups.txt:md5,e9636d1c0a5cb00df8cedc61642a5d52",
+                "transcript_GBR-YRI_groups.txt:md5,e9636d1c0a5cb00df8cedc61642a5d52",
+                "transcript_YRI-GBR_groups.txt:md5,e9636d1c0a5cb00df8cedc61642a5d52",
                 "genes_chrX.ioi:md5,6c9ee3567554e3f74186b4c17ec777d6"
             ]
         ],
-        "timestamp": "2026-09-14T09:33:02.530765961",
+        "timestamp": "2026-10-08T13:59:32.487274917",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.4"
+            "nextflow": "26.04.3"
         }
     }
 }

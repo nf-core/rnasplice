@@ -449,6 +449,8 @@ If [IsoformSwitchAnalyzeR](https://www.bioconductor.org/packages/release/bioc/ht
   - `generate_events/per_isoform/` or `generate_events/per_local_event/`
     - `events.*`: Shows the relationship between each event and the transcripts that define that particular event.
     - `events_*.*`: Shows the relationship between each individual event type and the transcripts that define that particular event.
+  - `generate_events/per_local_event/merged_events/`
+    - `*.ioe`: The local events of every type in a single file, as used for the PSI calculation.
   - `psi_per_isoform/`
     - `suppa_isoform.psi`: Contains relative abundance value per sample for transcript isoforms.
   - `psi_per_local_event/`
@@ -459,6 +461,8 @@ If [IsoformSwitchAnalyzeR](https://www.bioconductor.org/packages/release/bioc/ht
   - `diffsplice/per_isoform/` or `diffsplice/per_local_event/`
     - `{contrast}_*_diffsplice.dpsi`: Contains the information about which events are significantly differentially spliced in each pairwise comparison.
     - `{contrast}_*_diffsplice.psivec`: Contains the PSI values for all samples, either per replicate or the average PSI value per condition, averaging over the replicates.
+  - `clustergroups/`
+    - `{local,transcript}_{contrast}_groups.txt`: The column ranges of the two conditions in the `*.psivec` file of each contrast, as given to the clustering.
   - `clusterevents/per_isoform/` or `clusterevents/per_local_event/`
     - `{contrast}_*_cluster.clustvec`: Contains the events, their mean psi values per condition, and the clusters association. If an event has no associated cluster, it will be assigned to -1.
     - `{contrast}_*_cluster_scores.log`: Containing information of the clusters found.

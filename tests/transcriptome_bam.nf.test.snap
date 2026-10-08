@@ -2,27 +2,12 @@
     "-profile test_transcriptome_bam": {
         "content": [
             {
-                "CLUSTEREVENTS_IOE": {
-                    "suppa": 2.4
-                },
-                "CLUSTEREVENTS_IOI": {
-                    "suppa": 2.4
-                },
-                "CLUSTERGROUPS_IOE": {
-                    "python": "3.14.6"
-                },
-                "CLUSTERGROUPS_IOI": {
+                "CLUSTERGROUPS": {
                     "python": "3.14.6"
                 },
                 "DEXSEQ_DTU": {
                     "bioconductor-dexseq": "1.56.0",
                     "r-base": "4.5.3"
-                },
-                "DIFFSPLICE_IOE": {
-                    "suppa": 2.4
-                },
-                "DIFFSPLICE_IOI": {
-                    "suppa": 2.4
                 },
                 "DRIMSEQ_DMFILTER": {
                     "bioconductor-drimseq": "1.18.0",
@@ -65,10 +50,7 @@
                 "SAMTOOLS_STATS": {
                     "samtools": 1.24
                 },
-                "SPLIT_FILES_IOE": {
-                    "r-base": "4.6.1"
-                },
-                "SPLIT_FILES_IOI": {
+                "SPLIT_FILES_PSI": {
                     "r-base": "4.6.1"
                 },
                 "SPLIT_FILES_TPM": {
@@ -76,6 +58,12 @@
                 },
                 "STAGER": {
                     "stageR": "1.32.0"
+                },
+                "SUPPA_CLUSTEREVENTS": {
+                    "suppa": 2.4
+                },
+                "SUPPA_DIFFSPLICE": {
+                    "suppa": 2.4
                 },
                 "SUPPA_GENERATEEVENTS_IOE": {
                     "suppa": 2.4
@@ -99,8 +87,6 @@
             },
             [
                 "genome",
-                "mergeevents",
-                "mergeevents/genes_chrX.ioe",
                 "multiqc",
                 "multiqc/multiqc_data",
                 "multiqc/multiqc_data/llms-full.txt",
@@ -284,8 +270,10 @@
                 "star_salmon/suppa/clusterevents/per_local_event/local_GBR-YRI.clustvec",
                 "star_salmon/suppa/clusterevents/per_local_event/local_YRI-GBR.clustvec",
                 "star_salmon/suppa/clustergroups",
-                "star_salmon/suppa/clustergroups/GBR-YRI_groups.txt",
-                "star_salmon/suppa/clustergroups/YRI-GBR_groups.txt",
+                "star_salmon/suppa/clustergroups/local_GBR-YRI_groups.txt",
+                "star_salmon/suppa/clustergroups/local_YRI-GBR_groups.txt",
+                "star_salmon/suppa/clustergroups/transcript_GBR-YRI_groups.txt",
+                "star_salmon/suppa/clustergroups/transcript_YRI-GBR_groups.txt",
                 "star_salmon/suppa/diffsplice",
                 "star_salmon/suppa/diffsplice/per_isoform",
                 "star_salmon/suppa/diffsplice/per_isoform/transcript_GBR-YRI.dpsi",
@@ -315,6 +303,8 @@
                 "star_salmon/suppa/generate_events/per_local_event/genes_chrX_RI_strict.ioe",
                 "star_salmon/suppa/generate_events/per_local_event/genes_chrX_SE_strict.gtf",
                 "star_salmon/suppa/generate_events/per_local_event/genes_chrX_SE_strict.ioe",
+                "star_salmon/suppa/generate_events/per_local_event/merged_events",
+                "star_salmon/suppa/generate_events/per_local_event/merged_events/genes_chrX.ioe",
                 "star_salmon/suppa/psi_per_isoform",
                 "star_salmon/suppa/psi_per_isoform/suppa_tpm.psi_isoform.psi",
                 "star_salmon/suppa/psi_per_local_event",
@@ -375,15 +365,17 @@
                 "ERR204916.flagstat:md5,52694c401a56f4ff424dba559a55786b",
                 "ERR204916.idxstats:md5,4f679176e2476f743a765fa2c963676d",
                 "ERR204916.stats:md5,4378a35300f97adc4d32e6cb4002c122",
-                "GBR-YRI_groups.txt:md5,e9636d1c0a5cb00df8cedc61642a5d52",
-                "YRI-GBR_groups.txt:md5,e9636d1c0a5cb00df8cedc61642a5d52",
+                "local_GBR-YRI_groups.txt:md5,e9636d1c0a5cb00df8cedc61642a5d52",
+                "local_YRI-GBR_groups.txt:md5,e9636d1c0a5cb00df8cedc61642a5d52",
+                "transcript_GBR-YRI_groups.txt:md5,e9636d1c0a5cb00df8cedc61642a5d52",
+                "transcript_YRI-GBR_groups.txt:md5,e9636d1c0a5cb00df8cedc61642a5d52",
                 "genes_chrX.ioi:md5,6c9ee3567554e3f74186b4c17ec777d6"
             ]
         ],
-        "timestamp": "2026-09-07T19:53:38.579411633",
+        "timestamp": "2026-10-08T14:00:31.571374631",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.1"
+            "nextflow": "26.04.3"
         }
     }
 }

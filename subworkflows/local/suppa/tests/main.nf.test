@@ -1,0 +1,421 @@
+// nf-core subworkflows test suppa
+nextflow_workflow {
+
+    name "Test Subworkflow SUPPA"
+    script "../main.nf"
+    workflow "SUPPA"
+
+    tag "subworkflows"
+    tag "subworkflows/suppa"
+    tag "suppa"
+    tag "suppa/generateevents"
+    tag "suppa/psiperevent"
+    tag "suppa/psiperisoform"
+    tag "suppa/diffsplice"
+    tag "suppa/clusterevents"
+    tag "mergeevents"
+    tag "splitfiles"
+    tag "clustergroups"
+
+    // The test-datasets have no SUPPA TPM table, so it is built from the Salmon results
+    // of two GBR and two YRI samples of the pipeline test data, as the pipeline does
+    setup {
+        run("TX2GENE_TXIMPORT") {
+            script "../../tx2gene_tximport/main.nf"
+            workflow {
+                """
+                input[0] = channel.of(
+                    [ [ id:'ERR188383' ], [ file(params.pipelines_testdata_base_path + 'testdata/ERR188383.tar.gz', checkIfExists: true) ] ],
+                    [ [ id:'ERR188428' ], [ file(params.pipelines_testdata_base_path + 'testdata/ERR188428.tar.gz', checkIfExists: true) ] ],
+                    [ [ id:'ERR188454' ], [ file(params.pipelines_testdata_base_path + 'testdata/ERR188454.tar.gz', checkIfExists: true) ] ],
+                    [ [ id:'ERR204916' ], [ file(params.pipelines_testdata_base_path + 'testdata/ERR204916.tar.gz', checkIfExists: true) ] ],
+                )
+                input[1] = file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
+                """
+            }
+        }
+    }
+
+    test("human chrX - local events and isoforms") {
+
+        when {
+            workflow {
+                """
+                input[0] = [ [ id:'genes_chrX' ], file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true) ]
+                input[1] = TX2GENE_TXIMPORT.out.suppa_tpm.map { tpm -> [ [ id:'suppa_tpm' ], tpm ] }
+                input[2] = channel.of(
+                    [ 'ERR188383', 'GBR' ],
+                    [ 'ERR188428', 'GBR' ],
+                    [ 'ERR188454', 'YRI' ],
+                    [ 'ERR204916', 'YRI' ],
+                )
+                input[3] = channel.of(
+                    [ contrast:'GBR-YRI', treatment:'GBR', control:'YRI' ],
+                    [ contrast:'YRI-GBR', treatment:'YRI', control:'GBR' ],
+                )
+                input[4] = true             // suppa_per_local_event
+                input[5] = 'S'              // generateevents_boundary
+                input[6] = 10               // generateevents_threshold
+                input[7] = 100              // generateevents_exon_length
+                input[8] = 'SE SS MX RI FL' // generateevents_event_type
+                input[9] = true             // generateevents_pool_genes
+                input[10] = 0               // psiperevent_total_filter
+                input[11] = true            // diffsplice_local_event
+                input[12] = true            // diffsplice_transcript_event
+                input[13] = 'empirical'     // diffsplice_method
+                input[14] = 1000            // diffsplice_area
+                input[15] = 0               // diffsplice_lower_bound
+                input[16] = 0.05            // diffsplice_alpha
+                input[17] = 0               // diffsplice_tpm_threshold
+                input[18] = 0               // diffsplice_nan_threshold
+                input[19] = true            // diffsplice_gene_correction
+                input[20] = true            // diffsplice_paired
+                input[21] = false           // diffsplice_median
+                input[22] = true            // clusterevents_local_event
+                input[23] = true            // clusterevents_transcript_event
+                input[24] = 0.05            // clusterevents_dpsithreshold
+                input[25] = 0.05            // clusterevents_eps
+                input[26] = 'euclidean'     // clusterevents_metric
+                input[27] = 20              // clusterevents_min_pts
+                input[28] = 'DBSCAN'        // clusterevents_method
+                input[29] = false           // clusterevents_sigthreshold
+                input[30] = false           // clusterevents_separation
+                input[31] = true            // suppa_per_isoform
+                """
+            }
+        }
+
+        then {
+            // The steps after the PSI calculation run once per level and contrast, so their
+            // channels follow task completion order and are sorted before the snapshot.
+            // generateEvents writes the local events, and the transcripts of an event, in no
+            // stable order, which changes the row order and the last digits of the local
+            // event PSI values. Those files are snapshotted as a checksum of their sorted
+            // lines, with the values rounded to 10 decimal places. The diffSplice
+            // and clusterEvents results are not reproducible across runs, as tests/.nftignore
+            // records for the pipeline tests, so only their names are snapshotted
+            def sorted = { ch -> ch.sort { item -> item[0].id } }
+            def names  = { ch -> sorted(ch).collect { meta, file_path -> [ meta, file(file_path).name ] } }
+            def lines  = { ch -> sorted(ch).collect { meta, file_path ->
+                def rows = path(file_path).readLines().collect { line ->
+                    line.split('\t', -1).collect { field -> field.isBigDecimal() ? new BigDecimal(field).setScale(10, java.math.RoundingMode.HALF_UP).toPlainString() : field }.join('\t')
+                }
+                [ meta, file(file_path).name, rows.size(), rows.sort().join('\n').md5() ]
+            } }
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.dpsi_local.size() == 2 },
+                { assert workflow.out.dpsi_isoform.size() == 2 },
+                { assert sorted(workflow.out.groups).collect { _meta, txt -> path(txt).text } == [ '1-2,3-4\n' ] * 4 },
+                { assert snapshot(
+                    names(workflow.out.ioe_events),
+                    names(workflow.out.ioi_events),
+                    lines(workflow.out.suppa_local_psi),
+                    workflow.out.suppa_isoform_psi,
+                    sorted(workflow.out.split_suppa_tpms),
+                    lines(workflow.out.split_suppa_local_psi),
+                    sorted(workflow.out.split_suppa_isoform_psi),
+                    names(workflow.out.dpsi_local),
+                    names(workflow.out.psivec_local),
+                    names(workflow.out.dpsi_isoform),
+                    names(workflow.out.psivec_isoform),
+                    sorted(workflow.out.groups),
+                    names(workflow.out.cluster_vec_local),
+                    names(workflow.out.cluster_vec_isoform)
+                ).match() }
+            )
+        }
+
+    }
+
+    test("human chrX - local events only, no clustering") {
+
+        when {
+            workflow {
+                """
+                input[0] = [ [ id:'genes_chrX' ], file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true) ]
+                input[1] = TX2GENE_TXIMPORT.out.suppa_tpm.map { tpm -> [ [ id:'suppa_tpm' ], tpm ] }
+                input[2] = channel.of(
+                    [ 'ERR188383', 'GBR' ],
+                    [ 'ERR188428', 'GBR' ],
+                    [ 'ERR188454', 'YRI' ],
+                    [ 'ERR204916', 'YRI' ],
+                )
+                input[3] = channel.of(
+                    [ contrast:'GBR-YRI', treatment:'GBR', control:'YRI' ],
+                    [ contrast:'YRI-GBR', treatment:'YRI', control:'GBR' ],
+                )
+                input[4] = true             // suppa_per_local_event
+                input[5] = 'S'              // generateevents_boundary
+                input[6] = 10               // generateevents_threshold
+                input[7] = 100              // generateevents_exon_length
+                input[8] = 'SE SS MX RI FL' // generateevents_event_type
+                input[9] = true             // generateevents_pool_genes
+                input[10] = 0               // psiperevent_total_filter
+                input[11] = true            // diffsplice_local_event
+                input[12] = true            // diffsplice_transcript_event
+                input[13] = 'empirical'     // diffsplice_method
+                input[14] = 1000            // diffsplice_area
+                input[15] = 0               // diffsplice_lower_bound
+                input[16] = 0.05            // diffsplice_alpha
+                input[17] = 0               // diffsplice_tpm_threshold
+                input[18] = 0               // diffsplice_nan_threshold
+                input[19] = true            // diffsplice_gene_correction
+                input[20] = true            // diffsplice_paired
+                input[21] = false           // diffsplice_median
+                input[22] = false           // clusterevents_local_event
+                input[23] = true            // clusterevents_transcript_event
+                input[24] = 0.05            // clusterevents_dpsithreshold
+                input[25] = 0.05            // clusterevents_eps
+                input[26] = 'euclidean'     // clusterevents_metric
+                input[27] = 20              // clusterevents_min_pts
+                input[28] = 'DBSCAN'        // clusterevents_method
+                input[29] = false           // clusterevents_sigthreshold
+                input[30] = false           // clusterevents_separation
+                input[31] = false           // suppa_per_isoform
+                """
+            }
+        }
+
+        then {
+            def sorted = { ch -> ch.sort { item -> item[0].id } }
+            def names  = { ch -> sorted(ch).collect { meta, file_path -> [ meta, file(file_path).name ] } }
+            def lines  = { ch -> sorted(ch).collect { meta, file_path ->
+                def rows = path(file_path).readLines().collect { line ->
+                    line.split('\t', -1).collect { field -> field.isBigDecimal() ? new BigDecimal(field).setScale(10, java.math.RoundingMode.HALF_UP).toPlainString() : field }.join('\t')
+                }
+                [ meta, file(file_path).name, rows.size(), rows.sort().join('\n').md5() ]
+            } }
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.ioi_events.size() == 0 },
+                { assert workflow.out.split_suppa_isoform_psi.size() == 0 },
+                { assert workflow.out.dpsi_isoform.size() == 0 },
+                { assert workflow.out.groups.size() == 0 },
+                { assert workflow.out.cluster_vec_local.size() == 0 },
+                { assert snapshot(
+                    lines(workflow.out.split_suppa_local_psi),
+                    names(workflow.out.dpsi_local),
+                    names(workflow.out.psivec_local)
+                ).match() }
+            )
+        }
+
+    }
+
+    // The next two tests turn the diffSplice and clusterEvents flags off at one level each,
+    // so that a swap of the local and transcript flags, or a missing filter, fails a test.
+    // The gating is channel logic, so stub runs are enough
+    test("human chrX - diffSplice of isoforms only, no isoform clustering - stub") {
+
+        options "-stub"
+
+        when {
+            workflow {
+                """
+                input[0] = [ [ id:'genes_chrX' ], file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true) ]
+                input[1] = TX2GENE_TXIMPORT.out.suppa_tpm.map { tpm -> [ [ id:'suppa_tpm' ], tpm ] }
+                input[2] = channel.of(
+                    [ 'ERR188383', 'GBR' ],
+                    [ 'ERR188428', 'GBR' ],
+                    [ 'ERR188454', 'YRI' ],
+                    [ 'ERR204916', 'YRI' ],
+                )
+                input[3] = channel.of(
+                    [ contrast:'GBR-YRI', treatment:'GBR', control:'YRI' ],
+                    [ contrast:'YRI-GBR', treatment:'YRI', control:'GBR' ],
+                )
+                input[4] = true             // suppa_per_local_event
+                input[5] = 'S'              // generateevents_boundary
+                input[6] = 10               // generateevents_threshold
+                input[7] = 100              // generateevents_exon_length
+                input[8] = 'SE SS MX RI FL' // generateevents_event_type
+                input[9] = true             // generateevents_pool_genes
+                input[10] = 0               // psiperevent_total_filter
+                input[11] = false           // diffsplice_local_event
+                input[12] = true            // diffsplice_transcript_event
+                input[13] = 'empirical'     // diffsplice_method
+                input[14] = 1000            // diffsplice_area
+                input[15] = 0               // diffsplice_lower_bound
+                input[16] = 0.05            // diffsplice_alpha
+                input[17] = 0               // diffsplice_tpm_threshold
+                input[18] = 0               // diffsplice_nan_threshold
+                input[19] = true            // diffsplice_gene_correction
+                input[20] = true            // diffsplice_paired
+                input[21] = false           // diffsplice_median
+                input[22] = true            // clusterevents_local_event
+                input[23] = false           // clusterevents_transcript_event
+                input[24] = 0.05            // clusterevents_dpsithreshold
+                input[25] = 0.05            // clusterevents_eps
+                input[26] = 'euclidean'     // clusterevents_metric
+                input[27] = 20              // clusterevents_min_pts
+                input[28] = 'DBSCAN'        // clusterevents_method
+                input[29] = false           // clusterevents_sigthreshold
+                input[30] = false           // clusterevents_separation
+                input[31] = true            // suppa_per_isoform
+                """
+            }
+        }
+
+        then {
+            def ids = { ch -> ch.collect { item -> item[0].id }.sort() }
+            assertAll(
+                { assert workflow.success },
+                { assert ids(workflow.out.split_suppa_local_psi) == [ 'local_GBR', 'local_YRI' ] },
+                { assert ids(workflow.out.dpsi_local) == [] },
+                { assert ids(workflow.out.psivec_local) == [] },
+                { assert ids(workflow.out.dpsi_isoform) == [ 'transcript_GBR-YRI', 'transcript_YRI-GBR' ] },
+                { assert ids(workflow.out.psivec_isoform) == [ 'transcript_GBR-YRI', 'transcript_YRI-GBR' ] },
+                { assert ids(workflow.out.groups) == [] },
+                { assert ids(workflow.out.cluster_vec_local) == [] },
+                { assert ids(workflow.out.cluster_vec_isoform) == [] }
+            )
+        }
+
+    }
+
+    test("human chrX - diffSplice and clustering of local events only - stub") {
+
+        options "-stub"
+
+        when {
+            workflow {
+                """
+                input[0] = [ [ id:'genes_chrX' ], file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true) ]
+                input[1] = TX2GENE_TXIMPORT.out.suppa_tpm.map { tpm -> [ [ id:'suppa_tpm' ], tpm ] }
+                input[2] = channel.of(
+                    [ 'ERR188383', 'GBR' ],
+                    [ 'ERR188428', 'GBR' ],
+                    [ 'ERR188454', 'YRI' ],
+                    [ 'ERR204916', 'YRI' ],
+                )
+                input[3] = channel.of(
+                    [ contrast:'GBR-YRI', treatment:'GBR', control:'YRI' ],
+                    [ contrast:'YRI-GBR', treatment:'YRI', control:'GBR' ],
+                )
+                input[4] = true             // suppa_per_local_event
+                input[5] = 'S'              // generateevents_boundary
+                input[6] = 10               // generateevents_threshold
+                input[7] = 100              // generateevents_exon_length
+                input[8] = 'SE SS MX RI FL' // generateevents_event_type
+                input[9] = true             // generateevents_pool_genes
+                input[10] = 0               // psiperevent_total_filter
+                input[11] = true            // diffsplice_local_event
+                input[12] = false           // diffsplice_transcript_event
+                input[13] = 'empirical'     // diffsplice_method
+                input[14] = 1000            // diffsplice_area
+                input[15] = 0               // diffsplice_lower_bound
+                input[16] = 0.05            // diffsplice_alpha
+                input[17] = 0               // diffsplice_tpm_threshold
+                input[18] = 0               // diffsplice_nan_threshold
+                input[19] = true            // diffsplice_gene_correction
+                input[20] = true            // diffsplice_paired
+                input[21] = false           // diffsplice_median
+                input[22] = true            // clusterevents_local_event
+                input[23] = true            // clusterevents_transcript_event
+                input[24] = 0.05            // clusterevents_dpsithreshold
+                input[25] = 0.05            // clusterevents_eps
+                input[26] = 'euclidean'     // clusterevents_metric
+                input[27] = 20              // clusterevents_min_pts
+                input[28] = 'DBSCAN'        // clusterevents_method
+                input[29] = false           // clusterevents_sigthreshold
+                input[30] = false           // clusterevents_separation
+                input[31] = true            // suppa_per_isoform
+                """
+            }
+        }
+
+        then {
+            def ids = { ch -> ch.collect { item -> item[0].id }.sort() }
+            assertAll(
+                { assert workflow.success },
+                { assert ids(workflow.out.split_suppa_isoform_psi) == [ 'transcript_GBR', 'transcript_YRI' ] },
+                { assert ids(workflow.out.dpsi_local) == [ 'local_GBR-YRI', 'local_YRI-GBR' ] },
+                { assert ids(workflow.out.psivec_local) == [ 'local_GBR-YRI', 'local_YRI-GBR' ] },
+                { assert ids(workflow.out.dpsi_isoform) == [] },
+                { assert ids(workflow.out.psivec_isoform) == [] },
+                { assert ids(workflow.out.groups) == [ 'local_GBR-YRI', 'local_YRI-GBR' ] },
+                { assert ids(workflow.out.cluster_vec_local) == [ 'local_GBR-YRI', 'local_YRI-GBR' ] },
+                { assert ids(workflow.out.cluster_vec_isoform) == [] }
+            )
+        }
+
+    }
+
+    test("human chrX - local events and isoforms - stub") {
+
+        options "-stub"
+
+        when {
+            workflow {
+                """
+                input[0] = [ [ id:'genes_chrX' ], file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true) ]
+                input[1] = TX2GENE_TXIMPORT.out.suppa_tpm.map { tpm -> [ [ id:'suppa_tpm' ], tpm ] }
+                input[2] = channel.of(
+                    [ 'ERR188383', 'GBR' ],
+                    [ 'ERR188428', 'GBR' ],
+                    [ 'ERR188454', 'YRI' ],
+                    [ 'ERR204916', 'YRI' ],
+                )
+                input[3] = channel.of(
+                    [ contrast:'GBR-YRI', treatment:'GBR', control:'YRI' ],
+                    [ contrast:'YRI-GBR', treatment:'YRI', control:'GBR' ],
+                )
+                input[4] = true             // suppa_per_local_event
+                input[5] = 'S'              // generateevents_boundary
+                input[6] = 10               // generateevents_threshold
+                input[7] = 100              // generateevents_exon_length
+                input[8] = 'SE SS MX RI FL' // generateevents_event_type
+                input[9] = true             // generateevents_pool_genes
+                input[10] = 0               // psiperevent_total_filter
+                input[11] = true            // diffsplice_local_event
+                input[12] = true            // diffsplice_transcript_event
+                input[13] = 'empirical'     // diffsplice_method
+                input[14] = 1000            // diffsplice_area
+                input[15] = 0               // diffsplice_lower_bound
+                input[16] = 0.05            // diffsplice_alpha
+                input[17] = 0               // diffsplice_tpm_threshold
+                input[18] = 0               // diffsplice_nan_threshold
+                input[19] = true            // diffsplice_gene_correction
+                input[20] = true            // diffsplice_paired
+                input[21] = false           // diffsplice_median
+                input[22] = true            // clusterevents_local_event
+                input[23] = true            // clusterevents_transcript_event
+                input[24] = 0.05            // clusterevents_dpsithreshold
+                input[25] = 0.05            // clusterevents_eps
+                input[26] = 'euclidean'     // clusterevents_metric
+                input[27] = 20              // clusterevents_min_pts
+                input[28] = 'DBSCAN'        // clusterevents_method
+                input[29] = false           // clusterevents_sigthreshold
+                input[30] = false           // clusterevents_separation
+                input[31] = true            // suppa_per_isoform
+                """
+            }
+        }
+
+        then {
+            def sorted = { ch -> ch.sort { item -> item[0].id } }
+            assertAll(
+                { assert workflow.success },
+                { assert snapshot(
+                    workflow.out.ioe_events,
+                    workflow.out.ioi_events,
+                    workflow.out.suppa_local_psi,
+                    workflow.out.suppa_isoform_psi,
+                    sorted(workflow.out.split_suppa_tpms),
+                    sorted(workflow.out.split_suppa_local_psi),
+                    sorted(workflow.out.split_suppa_isoform_psi),
+                    sorted(workflow.out.dpsi_local),
+                    sorted(workflow.out.psivec_local),
+                    sorted(workflow.out.dpsi_isoform),
+                    sorted(workflow.out.psivec_isoform),
+                    sorted(workflow.out.groups),
+                    sorted(workflow.out.cluster_vec_local),
+                    sorted(workflow.out.cluster_vec_isoform)
+                ).match() }
+            )
+        }
+
+    }
+
+}

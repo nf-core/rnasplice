@@ -12,6 +12,7 @@ process CLUSTERGROUPS {
 
     output:
     tuple val(meta), path("*_groups.txt"), emit: groups
+    tuple val(meta), eval('cat *_groups.txt'), emit: ranges
     tuple val("${task.process}"), val('python'), eval('python3 -c "import platform; print(platform.python_version())"'), topic: versions, emit: versions_python
 
     when:
