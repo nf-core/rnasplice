@@ -25,8 +25,6 @@ process MISOPY_SETTINGS {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    echo ${args}
-
     touch miso_settings.txt
 
     cat <<-END_VERSIONS > versions.yml
