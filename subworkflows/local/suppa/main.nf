@@ -157,8 +157,12 @@ workflow SUPPA {
                 .combine(ch_local_tpm_psi, by: 0)
                 .map { _control, contrast, tpm1, psi1, tpm2, psi2 ->
                     [
-                        [ id: 'local_' + contrast.treatment + "-" + contrast.control ],
-                        contrast.treatment, contrast.control, tpm1, tpm2, psi1, psi2
+                        [
+                            id: 'local_' + contrast.treatment + "-" + contrast.control,
+                            treatment: contrast.treatment,
+                            control: contrast.control
+                        ],
+                        tpm1, tpm2, psi1, psi2
                     ]
                 }
 
@@ -166,7 +170,7 @@ workflow SUPPA {
             // Update meta.id of ioe events channel to match the contrasts channel
             //
             ch_events_ioe_for_diffsplice = ch_split_tpms_events_psi
-                .map { meta, _treatment, _control, _tpm1, _tpm2, _psi1, _psi2 -> meta }
+                .map { meta, _tpm1, _tpm2, _psi1, _psi2 -> meta }
                 .combine(
                     ch_events_ioe
                         .map { _meta, ioe -> ioe }
@@ -174,8 +178,8 @@ workflow SUPPA {
 
             DIFFSPLICE_IOE(
                 ch_events_ioe_for_diffsplice,
-                ch_split_tpms_events_psi.map { meta, treatment, _control, tpm1, _tpm2, psi1, _psi2 -> [ meta, treatment, tpm1, psi1 ] },
-                ch_split_tpms_events_psi.map { meta, _treatment, control, _tpm1, tpm2, _psi1, psi2 -> [ meta, control, tpm2, psi2 ] },
+                ch_split_tpms_events_psi.map { meta, tpm1, _tpm2, psi1, _psi2 -> [ meta, meta.treatment, tpm1, psi1 ] },
+                ch_split_tpms_events_psi.map { meta, _tpm1, tpm2, _psi1, psi2 -> [ meta, meta.control, tpm2, psi2 ] },
                 diffsplice_method,
                 diffsplice_area,
                 diffsplice_lower_bound,
@@ -196,30 +200,15 @@ workflow SUPPA {
 
                 // Get ranges for cluster analysis
 
-                ch_events_dpsi_with_conditions = ch_events_dpsi
-                    .join(ch_split_tpms_events_psi, by: 0)
-                    .map {
-                        meta, dpsi, treatment, control, _tpm1, _tpm2, _psi1, _psi2 -> [ meta, treatment, control, dpsi ]
-                    }
-                ch_events_psivec_with_conditions = ch_events_psivec
-                    .join(ch_split_tpms_events_psi, by: 0)
-                    .map {
-                        meta, psivec, treatment, control, _tpm1, _tpm2, _psi1, _psi2 -> [ meta, treatment, control, psivec ]
-                    }
-
-                CLUSTERGROUPS_IOE ( ch_events_psivec_with_conditions )
+                CLUSTERGROUPS_IOE ( ch_events_psivec )
 
                 ch_groups_ioe = CLUSTERGROUPS_IOE.out.groups
 
                 // Join channels to ensure consistent order
 
-                ch_clusterevents_ioe = ch_events_dpsi_with_conditions
-                    .join(ch_events_psivec_with_conditions, by: [0, 1, 2])
-                    .join(ch_groups_ioe, by: [0, 1, 2])
-                    .map {
-                        _meta, cond1, cond2, dpsi, psivec, groups ->
-                            [ [ id: 'local_' + cond1 + "-" + cond2 ], dpsi, psivec, groups ]
-                    }
+                ch_clusterevents_ioe = ch_events_dpsi
+                    .join(ch_events_psivec)
+                    .join(ch_groups_ioe)
 
                 // Run Clustering
 
@@ -306,8 +295,12 @@ workflow SUPPA {
                 .combine(ch_isoform_tpm_psi, by: 0)
                 .map { _control, contrast, tpm1, psi1, tpm2, psi2 ->
                     [
-                        [ id: 'transcript_' + contrast.treatment + "-" + contrast.control ],
-                        contrast.treatment, contrast.control, tpm1, tpm2, psi1, psi2
+                        [
+                            id: 'transcript_' + contrast.treatment + "-" + contrast.control,
+                            treatment: contrast.treatment,
+                            control: contrast.control
+                        ],
+                        tpm1, tpm2, psi1, psi2
                     ]
                 }
 
@@ -315,7 +308,7 @@ workflow SUPPA {
             // Update meta.id of ioi events channel to match the contrasts channel
             //
             ch_events_ioi_for_diffsplice = ch_split_tpms_isoform_psi
-                .map { meta, _treatment, _control, _tpm1, _tpm2, _psi1, _psi2 -> meta }
+                .map { meta, _tpm1, _tpm2, _psi1, _psi2 -> meta }
                 .combine(
                     ch_events_ioi
                         .map { _meta, ioi -> ioi }
@@ -323,8 +316,8 @@ workflow SUPPA {
 
             DIFFSPLICE_IOI(
                 ch_events_ioi_for_diffsplice,
-                ch_split_tpms_isoform_psi.map { meta, treatment, _control, tpm1, _tpm2, psi1, _psi2 -> [ meta, treatment, tpm1, psi1 ] },
-                ch_split_tpms_isoform_psi.map { meta, _treatment, control, _tpm1, tpm2, _psi1, psi2 -> [ meta, control, tpm2, psi2 ] },
+                ch_split_tpms_isoform_psi.map { meta, tpm1, _tpm2, psi1, _psi2 -> [ meta, meta.treatment, tpm1, psi1 ] },
+                ch_split_tpms_isoform_psi.map { meta, _tpm1, tpm2, _psi1, psi2 -> [ meta, meta.control, tpm2, psi2 ] },
                 diffsplice_method,
                 diffsplice_area,
                 diffsplice_lower_bound,
@@ -345,31 +338,15 @@ workflow SUPPA {
 
                 // Get ranges for cluster analysis
 
-                ch_events_dpsi_with_conditions = ch_isoform_dpsi
-                    .join(ch_split_tpms_isoform_psi, by: 0)
-                    .map {
-                        meta, dpsi, treatment, control, _tpm1, _tpm2, _psi1, _psi2 -> [ meta, treatment, control, dpsi ]
-                    }
-
-                ch_events_psivec_with_conditions = ch_isoform_psivec
-                    .join(ch_split_tpms_isoform_psi, by: 0)
-                    .map {
-                        meta, psivec, treatment, control, _tpm1, _tpm2, _psi1, _psi2 -> [ meta, treatment, control, psivec ]
-                    }
-
-                CLUSTERGROUPS_IOI ( ch_events_psivec_with_conditions )
+                CLUSTERGROUPS_IOI ( ch_isoform_psivec )
 
                 ch_groups_ioi = CLUSTERGROUPS_IOI.out.groups
 
                 // Join channels to ensure consistent order
 
-                ch_clusterevents_ioi = ch_events_dpsi_with_conditions
-                    .join(ch_events_psivec_with_conditions, by: [0, 1, 2])
-                    .join(ch_groups_ioi, by: [0, 1, 2])
-                    .map {
-                        _meta, cond1, cond2, dpsi, psivec, groups ->
-                            [ [ id: 'transcript_' + cond1 + "-" + cond2 ], dpsi, psivec, groups ]
-                    }
+                ch_clusterevents_ioi = ch_isoform_dpsi
+                    .join(ch_isoform_psivec)
+                    .join(ch_groups_ioi)
 
                 // Run Clustering
 

@@ -1,36 +1,57 @@
 process CLUSTERGROUPS {
-    tag "${cond1}-${cond2}"
+    tag "${meta.id}"
     label 'process_single'
 
     conda "${moduleDir}/environment.yml"
     container "${workflow.containerEngine in ['singularity', 'apptainer'] && !task.ext.singularity_pull_docker_container ?
-        'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/52/52399c97123d96b3b6eca039a907a3536c9c6aaddcf5d09c8ae50ec82df35e95/data' :
-        'community.wave.seqera.io/library/python_pyyaml:0610af27e7c352fd' }"
+        'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/45/459ec0a82535a33befd76060cd9d0acbeb5adef2a6eff3d07b7ee5bccb480cf1/data' :
+        'community.wave.seqera.io/library/python:3.14.6--aa65261f82da0547' }"
 
     input:
-    tuple val(meta), val(cond1), val(cond2), path(psivec)
+    tuple val(meta), path(psivec)
 
     output:
-    tuple val(meta), val(cond1), val(cond2), path("*_groups.txt"), emit: groups
-    path "versions.yml", topic: versions, emit: versions_python
+    tuple val(meta), path("*_groups.txt"), emit: groups
+    tuple val("${task.process}"), val('python'), eval('python3 --version | sed "s/Python //"'), topic: versions, emit: versions_python
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    template 'cluster_groups.py'
+    def prefix = task.ext.prefix ?: "${meta.id}"
+    """
+    python3 - <<'EOF'
+    import itertools
+
+    # The header of a PSI vector file holds the sample names only, e.g. GBR_1
+    with open("${psivec}") as handle:
+        samples = handle.readline().rstrip("\\n").split("\\t")
+
+    # Trim the replicate number, e.g. GBR_1 -> GBR
+    conditions = [sample.rsplit("_", 1)[0] for sample in samples]
+
+    # The 1-based column range of each run of consecutive samples of a condition
+    ranges = []
+    start = 1
+    for _condition, group in itertools.groupby(conditions):
+        end = start + len(list(group)) - 1
+        ranges.append(f"{start}-{end}")
+        start = end + 1
+
+    if len(ranges) != 2:
+        raise ValueError("Column numbers have to be continuous, with no overlapping or missing columns between them.")
+
+    with open("${prefix}_groups.txt", "w") as handle:
+        handle.write(",".join(ranges) + "\\n")
+    EOF
+    """
 
     stub:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${cond1}-${cond2}"
+    def prefix = task.ext.prefix ?: "${meta.id}"
     """
     echo ${args}
 
     touch ${prefix}_groups.txt
-
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        suppa_groups: "\$(python3 --version 2>&1 | sed -n '1p' | sed 's/.*version //; s/ (.*//')"
-    END_VERSIONS
     """
 }
