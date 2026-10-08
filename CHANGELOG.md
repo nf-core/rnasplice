@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #302 - Add nf-tests for the `MISOPY_SASHIMIPLOT` module, which had no test coverage of its own (by @piplus2)
 - #303 - Add nf-tests for the `MERGEEVENTS` module, which had no test coverage (by @piplus2)
 - #305 - Add nf-tests for the `DEXSEQ_EXON` module, which had no test coverage of its own (by @piplus2)
+- #308 - Add nf-tests for the `CLUSTERGROUPS` module, which had no test coverage (by @piplus2)
 
 ### Changed
 
@@ -71,6 +72,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #291 - Move the `RMATS` subworkflow to the nf-core subworkflow template. It takes the genome BAM files as `[ meta, bam ]` and reads the condition from the meta map, and it also emits the bam lists. The BAM files of a contrast are listed in samplesheet order in both the paired and the unpaired model (by @piplus2)
 - #301 - Refactor `SPLIT_FILES` to the nf-core module template, with nf-tests. The split SUPPA files keep the values as SUPPA wrote them, so missing PSI values stay `nan` instead of becoming `NA` (by @piplus2)
 - #306 - Refactor `CREATE_BAMLIST` to the nf-core module template, with nf-tests, a stub and a Seqera container (by @piplus2)
+- #308 - Refactor `CLUSTERGROUPS` to the nf-core module template. The contrast conditions travel in the meta map, the versions are reported through a topic `eval` tuple and the container holds Python only (by @piplus2)
 
 ### Fixed
 
