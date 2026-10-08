@@ -12,7 +12,7 @@ process CLUSTERGROUPS {
 
     output:
     tuple val(meta), path("*_groups.txt"), emit: groups
-    tuple val("${task.process}"), val('python'), eval('python3 --version | sed "s/Python //"'), topic: versions, emit: versions_python
+    tuple val("${task.process}"), val('python'), eval('python3 -c "import platform; print(platform.python_version())"'), topic: versions, emit: versions_python
 
     when:
     task.ext.when == null || task.ext.when
@@ -23,14 +23,12 @@ process CLUSTERGROUPS {
     python3 - <<'EOF'
     import itertools
 
-    # The header of a PSI vector file holds the sample names only, e.g. GBR_1
     with open("${psivec}") as handle:
         samples = handle.readline().rstrip("\\n").split("\\t")
 
     # Trim the replicate number, e.g. GBR_1 -> GBR
     conditions = [sample.rsplit("_", 1)[0] for sample in samples]
 
-    # The 1-based column range of each run of consecutive samples of a condition
     ranges = []
     start = 1
     for _condition, group in itertools.groupby(conditions):
