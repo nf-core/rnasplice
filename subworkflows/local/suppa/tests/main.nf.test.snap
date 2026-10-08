@@ -1,0 +1,581 @@
+{
+    "human chrX - local events and isoforms": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "genes_chrX"
+                    },
+                    "genes_chrX.ioe"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "genes_chrX"
+                    },
+                    "genes_chrX.ioi"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "suppa_tpm"
+                    },
+                    "suppa_tpm.psi",
+                    3920,
+                    "496252abbc7d667cf68f9a4e7dc9ff6c"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "suppa_tpm"
+                    },
+                    "suppa_tpm.psi_isoform.psi:md5,dac34ee93e6a196a474eb2be0979992a"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "suppa_tpm_GBR",
+                        "condition": "GBR"
+                    },
+                    "suppa_tpm_GBR.tpm:md5,38e5251565ac51e5e1a6f23ab83b6119"
+                ],
+                [
+                    {
+                        "id": "suppa_tpm_YRI",
+                        "condition": "YRI"
+                    },
+                    "suppa_tpm_YRI.tpm:md5,abc32179e414a300d0bf80f9d3248a4a"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "local_GBR",
+                        "level": "local",
+                        "condition": "GBR"
+                    },
+                    "local_GBR.psi",
+                    3920,
+                    "9c9f4370c1d0c7c2418ee768e03b91fb"
+                ],
+                [
+                    {
+                        "id": "local_YRI",
+                        "level": "local",
+                        "condition": "YRI"
+                    },
+                    "local_YRI.psi",
+                    3920,
+                    "0b66b0e2e3649ff7492215968da9a908"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "transcript_GBR",
+                        "level": "transcript",
+                        "condition": "GBR"
+                    },
+                    "transcript_GBR.psi:md5,f225eaf62e04ed5e247a8ed2751417c6"
+                ],
+                [
+                    {
+                        "id": "transcript_YRI",
+                        "level": "transcript",
+                        "condition": "YRI"
+                    },
+                    "transcript_YRI.psi:md5,77d4353e8f75245f2369302d22f9dd3e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "local_GBR-YRI",
+                        "level": "local",
+                        "treatment": "GBR",
+                        "control": "YRI"
+                    },
+                    "local_GBR-YRI.dpsi"
+                ],
+                [
+                    {
+                        "id": "local_YRI-GBR",
+                        "level": "local",
+                        "treatment": "YRI",
+                        "control": "GBR"
+                    },
+                    "local_YRI-GBR.dpsi"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "local_GBR-YRI",
+                        "level": "local",
+                        "treatment": "GBR",
+                        "control": "YRI"
+                    },
+                    "local_GBR-YRI.psivec"
+                ],
+                [
+                    {
+                        "id": "local_YRI-GBR",
+                        "level": "local",
+                        "treatment": "YRI",
+                        "control": "GBR"
+                    },
+                    "local_YRI-GBR.psivec"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "transcript_GBR-YRI",
+                        "level": "transcript",
+                        "treatment": "GBR",
+                        "control": "YRI"
+                    },
+                    "transcript_GBR-YRI.dpsi"
+                ],
+                [
+                    {
+                        "id": "transcript_YRI-GBR",
+                        "level": "transcript",
+                        "treatment": "YRI",
+                        "control": "GBR"
+                    },
+                    "transcript_YRI-GBR.dpsi"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "transcript_GBR-YRI",
+                        "level": "transcript",
+                        "treatment": "GBR",
+                        "control": "YRI"
+                    },
+                    "transcript_GBR-YRI.psivec"
+                ],
+                [
+                    {
+                        "id": "transcript_YRI-GBR",
+                        "level": "transcript",
+                        "treatment": "YRI",
+                        "control": "GBR"
+                    },
+                    "transcript_YRI-GBR.psivec"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "local_GBR-YRI",
+                        "level": "local",
+                        "treatment": "GBR",
+                        "control": "YRI"
+                    },
+                    "local_GBR-YRI_groups.txt:md5,e9636d1c0a5cb00df8cedc61642a5d52"
+                ],
+                [
+                    {
+                        "id": "local_YRI-GBR",
+                        "level": "local",
+                        "treatment": "YRI",
+                        "control": "GBR"
+                    },
+                    "local_YRI-GBR_groups.txt:md5,e9636d1c0a5cb00df8cedc61642a5d52"
+                ],
+                [
+                    {
+                        "id": "transcript_GBR-YRI",
+                        "level": "transcript",
+                        "treatment": "GBR",
+                        "control": "YRI"
+                    },
+                    "transcript_GBR-YRI_groups.txt:md5,e9636d1c0a5cb00df8cedc61642a5d52"
+                ],
+                [
+                    {
+                        "id": "transcript_YRI-GBR",
+                        "level": "transcript",
+                        "treatment": "YRI",
+                        "control": "GBR"
+                    },
+                    "transcript_YRI-GBR_groups.txt:md5,e9636d1c0a5cb00df8cedc61642a5d52"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "local_GBR-YRI",
+                        "level": "local",
+                        "treatment": "GBR",
+                        "control": "YRI"
+                    },
+                    "local_GBR-YRI.clustvec"
+                ],
+                [
+                    {
+                        "id": "local_YRI-GBR",
+                        "level": "local",
+                        "treatment": "YRI",
+                        "control": "GBR"
+                    },
+                    "local_YRI-GBR.clustvec"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "transcript_GBR-YRI",
+                        "level": "transcript",
+                        "treatment": "GBR",
+                        "control": "YRI"
+                    },
+                    "transcript_GBR-YRI.clustvec"
+                ],
+                [
+                    {
+                        "id": "transcript_YRI-GBR",
+                        "level": "transcript",
+                        "treatment": "YRI",
+                        "control": "GBR"
+                    },
+                    "transcript_YRI-GBR.clustvec"
+                ]
+            ]
+        ],
+        "timestamp": "2026-10-08T13:52:30.849354552",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    },
+    "human chrX - local events only, no clustering": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "local_GBR",
+                        "level": "local",
+                        "condition": "GBR"
+                    },
+                    "local_GBR.psi",
+                    3920,
+                    "9c9f4370c1d0c7c2418ee768e03b91fb"
+                ],
+                [
+                    {
+                        "id": "local_YRI",
+                        "level": "local",
+                        "condition": "YRI"
+                    },
+                    "local_YRI.psi",
+                    3920,
+                    "0b66b0e2e3649ff7492215968da9a908"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "local_GBR-YRI",
+                        "level": "local",
+                        "treatment": "GBR",
+                        "control": "YRI"
+                    },
+                    "local_GBR-YRI.dpsi"
+                ],
+                [
+                    {
+                        "id": "local_YRI-GBR",
+                        "level": "local",
+                        "treatment": "YRI",
+                        "control": "GBR"
+                    },
+                    "local_YRI-GBR.dpsi"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "local_GBR-YRI",
+                        "level": "local",
+                        "treatment": "GBR",
+                        "control": "YRI"
+                    },
+                    "local_GBR-YRI.psivec"
+                ],
+                [
+                    {
+                        "id": "local_YRI-GBR",
+                        "level": "local",
+                        "treatment": "YRI",
+                        "control": "GBR"
+                    },
+                    "local_YRI-GBR.psivec"
+                ]
+            ]
+        ],
+        "timestamp": "2026-10-08T13:52:43.720011328",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    },
+    "human chrX - local events and isoforms - stub": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "genes_chrX"
+                    },
+                    "genes_chrX.ioe:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "genes_chrX"
+                    },
+                    "genes_chrX.ioi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "suppa_tpm"
+                    },
+                    "suppa_tpm.psi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "suppa_tpm"
+                    },
+                    "suppa_tpm.psi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "suppa_tpm_GBR",
+                        "condition": "GBR"
+                    },
+                    "suppa_tpm_GBR.tpm:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "suppa_tpm_YRI",
+                        "condition": "YRI"
+                    },
+                    "suppa_tpm_YRI.tpm:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "local_GBR",
+                        "level": "local",
+                        "condition": "GBR"
+                    },
+                    "local_GBR.psi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "local_YRI",
+                        "level": "local",
+                        "condition": "YRI"
+                    },
+                    "local_YRI.psi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "transcript_GBR",
+                        "level": "transcript",
+                        "condition": "GBR"
+                    },
+                    "transcript_GBR.psi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "transcript_YRI",
+                        "level": "transcript",
+                        "condition": "YRI"
+                    },
+                    "transcript_YRI.psi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "local_GBR-YRI",
+                        "level": "local",
+                        "treatment": "GBR",
+                        "control": "YRI"
+                    },
+                    "local_GBR-YRI.dpsi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "local_YRI-GBR",
+                        "level": "local",
+                        "treatment": "YRI",
+                        "control": "GBR"
+                    },
+                    "local_YRI-GBR.dpsi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "local_GBR-YRI",
+                        "level": "local",
+                        "treatment": "GBR",
+                        "control": "YRI"
+                    },
+                    "local_GBR-YRI.psivec:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "local_YRI-GBR",
+                        "level": "local",
+                        "treatment": "YRI",
+                        "control": "GBR"
+                    },
+                    "local_YRI-GBR.psivec:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "transcript_GBR-YRI",
+                        "level": "transcript",
+                        "treatment": "GBR",
+                        "control": "YRI"
+                    },
+                    "transcript_GBR-YRI.dpsi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "transcript_YRI-GBR",
+                        "level": "transcript",
+                        "treatment": "YRI",
+                        "control": "GBR"
+                    },
+                    "transcript_YRI-GBR.dpsi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "transcript_GBR-YRI",
+                        "level": "transcript",
+                        "treatment": "GBR",
+                        "control": "YRI"
+                    },
+                    "transcript_GBR-YRI.psivec:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "transcript_YRI-GBR",
+                        "level": "transcript",
+                        "treatment": "YRI",
+                        "control": "GBR"
+                    },
+                    "transcript_YRI-GBR.psivec:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "local_GBR-YRI",
+                        "level": "local",
+                        "treatment": "GBR",
+                        "control": "YRI"
+                    },
+                    "local_GBR-YRI_groups.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "local_YRI-GBR",
+                        "level": "local",
+                        "treatment": "YRI",
+                        "control": "GBR"
+                    },
+                    "local_YRI-GBR_groups.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "transcript_GBR-YRI",
+                        "level": "transcript",
+                        "treatment": "GBR",
+                        "control": "YRI"
+                    },
+                    "transcript_GBR-YRI_groups.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "transcript_YRI-GBR",
+                        "level": "transcript",
+                        "treatment": "YRI",
+                        "control": "GBR"
+                    },
+                    "transcript_YRI-GBR_groups.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "local_GBR-YRI",
+                        "level": "local",
+                        "treatment": "GBR",
+                        "control": "YRI"
+                    },
+                    "local_GBR-YRI.clustvec:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "local_YRI-GBR",
+                        "level": "local",
+                        "treatment": "YRI",
+                        "control": "GBR"
+                    },
+                    "local_YRI-GBR.clustvec:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "transcript_GBR-YRI",
+                        "level": "transcript",
+                        "treatment": "GBR",
+                        "control": "YRI"
+                    },
+                    "transcript_GBR-YRI.clustvec:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "transcript_YRI-GBR",
+                        "level": "transcript",
+                        "treatment": "YRI",
+                        "control": "GBR"
+                    },
+                    "transcript_YRI-GBR.clustvec:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ]
+        ],
+        "timestamp": "2026-10-08T13:52:55.696071038",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    }
+}

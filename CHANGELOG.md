@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #303 - Add nf-tests for the `MERGEEVENTS` module, which had no test coverage (by @piplus2)
 - #305 - Add nf-tests for the `DEXSEQ_EXON` module, which had no test coverage of its own (by @piplus2)
 - #308 - Add nf-tests for the `CLUSTERGROUPS` module, which had no test coverage (by @piplus2)
+- #309 - Add nf-tests for the `SUPPA` subworkflow: local events and isoforms, local events only and stub (by @piplus2)
 
 ### Changed
 
@@ -73,6 +74,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #301 - Refactor `SPLIT_FILES` to the nf-core module template, with nf-tests. The split SUPPA files keep the values as SUPPA wrote them, so missing PSI values stay `nan` instead of becoming `NA` (by @piplus2)
 - #306 - Refactor `CREATE_BAMLIST` to the nf-core module template, with nf-tests, a stub and a Seqera container (by @piplus2)
 - #308 - Refactor `CLUSTERGROUPS` to the nf-core module template. The contrast conditions travel in the meta map, the versions are reported through a topic `eval` tuple and the container holds Python only (by @piplus2)
+- #309 - Move the `SUPPA` subworkflow to the nf-core subworkflow template. The local event and isoform analyses share a single `SPLIT_FILES_PSI`, `SUPPA_DIFFSPLICE`, `CLUSTERGROUPS` and `SUPPA_CLUSTEREVENTS` call, with the level in the meta map, and `CLUSTERGROUPS` gives the column ranges to `SUPPA_CLUSTEREVENTS` as a value instead of a file read in the subworkflow (by @piplus2)
 
 ### Fixed
 
@@ -119,6 +121,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #291 - Fix `--rmats_paired_stats` with conditions of different sizes, which dropped the samples with no counterpart without a warning instead of stopping with an error. A contrast naming a condition with no sample now also stops with an error instead of being skipped (by @piplus2)
 - #303 - Fix `MERGEEVENTS` hanging when the last SUPPA event file holds no events, only its header (by @piplus2)
 - #305 - Fix the stub of `DEXSEQ_EXON`, whose output files now take their names from the contrastsheet like those of the script (by @piplus2)
+- #309 - Publish the merged SUPPA local events to `suppa/generate_events/per_local_event/merged_events/` instead of a top level `mergeevents/` folder (by @piplus2)
+- #309 - Publish the SUPPA cluster groups with `--source salmon_results`, and name them after the level, `local_` or `transcript_`, so that the two levels no longer overwrite each other (by @piplus2)
 
 ## v1.0.5 - 2024-11-03
 

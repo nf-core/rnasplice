@@ -41,6 +41,7 @@ nextflow_process {
             assertAll(
                 { assert process.success },
                 { assert path(process.out.groups[0][1]).text == '1-3,4-5\n' },
+                { assert process.out.ranges[0][1] == '1-3,4-5' },
                 { assert snapshot(sanitizeOutput(process.out)).match() }
             )
         }
