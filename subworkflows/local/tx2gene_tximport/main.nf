@@ -8,18 +8,15 @@ include { UNTAR } from '../../../modules/nf-core/untar'
 
 workflow TX2GENE_TXIMPORT {
     take:
-    ch_salmon_results // channel: [ val(meta), path(results) ], a Salmon directory or a .tar.gz of one, bare or in a single element list
+    ch_salmon_results // channel: [ val(meta), path(results) ], a Salmon directory or a .tar.gz of one
     ch_gtf // channel: path(gtf)
 
     main:
 
-    // The samplesheet wraps the path in a list, SALMON_QUANT does not: [ meta, results ]
-    ch_branched_results = ch_salmon_results
-        .map { meta, results -> [meta, results instanceof List ? results[0] : results] }
-        .branch { _meta, results ->
-            tar: results.name.endsWith('.tar.gz')
-            dir: true
-        }
+    ch_branched_results = ch_salmon_results.branch { _meta, results ->
+        tar: results.name.endsWith('.tar.gz')
+        dir: true
+    }
 
     //
     // MODULE: Extract the tarballs

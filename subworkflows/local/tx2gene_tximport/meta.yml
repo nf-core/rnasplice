@@ -15,8 +15,7 @@ input:
   - ch_salmon_results:
       type: directory
       description: |
-        Channel containing the Salmon results of each sample, as a directory or as a .tar.gz of one.
-        The path may be bare, as SALMON_QUANT emits it, or in a single element list, as the samplesheet gives it
+        Channel containing the Salmon results of each sample, as a directory or as a .tar.gz of one
         Structure: [ val(meta), path(results) ]
   - ch_gtf:
       type: file
