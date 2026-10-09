@@ -20,7 +20,7 @@ params {
     fasta: String = getGenomeAttribute('fasta')
     gtf: String? = getGenomeAttribute('gtf')
     gff: String? = getGenomeAttribute('gff')
-    transcript_fasta: String
+    transcript_fasta: String?
     gtf_extra_attributes: String = 'gene_name'
     gtf_group_features: String = 'gene_id'
     gencode: Boolean
@@ -28,11 +28,11 @@ params {
     igenomes_base: String = 's3://ngi-igenomes/igenomes/'
 
     // Trimming
-    clip_r1: Integer
-    clip_r2: Integer
-    three_prime_clip_r1: Integer
-    three_prime_clip_r2: Integer
-    trim_nextseq: Integer
+    clip_r1: Integer?
+    clip_r2: Integer?
+    three_prime_clip_r1: Integer?
+    three_prime_clip_r2: Integer?
+    trim_nextseq: Integer?
     save_trimmed: Boolean
     skip_trimming: Boolean
     skip_trimgalore_fastqc: Boolean
@@ -42,8 +42,8 @@ params {
     aligner: String = 'star_salmon'
     pseudo_aligner: String = 'salmon'
     bam_csi_index: Boolean
-    seq_center: String
-    salmon_quant_libtype: String
+    seq_center: String?
+    salmon_quant_libtype: String?
     star_index: String? = getGenomeAttribute('star')
     salmon_index: String? = getGenomeAttribute('salmon')
     star_ignore_sjdbgtf: Boolean
@@ -68,7 +68,7 @@ params {
     // DEXSeq DEU
     dexseq_exon: Boolean = true
     save_dexseq_annotation: Boolean
-    gff_dexseq: String
+    gff_dexseq: String?
     alignment_quality: Integer = 10
     aggregation: Boolean = true
     save_dexseq_plot: Boolean = true
@@ -87,7 +87,7 @@ params {
     // Miso
     sashimi_plot: Boolean = true
     miso_genes: String = 'ENSG00000004961, ENSG00000005302, ENSG00000147403'
-    miso_genes_file: String
+    miso_genes_file: String?
     miso_read_len: Integer = 75
     fig_height: Integer = 7
     fig_width: Integer = 7
@@ -107,7 +107,7 @@ params {
     suppa: Boolean = true
     suppa_per_local_event: Boolean = true
     suppa_per_isoform: Boolean = true
-    suppa_tpm: String
+    suppa_tpm: String?
 
     // SUPPA generateEvents options
     generateevents_pool_genes: Boolean = true
@@ -133,11 +133,11 @@ params {
     // SUPPA Cluster options
     clusterevents_local_event: Boolean = true
     clusterevents_isoform: Boolean = true
-    clusterevents_sigthreshold: Float
+    clusterevents_sigthreshold: Float?
     clusterevents_dpsithreshold: Float = 0.05
     clusterevents_eps: Float = 0.05
     clusterevents_metric: String = 'euclidean'
-    clusterevents_separation: Float
+    clusterevents_separation: Float?
     clusterevents_min_pts: Integer = 20
     clusterevents_method: String = 'DBSCAN'
 
@@ -147,17 +147,17 @@ params {
     isoformswitchanalyzer_dIF: Float = 0.1
 
     // MultiQC options
-    multiqc_config: String
-    multiqc_logo: String
-    multiqc_title: String
+    multiqc_config: String?
+    multiqc_logo: String?
+    multiqc_title: String?
     max_multiqc_email_size: String = 25.MB
-    multiqc_methods_description: String
+    multiqc_methods_description: String?
 
     // Boilerplate options
     outdir: String
     publish_dir_mode: String = 'copy'
-    email: String
-    email_on_fail: String
+    email: String?
+    email_on_fail: String?
     plaintext_email: Boolean
     help: Boolean
     help_full: Boolean

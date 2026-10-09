@@ -126,6 +126,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #290 - Fix an uncompressed `--salmon_index` or `--suppa_tpm`, which reached `SALMON_QUANT` and `SUPPA` still wrapped with an empty meta map (by @piplus2)
 - #291 - Fix `--rmats_paired_stats` with conditions of different sizes, which dropped the samples with no counterpart without a warning instead of stopping with an error. A contrast naming a condition with no sample now also stops with an error instead of being skipped (by @piplus2)
 - #303 - Fix `MERGEEVENTS` hanging when the last SUPPA event file holds no events, only its header (by @piplus2)
+- #304 - Fix the pipeline stopping at launch with Nextflow 26.09 edge releases, which take a parameter without a default as required unless it is declared nullable. The optional parameters are now nullable (by @piplus2)
 - #305 - Fix the stub of `DEXSEQ_EXON`, whose output files now take their names from the contrastsheet like those of the script (by @piplus2)
 - #309 - Publish the SUPPA cluster groups with `--source salmon_results`, and publish the groups of both levels instead of one overwriting the other (by @piplus2)
 - #312 - Remove the 4 cpu, 12 GB and 12 h caps from the `test_full` profile, which are too small for STAR to align to GRCh37 in the AWS full size test (by @piplus2)
