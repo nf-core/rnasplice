@@ -49,22 +49,6 @@ bf_thresholds = [0, 1, 2, 5, 10, 20]
 def main():
     bam_prefix = "."
     miso_prefix = "."
-    ext_args_str = "${task.ext.args}"
-    if ext_args_str:
-        # transform string into dictionary (arg, value)
-        ext_args = {}
-        # split by space, then loop through each argument and its value
-        split_args = ext_args_str.split()
-        for i in range(0, len(split_args), 2):
-            arg = split_args[i]
-            value = split_args[i + 1] if i + 1 < len(split_args) else None
-            ext_args[arg] = value
-
-        if "--bam_prefix" in ext_args:
-            bam_prefix = ext_args["--bam_prefix"]
-
-        if "--miso_prefix" in ext_args:
-            miso_prefix = ext_args["--miso_prefix"]
 
     list_bams = str("${bams}").split(" ")
     list_miso_data = str("${miso_data}").split(" ")

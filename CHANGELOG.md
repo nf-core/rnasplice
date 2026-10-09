@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #308 - Add nf-tests for the `CLUSTERGROUPS` module, which had no test coverage (by @piplus2)
 - #309 - Add nf-tests for the `SUPPA` subworkflow: local events and isoforms, local events only, the diffSplice and clustering flags of each level, and stub (by @piplus2)
 - #310 - Add nf-tests for the `TX2GENE_TXIMPORT` subworkflow, which had no test coverage of its own: Salmon directories, Salmon tarballs and stub (by @piplus2)
+- #311 - Add real and stub nf-tests for the `MISOPY_SETTINGS` module, which had no module test coverage (by @felixhaidle)
 
 ### Changed
 
@@ -79,6 +80,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #309 - Move the merged SUPPA local events from a top level `mergeevents/` folder to `suppa/generate_events/per_local_event/merged_events/` (by @piplus2)
 - #309 - Rename the SUPPA cluster group files after their level, so `GBR-YRI_groups.txt` becomes `local_GBR-YRI_groups.txt`, with a new `transcript_GBR-YRI_groups.txt` next to it (by @piplus2)
 - #310 - Move the `TX2GENE_TXIMPORT` subworkflow to the nf-core subworkflow template. It detects a tarball from the file name instead of the first element of the path, and no longer adds a `tgz` key to the meta map of the Salmon results it emits (by @piplus2)
+- #311 - Correct `MISOPY_SETTINGS` metadata and remove redundant prefix argument parsing and configuration overrides (by @felixhaidle)
 
 ### Fixed
 

@@ -25,13 +25,11 @@ process MISOPY_SETTINGS {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    echo ${args}
-
     touch miso_settings.txt
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        python: "\$(python3 --version 2>&1 | sed -n '1p' | sed 's/.*version //; s/ (.*//')"
+            python: "\$(python3 -c 'import platform; print(platform.python_version())')"
     END_VERSIONS
     """
 }

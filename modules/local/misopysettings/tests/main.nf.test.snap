@@ -1,0 +1,46 @@
+{
+    "human chrX": {
+        "content": [
+            {
+                "miso_settings": [
+                    [
+                        {
+                            "id": "miso"
+                        },
+                        "miso_settings.txt:md5,3b7189e01ef27308ae982d6700781f12"
+                    ]
+                ],
+                "versions_python": [
+                    "versions.yml:md5,3d4dba0aad17ebc9eeac9c4b5a4126a3"
+                ]
+            }
+        ],
+        "timestamp": "2026-10-09T15:02:49.848945946",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.4"
+        }
+    },
+    "human chrX - stub": {
+        "content": [
+            {
+                "miso_settings": [
+                    [
+                        {
+                            "id": "miso"
+                        },
+                        "miso_settings.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "versions_python": [
+                    "versions.yml:md5,3b4fffb74050885d265973d684de15b9"
+                ]
+            }
+        ],
+        "timestamp": "2026-10-09T12:04:14.165349288",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.4"
+        }
+    }
+}
