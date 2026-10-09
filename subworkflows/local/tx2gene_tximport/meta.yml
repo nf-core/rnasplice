@@ -1,0 +1,182 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "tx2gene_tximport"
+description: Extract the Salmon results given as tarballs, map the transcripts of the annotation to their genes and merge the quantification of all samples with tximport
+keywords:
+  - salmon
+  - tximport
+  - tx2gene
+  - quantification
+  - rna-seq
+components:
+  - untar
+  - gffread/tx2gene
+  - tximeta/tximport
+input:
+  - ch_salmon_results:
+      type: directory
+      description: |
+        Channel containing the Salmon results of each sample, as a directory or as a .tar.gz of one.
+        The path may be bare, as SALMON_QUANT emits it, or in a single element list, as the samplesheet gives it
+        Structure: [ val(meta), path(results) ]
+  - ch_gtf:
+      type: file
+      description: |
+        Channel containing the GTF annotation
+        Structure: path(gtf)
+      pattern: "*.gtf"
+output:
+  - salmon_results:
+      type: directory
+      description: |
+        Channel containing the Salmon directory of each sample, extracted when the input was a tarball, with the meta map of the input
+        Structure: [ val(meta), path(results) ]
+  - tx2gene:
+      type: file
+      description: |
+        Channel containing the transcript to gene map of the annotation
+        Structure: path(tsv)
+      pattern: "*.tx2gene.tsv"
+  - txi:
+      type: file
+      description: |
+        Channel containing the tximport object of the transcripts, with the counts as Salmon reports them, all samples merged
+        Structure: path(rds)
+      pattern: "*txi.rds"
+  - txi_s:
+      type: file
+      description: |
+        Channel containing the tximport object of the transcripts, with the counts scaled to library size, all samples merged
+        Structure: path(rds)
+      pattern: "*txi.s.rds"
+  - txi_ls:
+      type: file
+      description: |
+        Channel containing the tximport object of the transcripts, with the counts scaled by length and library size, all samples merged
+        Structure: path(rds)
+      pattern: "*txi.ls.rds"
+  - txi_dtu:
+      type: file
+      description: |
+        Channel containing the tximport object of the transcripts, with the counts scaled for differential transcript usage, all samples merged
+        Structure: path(rds)
+      pattern: "*txi.dtu.rds"
+  - gi:
+      type: file
+      description: |
+        Channel containing the tximport object of the genes, with the counts as Salmon reports them, all samples merged
+        Structure: path(rds)
+      pattern: "*gi.rds"
+  - gi_s:
+      type: file
+      description: |
+        Channel containing the tximport object of the genes, with the counts scaled to library size, all samples merged
+        Structure: path(rds)
+      pattern: "*gi.s.rds"
+  - gi_ls:
+      type: file
+      description: |
+        Channel containing the tximport object of the genes, with the counts scaled by length and library size, all samples merged
+        Structure: path(rds)
+      pattern: "*gi.ls.rds"
+  - tpm_gene:
+      type: file
+      description: |
+        Channel containing the gene TPM table, all samples merged
+        Structure: path(tsv)
+      pattern: "*gene_tpm.tsv"
+  - counts_gene:
+      type: file
+      description: |
+        Channel containing the gene count table, all samples merged
+        Structure: path(tsv)
+      pattern: "*gene_counts.tsv"
+  - tpm_gene_scaled:
+      type: file
+      description: |
+        Channel containing the gene TPM table, scaled to library size, all samples merged
+        Structure: path(tsv)
+      pattern: "*gene_tpm_scaled.tsv"
+  - counts_gene_scaled:
+      type: file
+      description: |
+        Channel containing the gene count table, scaled to library size, all samples merged
+        Structure: path(tsv)
+      pattern: "*gene_counts_scaled.tsv"
+  - tpm_gene_length_scaled:
+      type: file
+      description: |
+        Channel containing the gene TPM table, scaled by length and library size, all samples merged
+        Structure: path(tsv)
+      pattern: "*gene_tpm_length_scaled.tsv"
+  - counts_gene_length_scaled:
+      type: file
+      description: |
+        Channel containing the gene count table, scaled by length and library size, all samples merged
+        Structure: path(tsv)
+      pattern: "*gene_counts_length_scaled.tsv"
+  - tpm_transcript:
+      type: file
+      description: |
+        Channel containing the transcript TPM table, all samples merged
+        Structure: path(tsv)
+      pattern: "*transcript_tpm.tsv"
+  - counts_transcript:
+      type: file
+      description: |
+        Channel containing the transcript count table, all samples merged
+        Structure: path(tsv)
+      pattern: "*transcript_counts.tsv"
+  - tpm_transcript_scaled:
+      type: file
+      description: |
+        Channel containing the transcript TPM table, scaled to library size, all samples merged
+        Structure: path(tsv)
+      pattern: "*transcript_tpm_scaled.tsv"
+  - counts_transcript_scaled:
+      type: file
+      description: |
+        Channel containing the transcript count table, scaled to library size, all samples merged
+        Structure: path(tsv)
+      pattern: "*transcript_counts_scaled.tsv"
+  - tpm_transcript_length_scaled:
+      type: file
+      description: |
+        Channel containing the transcript TPM table, scaled by length and library size, all samples merged
+        Structure: path(tsv)
+      pattern: "*transcript_tpm_length_scaled.tsv"
+  - counts_transcript_length_scaled:
+      type: file
+      description: |
+        Channel containing the transcript count table, scaled by length and library size, all samples merged
+        Structure: path(tsv)
+      pattern: "*transcript_counts_length_scaled.tsv"
+  - tpm_transcript_dtu_scaled:
+      type: file
+      description: |
+        Channel containing the transcript TPM table, scaled for differential transcript usage, all samples merged
+        Structure: path(tsv)
+      pattern: "*transcript_tpm_dtu_scaled.tsv"
+  - counts_transcript_dtu_scaled:
+      type: file
+      description: |
+        Channel containing the transcript count table, scaled for differential transcript usage, all samples merged
+        Structure: path(tsv)
+      pattern: "*transcript_counts_dtu_scaled.tsv"
+  - tximport_tx2gene:
+      type: file
+      description: |
+        Channel containing the transcript to gene map of the transcripts that Salmon quantified, all samples merged
+        Structure: path(tsv)
+      pattern: "tximport.tx2gene.tsv"
+  - suppa_tpm:
+      type: file
+      description: |
+        Channel containing the transcript TPM table in the SUPPA format, a column per sample and a row per transcript, all samples merged
+        Structure: path(txt)
+      pattern: "suppa_tpm.txt"
+authors:
+  - "@bensouthgate"
+  - "@jma1991"
+  - "@piplus2"
+maintainers:
+  - "@piplus2"
