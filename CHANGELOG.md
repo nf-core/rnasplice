@@ -3,11 +3,12 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## v1.1.0dev - [unreleased<!-- TODO nf-core: replace with date on release -->]
+## v2.0.0 - [2026-10-09]
 
 ### Added
 
-- Add first steps of leafcutter splicing quantification
+- #161 - Add LeafCutter splicing quantification with `--leafcutter`, off by default (by @lpantano, @abartlett004)
+- #163 - Add IsoformSwitchAnalyzeR with `--isoformswitchanalyzer` (by @lathikaa)
 - #200 - Add `--ignore_tx_version` to ignore transcript versions in tximport, for tx2gene files whose transcript IDs carry no version (e.g. from GENCODE) (requested by @Oliverfeudj, done by @piplus2)
 - #204 - Improve documentation for `--rmats_paired_stats` (requested by @mlbonatelli, done by @piplus2)
 - #212 - Add test config for unpaired `rMATS` (by @piplus2)
@@ -31,11 +32,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- #163 - **Breaking change**: `--max_cpus`, `--max_memory` and `--max_time` are removed. Cap resources with `process.resourceLimits` in a config file instead (by @lathikaa)
+- #163 - Migrate from nf-validation to nf-schema and sync with the nf-core template 3.0.2 (by @lathikaa)
 - #195 - Sync with the nf-core template 4.0.2, migrate samplesheet and contrastsheet validation from Python scripts to nf-schema, move local modules to `TOOL/SUBTOOL/main.nf`, track software versions with `topic: versions` and replace the deprecated `CUSTOM_GETCHROMSIZES` with `SAMTOOLS_FAIDX` (by @piplus2)
 - #195 - `PIPELINE_INITIALISATION` handles all four input sources (fastq, genome_bam, transcriptome_bam, salmon_results) (by @piplus2)
 - #207 - Update `StageR` to 1.32.0, `HTSeq` to 2.1.2 and `DEXSeq` to 1.56.0 (by @piplus2)
-- #210 - Bump `nf-schema` to 2.7.2 and apply static typing to `params` in `main.nf`. The minimum Nextflow version is now 26.04.0 (by @piplus2)
-- #212 - Default `--rmats_paired_stats` to `false`. The paired test requires a specific paired design in the samplesheet, so it is now opt in, see the documentation (by @piplus2)
+- #210 - **Breaking change**: Bump `nf-schema` to 2.7.2 and apply static typing to `params` in `main.nf`. The minimum Nextflow version is now 26.04.0 (by @piplus2)
+- #212 - **Breaking change**: Default `--rmats_paired_stats` to `false`. The paired test requires a specific paired design in the samplesheet, so it is now opt in, see the documentation (by @piplus2)
 - #215 - Refactor the `dexseq` modules to the nf-core module template (by @piplus2)
 - #219 - Rename `MISO_INDEX` and `MISO_RUN` to `MISOPY_INDEX` and `MISOPY_RUN` and refactor them to the nf-core module template (by @piplus2)
 - #220 - Remove `parse_miso_index.py`, which misopy does not need (by @piplus2)
@@ -66,8 +69,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #281 - Refactor `ISOFORMSWITCHANALYZER` to the nf-core module template and update `IsoformSwitchAnalyzeR` 2.2.0 -> 2.12.0 (R 4.3 -> 4.5). `bin/run_isoformswitchanalyzer.R` is now a module template (by @piplus2)
 - #284 - Refactor `PREPROCESS_TRANSCRIPTS_FASTA_GENCODE` to the nf-core module template, with `environment.yml`, `meta.yml`, a stub and nf-tests. It reports the `coreutils` version of `cut`, which does the work, instead of `sed` (by @piplus2)
 - #285 - Replace the local `RMATS_PREP` module with the nf-core `rmats/prep` module, which preps each BAM file once and on its own instead of every BAM file of a contrast in one go, and refactor `RMATS_POST` to the nf-core module template, with `environment.yml`, `meta.yml`, a stub and the `--paired-stats`, `--cstat` and `--novelSS` options in `ext.args`. It also reports the `PAIRADISE` version (by @piplus2)
-- #285 - The rMATS `.rmats` files are published to `rmats/prep/{sample}.rmats` and the results of a contrast to `rmats/{contrast}{_paired}/`, with the log next to the folder. The intermediate `tmp/` folder of the post step is no longer published (by @piplus2)
-- #285 - The samplesheet of `--source genome_bam`, `transcriptome_bam` and `salmon_results` must have unique `sample` names, which the schema now checks up front. Duplicates already collided in the per sample outputs, since only the fastq source merges the runs of a sample (by @piplus2)
+- #285 - **Breaking change**: The rMATS `.rmats` files are published to `rmats/prep/{sample}.rmats` and the results of a contrast to `rmats/{contrast}{_paired}/`, with the log next to the folder. The intermediate `tmp/` folder of the post step is no longer published (by @piplus2)
+- #285 - **Breaking change**: The samplesheet of `--source genome_bam`, `transcriptome_bam` and `salmon_results` must have unique `sample` names, which the schema now checks up front. Duplicates already collided in the per sample outputs, since only the fastq source merges the runs of a sample (by @piplus2)
 - #286 - Replace the local `STAR_ALIGN_IGENOMES` module with the nf-core `star/align` module, aliased and pinned in `conf/modules.config` to the STAR 2.6.1d container that reads the AWS iGenomes indices. The `--seq_center` read group tag is set in `ext.args` and now applies to every STAR alignment, not only to the iGenomes path (by @piplus2)
 - #287 - Replace the local `STAR_GENOMEGENERATE_IGENOMES` module with the nf-core `star/genomegenerate` module, aliased and pinned in `conf/modules.config` to the same STAR 2.6.1d container as `STAR_ALIGN_IGENOMES` (by @piplus2)
 - #289 - Drop the STAR 2.6.1d pin. A supplied STAR index now goes through the new `STAR_GENOMEPARAMS_UPGRADE` module, which rewrites the `genomeParameters.txt` metadata that STAR 2.7.4a and later validate and copies the binary index files through untouched, so the AWS iGenomes indices work with a single STAR version. This removes the `STAR_ALIGN_IGENOMES` and `STAR_GENOMEGENERATE_IGENOMES` aliases, the legacy `--quantTranscriptomeBan` argument and the `is_aws_igenome` flag (suggested by @pinin4fjords, done by @piplus2)
@@ -77,8 +80,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #306 - Refactor `CREATE_BAMLIST` to the nf-core module template, with nf-tests, a stub and a Seqera container (by @piplus2)
 - #308 - Refactor `CLUSTERGROUPS` to the nf-core module template. The contrast conditions travel in the meta map, the versions are reported through a topic `eval` tuple and the container holds Python only (by @piplus2)
 - #309 - Move the `SUPPA` subworkflow to the nf-core subworkflow template. The local event and isoform analyses share a single `SPLIT_FILES_PSI`, `SUPPA_DIFFSPLICE`, `CLUSTERGROUPS` and `SUPPA_CLUSTEREVENTS` call, with the level in the meta map, and `CLUSTERGROUPS` gives the column ranges to `SUPPA_CLUSTEREVENTS` as a value instead of a file read in the subworkflow (by @piplus2)
-- #309 - Move the merged SUPPA local events from a top level `mergeevents/` folder to `suppa/generate_events/per_local_event/merged_events/` (by @piplus2)
-- #309 - Rename the SUPPA cluster group files after their level, so `GBR-YRI_groups.txt` becomes `local_GBR-YRI_groups.txt`, with a new `transcript_GBR-YRI_groups.txt` next to it (by @piplus2)
+- #309 - **Breaking change**: Move the merged SUPPA local events from a top level `mergeevents/` folder to `suppa/generate_events/per_local_event/merged_events/` (by @piplus2)
+- #309 - **Breaking change**: Rename the SUPPA cluster group files after their level, so `GBR-YRI_groups.txt` becomes `local_GBR-YRI_groups.txt`, with a new `transcript_GBR-YRI_groups.txt` next to it (by @piplus2)
 - #310 - Move the `TX2GENE_TXIMPORT` subworkflow to the nf-core subworkflow template. It detects a tarball from the file name instead of the first element of the path, and no longer adds a `tgz` key to the meta map of the Salmon results it emits (by @piplus2)
 - #311 - Correct `MISOPY_SETTINGS` metadata and remove redundant prefix argument parsing and configuration overrides (by @felixhaidle)
 
@@ -130,18 +133,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #305 - Fix the stub of `DEXSEQ_EXON`, whose output files now take their names from the contrastsheet like those of the script (by @piplus2)
 - #309 - Publish the SUPPA cluster groups with `--source salmon_results`, and publish the groups of both levels instead of one overwriting the other (by @piplus2)
 - #312 - Remove the 4 cpu, 12 GB and 12 h caps from the `test_full` profile, which are too small for STAR to align to GRCh37 in the AWS full size test (by @piplus2)
-
-## v1.0.5 - 2024-11-03
-
-- Added IsoformSwitchAnalyzeR to pipeline.
-- Updated to migrate from nf-validation to nf-schema.
-- Updated to remove max_memory, max_cpus, max_time and replace with process resourceLimits.
-- Updated for nf-core template version 3.0.2.
-- Updated to remove lib folder and add utils subworkflows.
-
-## Dev v1.0.5dev - TBD - TBD
-
-- Add first steps of leafcutter splicing quantification
 
 ## v1.0.4 - 2024-04-21
 
