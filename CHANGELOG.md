@@ -24,6 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #302 - Add nf-tests for the `MISOPY_SASHIMIPLOT` module, which had no test coverage of its own (by @piplus2)
 - #303 - Add nf-tests for the `MERGEEVENTS` module, which had no test coverage (by @piplus2)
 - #305 - Add nf-tests for the `DEXSEQ_EXON` module, which had no test coverage of its own (by @piplus2)
+- #308 - Add nf-tests for the `CLUSTERGROUPS` module, which had no test coverage (by @piplus2)
+- #309 - Add nf-tests for the `SUPPA` subworkflow: local events and isoforms, local events only, the diffSplice and clustering flags of each level, and stub (by @piplus2)
 - #311 - Add real and stub nf-tests for the `MISOPY_SETTINGS` module, which had no module test coverage (by @felixhaidle)
 
 ### Changed
@@ -71,6 +73,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #290 - Move the `PREPARE_GENOME` subworkflow to the nf-core subworkflow template. It takes `--source`, `--aligner`, `--pseudo_aligner` and `--skip_alignment` as inputs instead of reading `params`, and the GTF converted from `--gff` is named after the GFF file instead of `null.gtf` (by @piplus2)
 - #291 - Move the `RMATS` subworkflow to the nf-core subworkflow template. It takes the genome BAM files as `[ meta, bam ]` and reads the condition from the meta map, and it also emits the bam lists. The BAM files of a contrast are listed in samplesheet order in both the paired and the unpaired model (by @piplus2)
 - #301 - Refactor `SPLIT_FILES` to the nf-core module template, with nf-tests. The split SUPPA files keep the values as SUPPA wrote them, so missing PSI values stay `nan` instead of becoming `NA` (by @piplus2)
+- #306 - Refactor `CREATE_BAMLIST` to the nf-core module template, with nf-tests, a stub and a Seqera container (by @piplus2)
+- #308 - Refactor `CLUSTERGROUPS` to the nf-core module template. The contrast conditions travel in the meta map, the versions are reported through a topic `eval` tuple and the container holds Python only (by @piplus2)
+- #309 - Move the `SUPPA` subworkflow to the nf-core subworkflow template. The local event and isoform analyses share a single `SPLIT_FILES_PSI`, `SUPPA_DIFFSPLICE`, `CLUSTERGROUPS` and `SUPPA_CLUSTEREVENTS` call, with the level in the meta map, and `CLUSTERGROUPS` gives the column ranges to `SUPPA_CLUSTEREVENTS` as a value instead of a file read in the subworkflow (by @piplus2)
+- #309 - Move the merged SUPPA local events from a top level `mergeevents/` folder to `suppa/generate_events/per_local_event/merged_events/` (by @piplus2)
+- #309 - Rename the SUPPA cluster group files after their level, so `GBR-YRI_groups.txt` becomes `local_GBR-YRI_groups.txt`, with a new `transcript_GBR-YRI_groups.txt` next to it (by @piplus2)
 - #311 - Correct `MISOPY_SETTINGS` metadata and remove redundant prefix argument parsing and configuration overrides (by @felixhaidle)
 
 ### Fixed
@@ -118,6 +125,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #291 - Fix `--rmats_paired_stats` with conditions of different sizes, which dropped the samples with no counterpart without a warning instead of stopping with an error. A contrast naming a condition with no sample now also stops with an error instead of being skipped (by @piplus2)
 - #303 - Fix `MERGEEVENTS` hanging when the last SUPPA event file holds no events, only its header (by @piplus2)
 - #305 - Fix the stub of `DEXSEQ_EXON`, whose output files now take their names from the contrastsheet like those of the script (by @piplus2)
+- #309 - Publish the SUPPA cluster groups with `--source salmon_results`, and publish the groups of both levels instead of one overwriting the other (by @piplus2)
 
 ## v1.0.5 - 2024-11-03
 

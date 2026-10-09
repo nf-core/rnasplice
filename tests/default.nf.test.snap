@@ -2,20 +2,11 @@
     "-profile test": {
         "content": [
             {
-                "CLUSTEREVENTS_IOE": {
-                    "suppa": 2.4
-                },
-                "CLUSTEREVENTS_IOI": {
-                    "suppa": 2.4
-                },
-                "CLUSTERGROUPS_IOE": {
-                    "python": "3.14.6"
-                },
-                "CLUSTERGROUPS_IOI": {
+                "CLUSTERGROUPS": {
                     "python": "3.14.6"
                 },
                 "CREATE_BAMLIST": {
-                    "sed": 4.7
+                    "sed": 4.9
                 },
                 "DEXSEQ_ANNOTATION": {
                     "htseq": "2.1.2"
@@ -30,12 +21,6 @@
                 "DEXSEQ_EXON": {
                     "bioconductor-dexseq": "1.56.0",
                     "r-base": "4.5.3"
-                },
-                "DIFFSPLICE_IOE": {
-                    "suppa": 2.4
-                },
-                "DIFFSPLICE_IOI": {
-                    "suppa": 2.4
                 },
                 "DRIMSEQ_DMFILTER": {
                     "bioconductor-drimseq": "1.18.0",
@@ -120,10 +105,7 @@
                 "SAMTOOLS_STATS": {
                     "samtools": 1.24
                 },
-                "SPLIT_FILES_IOE": {
-                    "r-base": "4.6.1"
-                },
-                "SPLIT_FILES_IOI": {
+                "SPLIT_FILES_PSI": {
                     "r-base": "4.6.1"
                 },
                 "SPLIT_FILES_TPM": {
@@ -147,6 +129,12 @@
                 },
                 "SUBREAD_FLATTENGTF": {
                     "subread": "flattenGTF Version 2.0.1"
+                },
+                "SUPPA_CLUSTEREVENTS": {
+                    "suppa": 2.4
+                },
+                "SUPPA_DIFFSPLICE": {
+                    "suppa": 2.4
                 },
                 "SUPPA_GENERATEEVENTS_IOE": {
                     "suppa": 2.4
@@ -201,8 +189,6 @@
                 "isoformswitchanalyzer/results/YRI_vs_GBR/1_switch_plot_RPL10_aka_RPL10.pdf",
                 "isoformswitchanalyzer/results/common_switch_consequences.pdf",
                 "isoformswitchanalyzer/switchlist.rds",
-                "mergeevents",
-                "mergeevents/genes_chrX.ioe",
                 "misopy",
                 "misopy/genes_chrX_genes.gff3",
                 "misopy/index",
@@ -4109,8 +4095,10 @@
                 "salmon/suppa/clusterevents/per_local_event/local_GBR-YRI.clustvec",
                 "salmon/suppa/clusterevents/per_local_event/local_YRI-GBR.clustvec",
                 "salmon/suppa/clustergroups",
-                "salmon/suppa/clustergroups/GBR-YRI_groups.txt",
-                "salmon/suppa/clustergroups/YRI-GBR_groups.txt",
+                "salmon/suppa/clustergroups/local_GBR-YRI_groups.txt",
+                "salmon/suppa/clustergroups/local_YRI-GBR_groups.txt",
+                "salmon/suppa/clustergroups/transcript_GBR-YRI_groups.txt",
+                "salmon/suppa/clustergroups/transcript_YRI-GBR_groups.txt",
                 "salmon/suppa/diffsplice",
                 "salmon/suppa/diffsplice/per_isoform",
                 "salmon/suppa/diffsplice/per_isoform/transcript_GBR-YRI.dpsi",
@@ -4140,6 +4128,8 @@
                 "salmon/suppa/generate_events/per_local_event/genes_chrX_RI_strict.ioe",
                 "salmon/suppa/generate_events/per_local_event/genes_chrX_SE_strict.gtf",
                 "salmon/suppa/generate_events/per_local_event/genes_chrX_SE_strict.ioe",
+                "salmon/suppa/generate_events/per_local_event/merged_events",
+                "salmon/suppa/generate_events/per_local_event/merged_events/genes_chrX.ioe",
                 "salmon/suppa/psi_per_isoform",
                 "salmon/suppa/psi_per_isoform/suppa_tpm.psi_isoform.psi",
                 "salmon/suppa/psi_per_local_event",
@@ -4452,8 +4442,10 @@
                 "star_salmon/suppa/clusterevents/per_local_event/local_GBR-YRI.clustvec",
                 "star_salmon/suppa/clusterevents/per_local_event/local_YRI-GBR.clustvec",
                 "star_salmon/suppa/clustergroups",
-                "star_salmon/suppa/clustergroups/GBR-YRI_groups.txt",
-                "star_salmon/suppa/clustergroups/YRI-GBR_groups.txt",
+                "star_salmon/suppa/clustergroups/local_GBR-YRI_groups.txt",
+                "star_salmon/suppa/clustergroups/local_YRI-GBR_groups.txt",
+                "star_salmon/suppa/clustergroups/transcript_GBR-YRI_groups.txt",
+                "star_salmon/suppa/clustergroups/transcript_YRI-GBR_groups.txt",
                 "star_salmon/suppa/diffsplice",
                 "star_salmon/suppa/diffsplice/per_isoform",
                 "star_salmon/suppa/diffsplice/per_isoform/transcript_GBR-YRI.dpsi",
@@ -4483,6 +4475,8 @@
                 "star_salmon/suppa/generate_events/per_local_event/genes_chrX_RI_strict.ioe",
                 "star_salmon/suppa/generate_events/per_local_event/genes_chrX_SE_strict.gtf",
                 "star_salmon/suppa/generate_events/per_local_event/genes_chrX_SE_strict.ioe",
+                "star_salmon/suppa/generate_events/per_local_event/merged_events",
+                "star_salmon/suppa/generate_events/per_local_event/merged_events/genes_chrX.ioe",
                 "star_salmon/suppa/psi_per_isoform",
                 "star_salmon/suppa/psi_per_isoform/suppa_tpm.psi_isoform.psi",
                 "star_salmon/suppa/psi_per_local_event",
@@ -4554,8 +4548,10 @@
                 "genes_chrX_genes.gff3:md5,1c1ece4ee637e317c0ae6528a253a83f",
                 "genes.gff:md5,0ef855fcf03bcb7d49afde3e63577465",
                 "miso_settings.txt:md5,c092cc3e878a299674a99c508b6b2e72",
-                "GBR-YRI_groups.txt:md5,e9636d1c0a5cb00df8cedc61642a5d52",
-                "YRI-GBR_groups.txt:md5,e9636d1c0a5cb00df8cedc61642a5d52",
+                "local_GBR-YRI_groups.txt:md5,e9636d1c0a5cb00df8cedc61642a5d52",
+                "local_YRI-GBR_groups.txt:md5,e9636d1c0a5cb00df8cedc61642a5d52",
+                "transcript_GBR-YRI_groups.txt:md5,e9636d1c0a5cb00df8cedc61642a5d52",
+                "transcript_YRI-GBR_groups.txt:md5,e9636d1c0a5cb00df8cedc61642a5d52",
                 "genes_chrX.ioi:md5,6c9ee3567554e3f74186b4c17ec777d6",
                 "ERR188383_sorted.bam:md5,1c1511027014795c3b9e056d539d0aaf",
                 "ERR188383_sorted.bam.bai:md5,662f7faef48faebfab0dae435345afd5",
@@ -4668,12 +4664,14 @@
                 "ERR204916.flagstat:md5,77bbb66e375c4f9083d4aab0d55ddcdd",
                 "ERR204916.idxstats:md5,21ed2e992e836e620991e9a24078f1b6",
                 "ERR204916.stats:md5,f7baf2a47782b99be101c252debc293c",
-                "GBR-YRI_groups.txt:md5,e9636d1c0a5cb00df8cedc61642a5d52",
-                "YRI-GBR_groups.txt:md5,e9636d1c0a5cb00df8cedc61642a5d52",
+                "local_GBR-YRI_groups.txt:md5,e9636d1c0a5cb00df8cedc61642a5d52",
+                "local_YRI-GBR_groups.txt:md5,e9636d1c0a5cb00df8cedc61642a5d52",
+                "transcript_GBR-YRI_groups.txt:md5,e9636d1c0a5cb00df8cedc61642a5d52",
+                "transcript_YRI-GBR_groups.txt:md5,e9636d1c0a5cb00df8cedc61642a5d52",
                 "genes_chrX.ioi:md5,6c9ee3567554e3f74186b4c17ec777d6"
             ]
         ],
-        "timestamp": "2026-09-22T10:20:33.074978753",
+        "timestamp": "2026-10-08T13:58:25.650083134",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.3"

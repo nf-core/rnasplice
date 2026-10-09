@@ -1,0 +1,98 @@
+// nf-core modules test clustergroups
+nextflow_process {
+
+    name "Test Process CLUSTERGROUPS"
+    script "../main.nf"
+    process "CLUSTERGROUPS"
+
+    tag "modules"
+    tag "modules_local"
+    tag "clustergroups"
+
+    setup {
+        // SUPPA diffSplice PSI vector files: the header holds the sample names only,
+        // and every other line starts with the event ID
+        def event = 'ENSG00000000001;SE:chrX:100-200:300-400:+'
+        file("${outputDir}/GBR-YRI.psivec").text = [
+            [ 'GBR_1', 'GBR_2', 'GBR_3', 'YRI_1', 'YRI_2' ].join('\t'),
+            [ event, '0.1', '0.2', '0.3', '0.7', '0.8' ].join('\t'),
+        ].join('\n') + '\n'
+        // The samples of a condition are not in consecutive columns
+        file("${outputDir}/interleaved.psivec").text = [
+            [ 'GBR_1', 'YRI_1', 'GBR_2', 'YRI_2' ].join('\t'),
+            [ event, '0.1', '0.7', '0.2', '0.8' ].join('\t'),
+        ].join('\n') + '\n'
+    }
+
+    test("psivec") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id:'local_GBR-YRI', treatment:'GBR', control:'YRI' ],
+                    file("${outputDir}/GBR-YRI.psivec", checkIfExists: true),
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert path(process.out.groups[0][1]).text == '1-3,4-5\n' },
+                { assert process.out.ranges[0][1] == '1-3,4-5' },
+                { assert snapshot(sanitizeOutput(process.out)).match() }
+            )
+        }
+
+    }
+
+    test("psivec - interleaved conditions") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id:'interleaved', treatment:'GBR', control:'YRI' ],
+                    file("${outputDir}/interleaved.psivec", checkIfExists: true),
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.failed },
+                { assert process.stdout.any { line -> line.contains('Column numbers have to be continuous') } ||
+                    process.stderr.any { line -> line.contains('Column numbers have to be continuous') } }
+            )
+        }
+
+    }
+
+    test("psivec - stub") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id:'local_GBR-YRI', treatment:'GBR', control:'YRI' ],
+                    file("${outputDir}/GBR-YRI.psivec", checkIfExists: true),
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(sanitizeOutput(process.out)).match() }
+            )
+        }
+
+    }
+
+}

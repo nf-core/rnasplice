@@ -1,0 +1,116 @@
+{
+    "homo_sapiens - two conditions - stub": {
+        "content": [
+            {
+                "bam_list1": [
+                    [
+                        "GBR-YRI",
+                        "GBR_bamlist.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "bam_list2": [
+                    [
+                        "GBR-YRI",
+                        "YRI_bamlist.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "versions_sed": [
+                    [
+                        "CREATE_BAMLIST",
+                        "sed",
+                        "4.9"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-10-07T19:29:51.637250278",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.1"
+        }
+    },
+    "homo_sapiens - one condition - stub": {
+        "content": [
+            {
+                "bam_list1": [
+                    [
+                        "GBR_profiling",
+                        "GBR_bamlist.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "bam_list2": [
+                    
+                ],
+                "versions_sed": [
+                    [
+                        "CREATE_BAMLIST",
+                        "sed",
+                        "4.9"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-10-07T19:29:57.634286015",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.1"
+        }
+    },
+    "homo_sapiens - one condition": {
+        "content": [
+            {
+                "bam_list1": [
+                    [
+                        "GBR_profiling",
+                        "GBR_bamlist.txt:md5,c2dba3c2874098aa9f40f06f846c8260"
+                    ]
+                ],
+                "bam_list2": [
+                    
+                ],
+                "versions_sed": [
+                    [
+                        "CREATE_BAMLIST",
+                        "sed",
+                        "4.9"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-10-07T19:29:45.080774216",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.1"
+        }
+    },
+    "homo_sapiens - two conditions": {
+        "content": [
+            {
+                "bam_list1": [
+                    [
+                        "GBR-YRI",
+                        "GBR_bamlist.txt:md5,15f840515a114ebd24241b691a0b8a25"
+                    ]
+                ],
+                "bam_list2": [
+                    [
+                        "GBR-YRI",
+                        "YRI_bamlist.txt:md5,2a4f7e2a1ba40b40d31c0bf01e3dfd3e"
+                    ]
+                ],
+                "versions_sed": [
+                    [
+                        "CREATE_BAMLIST",
+                        "sed",
+                        "4.9"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-10-07T19:29:39.499253335",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.1"
+        }
+    }
+}
