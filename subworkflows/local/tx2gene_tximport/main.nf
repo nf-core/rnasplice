@@ -1,74 +1,70 @@
 //
-// Tx2gene and Tximport subworkflow
+// Transcript to gene map and tximport of the Salmon results of all samples
 //
 
-include { GFFREAD_TX2GENE              } from '../../../modules/local/gffread/tx2gene'
+include { GFFREAD_TX2GENE } from '../../../modules/local/gffread/tx2gene'
 include { TXIMETA_TXIMPORT as TXIMPORT } from '../../../modules/local/tximeta/tximport'
-include { UNTAR                        } from '../../../modules/nf-core/untar'
+include { UNTAR } from '../../../modules/nf-core/untar'
 
 workflow TX2GENE_TXIMPORT {
     take:
-    salmon_results // tuple [meta, salmon path] when starting from salmon or path: "salmon/*" (SALMON_QUANT.out.results.collect{it[1]}) other cases
-    gtf // channel: /path/to/genome.gtf
+    ch_salmon_results // channel: [ val(meta), path(results) ], a Salmon directory or a .tar.gz of one
+    ch_gtf // channel: path(gtf)
 
     main:
 
-    //
-    // Extract archives (if necessary)
-    //
+    ch_branched_results = ch_salmon_results.branch { _meta, results ->
+        tar: results.name.endsWith('.tar.gz')
+        dir: true
+    }
 
-    ch_branched_results = salmon_results
-        .map { meta, prefix ->
-            def tgz = prefix[0].toString().endsWith(".tar.gz") ? true : false
-            [meta + [tgz: tgz], prefix]
-        }
-        .branch { it -> // Branch on whether the input is a tarball or a directory
-            tar: it[0].tgz == true
-            dir: it[0].tgz == false
-        }
+    //
+    // MODULE: Extract the tarballs
+    //
     UNTAR(ch_branched_results.tar)
-    salmon_results = ch_branched_results.dir.mix(UNTAR.out.untar)
+
+    ch_extracted_results = ch_branched_results.dir.mix(UNTAR.out.untar)
 
     //
-    // Quantify and merge counts across samples
+    // MODULE: Transcript to gene map of the annotation
     //
+    GFFREAD_TX2GENE(ch_gtf)
 
-    GFFREAD_TX2GENE(gtf)
-
-    tx2gene = GFFREAD_TX2GENE.out.tx2gene
-
-    // Merge all samples into a single tximport call
-    ch_salmon_results = salmon_results
-        .map { _meta, prefix -> prefix }
+    // The Salmon directories of all samples: [ meta, [ results ] ]
+    ch_merged_results = ch_extracted_results
+        .map { _meta, results -> results }
         .collect()
         .map { results -> [[id: 'salmon.merged'], results] }
 
-    TXIMPORT(ch_salmon_results, tx2gene)
+    //
+    // MODULE: Merge the quantification of all samples
+    //
+    TXIMPORT(ch_merged_results, GFFREAD_TX2GENE.out.tx2gene)
 
     emit:
-    salmon_results // tuple [meta, salmon dir], extracted if the input was a tarball
-    tx2gene // path: *.tx2gene.tsv
-    txi                             = TXIMPORT.out.txi // path: txi.rds
-    txi_s                           = TXIMPORT.out.txi_s // path: txi.s.rds
-    txi_ls                          = TXIMPORT.out.txi_ls // path: txi.ls.rds
-    txi_dtu                         = TXIMPORT.out.txi_dtu // path: txi.dtu.rds
-    gi                              = TXIMPORT.out.gi // path: gi.rds
-    gi_s                            = TXIMPORT.out.gi_s // path: gi.s.rds
-    gi_ls                           = TXIMPORT.out.gi_ls // path: gi.ls.rds
-    tpm_gene                        = TXIMPORT.out.tpm_gene // path: *.gene_tpm.tsv
-    counts_gene                     = TXIMPORT.out.counts_gene // path: *.gene_counts.tsv
-    tpm_gene_scaled                 = TXIMPORT.out.tpm_gene_scaled // path: *.gene_tpm_scaled.tsv
-    counts_gene_scaled              = TXIMPORT.out.counts_gene_scaled // path: *.gene_counts_scaled.tsv
-    tpm_gene_length_scaled          = TXIMPORT.out.tpm_gene_length_scaled // path: *.gene_tpm_length_scaled.tsv
-    counts_gene_length_scaled       = TXIMPORT.out.counts_gene_length_scaled // path: *.gene_counts_length_scaled.tsv
-    tpm_transcript                  = TXIMPORT.out.tpm_transcript // path: *.transcript_tpm.tsv
-    counts_transcript               = TXIMPORT.out.counts_transcript // path: *.transcript_counts.tsv
-    tpm_transcript_scaled           = TXIMPORT.out.tpm_transcript_scaled // path: *.transcript_tpm_scaled.tsv
-    counts_transcript_scaled        = TXIMPORT.out.counts_transcript_scaled // path: *.transcript_counts_scaled.tsv
-    tpm_transcript_length_scaled    = TXIMPORT.out.tpm_transcript_length_scaled // path: *.transcript_tpm_length_scaled.tsv
-    counts_transcript_length_scaled = TXIMPORT.out.counts_transcript_length_scaled // path: *.transcript_counts_length_scaled.tsv
-    tpm_transcript_dtu_scaled       = TXIMPORT.out.tpm_transcript_dtu_scaled // path: *.transcript_tpm_dtu_scaled.tsv
-    counts_transcript_dtu_scaled    = TXIMPORT.out.counts_transcript_dtu_scaled // path: *.transcript_counts_dtu_scaled.tsv
-    tximport_tx2gene                = TXIMPORT.out.tximport_tx2gene // path: tximport.tx2gene.tsv
-    suppa_tpm                       = TXIMPORT.out.suppa_tpm // path: suppa_tpm.txt
+    salmon_results = ch_extracted_results // channel: [ val(meta), path(results) ], the Salmon directory of each sample
+    tx2gene = GFFREAD_TX2GENE.out.tx2gene // channel: path(tx2gene.tsv)
+    txi = TXIMPORT.out.txi // channel: path(txi.rds)
+    txi_s = TXIMPORT.out.txi_s // channel: path(txi.s.rds)
+    txi_ls = TXIMPORT.out.txi_ls // channel: path(txi.ls.rds)
+    txi_dtu = TXIMPORT.out.txi_dtu // channel: path(txi.dtu.rds)
+    gi = TXIMPORT.out.gi // channel: path(gi.rds)
+    gi_s = TXIMPORT.out.gi_s // channel: path(gi.s.rds)
+    gi_ls = TXIMPORT.out.gi_ls // channel: path(gi.ls.rds)
+    tpm_gene = TXIMPORT.out.tpm_gene // channel: path(gene_tpm.tsv)
+    counts_gene = TXIMPORT.out.counts_gene // channel: path(gene_counts.tsv)
+    tpm_gene_scaled = TXIMPORT.out.tpm_gene_scaled // channel: path(gene_tpm_scaled.tsv)
+    counts_gene_scaled = TXIMPORT.out.counts_gene_scaled // channel: path(gene_counts_scaled.tsv)
+    tpm_gene_length_scaled = TXIMPORT.out.tpm_gene_length_scaled // channel: path(gene_tpm_length_scaled.tsv)
+    counts_gene_length_scaled = TXIMPORT.out.counts_gene_length_scaled // channel: path(gene_counts_length_scaled.tsv)
+    tpm_transcript = TXIMPORT.out.tpm_transcript // channel: path(transcript_tpm.tsv)
+    counts_transcript = TXIMPORT.out.counts_transcript // channel: path(transcript_counts.tsv)
+    tpm_transcript_scaled = TXIMPORT.out.tpm_transcript_scaled // channel: path(transcript_tpm_scaled.tsv)
+    counts_transcript_scaled = TXIMPORT.out.counts_transcript_scaled // channel: path(transcript_counts_scaled.tsv)
+    tpm_transcript_length_scaled = TXIMPORT.out.tpm_transcript_length_scaled // channel: path(transcript_tpm_length_scaled.tsv)
+    counts_transcript_length_scaled = TXIMPORT.out.counts_transcript_length_scaled // channel: path(transcript_counts_length_scaled.tsv)
+    tpm_transcript_dtu_scaled = TXIMPORT.out.tpm_transcript_dtu_scaled // channel: path(transcript_tpm_dtu_scaled.tsv)
+    counts_transcript_dtu_scaled = TXIMPORT.out.counts_transcript_dtu_scaled // channel: path(transcript_counts_dtu_scaled.tsv)
+    tximport_tx2gene = TXIMPORT.out.tximport_tx2gene // channel: path(tximport.tx2gene.tsv)
+    suppa_tpm = TXIMPORT.out.suppa_tpm // channel: path(suppa_tpm.txt)
 }

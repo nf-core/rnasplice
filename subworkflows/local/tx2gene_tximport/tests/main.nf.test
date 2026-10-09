@@ -1,0 +1,128 @@
+// nf-core subworkflows test tx2gene_tximport
+nextflow_workflow {
+
+    name "Test Subworkflow TX2GENE_TXIMPORT"
+    script "../main.nf"
+    workflow "TX2GENE_TXIMPORT"
+
+    tag "subworkflows"
+    tag "subworkflows_"
+    tag "subworkflows/tx2gene_tximport"
+    tag "untar"
+    tag "gffread"
+    tag "gffread/tx2gene"
+    tag "tximeta"
+    tag "tximeta/tximport"
+
+    // The Salmon results of the test-datasets are tarballs. Extracted here, they stand in
+    // for the bare directories that SALMON_QUANT emits, so that both tests must give the
+    // same tximport tables
+    setup {
+        run("UNTAR", alias: "UNTAR_SALMON_RESULTS") {
+            script "../../../../modules/nf-core/untar/main.nf"
+            process {
+                """
+                input[0] = channel.of(
+                    [ [ id:'ERR188383', condition:'GBR' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.tar.gz', checkIfExists: true) ],
+                    [ [ id:'ERR188428', condition:'GBR' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.tar.gz', checkIfExists: true) ],
+                    [ [ id:'ERR188454', condition:'YRI' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454.tar.gz', checkIfExists: true) ],
+                    [ [ id:'ERR204916', condition:'YRI' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916.tar.gz', checkIfExists: true) ],
+                )
+                """
+            }
+        }
+    }
+
+    test("human chrX - salmon directories") {
+
+        when {
+            workflow {
+                """
+                input[0] = UNTAR_SALMON_RESULTS.out.untar
+                input[1] = file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
+                """
+            }
+        }
+
+        then {
+            // The tximport RDS files hold R objects with run specific attributes, and the
+            // Salmon directories hold logs with timestamps, so only their names are snapshotted
+            assertAll(
+                { assert workflow.success },
+                { assert snapshot(
+                    sanitizeOutput(
+                        workflow.out,
+                        unstableKeys: [ "salmon_results", "txi", "txi_s", "txi_ls", "txi_dtu", "gi", "gi_s", "gi_ls" ]
+                    )
+                ).match() }
+            )
+        }
+
+    }
+
+    test("human chrX - salmon tarballs") {
+
+        when {
+            workflow {
+                """
+                input[0] = channel.of(
+                    [ [ id:'ERR188383', condition:'GBR' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.tar.gz', checkIfExists: true) ],
+                    [ [ id:'ERR188428', condition:'GBR' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.tar.gz', checkIfExists: true) ],
+                    [ [ id:'ERR188454', condition:'YRI' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454.tar.gz', checkIfExists: true) ],
+                    [ [ id:'ERR204916', condition:'YRI' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916.tar.gz', checkIfExists: true) ],
+                )
+                input[1] = file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
+                """
+            }
+        }
+
+        then {
+            // The tximport RDS files hold R objects with run specific attributes, and the
+            // Salmon directories hold logs with timestamps, so only their names are snapshotted
+            assertAll(
+                { assert workflow.success },
+                // The meta map comes out as it went in, with no key added for the tarball
+                { assert workflow.out.salmon_results.collect { meta, _dir -> meta }.sort { meta -> meta.id } == [
+                    [ id:'ERR188383', condition:'GBR' ],
+                    [ id:'ERR188428', condition:'GBR' ],
+                    [ id:'ERR188454', condition:'YRI' ],
+                    [ id:'ERR204916', condition:'YRI' ],
+                ] },
+                { assert workflow.out.salmon_results.every { _meta, dir -> path(dir).resolve('quant.sf').exists() } },
+                { assert snapshot(
+                    sanitizeOutput(
+                        workflow.out,
+                        unstableKeys: [ "salmon_results", "txi", "txi_s", "txi_ls", "txi_dtu", "gi", "gi_s", "gi_ls" ]
+                    )
+                ).match() }
+            )
+        }
+
+    }
+
+    test("human chrX - salmon tarballs - stub") {
+
+        options "-stub"
+
+        when {
+            workflow {
+                """
+                input[0] = channel.of(
+                    [ [ id:'ERR188383', condition:'GBR' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.tar.gz', checkIfExists: true) ],
+                    [ [ id:'ERR188454', condition:'YRI' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454.tar.gz', checkIfExists: true) ],
+                )
+                input[1] = file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert snapshot(sanitizeOutput(workflow.out, unstableKeys: [ "salmon_results" ])).match() }
+            )
+        }
+
+    }
+
+}
