@@ -24,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #302 - Add nf-tests for the `MISOPY_SASHIMIPLOT` module, which had no test coverage of its own (by @piplus2)
 - #303 - Add nf-tests for the `MERGEEVENTS` module, which had no test coverage (by @piplus2)
 - #305 - Add nf-tests for the `DEXSEQ_EXON` module, which had no test coverage of its own (by @piplus2)
-- #PR_NUMBER - Add real and stub nf-tests for the `MISOPY_SETTINGS` module, which had no module test coverage (by @felixhaidle)
+- #311 - Add real and stub nf-tests for the `MISOPY_SETTINGS` module, which had no module test coverage (by @felixhaidle)
 
 ### Changed
 
@@ -71,7 +71,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #290 - Move the `PREPARE_GENOME` subworkflow to the nf-core subworkflow template. It takes `--source`, `--aligner`, `--pseudo_aligner` and `--skip_alignment` as inputs instead of reading `params`, and the GTF converted from `--gff` is named after the GFF file instead of `null.gtf` (by @piplus2)
 - #291 - Move the `RMATS` subworkflow to the nf-core subworkflow template. It takes the genome BAM files as `[ meta, bam ]` and reads the condition from the meta map, and it also emits the bam lists. The BAM files of a contrast are listed in samplesheet order in both the paired and the unpaired model (by @piplus2)
 - #301 - Refactor `SPLIT_FILES` to the nf-core module template, with nf-tests. The split SUPPA files keep the values as SUPPA wrote them, so missing PSI values stay `nan` instead of becoming `NA` (by @piplus2)
-- #PR_NUMBER - Correct `MISOPY_SETTINGS` metadata and remove redundant prefix argument parsing and configuration overrides (by @felixhaidle)
+- #311 - Correct `MISOPY_SETTINGS` metadata and remove redundant prefix argument parsing and configuration overrides (by @felixhaidle)
 
 ### Fixed
 
