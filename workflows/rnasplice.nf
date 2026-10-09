@@ -100,7 +100,11 @@ workflow RNASPLICE {
         ch_samplesheet.set { ch_transcriptome_bam }
     }
     else if (params.source == 'salmon_results') {
-        ch_samplesheet.set { ch_salmon_results }
+        // One Salmon tarball per sample, taken out of its list so that ch_salmon_results
+        // is [ meta, path ] whichever way the Salmon results are produced
+        ch_samplesheet
+            .map { meta, salmon_results -> [ meta, salmon_results[0] ] }
+            .set { ch_salmon_results }
     }
 
     //

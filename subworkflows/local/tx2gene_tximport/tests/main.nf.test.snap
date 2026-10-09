@@ -1,0 +1,327 @@
+{
+    "human chrX - salmon tarballs": {
+        "content": [
+            {
+                "counts_gene": [
+                    "salmon.merged.gene_counts.tsv:md5,1427a1cd72806077e88c35689438b9fa"
+                ],
+                "counts_gene_length_scaled": [
+                    "salmon.merged.gene_counts_length_scaled.tsv:md5,23b0e4c7b5153cbd83bdede0ba9c25a8"
+                ],
+                "counts_gene_scaled": [
+                    "salmon.merged.gene_counts_scaled.tsv:md5,dfd7729d30b05b1b3d33edf053bac5cf"
+                ],
+                "counts_transcript": [
+                    "salmon.merged.transcript_counts.tsv:md5,ebe6b2e6cf3954fc4e7f2f90e058f668"
+                ],
+                "counts_transcript_dtu_scaled": [
+                    "salmon.merged.transcript_counts_dtu_scaled.tsv:md5,e47e815f827028575bd06b16a2467922"
+                ],
+                "counts_transcript_length_scaled": [
+                    "salmon.merged.transcript_counts_length_scaled.tsv:md5,aa8dc9e50dd48e1f07d5bca6e44eb4ec"
+                ],
+                "counts_transcript_scaled": [
+                    "salmon.merged.transcript_counts_scaled.tsv:md5,ae83866510276bbe4fb289020e756160"
+                ],
+                "gi": [
+                    "salmon.merged.gi.rds"
+                ],
+                "gi_ls": [
+                    "salmon.merged.gi.ls.rds"
+                ],
+                "gi_s": [
+                    "salmon.merged.gi.s.rds"
+                ],
+                "salmon_results": [
+                    [
+                        {
+                            "condition": "GBR",
+                            "id": "ERR188383"
+                        },
+                        "ERR188383"
+                    ],
+                    [
+                        {
+                            "condition": "GBR",
+                            "id": "ERR188428"
+                        },
+                        "ERR188428"
+                    ],
+                    [
+                        {
+                            "condition": "YRI",
+                            "id": "ERR188454"
+                        },
+                        "ERR188454"
+                    ],
+                    [
+                        {
+                            "condition": "YRI",
+                            "id": "ERR204916"
+                        },
+                        "ERR204916"
+                    ]
+                ],
+                "suppa_tpm": [
+                    "suppa_tpm.txt:md5,c16755e5570ae9c67b95ccf7889ea000"
+                ],
+                "tpm_gene": [
+                    "salmon.merged.gene_tpm.tsv:md5,fee3b1adf911406fd3ef3f51bcb6306d"
+                ],
+                "tpm_gene_length_scaled": [
+                    "salmon.merged.gene_tpm_length_scaled.tsv:md5,fee3b1adf911406fd3ef3f51bcb6306d"
+                ],
+                "tpm_gene_scaled": [
+                    "salmon.merged.gene_tpm_scaled.tsv:md5,fee3b1adf911406fd3ef3f51bcb6306d"
+                ],
+                "tpm_transcript": [
+                    "salmon.merged.transcript_tpm.tsv:md5,b3338d163c9f96f41eea0b5c95297ecb"
+                ],
+                "tpm_transcript_dtu_scaled": [
+                    "salmon.merged.transcript_tpm_dtu_scaled.tsv:md5,b3338d163c9f96f41eea0b5c95297ecb"
+                ],
+                "tpm_transcript_length_scaled": [
+                    "salmon.merged.transcript_tpm_length_scaled.tsv:md5,b3338d163c9f96f41eea0b5c95297ecb"
+                ],
+                "tpm_transcript_scaled": [
+                    "salmon.merged.transcript_tpm_scaled.tsv:md5,b3338d163c9f96f41eea0b5c95297ecb"
+                ],
+                "tx2gene": [
+                    "genes_chrX.tx2gene.tsv:md5,3fafda41b35f045538151b82a4abb59c"
+                ],
+                "txi": [
+                    "salmon.merged.txi.rds"
+                ],
+                "txi_dtu": [
+                    "salmon.merged.txi.dtu.rds"
+                ],
+                "txi_ls": [
+                    "salmon.merged.txi.ls.rds"
+                ],
+                "txi_s": [
+                    "salmon.merged.txi.s.rds"
+                ],
+                "tximport_tx2gene": [
+                    "tximport.tx2gene.tsv:md5,d0e01bd4a7cdd04a989fbca69bb68636"
+                ]
+            }
+        ],
+        "timestamp": "2026-10-09T13:12:31.411153018",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.1"
+        }
+    },
+    "human chrX - salmon directories": {
+        "content": [
+            {
+                "counts_gene": [
+                    "salmon.merged.gene_counts.tsv:md5,1427a1cd72806077e88c35689438b9fa"
+                ],
+                "counts_gene_length_scaled": [
+                    "salmon.merged.gene_counts_length_scaled.tsv:md5,23b0e4c7b5153cbd83bdede0ba9c25a8"
+                ],
+                "counts_gene_scaled": [
+                    "salmon.merged.gene_counts_scaled.tsv:md5,dfd7729d30b05b1b3d33edf053bac5cf"
+                ],
+                "counts_transcript": [
+                    "salmon.merged.transcript_counts.tsv:md5,ebe6b2e6cf3954fc4e7f2f90e058f668"
+                ],
+                "counts_transcript_dtu_scaled": [
+                    "salmon.merged.transcript_counts_dtu_scaled.tsv:md5,e47e815f827028575bd06b16a2467922"
+                ],
+                "counts_transcript_length_scaled": [
+                    "salmon.merged.transcript_counts_length_scaled.tsv:md5,aa8dc9e50dd48e1f07d5bca6e44eb4ec"
+                ],
+                "counts_transcript_scaled": [
+                    "salmon.merged.transcript_counts_scaled.tsv:md5,ae83866510276bbe4fb289020e756160"
+                ],
+                "gi": [
+                    "salmon.merged.gi.rds"
+                ],
+                "gi_ls": [
+                    "salmon.merged.gi.ls.rds"
+                ],
+                "gi_s": [
+                    "salmon.merged.gi.s.rds"
+                ],
+                "salmon_results": [
+                    [
+                        {
+                            "condition": "GBR",
+                            "id": "ERR188383"
+                        },
+                        "ERR188383"
+                    ],
+                    [
+                        {
+                            "condition": "GBR",
+                            "id": "ERR188428"
+                        },
+                        "ERR188428"
+                    ],
+                    [
+                        {
+                            "condition": "YRI",
+                            "id": "ERR188454"
+                        },
+                        "ERR188454"
+                    ],
+                    [
+                        {
+                            "condition": "YRI",
+                            "id": "ERR204916"
+                        },
+                        "ERR204916"
+                    ]
+                ],
+                "suppa_tpm": [
+                    "suppa_tpm.txt:md5,c16755e5570ae9c67b95ccf7889ea000"
+                ],
+                "tpm_gene": [
+                    "salmon.merged.gene_tpm.tsv:md5,fee3b1adf911406fd3ef3f51bcb6306d"
+                ],
+                "tpm_gene_length_scaled": [
+                    "salmon.merged.gene_tpm_length_scaled.tsv:md5,fee3b1adf911406fd3ef3f51bcb6306d"
+                ],
+                "tpm_gene_scaled": [
+                    "salmon.merged.gene_tpm_scaled.tsv:md5,fee3b1adf911406fd3ef3f51bcb6306d"
+                ],
+                "tpm_transcript": [
+                    "salmon.merged.transcript_tpm.tsv:md5,b3338d163c9f96f41eea0b5c95297ecb"
+                ],
+                "tpm_transcript_dtu_scaled": [
+                    "salmon.merged.transcript_tpm_dtu_scaled.tsv:md5,b3338d163c9f96f41eea0b5c95297ecb"
+                ],
+                "tpm_transcript_length_scaled": [
+                    "salmon.merged.transcript_tpm_length_scaled.tsv:md5,b3338d163c9f96f41eea0b5c95297ecb"
+                ],
+                "tpm_transcript_scaled": [
+                    "salmon.merged.transcript_tpm_scaled.tsv:md5,b3338d163c9f96f41eea0b5c95297ecb"
+                ],
+                "tx2gene": [
+                    "genes_chrX.tx2gene.tsv:md5,3fafda41b35f045538151b82a4abb59c"
+                ],
+                "txi": [
+                    "salmon.merged.txi.rds"
+                ],
+                "txi_dtu": [
+                    "salmon.merged.txi.dtu.rds"
+                ],
+                "txi_ls": [
+                    "salmon.merged.txi.ls.rds"
+                ],
+                "txi_s": [
+                    "salmon.merged.txi.s.rds"
+                ],
+                "tximport_tx2gene": [
+                    "tximport.tx2gene.tsv:md5,d0e01bd4a7cdd04a989fbca69bb68636"
+                ]
+            }
+        ],
+        "timestamp": "2026-10-09T13:12:20.636248463",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.1"
+        }
+    },
+    "human chrX - salmon tarballs - stub": {
+        "content": [
+            {
+                "counts_gene": [
+                    "salmon.merged.gene_counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "counts_gene_length_scaled": [
+                    "salmon.merged.gene_counts_length_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "counts_gene_scaled": [
+                    "salmon.merged.gene_counts_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "counts_transcript": [
+                    "salmon.merged.transcript_counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "counts_transcript_dtu_scaled": [
+                    "salmon.merged.transcript_counts_dtu_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "counts_transcript_length_scaled": [
+                    "salmon.merged.transcript_counts_length_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "counts_transcript_scaled": [
+                    "salmon.merged.transcript_counts_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "gi": [
+                    "salmon.merged.gi.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "gi_ls": [
+                    "salmon.merged.gi.ls.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "gi_s": [
+                    "salmon.merged.gi.s.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "salmon_results": [
+                    [
+                        {
+                            "condition": "GBR",
+                            "id": "ERR188383"
+                        },
+                        "ERR188383"
+                    ],
+                    [
+                        {
+                            "condition": "YRI",
+                            "id": "ERR188454"
+                        },
+                        "ERR188454"
+                    ]
+                ],
+                "suppa_tpm": [
+                    "suppa_tpm.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "tpm_gene": [
+                    "salmon.merged.gene_tpm.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "tpm_gene_length_scaled": [
+                    "salmon.merged.gene_tpm_length_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "tpm_gene_scaled": [
+                    "salmon.merged.gene_tpm_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "tpm_transcript": [
+                    "salmon.merged.transcript_tpm.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "tpm_transcript_dtu_scaled": [
+                    "salmon.merged.transcript_tpm_dtu_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "tpm_transcript_length_scaled": [
+                    "salmon.merged.transcript_tpm_length_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "tpm_transcript_scaled": [
+                    "salmon.merged.transcript_tpm_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "tx2gene": [
+                    "genes_chrX.tx2gene.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "txi": [
+                    "salmon.merged.txi.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "txi_dtu": [
+                    "salmon.merged.txi.dtu.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "txi_ls": [
+                    "salmon.merged.txi.ls.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "txi_s": [
+                    "salmon.merged.txi.s.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "tximport_tx2gene": [
+                    "tximport.tx2gene.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            }
+        ],
+        "timestamp": "2026-10-09T13:12:39.961127224",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.1"
+        }
+    }
+}
