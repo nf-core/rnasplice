@@ -73,7 +73,7 @@
                     "bioconductor-tximport": "1.38.2"
                 },
                 "Workflow": {
-                    "nf-core/rnasplice": "v1.1.0dev"
+                    "nf-core/rnasplice": "v2.0.0"
                 }
             },
             [
@@ -528,10 +528,10 @@
                 "ERR204916.stats:md5,f7baf2a47782b99be101c252debc293c"
             ]
         ],
-        "timestamp": "2026-09-07T18:02:29.878364466",
+        "timestamp": "2026-10-09T19:35:15.620129642",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.1"
+            "nextflow": "26.04.4"
         }
     }
 }

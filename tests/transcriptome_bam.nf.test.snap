@@ -82,7 +82,7 @@
                     "bioconductor-tximport": "1.38.2"
                 },
                 "Workflow": {
-                    "nf-core/rnasplice": "v1.1.0dev"
+                    "nf-core/rnasplice": "v2.0.0"
                 }
             },
             [
@@ -372,10 +372,10 @@
                 "genes_chrX.ioi:md5,6c9ee3567554e3f74186b4c17ec777d6"
             ]
         ],
-        "timestamp": "2026-10-08T14:00:31.571374631",
+        "timestamp": "2026-10-09T19:46:19.715579856",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.3"
+            "nextflow": "26.04.4"
         }
     }
 }
