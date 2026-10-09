@@ -44,11 +44,11 @@
                     ]
                 ],
                 "versions_python": [
-                    "versions.yml:md5,9a19baa339ceb109faa3f25f7cb6759d"
+                    "versions.yml:md5,3b4fffb74050885d265973d684de15b9"
                 ]
             }
         ],
-        "timestamp": "2026-10-08T10:52:02.811390485",
+        "timestamp": "2026-10-09T12:04:14.165349288",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.4"
