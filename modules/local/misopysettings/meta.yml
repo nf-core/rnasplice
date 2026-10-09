@@ -12,7 +12,7 @@ tools:
       documentation: https://docs.python.org/3/
       tool_dev_url: https://www.python.org/downloads/source/
       licence: ["Python Software Foundation License"]
-      identifier: biotools:python
+      identifier: ""
 
 input:
   - - meta:

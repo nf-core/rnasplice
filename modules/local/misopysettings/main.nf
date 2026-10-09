@@ -29,7 +29,7 @@ process MISOPY_SETTINGS {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        python: "\$(python3 --version 2>&1 | sed -n '1p' | sed 's/.*version //; s/ (.*//')"
+            python: "\$(python3 -c 'import platform; print(platform.python_version())')"
     END_VERSIONS
     """
 }
