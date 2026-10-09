@@ -2,17 +2,6 @@
     "human chrX": {
         "content": [
             {
-                "0": [
-                    [
-                        {
-                            "id": "miso"
-                        },
-                        "miso_settings.txt:md5,3b7189e01ef27308ae982d6700781f12"
-                    ]
-                ],
-                "1": [
-                    "versions.yml:md5,3d4dba0aad17ebc9eeac9c4b5a4126a3"
-                ],
                 "miso_settings": [
                     [
                         {
@@ -26,7 +15,7 @@
                 ]
             }
         ],
-        "timestamp": "2026-10-08T10:51:44.798507263",
+        "timestamp": "2026-10-09T15:02:49.848945946",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.4"
