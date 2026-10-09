@@ -46,37 +46,15 @@ nextflow_workflow {
         }
 
         then {
-            // The tximport RDS files hold R objects with run specific attributes, so only
-            // their names are snapshotted. The Salmon directories hold logs with timestamps
-            def names = { ch -> ch.collect { file_path -> file(file_path).name } }
+            // The tximport RDS files hold R objects with run specific attributes, and the
+            // Salmon directories hold logs with timestamps, so only their names are snapshotted
             assertAll(
                 { assert workflow.success },
                 { assert snapshot(
-                    workflow.out.salmon_results.collect { meta, dir -> [ meta, file(dir).name ] }.sort { item -> item[0].id },
-                    workflow.out.tx2gene,
-                    names(workflow.out.txi),
-                    names(workflow.out.txi_s),
-                    names(workflow.out.txi_ls),
-                    names(workflow.out.txi_dtu),
-                    names(workflow.out.gi),
-                    names(workflow.out.gi_s),
-                    names(workflow.out.gi_ls),
-                    workflow.out.tpm_gene,
-                    workflow.out.counts_gene,
-                    workflow.out.tpm_gene_scaled,
-                    workflow.out.counts_gene_scaled,
-                    workflow.out.tpm_gene_length_scaled,
-                    workflow.out.counts_gene_length_scaled,
-                    workflow.out.tpm_transcript,
-                    workflow.out.counts_transcript,
-                    workflow.out.tpm_transcript_scaled,
-                    workflow.out.counts_transcript_scaled,
-                    workflow.out.tpm_transcript_length_scaled,
-                    workflow.out.counts_transcript_length_scaled,
-                    workflow.out.tpm_transcript_dtu_scaled,
-                    workflow.out.counts_transcript_dtu_scaled,
-                    workflow.out.tximport_tx2gene,
-                    workflow.out.suppa_tpm
+                    sanitizeOutput(
+                        workflow.out,
+                        unstableKeys: [ "salmon_results", "txi", "txi_s", "txi_ls", "txi_dtu", "gi", "gi_s", "gi_ls" ]
+                    )
                 ).match() }
             )
         }
@@ -100,7 +78,8 @@ nextflow_workflow {
         }
 
         then {
-            def names = { ch -> ch.collect { file_path -> file(file_path).name } }
+            // The tximport RDS files hold R objects with run specific attributes, and the
+            // Salmon directories hold logs with timestamps, so only their names are snapshotted
             assertAll(
                 { assert workflow.success },
                 // The meta map comes out as it went in, with no key added for the tarball
@@ -112,31 +91,10 @@ nextflow_workflow {
                 ] },
                 { assert workflow.out.salmon_results.every { _meta, dir -> path(dir).resolve('quant.sf').exists() } },
                 { assert snapshot(
-                    workflow.out.salmon_results.collect { meta, dir -> [ meta, file(dir).name ] }.sort { item -> item[0].id },
-                    workflow.out.tx2gene,
-                    names(workflow.out.txi),
-                    names(workflow.out.txi_s),
-                    names(workflow.out.txi_ls),
-                    names(workflow.out.txi_dtu),
-                    names(workflow.out.gi),
-                    names(workflow.out.gi_s),
-                    names(workflow.out.gi_ls),
-                    workflow.out.tpm_gene,
-                    workflow.out.counts_gene,
-                    workflow.out.tpm_gene_scaled,
-                    workflow.out.counts_gene_scaled,
-                    workflow.out.tpm_gene_length_scaled,
-                    workflow.out.counts_gene_length_scaled,
-                    workflow.out.tpm_transcript,
-                    workflow.out.counts_transcript,
-                    workflow.out.tpm_transcript_scaled,
-                    workflow.out.counts_transcript_scaled,
-                    workflow.out.tpm_transcript_length_scaled,
-                    workflow.out.counts_transcript_length_scaled,
-                    workflow.out.tpm_transcript_dtu_scaled,
-                    workflow.out.counts_transcript_dtu_scaled,
-                    workflow.out.tximport_tx2gene,
-                    workflow.out.suppa_tpm
+                    sanitizeOutput(
+                        workflow.out,
+                        unstableKeys: [ "salmon_results", "txi", "txi_s", "txi_ls", "txi_dtu", "gi", "gi_s", "gi_ls" ]
+                    )
                 ).match() }
             )
         }
@@ -162,10 +120,7 @@ nextflow_workflow {
         then {
             assertAll(
                 { assert workflow.success },
-                { assert snapshot(
-                    workflow.out.salmon_results.collect { meta, dir -> [ meta, file(dir).name ] }.sort { item -> item[0].id },
-                    workflow.out.findAll { key, _val -> key != 'salmon_results' && !key.isInteger() }
-                ).match() }
+                { assert snapshot(sanitizeOutput(workflow.out, unstableKeys: [ "salmon_results" ])).match() }
             )
         }
 
