@@ -135,6 +135,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #312 - Remove the 4 cpu, 12 GB and 12 h caps from the `test_full` profile, which are too small for STAR to align to GRCh37 in the AWS full size test (by @piplus2)
 - #315 - Fix the AWS tests stopping at launch on the Seqera Platform, which ran an older Nextflow with the old syntax parser (by @piplus2)
 - #316 - Fix the AWS full size test failing at `paramsSummaryLog`, as its Slack config dropped the pinned nf-schema version (by @piplus2)
+- #317 - Restore the MultiQC screenshots of the output docs, which the template update to nf-core/tools 3.0.0 deleted (by @piplus2)
 
 ## v1.0.4 - 2024-04-21
 
