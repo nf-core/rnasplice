@@ -7,7 +7,7 @@
 
 [![Open in GitHub Codespaces](https://img.shields.io/badge/Open_In_GitHub_Codespaces-black?labelColor=grey&logo=github)](https://github.com/codespaces/new/nf-core/rnasplice)
 [![GitHub Actions CI Status](https://github.com/nf-core/rnasplice/actions/workflows/nf-test.yml/badge.svg)](https://github.com/nf-core/rnasplice/actions/workflows/nf-test.yml)
-[![GitHub Actions Linting Status](https://github.com/nf-core/rnasplice/actions/workflows/linting.yml/badge.svg)](https://github.com/nf-core/rnasplice/actions/workflows/linting.yml)[![AWS CI](https://img.shields.io/badge/CI%20tests-full%20size-FF9900?labelColor=000000&logo=Amazon%20AWS)](https://nf-co.re/rnasplice/results)[![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.XXXXXXX-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.XXXXXXX)
+[![GitHub Actions Linting Status](https://github.com/nf-core/rnasplice/actions/workflows/linting.yml/badge.svg)](https://github.com/nf-core/rnasplice/actions/workflows/linting.yml)[![AWS CI](https://img.shields.io/badge/CI%20tests-full%20size-FF9900?labelColor=000000&logo=Amazon%20AWS)](https://nf-co.re/rnasplice/results)[![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.8424632-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.8424632)
 [![nf-test](https://img.shields.io/badge/unit_tests-nf--test-337ab7.svg)](https://www.nf-test.com)
 
 [![Nextflow](https://img.shields.io/badge/version-%E2%89%A526.04.0-green?style=flat&logo=nextflow&logoColor=white&color=%230DC09D&link=https%3A%2F%2Fnextflow.io)](https://www.nextflow.io/)
@@ -113,7 +113,15 @@ nf-core/rnasplice was originally written by the bioinformatics team from [Zifo R
 - [Asma Ali](https://github.com/asmaali98)
 - [Lathika Madhan Mohan](https://github.com/lathikaa)
 
-We thank Harshil Patel ([@drpatelh](https://github.com/drpatelh)), Seqera Labs ([seqeralabs](https://github.com/seqeralabs)) and Jesse Angelis ([@jesseangelis](https://github.com/jesseangelis)) for their assistance in the development of this pipeline.
+The pipeline is currently maintained by [Paolo Inglese](https://github.com/piplus2) ([Genomics Facility (GEFA), Istituto Italiano di Tecnologia](https://www.iit.it/)).
+
+We thank the following people for their contributions to the pipeline:
+
+- [Lorena Pantano](https://github.com/lpantano) and [Alex Bartlett](https://github.com/abartlett004), for the LeafCutter analysis
+- [Fabian Hausmann](https://github.com/fhausmann), for the sample name validation
+- [Felix Haidle](https://github.com/felixhaidle), for the `MISOPY_SETTINGS` module
+
+We also thank Harshil Patel ([@drpatelh](https://github.com/drpatelh)), Seqera Labs ([seqeralabs](https://github.com/seqeralabs)) and Jesse Angelis ([@jesseangelis](https://github.com/jesseangelis)) for their assistance in the development of this pipeline.
 
 <img src="docs/images/zifo_logo.jpg" alt="Zifo RnD Solutions" width="200"/>
 
