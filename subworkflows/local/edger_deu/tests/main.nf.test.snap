@@ -74,14 +74,14 @@
                     {
                         "id": "edger_exon"
                     },
-                    [
-                        "contrast_GBR-YRI.usage.exon.csv:md5,f102b5c2619cd811ddc04d7569b797ba",
-                        "contrast_GBR-YRI.usage.gene.csv:md5,8ebb5e11ba7a4c63ab56f9a61f9eccb6",
-                        "contrast_GBR-YRI.usage.simes.csv:md5,13a3730955b862752c2b0a08b9415280",
-                        "contrast_YRI-GBR.usage.exon.csv:md5,11c3f911f66d62b24b9dc048891a37f9",
-                        "contrast_YRI-GBR.usage.gene.csv:md5,586b678f3ae96e383a5456e42c37e6a9",
-                        "contrast_YRI-GBR.usage.simes.csv:md5,f1715819025c665bc1ba08bcfab4a3a3"
-                    ]
+                    {
+                        "contrast_GBR-YRI.usage.exon.csv": "ce290ef1bf1af808245b7b9304f672d6",
+                        "contrast_GBR-YRI.usage.gene.csv": "368f60cbbb8dc82934037f7cdb83b346",
+                        "contrast_GBR-YRI.usage.simes.csv": "cd4c38e9dbd8eb37954b6ef8baad93b8",
+                        "contrast_YRI-GBR.usage.exon.csv": "da5f933653d65cee4c995fa9c46144ce",
+                        "contrast_YRI-GBR.usage.gene.csv": "368f60cbbb8dc82934037f7cdb83b346",
+                        "contrast_YRI-GBR.usage.simes.csv": "cd4c38e9dbd8eb37954b6ef8baad93b8"
+                    }
                 ]
             ],
             [
@@ -138,10 +138,10 @@
                 ]
             ]
         ],
-        "timestamp": "2026-09-10T11:28:18.249049892",
+        "timestamp": "2026-10-11T17:31:06.576129937",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.3"
+            "nextflow": "26.04.4"
         }
     },
     "human chrX - stub": {

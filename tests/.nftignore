@@ -128,3 +128,6 @@ trimgalore/*fastq.gz_trimming_report.txt
 
 # IsoformSwitchAnalyzeR
 isoformswitchanalyzer/isoformswitchanalyzer_isoformfeatures.csv
+
+# edgeR tables differ in the last digits between builds, the tests snapshot them rounded
+**/edger/contrast_*.usage.*.csv

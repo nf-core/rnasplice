@@ -72,9 +72,10 @@ nextflow_process {
             assert process.success
             assertAll(
                 { assert snapshot(
-                    // The exon usage tables are stable, the exon expression tables
-                    // and the binary outputs are only checked by name
-                    process.out.edger_exon_csv.collect { meta, csvs -> [ meta, csvs.findAll { csv -> csv.contains('.usage.') } ] },
+                    // The exon usage tables are snapshotted by their values rounded to 6
+                    // significant digits, as builds of edgeR differ in the last digits.
+                    // The exon expression tables and the binary outputs are checked by name only
+                    process.out.edger_exon_csv.collect { meta, csvs -> [ meta, csvs.findAll { csv -> csv.contains('.usage.') }.collectEntries { csv -> [ file(csv).name, RoundedCsv.read(csv) ] } ] },
                     process.out.edger_exon_csv.collect { meta, csvs -> [ meta, csvs.findAll { csv -> csv.endsWith('.exprs.csv') }.collect { csv -> file(csv).name } ] },
                     process.out.edger_exon_pdf.collect { meta, pdfs -> [ meta, pdfs.collect { pdf -> file(pdf).name } ] },
                     process.out.edger_exon_dge.collect { meta, rds -> [ meta, file(rds).name ] },

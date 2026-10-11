@@ -21,6 +21,13 @@ nextflow_pipeline {
             // stable_content: All files in ${params.outdir}/ with stable content
             def stable_content = getAllFilesFromDir(params.outdir, ignoreFile: 'tests/.nftignore')
 
+            // edgeR exon usage tables: left out of stable_content by the ignoreFile, as builds
+            // of edgeR differ in the last digits, and snapshotted by their rounded values
+            def edger_tables = new File("${params.outdir}/star_salmon/edger").listFiles()
+                .findAll { table -> table.name ==~ /contrast_.*\.usage\..*\.csv/ }
+                .sort { table -> table.name }
+                .collectEntries { table -> [ table.name, RoundedCsv.md5(table) ] }
+
             assert workflow.success
 
             assertAll(
@@ -32,7 +39,10 @@ nextflow_pipeline {
                     stable_path,
 
                     // Snapshot the deterministic data file contents
-                    stable_content
+                    stable_content,
+
+                    // Snapshot the edgeR exon usage tables rounded to 6 significant digits
+                    edger_tables
                 ).match() }
             )
         }

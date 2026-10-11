@@ -5,3 +5,5 @@ channels:
   - bioconda
 dependencies:
   - bioconda::bioconductor-tximeta==1.28.2
+  - bioconda::bioconductor-tximport=1.38.2
+  - conda-forge::r-base=4.5.2

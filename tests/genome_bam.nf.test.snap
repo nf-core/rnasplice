@@ -4114,7 +4114,7 @@
                 "star_salmon/samtools_stats/ERR204916.stats"
             ],
             [
-                "genes_chrX_genes.gff3:md5,1c1ece4ee637e317c0ae6528a253a83f",
+                "genes_chrX_genes.gff3:md5,de15950af6c51c53177f250ee1305495",
                 "genes.gff:md5,0ef855fcf03bcb7d49afde3e63577465",
                 "miso_settings.txt:md5,c092cc3e878a299674a99c508b6b2e72",
                 "ERR188383_sorted.bam:md5,04b147b4589657324544c033735f9112",
@@ -4125,12 +4125,6 @@
                 "ERR188454_sorted.bam.bai:md5,494b8bb064afc34c67793ae5681b79ae",
                 "ERR204916_sorted.bam:md5,e0de35f151d7ea5a6dd47b7e0b40501c",
                 "ERR204916_sorted.bam.bai:md5,71e51a0ab1023dc0c82d92746538e28f",
-                "contrast_GBR-YRI.usage.exon.csv:md5,f102b5c2619cd811ddc04d7569b797ba",
-                "contrast_GBR-YRI.usage.gene.csv:md5,8ebb5e11ba7a4c63ab56f9a61f9eccb6",
-                "contrast_GBR-YRI.usage.simes.csv:md5,13a3730955b862752c2b0a08b9415280",
-                "contrast_YRI-GBR.usage.exon.csv:md5,11c3f911f66d62b24b9dc048891a37f9",
-                "contrast_YRI-GBR.usage.gene.csv:md5,586b678f3ae96e383a5456e42c37e6a9",
-                "contrast_YRI-GBR.usage.simes.csv:md5,f1715819025c665bc1ba08bcfab4a3a3",
                 "ERR188383.featureCounts.tsv.summary:md5,0e58e2f1412037f2577aaf2f3da2ab3f",
                 "ERR188428.featureCounts.tsv.summary:md5,b4d3745b6437a6dc02c7a3813119624a",
                 "ERR188454.featureCounts.tsv.summary:md5,d98b7ad91bde2f513ba4564aff1f3913",
@@ -4224,9 +4218,17 @@
                 "ERR204916.flagstat:md5,c4faf03d117ddbb2bae948d7c72d3a66",
                 "ERR204916.idxstats:md5,f85061145fbefe458b787f42cb470cbc",
                 "ERR204916.stats:md5,5f67b070c9c9e2acfb917d62ca1a34c0"
-            ]
+            ],
+            {
+                "contrast_GBR-YRI.usage.exon.csv": "ce290ef1bf1af808245b7b9304f672d6",
+                "contrast_GBR-YRI.usage.gene.csv": "368f60cbbb8dc82934037f7cdb83b346",
+                "contrast_GBR-YRI.usage.simes.csv": "cd4c38e9dbd8eb37954b6ef8baad93b8",
+                "contrast_YRI-GBR.usage.exon.csv": "da5f933653d65cee4c995fa9c46144ce",
+                "contrast_YRI-GBR.usage.gene.csv": "368f60cbbb8dc82934037f7cdb83b346",
+                "contrast_YRI-GBR.usage.simes.csv": "cd4c38e9dbd8eb37954b6ef8baad93b8"
+            }
         ],
-        "timestamp": "2026-10-09T19:38:35.594905118",
+        "timestamp": "2026-10-11T17:44:11.395086197",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.4"
