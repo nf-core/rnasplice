@@ -128,27 +128,32 @@
                     "suppa/clusterevents": {
                         "branch": "master",
                         "git_sha": "2080397432fcb0d079121dbacf22ce42ef175cec",
-                        "installed_by": ["modules"]
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/suppa/clusterevents/suppa-clusterevents.diff"
                     },
                     "suppa/diffsplice": {
                         "branch": "master",
                         "git_sha": "3f2df8501fbed848b9ce51e906c021a56f1f51bc",
-                        "installed_by": ["modules"]
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/suppa/diffsplice/suppa-diffsplice.diff"
                     },
                     "suppa/generateevents": {
                         "branch": "master",
                         "git_sha": "2080397432fcb0d079121dbacf22ce42ef175cec",
-                        "installed_by": ["modules"]
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/suppa/generateevents/suppa-generateevents.diff"
                     },
                     "suppa/psiperevent": {
                         "branch": "master",
                         "git_sha": "6a06fc880f6be6eb16f79e929a5ed50b915029dd",
-                        "installed_by": ["modules"]
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/suppa/psiperevent/suppa-psiperevent.diff"
                     },
                     "suppa/psiperisoform": {
                         "branch": "master",
                         "git_sha": "e5a841a89c93a4dfae13de26d884a4dd86cd1b8f",
-                        "installed_by": ["modules"]
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/suppa/psiperisoform/suppa-psiperisoform.diff"
                     },
                     "trimgalore": {
                         "branch": "master",

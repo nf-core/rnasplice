@@ -1,0 +1,15 @@
+Changes in component 'nf-core/suppa/psiperevent'
+Changes in 'suppa/psiperevent/environment.yml':
+--- modules/nf-core/suppa/psiperevent/environment.yml
++++ modules/nf-core/suppa/psiperevent/environment.yml
+@@ -5,3 +5,4 @@
+   - conda-forge
+ dependencies:
+   - bioconda::suppa=2.4
++  - conda-forge::statsmodels=0.14.6
+
+'modules/nf-core/suppa/psiperevent/main.nf' is unchanged
+'modules/nf-core/suppa/psiperevent/meta.yml' is unchanged
+'modules/nf-core/suppa/psiperevent/tests/main.nf.test.snap' is unchanged
+'modules/nf-core/suppa/psiperevent/tests/main.nf.test' is unchanged
+************************************************************
