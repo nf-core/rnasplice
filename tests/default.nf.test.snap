@@ -4545,7 +4545,7 @@
             ],
             [
                 "isoformswitchanalyzer_summary.csv:md5,8cb2a864dbf6d26df508842d83a25bdb",
-                "genes_chrX_genes.gff3:md5,1c1ece4ee637e317c0ae6528a253a83f",
+                "genes_chrX_genes.gff3:md5,de15950af6c51c53177f250ee1305495",
                 "genes.gff:md5,0ef855fcf03bcb7d49afde3e63577465",
                 "miso_settings.txt:md5,c092cc3e878a299674a99c508b6b2e72",
                 "local_GBR-YRI_groups.txt:md5,e9636d1c0a5cb00df8cedc61642a5d52",
@@ -4561,12 +4561,12 @@
                 "ERR188454_sorted.bam.bai:md5,ce9bc391c8641b2be08f49fd71a156e0",
                 "ERR204916_sorted.bam:md5,d36331de9ea0e8ba104124eafb0f4f64",
                 "ERR204916_sorted.bam.bai:md5,6f11ff9b416b68344f1186af4a53778e",
-                "contrast_GBR-YRI.usage.exon.csv:md5,90c732efe7f3ce4e68fb8f46ec2c3bf9",
-                "contrast_GBR-YRI.usage.gene.csv:md5,e8a84ad7c6c24cf3f024498648f91281",
-                "contrast_GBR-YRI.usage.simes.csv:md5,015da45693647f9dc1fa359665701cc9",
-                "contrast_YRI-GBR.usage.exon.csv:md5,d7430c53596e395b3887ad79dd374e14",
-                "contrast_YRI-GBR.usage.gene.csv:md5,d6edbf1a5073b9a9f08d6b97b3b33477",
-                "contrast_YRI-GBR.usage.simes.csv:md5,3c73b5e0ae47b9f443fcb92db68a6841",
+                "contrast_GBR-YRI.usage.exon.csv:md5,ffc37c1c22884831dabea37805a98a27",
+                "contrast_GBR-YRI.usage.gene.csv:md5,22ff8dd7c70372af905176f0b236d325",
+                "contrast_GBR-YRI.usage.simes.csv:md5,1907a2a883f277d3a480d7f1b4ef3005",
+                "contrast_YRI-GBR.usage.exon.csv:md5,1d84e85a64816444be356d6d127dcc08",
+                "contrast_YRI-GBR.usage.gene.csv:md5,22ff8dd7c70372af905176f0b236d325",
+                "contrast_YRI-GBR.usage.simes.csv:md5,1907a2a883f277d3a480d7f1b4ef3005",
                 "ERR188383.featureCounts.tsv.summary:md5,993ce8137b5b9789af79bac91bf997c1",
                 "ERR188428.featureCounts.tsv.summary:md5,da8074757caa70df918fff06dc262162",
                 "ERR188454.featureCounts.tsv.summary:md5,36aac23ee31473567076d75446d8b0a4",
@@ -4671,7 +4671,7 @@
                 "genes_chrX.ioi:md5,6c9ee3567554e3f74186b4c17ec777d6"
             ]
         ],
-        "timestamp": "2026-10-09T19:31:26.698863252",
+        "timestamp": "2026-10-11T15:08:06.964659225",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.4"

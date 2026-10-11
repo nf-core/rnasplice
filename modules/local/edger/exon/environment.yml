@@ -5,4 +5,6 @@ channels:
   - bioconda
 dependencies:
   - "bioconda::bioconductor-edger=3.36.0"
+  - "bioconda::bioconductor-limma=3.50.0"
+  - "conda-forge::r-base=4.1.1"
   - "conda-forge::r-statmod=1.4.36"

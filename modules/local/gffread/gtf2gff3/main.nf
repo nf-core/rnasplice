@@ -22,11 +22,12 @@ process GFFREAD_GTF2GFF3 {
     def prefix = task.ext.prefix ?: "${meta.id}"
     // `transcript` features are renamed to `mRNA` so that the resulting GFF3 is
     // accepted by downstream tools (e.g. MISO) that follow the GFF3 spec strictly.
+    // Comment lines are skipped, as BusyBox awk would pad them with empty fields.
     """
     gffread \\
         $gtf \\
         $args \\
-        | awk -F'\\t' -vOFS='\\t' '{ gsub("transcript", "mRNA", \$3); print}' \\
+        | awk -F'\\t' -vOFS='\\t' '!/^#/ { gsub("transcript", "mRNA", \$3) } { print }' \\
         > ${prefix}.gff3
     """
 
