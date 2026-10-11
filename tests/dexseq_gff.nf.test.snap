@@ -502,14 +502,6 @@
                 "trimgalore/fastqc/ERR204916_2_val_2_fastqc.zip"
             ],
             [
-                "ERR188383_sorted.bam:md5,a3872b6a06c5f20e9bed17425fc88e2a",
-                "ERR188383_sorted.bam.bai:md5,cd4c0f701009fa44e0cd1425cf0dba9d",
-                "ERR188428_sorted.bam:md5,229a8e669f9bc08d50a54b0010f1574b",
-                "ERR188428_sorted.bam.bai:md5,3446449c9cdf339fa3c9da30bf5ce2a6",
-                "ERR188454_sorted.bam:md5,d7fb933a35c0da1c93199e0a3cb13261",
-                "ERR188454_sorted.bam.bai:md5,20ac8a390644b2acd20b3a660b7e33aa",
-                "ERR204916_sorted.bam:md5,a52e2346c26659cfada1df93f0d6ee66",
-                "ERR204916_sorted.bam.bai:md5,bd03d7b55b09290b91946a40beece0fe",
                 "ERR188383.SJ.out.tab:md5,ed9af397969c9e49a6edb8c1128a1873",
                 "ERR188428.SJ.out.tab:md5,82bd70953439dd81d0a034d7b548b775",
                 "ERR188454.SJ.out.tab:md5,7d0a7e6cdf5b6651d279f5e03bd1da78",
@@ -528,7 +520,7 @@
                 "ERR204916.stats:md5,f7baf2a47782b99be101c252debc293c"
             ]
         ],
-        "timestamp": "2026-10-09T19:35:15.620129642",
+        "timestamp": "2026-10-11T21:30:55.945148976",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.4"

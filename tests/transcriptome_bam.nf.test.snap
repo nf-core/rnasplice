@@ -345,14 +345,6 @@
                 "star_salmon/tximport/tximport.tx2gene.tsv"
             ],
             [
-                "ERR188383_sorted.bam:md5,4dbf2f1894bd80c23bf25e4877438d55",
-                "ERR188383_sorted.bam.bai:md5,88673b66ef7a72d1c40e10eb1a953529",
-                "ERR188428_sorted.bam:md5,a0e8115d7987608d14bce17e80f1b917",
-                "ERR188428_sorted.bam.bai:md5,64cdc87a08417a1b23a7b77302da5ba1",
-                "ERR188454_sorted.bam:md5,a665965827af0044fe49d07ff48314d8",
-                "ERR188454_sorted.bam.bai:md5,15b3513494778090aee92bb032048731",
-                "ERR204916_sorted.bam:md5,ccf87bc0da9e1d5b7c1ddd428dbdbf45",
-                "ERR204916_sorted.bam.bai:md5,87c176efb5973df8039a3fd24b417c0f",
                 "ERR188383.flagstat:md5,11c1f37a0e40cb73e045b513a8ce3f60",
                 "ERR188383.idxstats:md5,5c833e1ca7a54d38b759ab66bf33bf5e",
                 "ERR188383.stats:md5,0d76fc426d895acc917f94a3d71ab887",
@@ -372,7 +364,7 @@
                 "genes_chrX.ioi:md5,6c9ee3567554e3f74186b4c17ec777d6"
             ]
         ],
-        "timestamp": "2026-10-09T19:46:19.715579856",
+        "timestamp": "2026-10-11T21:38:34.345618814",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.4"

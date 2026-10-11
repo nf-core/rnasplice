@@ -4553,14 +4553,6 @@
                 "transcript_GBR-YRI_groups.txt:md5,e9636d1c0a5cb00df8cedc61642a5d52",
                 "transcript_YRI-GBR_groups.txt:md5,e9636d1c0a5cb00df8cedc61642a5d52",
                 "genes_chrX.ioi:md5,6c9ee3567554e3f74186b4c17ec777d6",
-                "ERR188383_sorted.bam:md5,1c1511027014795c3b9e056d539d0aaf",
-                "ERR188383_sorted.bam.bai:md5,662f7faef48faebfab0dae435345afd5",
-                "ERR188428_sorted.bam:md5,65c6c308566434092532f771029824b9",
-                "ERR188428_sorted.bam.bai:md5,25eeb9a15262870367132ab0596c5356",
-                "ERR188454_sorted.bam:md5,e9f43532fdf608f01d9635ae8430f222",
-                "ERR188454_sorted.bam.bai:md5,ce9bc391c8641b2be08f49fd71a156e0",
-                "ERR204916_sorted.bam:md5,d36331de9ea0e8ba104124eafb0f4f64",
-                "ERR204916_sorted.bam.bai:md5,6f11ff9b416b68344f1186af4a53778e",
                 "ERR188383.featureCounts.tsv.summary:md5,993ce8137b5b9789af79bac91bf997c1",
                 "ERR188428.featureCounts.tsv.summary:md5,da8074757caa70df918fff06dc262162",
                 "ERR188454.featureCounts.tsv.summary:md5,36aac23ee31473567076d75446d8b0a4",
@@ -4673,7 +4665,7 @@
                 "contrast_YRI-GBR.usage.simes.csv": "6527447465d502d24ad2ebe798896d02"
             }
         ],
-        "timestamp": "2026-10-11T17:39:34.699182946",
+        "timestamp": "2026-10-11T21:27:06.235508545",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.4"

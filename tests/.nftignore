@@ -131,3 +131,7 @@ isoformswitchanalyzer/isoformswitchanalyzer_isoformfeatures.csv
 
 # edgeR tables differ in the last digits between builds, the tests snapshot them rounded
 **/edger/contrast_*.usage.*.csv
+
+# The sorted BAM files differ between the conda and container builds of samtools
+**/*_sorted.bam
+**/*_sorted.bam.bai
