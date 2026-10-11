@@ -68,26 +68,6 @@ write_plot_splice <- function(results, file, lrt, n = 10) {
 
 }
 
-#' Round the numeric columns of a results table to 6 significant digits
-#'
-#' Builds of the same edgeR version differ in the last digits, depending on the
-#' compiler and BLAS, so the full precision would make the tables differ
-#' between conda and the containers.
-#'
-#' @param results Table returned by topTags or topSpliceDGE
-
-signif_results <- function(results) {
-
-    results <- as.data.frame(results)
-
-    numeric <- vapply(results, is.numeric, logical(1))
-
-    results[numeric] <- lapply(results[numeric], signif, digits = 6)
-
-    results
-
-}
-
 
 # Set defaults and parse the options provided via `task.ext.args`
 
@@ -314,7 +294,7 @@ saveRDS(DGELRT.usage, file = "DGELRT.usage.rds")
 
 mapply(
     write.csv,
-    x = lapply(results.exprs, signif_results),
+    x = results.exprs,
     file = paste0("contrast_", colnames(contrasts), ".exprs.csv"),
     MoreArgs = list(quote = FALSE, row.names = FALSE)
 )
@@ -323,7 +303,7 @@ for (test in names(results.usage)) {
 
     mapply(
         write.csv,
-        x = lapply(results.usage[[test]], signif_results),
+        x = results.usage[[test]],
         file = paste0("contrast_", colnames(contrasts), ".usage.", test, ".csv"),
         MoreArgs = list(quote = FALSE, row.names = FALSE)
     )

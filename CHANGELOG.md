@@ -137,7 +137,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #316 - Fix the AWS full size test failing at `paramsSummaryLog`, as its Slack config dropped the pinned nf-schema version (by @piplus2)
 - #317 - Restore the MultiQC screenshots of the output docs, which the template update to nf-core/tools 3.0.0 deleted (by @piplus2)
 - #320 - Fix SUPPA with `-profile conda`, where a newer statsmodels lacked the `multipletests` import of SUPPA 2.4. The SUPPA modules now pin statsmodels 0.14.6, as in their container (by @piplus2)
-- #321 - Fix local modules giving different results with `-profile conda` and the containers: pin R and its packages to the container versions for DRIMSeq, edgeR and tximport, round the edgeR result tables to 6 significant digits, and stop the GFF3 header of `GFFREAD_GTF2GFF3` from being padded with tabs in the container (by @piplus2)
+- #321 - Fix local modules giving different results with `-profile conda` and the containers: pin R and its packages to the container versions for DRIMSeq, edgeR and tximport, compare the edgeR result tables rounded to 6 significant digits in the tests, and stop the GFF3 header of `GFFREAD_GTF2GFF3` from being padded with tabs in the container (by @piplus2)
 
 ## v1.0.4 - 2024-04-21
 

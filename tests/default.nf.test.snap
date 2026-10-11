@@ -4561,12 +4561,6 @@
                 "ERR188454_sorted.bam.bai:md5,ce9bc391c8641b2be08f49fd71a156e0",
                 "ERR204916_sorted.bam:md5,d36331de9ea0e8ba104124eafb0f4f64",
                 "ERR204916_sorted.bam.bai:md5,6f11ff9b416b68344f1186af4a53778e",
-                "contrast_GBR-YRI.usage.exon.csv:md5,ffc37c1c22884831dabea37805a98a27",
-                "contrast_GBR-YRI.usage.gene.csv:md5,22ff8dd7c70372af905176f0b236d325",
-                "contrast_GBR-YRI.usage.simes.csv:md5,1907a2a883f277d3a480d7f1b4ef3005",
-                "contrast_YRI-GBR.usage.exon.csv:md5,1d84e85a64816444be356d6d127dcc08",
-                "contrast_YRI-GBR.usage.gene.csv:md5,22ff8dd7c70372af905176f0b236d325",
-                "contrast_YRI-GBR.usage.simes.csv:md5,1907a2a883f277d3a480d7f1b4ef3005",
                 "ERR188383.featureCounts.tsv.summary:md5,993ce8137b5b9789af79bac91bf997c1",
                 "ERR188428.featureCounts.tsv.summary:md5,da8074757caa70df918fff06dc262162",
                 "ERR188454.featureCounts.tsv.summary:md5,36aac23ee31473567076d75446d8b0a4",
@@ -4669,9 +4663,17 @@
                 "transcript_GBR-YRI_groups.txt:md5,e9636d1c0a5cb00df8cedc61642a5d52",
                 "transcript_YRI-GBR_groups.txt:md5,e9636d1c0a5cb00df8cedc61642a5d52",
                 "genes_chrX.ioi:md5,6c9ee3567554e3f74186b4c17ec777d6"
-            ]
+            ],
+            {
+                "contrast_GBR-YRI.usage.exon.csv": "3c14c6a42c1c60738b0a03b2925f26c8",
+                "contrast_GBR-YRI.usage.gene.csv": "609ef7ed6fbbfdcd748c7234abd9f0e8",
+                "contrast_GBR-YRI.usage.simes.csv": "6527447465d502d24ad2ebe798896d02",
+                "contrast_YRI-GBR.usage.exon.csv": "bf3de2c967aa7d2ce704caa792128d18",
+                "contrast_YRI-GBR.usage.gene.csv": "609ef7ed6fbbfdcd748c7234abd9f0e8",
+                "contrast_YRI-GBR.usage.simes.csv": "6527447465d502d24ad2ebe798896d02"
+            }
         ],
-        "timestamp": "2026-10-11T15:08:06.964659225",
+        "timestamp": "2026-10-11T17:39:34.699182946",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.4"
