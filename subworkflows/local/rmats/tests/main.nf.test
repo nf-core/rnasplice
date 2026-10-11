@@ -190,7 +190,8 @@ nextflow_workflow {
         then {
             assertAll(
                 { assert workflow.failed },
-                { assert workflow.stdout.any { line -> line.contains("Paired rMATS contrast 'GBR-YRI': unequal sample counts") } }
+                // Nextflow 26.09 prints the error to stderr, earlier releases to stdout
+                { assert (workflow.stdout + workflow.stderr).any { line -> line.contains("Paired rMATS contrast 'GBR-YRI': unequal sample counts") } }
             )
         }
 
