@@ -8,8 +8,534 @@ Changes in 'suppa/psiperevent/environment.yml':
    - bioconda::suppa=2.4
 +  - conda-forge::statsmodels=0.14.6
 
-'modules/nf-core/suppa/psiperevent/main.nf' is unchanged
-'modules/nf-core/suppa/psiperevent/meta.yml' is unchanged
-'modules/nf-core/suppa/psiperevent/tests/main.nf.test.snap' is unchanged
+Changes in 'suppa/psiperevent/main.nf':
+--- modules/nf-core/suppa/psiperevent/main.nf
++++ modules/nf-core/suppa/psiperevent/main.nf
+@@ -15,6 +15,7 @@
+     output:
+     tuple val(meta), path("*.psi"), emit: psi
+     tuple val("${task.process}"), val('suppa'), eval("suppa.py -v | sed '1!d;s/.* //'"), topic: versions, emit: versions_suppa
++    tuple val("${task.process}"), val('statsmodels'), eval("python -c 'import statsmodels; print(statsmodels.__version__)'"), topic: versions, emit: versions_statsmodels
+ 
+     when:
+     task.ext.when == null || task.ext.when
+
+Changes in 'suppa/psiperevent/meta.yml':
+--- modules/nf-core/suppa/psiperevent/meta.yml
++++ modules/nf-core/suppa/psiperevent/meta.yml
+@@ -63,6 +63,16 @@
+       - "suppa.py -v | sed '1!d;s/.* //'":
+           type: eval
+           description: The expression to obtain the version of the tool
++  versions_statsmodels:
++    - - ${task.process}:
++          type: string
++          description: The name of the process
++      - statsmodels:
++          type: string
++          description: The name of the tool
++      - "python -c 'import statsmodels; print(statsmodels.__version__)'":
++          type: eval
++          description: The expression to obtain the version of the tool
+ topics:
+   versions:
+     - - ${task.process}:
+@@ -74,6 +84,15 @@
+       - "suppa.py -v | sed '1!d;s/.* //'":
+           type: eval
+           description: The expression to obtain the version of the tool
++    - - ${task.process}:
++          type: string
++          description: The name of the process
++      - statsmodels:
++          type: string
++          description: The name of the tool
++      - "python -c 'import statsmodels; print(statsmodels.__version__)'":
++          type: eval
++          description: The expression to obtain the version of the tool
+ authors:
+   - "@lathikaa"
+   - "@piplus2"
+
+Changes in 'suppa/psiperevent/tests/main.nf.test.snap':
+--- modules/nf-core/suppa/psiperevent/tests/main.nf.test.snap
++++ modules/nf-core/suppa/psiperevent/tests/main.nf.test.snap
+@@ -10,16 +10,23 @@
+                         "sample1.psi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                     ]
+                 ],
+-                "versions_suppa": [
+-                    [
+-                        "SUPPA_PSIPEREVENT",
+-                        "suppa",
+-                        "2.4"
+-                    ]
+-                ]
+-            }
+-        ],
+-        "timestamp": "2026-07-17T21:03:58.585294965",
++                "versions_statsmodels": [
++                    [
++                        "SUPPA_PSIPEREVENT",
++                        "statsmodels",
++                        "0.14.6"
++                    ]
++                ],
++                "versions_suppa": [
++                    [
++                        "SUPPA_PSIPEREVENT",
++                        "suppa",
++                        "2.4"
++                    ]
++                ]
++            }
++        ],
++        "timestamp": "2026-10-11T13:52:54.279848361",
+         "meta": {
+             "nf-test": "0.9.5",
+             "nextflow": "26.04.4"
+@@ -36,16 +43,23 @@
+                         "sample1.psi:md5,eebc549dee0797dd5bf62d65d1296dae"
+                     ]
+                 ],
+-                "versions_suppa": [
+-                    [
+-                        "SUPPA_PSIPEREVENT",
+-                        "suppa",
+-                        "2.4"
+-                    ]
+-                ]
+-            }
+-        ],
+-        "timestamp": "2026-07-17T21:02:34.362456313",
++                "versions_statsmodels": [
++                    [
++                        "SUPPA_PSIPEREVENT",
++                        "statsmodels",
++                        "0.14.6"
++                    ]
++                ],
++                "versions_suppa": [
++                    [
++                        "SUPPA_PSIPEREVENT",
++                        "suppa",
++                        "2.4"
++                    ]
++                ]
++            }
++        ],
++        "timestamp": "2026-10-11T13:51:21.851342179",
+         "meta": {
+             "nf-test": "0.9.5",
+             "nextflow": "26.04.4"
+@@ -62,16 +76,23 @@
+                         "sample1.psi:md5,237d9e5dc3fb79e8149a5527ed51a3c1"
+                     ]
+                 ],
+-                "versions_suppa": [
+-                    [
+-                        "SUPPA_PSIPEREVENT",
+-                        "suppa",
+-                        "2.4"
+-                    ]
+-                ]
+-            }
+-        ],
+-        "timestamp": "2026-07-17T21:02:48.622825822",
++                "versions_statsmodels": [
++                    [
++                        "SUPPA_PSIPEREVENT",
++                        "statsmodels",
++                        "0.14.6"
++                    ]
++                ],
++                "versions_suppa": [
++                    [
++                        "SUPPA_PSIPEREVENT",
++                        "suppa",
++                        "2.4"
++                    ]
++                ]
++            }
++        ],
++        "timestamp": "2026-10-11T13:51:37.672391998",
+         "meta": {
+             "nf-test": "0.9.5",
+             "nextflow": "26.04.4"
+@@ -88,16 +109,23 @@
+                         "sample1.psi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                     ]
+                 ],
+-                "versions_suppa": [
+-                    [
+-                        "SUPPA_PSIPEREVENT",
+-                        "suppa",
+-                        "2.4"
+-                    ]
+-                ]
+-            }
+-        ],
+-        "timestamp": "2026-07-17T21:03:23.111520154",
++                "versions_statsmodels": [
++                    [
++                        "SUPPA_PSIPEREVENT",
++                        "statsmodels",
++                        "0.14.6"
++                    ]
++                ],
++                "versions_suppa": [
++                    [
++                        "SUPPA_PSIPEREVENT",
++                        "suppa",
++                        "2.4"
++                    ]
++                ]
++            }
++        ],
++        "timestamp": "2026-10-11T13:52:15.327556825",
+         "meta": {
+             "nf-test": "0.9.5",
+             "nextflow": "26.04.4"
+@@ -114,16 +142,23 @@
+                         "sample1.psi:md5,40a096c2d820965a912ec3907f94bb0c"
+                     ]
+                 ],
+-                "versions_suppa": [
+-                    [
+-                        "SUPPA_PSIPEREVENT",
+-                        "suppa",
+-                        "2.4"
+-                    ]
+-                ]
+-            }
+-        ],
+-        "timestamp": "2026-07-17T21:03:10.603815889",
++                "versions_statsmodels": [
++                    [
++                        "SUPPA_PSIPEREVENT",
++                        "statsmodels",
++                        "0.14.6"
++                    ]
++                ],
++                "versions_suppa": [
++                    [
++                        "SUPPA_PSIPEREVENT",
++                        "suppa",
++                        "2.4"
++                    ]
++                ]
++            }
++        ],
++        "timestamp": "2026-10-11T13:52:00.812679599",
+         "meta": {
+             "nf-test": "0.9.5",
+             "nextflow": "26.04.4"
+@@ -140,16 +175,23 @@
+                         "sample1.psi:md5,9f665c73ab259b5d475bc10a5e5f467b"
+                     ]
+                 ],
+-                "versions_suppa": [
+-                    [
+-                        "SUPPA_PSIPEREVENT",
+-                        "suppa",
+-                        "2.4"
+-                    ]
+-                ]
+-            }
+-        ],
+-        "timestamp": "2026-07-17T21:03:17.529864418",
++                "versions_statsmodels": [
++                    [
++                        "SUPPA_PSIPEREVENT",
++                        "statsmodels",
++                        "0.14.6"
++                    ]
++                ],
++                "versions_suppa": [
++                    [
++                        "SUPPA_PSIPEREVENT",
++                        "suppa",
++                        "2.4"
++                    ]
++                ]
++            }
++        ],
++        "timestamp": "2026-10-11T13:52:08.844288342",
+         "meta": {
+             "nf-test": "0.9.5",
+             "nextflow": "26.04.4"
+@@ -166,16 +208,23 @@
+                         "sample1.psi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                     ]
+                 ],
+-                "versions_suppa": [
+-                    [
+-                        "SUPPA_PSIPEREVENT",
+-                        "suppa",
+-                        "2.4"
+-                    ]
+-                ]
+-            }
+-        ],
+-        "timestamp": "2026-07-17T21:03:52.977685983",
++                "versions_statsmodels": [
++                    [
++                        "SUPPA_PSIPEREVENT",
++                        "statsmodels",
++                        "0.14.6"
++                    ]
++                ],
++                "versions_suppa": [
++                    [
++                        "SUPPA_PSIPEREVENT",
++                        "suppa",
++                        "2.4"
++                    ]
++                ]
++            }
++        ],
++        "timestamp": "2026-10-11T13:52:47.974451712",
+         "meta": {
+             "nf-test": "0.9.5",
+             "nextflow": "26.04.4"
+@@ -192,16 +241,23 @@
+                         "sample1.psi:md5,04daef324165f4f77f872124844ff657"
+                     ]
+                 ],
+-                "versions_suppa": [
+-                    [
+-                        "SUPPA_PSIPEREVENT",
+-                        "suppa",
+-                        "2.4"
+-                    ]
+-                ]
+-            }
+-        ],
+-        "timestamp": "2026-07-17T21:02:41.488913298",
++                "versions_statsmodels": [
++                    [
++                        "SUPPA_PSIPEREVENT",
++                        "statsmodels",
++                        "0.14.6"
++                    ]
++                ],
++                "versions_suppa": [
++                    [
++                        "SUPPA_PSIPEREVENT",
++                        "suppa",
++                        "2.4"
++                    ]
++                ]
++            }
++        ],
++        "timestamp": "2026-10-11T13:51:30.534997689",
+         "meta": {
+             "nf-test": "0.9.5",
+             "nextflow": "26.04.4"
+@@ -218,16 +274,23 @@
+                         "sample1.psi:md5,85917088c83d53c6c578bfdee28539e6"
+                     ]
+                 ],
+-                "versions_suppa": [
+-                    [
+-                        "SUPPA_PSIPEREVENT",
+-                        "suppa",
+-                        "2.4"
+-                    ]
+-                ]
+-            }
+-        ],
+-        "timestamp": "2026-07-17T21:03:03.811619463",
++                "versions_statsmodels": [
++                    [
++                        "SUPPA_PSIPEREVENT",
++                        "statsmodels",
++                        "0.14.6"
++                    ]
++                ],
++                "versions_suppa": [
++                    [
++                        "SUPPA_PSIPEREVENT",
++                        "suppa",
++                        "2.4"
++                    ]
++                ]
++            }
++        ],
++        "timestamp": "2026-10-11T13:51:53.124212576",
+         "meta": {
+             "nf-test": "0.9.5",
+             "nextflow": "26.04.4"
+@@ -244,16 +307,23 @@
+                         "sample1.psi:md5,9fb5a764439d9b907bf50944248bb8cd"
+                     ]
+                 ],
+-                "versions_suppa": [
+-                    [
+-                        "SUPPA_PSIPEREVENT",
+-                        "suppa",
+-                        "2.4"
+-                    ]
+-                ]
+-            }
+-        ],
+-        "timestamp": "2026-07-17T21:02:57.226438282",
++                "versions_statsmodels": [
++                    [
++                        "SUPPA_PSIPEREVENT",
++                        "statsmodels",
++                        "0.14.6"
++                    ]
++                ],
++                "versions_suppa": [
++                    [
++                        "SUPPA_PSIPEREVENT",
++                        "suppa",
++                        "2.4"
++                    ]
++                ]
++            }
++        ],
++        "timestamp": "2026-10-11T13:51:45.477953578",
+         "meta": {
+             "nf-test": "0.9.5",
+             "nextflow": "26.04.4"
+@@ -270,16 +340,23 @@
+                         "sample1.psi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                     ]
+                 ],
+-                "versions_suppa": [
+-                    [
+-                        "SUPPA_PSIPEREVENT",
+-                        "suppa",
+-                        "2.4"
+-                    ]
+-                ]
+-            }
+-        ],
+-        "timestamp": "2026-07-17T21:03:36.063507166",
++                "versions_statsmodels": [
++                    [
++                        "SUPPA_PSIPEREVENT",
++                        "statsmodels",
++                        "0.14.6"
++                    ]
++                ],
++                "versions_suppa": [
++                    [
++                        "SUPPA_PSIPEREVENT",
++                        "suppa",
++                        "2.4"
++                    ]
++                ]
++            }
++        ],
++        "timestamp": "2026-10-11T13:52:28.32478475",
+         "meta": {
+             "nf-test": "0.9.5",
+             "nextflow": "26.04.4"
+@@ -296,16 +373,23 @@
+                         "sample1.psi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                     ]
+                 ],
+-                "versions_suppa": [
+-                    [
+-                        "SUPPA_PSIPEREVENT",
+-                        "suppa",
+-                        "2.4"
+-                    ]
+-                ]
+-            }
+-        ],
+-        "timestamp": "2026-07-17T21:03:30.360640178",
++                "versions_statsmodels": [
++                    [
++                        "SUPPA_PSIPEREVENT",
++                        "statsmodels",
++                        "0.14.6"
++                    ]
++                ],
++                "versions_suppa": [
++                    [
++                        "SUPPA_PSIPEREVENT",
++                        "suppa",
++                        "2.4"
++                    ]
++                ]
++            }
++        ],
++        "timestamp": "2026-10-11T13:52:21.862536828",
+         "meta": {
+             "nf-test": "0.9.5",
+             "nextflow": "26.04.4"
+@@ -322,16 +406,23 @@
+                         "sample1.psi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                     ]
+                 ],
+-                "versions_suppa": [
+-                    [
+-                        "SUPPA_PSIPEREVENT",
+-                        "suppa",
+-                        "2.4"
+-                    ]
+-                ]
+-            }
+-        ],
+-        "timestamp": "2026-07-17T21:03:41.645300259",
++                "versions_statsmodels": [
++                    [
++                        "SUPPA_PSIPEREVENT",
++                        "statsmodels",
++                        "0.14.6"
++                    ]
++                ],
++                "versions_suppa": [
++                    [
++                        "SUPPA_PSIPEREVENT",
++                        "suppa",
++                        "2.4"
++                    ]
++                ]
++            }
++        ],
++        "timestamp": "2026-10-11T13:52:34.655687532",
+         "meta": {
+             "nf-test": "0.9.5",
+             "nextflow": "26.04.4"
+@@ -348,16 +439,23 @@
+                         "sample1.psi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                     ]
+                 ],
+-                "versions_suppa": [
+-                    [
+-                        "SUPPA_PSIPEREVENT",
+-                        "suppa",
+-                        "2.4"
+-                    ]
+-                ]
+-            }
+-        ],
+-        "timestamp": "2026-07-17T21:03:47.425342187",
++                "versions_statsmodels": [
++                    [
++                        "SUPPA_PSIPEREVENT",
++                        "statsmodels",
++                        "0.14.6"
++                    ]
++                ],
++                "versions_suppa": [
++                    [
++                        "SUPPA_PSIPEREVENT",
++                        "suppa",
++                        "2.4"
++                    ]
++                ]
++            }
++        ],
++        "timestamp": "2026-10-11T13:52:41.224893303",
+         "meta": {
+             "nf-test": "0.9.5",
+             "nextflow": "26.04.4"
+
 'modules/nf-core/suppa/psiperevent/tests/main.nf.test' is unchanged
 ************************************************************

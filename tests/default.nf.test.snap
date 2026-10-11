@@ -131,21 +131,27 @@
                     "subread": "flattenGTF Version 2.0.1"
                 },
                 "SUPPA_CLUSTEREVENTS": {
+                    "statsmodels": "0.14.6",
                     "suppa": 2.4
                 },
                 "SUPPA_DIFFSPLICE": {
+                    "statsmodels": "0.14.6",
                     "suppa": 2.4
                 },
                 "SUPPA_GENERATEEVENTS_IOE": {
+                    "statsmodels": "0.14.6",
                     "suppa": 2.4
                 },
                 "SUPPA_GENERATEEVENTS_IOI": {
+                    "statsmodels": "0.14.6",
                     "suppa": 2.4
                 },
                 "SUPPA_PSIPEREVENT": {
+                    "statsmodels": "0.14.6",
                     "suppa": 2.4
                 },
                 "SUPPA_PSIPERISOFORM": {
+                    "statsmodels": "0.14.6",
                     "suppa": 2.4
                 },
                 "TRIMGALORE": {
@@ -4671,7 +4677,7 @@
                 "genes_chrX.ioi:md5,6c9ee3567554e3f74186b4c17ec777d6"
             ]
         ],
-        "timestamp": "2026-10-09T19:31:26.698863252",
+        "timestamp": "2026-10-11T16:58:28.067830762",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.4"

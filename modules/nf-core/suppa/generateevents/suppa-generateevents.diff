@@ -8,8 +8,537 @@ Changes in 'suppa/generateevents/environment.yml':
    - bioconda::suppa=2.4
 +  - conda-forge::statsmodels=0.14.6
 
-'modules/nf-core/suppa/generateevents/main.nf' is unchanged
-'modules/nf-core/suppa/generateevents/meta.yml' is unchanged
-'modules/nf-core/suppa/generateevents/tests/main.nf.test.snap' is unchanged
+Changes in 'suppa/generateevents/main.nf':
+--- modules/nf-core/suppa/generateevents/main.nf
++++ modules/nf-core/suppa/generateevents/main.nf
+@@ -20,6 +20,7 @@
+     tuple val(meta), path("*.{ioe,ioi}"), emit: events
+     tuple val(meta), path("*.gtf"), emit: gtf, optional: true
+     tuple val("${task.process}"), val('suppa'), eval("suppa.py -v | sed '1!d;s/.* //'"), topic: versions, emit: versions_suppa
++    tuple val("${task.process}"), val('statsmodels'), eval("python -c 'import statsmodels; print(statsmodels.__version__)'"), topic: versions, emit: versions_statsmodels
+ 
+     when:
+     task.ext.when == null || task.ext.when
+
+Changes in 'suppa/generateevents/meta.yml':
+--- modules/nf-core/suppa/generateevents/meta.yml
++++ modules/nf-core/suppa/generateevents/meta.yml
+@@ -73,6 +73,16 @@
+       - "suppa.py -v | sed '1!d;s/.* //'":
+           type: eval
+           description: The expression to obtain the version of the tool
++  versions_statsmodels:
++    - - ${task.process}:
++          type: string
++          description: The name of the process
++      - statsmodels:
++          type: string
++          description: The name of the tool
++      - "python -c 'import statsmodels; print(statsmodels.__version__)'":
++          type: eval
++          description: The expression to obtain the version of the tool
+ topics:
+   versions:
+     - - ${task.process}:
+@@ -84,6 +94,15 @@
+       - suppa.py -v | sed '1!d;s/.* //':
+           type: eval
+           description: The expression to obtain the version of the tool
++    - - ${task.process}:
++          type: string
++          description: The name of the process
++      - statsmodels:
++          type: string
++          description: The name of the tool
++      - "python -c 'import statsmodels; print(statsmodels.__version__)'":
++          type: eval
++          description: The expression to obtain the version of the tool
+ authors:
+   - "@lathikaa"
+ maintainers:
+
+Changes in 'suppa/generateevents/tests/main.nf.test.snap':
+--- modules/nf-core/suppa/generateevents/tests/main.nf.test.snap
++++ modules/nf-core/suppa/generateevents/tests/main.nf.test.snap
+@@ -18,19 +18,26 @@
+                         "human.gtf:md5,d41d8cd98f00b204e9800998ecf8427e"
+                     ]
+                 ],
+-                "versions_suppa": [
+-                    [
+-                        "SUPPA_GENERATEEVENTS",
+-                        "suppa",
+-                        "2.4"
+-                    ]
+-                ]
+-            }
+-        ],
+-        "timestamp": "2026-07-17T14:49:22.189202636",
+-        "meta": {
+-            "nf-test": "0.9.5",
+-            "nextflow": "26.04.3"
++                "versions_statsmodels": [
++                    [
++                        "SUPPA_GENERATEEVENTS",
++                        "statsmodels",
++                        "0.14.6"
++                    ]
++                ],
++                "versions_suppa": [
++                    [
++                        "SUPPA_GENERATEEVENTS",
++                        "suppa",
++                        "2.4"
++                    ]
++                ]
++            }
++        ],
++        "timestamp": "2026-10-11T13:51:04.764717326",
++        "meta": {
++            "nf-test": "0.9.5",
++            "nextflow": "26.04.4"
+         }
+     },
+     "human - ioe variable poolgenes - gtf - stub": {
+@@ -52,19 +59,26 @@
+                         "human.gtf:md5,d41d8cd98f00b204e9800998ecf8427e"
+                     ]
+                 ],
+-                "versions_suppa": [
+-                    [
+-                        "SUPPA_GENERATEEVENTS",
+-                        "suppa",
+-                        "2.4"
+-                    ]
+-                ]
+-            }
+-        ],
+-        "timestamp": "2026-07-17T14:49:26.145102231",
+-        "meta": {
+-            "nf-test": "0.9.5",
+-            "nextflow": "26.04.3"
++                "versions_statsmodels": [
++                    [
++                        "SUPPA_GENERATEEVENTS",
++                        "statsmodels",
++                        "0.14.6"
++                    ]
++                ],
++                "versions_suppa": [
++                    [
++                        "SUPPA_GENERATEEVENTS",
++                        "suppa",
++                        "2.4"
++                    ]
++                ]
++            }
++        ],
++        "timestamp": "2026-10-11T13:51:09.413297783",
++        "meta": {
++            "nf-test": "0.9.5",
++            "nextflow": "26.04.4"
+         }
+     },
+     "human - ioi - gtf - stub": {
+@@ -81,19 +95,26 @@
+                 "gtf": [
+                     
+                 ],
+-                "versions_suppa": [
+-                    [
+-                        "SUPPA_GENERATEEVENTS",
+-                        "suppa",
+-                        "2.4"
+-                    ]
+-                ]
+-            }
+-        ],
+-        "timestamp": "2026-07-17T14:10:29.239686273",
+-        "meta": {
+-            "nf-test": "0.9.5",
+-            "nextflow": "26.04.3"
++                "versions_statsmodels": [
++                    [
++                        "SUPPA_GENERATEEVENTS",
++                        "statsmodels",
++                        "0.14.6"
++                    ]
++                ],
++                "versions_suppa": [
++                    [
++                        "SUPPA_GENERATEEVENTS",
++                        "suppa",
++                        "2.4"
++                    ]
++                ]
++            }
++        ],
++        "timestamp": "2026-10-11T13:50:59.761826339",
++        "meta": {
++            "nf-test": "0.9.5",
++            "nextflow": "26.04.4"
+         }
+     },
+     "human - ioe strict - gtf": {
+@@ -117,19 +138,26 @@
+                 "human_SE_strict.gtf:md5,6e4842f5c02f1321c83e758f49f3f6f8"
+             ],
+             {
+-                "versions_suppa": [
+-                    [
+-                        "SUPPA_GENERATEEVENTS",
+-                        "suppa",
+-                        "2.4"
+-                    ]
+-                ]
+-            }
+-        ],
+-        "timestamp": "2026-07-17T14:14:29.402515206",
+-        "meta": {
+-            "nf-test": "0.9.5",
+-            "nextflow": "26.04.3"
++                "versions_statsmodels": [
++                    [
++                        "SUPPA_GENERATEEVENTS",
++                        "statsmodels",
++                        "0.14.6"
++                    ]
++                ],
++                "versions_suppa": [
++                    [
++                        "SUPPA_GENERATEEVENTS",
++                        "suppa",
++                        "2.4"
++                    ]
++                ]
++            }
++        ],
++        "timestamp": "2026-10-11T13:50:17.335570415",
++        "meta": {
++            "nf-test": "0.9.5",
++            "nextflow": "26.04.4"
+         }
+     },
+     "human - ioi poolgenes - gtf": {
+@@ -138,19 +166,26 @@
+                 "human.ioi"
+             ],
+             {
+-                "versions_suppa": [
+-                    [
+-                        "SUPPA_GENERATEEVENTS",
+-                        "suppa",
+-                        "2.4"
+-                    ]
+-                ]
+-            }
+-        ],
+-        "timestamp": "2026-07-17T14:10:17.326068747",
+-        "meta": {
+-            "nf-test": "0.9.5",
+-            "nextflow": "26.04.3"
++                "versions_statsmodels": [
++                    [
++                        "SUPPA_GENERATEEVENTS",
++                        "statsmodels",
++                        "0.14.6"
++                    ]
++                ],
++                "versions_suppa": [
++                    [
++                        "SUPPA_GENERATEEVENTS",
++                        "suppa",
++                        "2.4"
++                    ]
++                ]
++            }
++        ],
++        "timestamp": "2026-10-11T13:50:44.890661502",
++        "meta": {
++            "nf-test": "0.9.5",
++            "nextflow": "26.04.4"
+         }
+     },
+     "human - ioe strict - gtf - stub": {
+@@ -172,19 +207,26 @@
+                         "human.gtf:md5,d41d8cd98f00b204e9800998ecf8427e"
+                     ]
+                 ],
+-                "versions_suppa": [
+-                    [
+-                        "SUPPA_GENERATEEVENTS",
+-                        "suppa",
+-                        "2.4"
+-                    ]
+-                ]
+-            }
+-        ],
+-        "timestamp": "2026-07-17T14:49:10.267494844",
+-        "meta": {
+-            "nf-test": "0.9.5",
+-            "nextflow": "26.04.3"
++                "versions_statsmodels": [
++                    [
++                        "SUPPA_GENERATEEVENTS",
++                        "statsmodels",
++                        "0.14.6"
++                    ]
++                ],
++                "versions_suppa": [
++                    [
++                        "SUPPA_GENERATEEVENTS",
++                        "suppa",
++                        "2.4"
++                    ]
++                ]
++            }
++        ],
++        "timestamp": "2026-10-11T13:50:49.570636243",
++        "meta": {
++            "nf-test": "0.9.5",
++            "nextflow": "26.04.4"
+         }
+     },
+     "human - ioe strict poolgenes - gtf": {
+@@ -208,19 +250,26 @@
+                 "human_SE_strict.gtf:md5,6e4842f5c02f1321c83e758f49f3f6f8"
+             ],
+             {
+-                "versions_suppa": [
+-                    [
+-                        "SUPPA_GENERATEEVENTS",
+-                        "suppa",
+-                        "2.4"
+-                    ]
+-                ]
+-            }
+-        ],
+-        "timestamp": "2026-07-17T14:12:12.967718213",
+-        "meta": {
+-            "nf-test": "0.9.5",
+-            "nextflow": "26.04.3"
++                "versions_statsmodels": [
++                    [
++                        "SUPPA_GENERATEEVENTS",
++                        "statsmodels",
++                        "0.14.6"
++                    ]
++                ],
++                "versions_suppa": [
++                    [
++                        "SUPPA_GENERATEEVENTS",
++                        "suppa",
++                        "2.4"
++                    ]
++                ]
++            }
++        ],
++        "timestamp": "2026-10-11T13:50:34.329417984",
++        "meta": {
++            "nf-test": "0.9.5",
++            "nextflow": "26.04.4"
+         }
+     },
+     "human - ioe variable - gtf - stub": {
+@@ -242,19 +291,26 @@
+                         "human.gtf:md5,d41d8cd98f00b204e9800998ecf8427e"
+                     ]
+                 ],
+-                "versions_suppa": [
+-                    [
+-                        "SUPPA_GENERATEEVENTS",
+-                        "suppa",
+-                        "2.4"
+-                    ]
+-                ]
+-            }
+-        ],
+-        "timestamp": "2026-07-17T14:49:14.266872226",
+-        "meta": {
+-            "nf-test": "0.9.5",
+-            "nextflow": "26.04.3"
++                "versions_statsmodels": [
++                    [
++                        "SUPPA_GENERATEEVENTS",
++                        "statsmodels",
++                        "0.14.6"
++                    ]
++                ],
++                "versions_suppa": [
++                    [
++                        "SUPPA_GENERATEEVENTS",
++                        "suppa",
++                        "2.4"
++                    ]
++                ]
++            }
++        ],
++        "timestamp": "2026-10-11T13:50:54.470039111",
++        "meta": {
++            "nf-test": "0.9.5",
++            "nextflow": "26.04.4"
+         }
+     },
+     "human - ioe variable - gtf": {
+@@ -278,19 +334,26 @@
+                 "human_SE_variable_10.gtf:md5,6e4842f5c02f1321c83e758f49f3f6f8"
+             ],
+             {
+-                "versions_suppa": [
+-                    [
+-                        "SUPPA_GENERATEEVENTS",
+-                        "suppa",
+-                        "2.4"
+-                    ]
+-                ]
+-            }
+-        ],
+-        "timestamp": "2026-07-17T14:12:03.492839632",
+-        "meta": {
+-            "nf-test": "0.9.5",
+-            "nextflow": "26.04.3"
++                "versions_statsmodels": [
++                    [
++                        "SUPPA_GENERATEEVENTS",
++                        "statsmodels",
++                        "0.14.6"
++                    ]
++                ],
++                "versions_suppa": [
++                    [
++                        "SUPPA_GENERATEEVENTS",
++                        "suppa",
++                        "2.4"
++                    ]
++                ]
++            }
++        ],
++        "timestamp": "2026-10-11T13:50:23.670712939",
++        "meta": {
++            "nf-test": "0.9.5",
++            "nextflow": "26.04.4"
+         }
+     },
+     "human - ioi - gtf": {
+@@ -299,19 +362,26 @@
+                 "human.ioi"
+             ],
+             {
+-                "versions_suppa": [
+-                    [
+-                        "SUPPA_GENERATEEVENTS",
+-                        "suppa",
+-                        "2.4"
+-                    ]
+-                ]
+-            }
+-        ],
+-        "timestamp": "2026-07-17T14:10:03.329842265",
+-        "meta": {
+-            "nf-test": "0.9.5",
+-            "nextflow": "26.04.3"
++                "versions_statsmodels": [
++                    [
++                        "SUPPA_GENERATEEVENTS",
++                        "statsmodels",
++                        "0.14.6"
++                    ]
++                ],
++                "versions_suppa": [
++                    [
++                        "SUPPA_GENERATEEVENTS",
++                        "suppa",
++                        "2.4"
++                    ]
++                ]
++            }
++        ],
++        "timestamp": "2026-10-11T13:50:29.119001507",
++        "meta": {
++            "nf-test": "0.9.5",
++            "nextflow": "26.04.4"
+         }
+     },
+     "human - ioi poolgenes - gtf - stub": {
+@@ -328,19 +398,26 @@
+                 "gtf": [
+                     
+                 ],
+-                "versions_suppa": [
+-                    [
+-                        "SUPPA_GENERATEEVENTS",
+-                        "suppa",
+-                        "2.4"
+-                    ]
+-                ]
+-            }
+-        ],
+-        "timestamp": "2026-07-17T14:10:41.143296901",
+-        "meta": {
+-            "nf-test": "0.9.5",
+-            "nextflow": "26.04.3"
++                "versions_statsmodels": [
++                    [
++                        "SUPPA_GENERATEEVENTS",
++                        "statsmodels",
++                        "0.14.6"
++                    ]
++                ],
++                "versions_suppa": [
++                    [
++                        "SUPPA_GENERATEEVENTS",
++                        "suppa",
++                        "2.4"
++                    ]
++                ]
++            }
++        ],
++        "timestamp": "2026-10-11T13:51:14.265000633",
++        "meta": {
++            "nf-test": "0.9.5",
++            "nextflow": "26.04.4"
+         }
+     },
+     "human - ioe variable poolgenes - gtf": {
+@@ -364,19 +441,26 @@
+                 "human_SE_variable_10.gtf:md5,6e4842f5c02f1321c83e758f49f3f6f8"
+             ],
+             {
+-                "versions_suppa": [
+-                    [
+-                        "SUPPA_GENERATEEVENTS",
+-                        "suppa",
+-                        "2.4"
+-                    ]
+-                ]
+-            }
+-        ],
+-        "timestamp": "2026-07-17T14:12:17.682433563",
+-        "meta": {
+-            "nf-test": "0.9.5",
+-            "nextflow": "26.04.3"
++                "versions_statsmodels": [
++                    [
++                        "SUPPA_GENERATEEVENTS",
++                        "statsmodels",
++                        "0.14.6"
++                    ]
++                ],
++                "versions_suppa": [
++                    [
++                        "SUPPA_GENERATEEVENTS",
++                        "suppa",
++                        "2.4"
++                    ]
++                ]
++            }
++        ],
++        "timestamp": "2026-10-11T13:50:39.537451877",
++        "meta": {
++            "nf-test": "0.9.5",
++            "nextflow": "26.04.4"
+         }
+     }
+ }
 'modules/nf-core/suppa/generateevents/tests/main.nf.test' is unchanged
 ************************************************************

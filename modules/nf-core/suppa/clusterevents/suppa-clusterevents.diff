@@ -8,8 +8,150 @@ Changes in 'suppa/clusterevents/environment.yml':
    - bioconda::suppa=2.4
 +  - conda-forge::statsmodels=0.14.6
 
-'modules/nf-core/suppa/clusterevents/main.nf' is unchanged
-'modules/nf-core/suppa/clusterevents/meta.yml' is unchanged
-'modules/nf-core/suppa/clusterevents/tests/main.nf.test.snap' is unchanged
+Changes in 'suppa/clusterevents/main.nf':
+--- modules/nf-core/suppa/clusterevents/main.nf
++++ modules/nf-core/suppa/clusterevents/main.nf
+@@ -21,6 +21,7 @@
+     output:
+     tuple val(meta), path("*.clustvec"), emit: clustvec
+     tuple val("${task.process}"), val('suppa'), eval("suppa.py -v | sed '1!d;s/.* //'"), topic: versions, emit: versions_suppa
++    tuple val("${task.process}"), val('statsmodels'), eval("python -c 'import statsmodels; print(statsmodels.__version__)'"), topic: versions, emit: versions_statsmodels
+ 
+     when:
+     task.ext.when == null || task.ext.when
+
+Changes in 'suppa/clusterevents/meta.yml':
+--- modules/nf-core/suppa/clusterevents/meta.yml
++++ modules/nf-core/suppa/clusterevents/meta.yml
+@@ -84,6 +84,16 @@
+           type: eval
+           description: The expression to obtain the version of the tool
+ 
++  versions_statsmodels:
++    - - ${task.process}:
++          type: string
++          description: The name of the process
++      - statsmodels:
++          type: string
++          description: The name of the tool
++      - "python -c 'import statsmodels; print(statsmodels.__version__)'":
++          type: eval
++          description: The expression to obtain the version of the tool
+ topics:
+   versions:
+     - - ${task.process}:
+@@ -95,6 +105,15 @@
+       - suppa.py -v | sed '1!d;s/.* //':
+           type: eval
+           description: The expression to obtain the version of the tool
++    - - ${task.process}:
++          type: string
++          description: The name of the process
++      - statsmodels:
++          type: string
++          description: The name of the tool
++      - "python -c 'import statsmodels; print(statsmodels.__version__)'":
++          type: eval
++          description: The expression to obtain the version of the tool
+ authors:
+   - "@lathikaa"
+   - "@piplus2"
+
+Changes in 'suppa/clusterevents/tests/main.nf.test.snap':
+--- modules/nf-core/suppa/clusterevents/tests/main.nf.test.snap
++++ modules/nf-core/suppa/clusterevents/tests/main.nf.test.snap
+@@ -10,6 +10,13 @@
+                         "test_SE.clustvec:md5,dea9bf23050c80a91a5abc357168ec9a"
+                     ]
+                 ],
++                "versions_statsmodels": [
++                    [
++                        "SUPPA_CLUSTEREVENTS",
++                        "statsmodels",
++                        "0.14.6"
++                    ]
++                ],
+                 "versions_suppa": [
+                     [
+                         "SUPPA_CLUSTEREVENTS",
+@@ -19,7 +26,7 @@
+                 ]
+             }
+         ],
+-        "timestamp": "2026-07-23T12:45:41.357146245",
++        "timestamp": "2026-10-11T13:48:39.862384556",
+         "meta": {
+             "nf-test": "0.9.5",
+             "nextflow": "26.04.4"
+@@ -36,6 +43,13 @@
+                         "test_SE.clustvec:md5,d41d8cd98f00b204e9800998ecf8427e"
+                     ]
+                 ],
++                "versions_statsmodels": [
++                    [
++                        "SUPPA_CLUSTEREVENTS",
++                        "statsmodels",
++                        "0.14.6"
++                    ]
++                ],
+                 "versions_suppa": [
+                     [
+                         "SUPPA_CLUSTEREVENTS",
+@@ -45,7 +59,7 @@
+                 ]
+             }
+         ],
+-        "timestamp": "2026-07-23T12:03:30.404930845",
++        "timestamp": "2026-10-11T13:49:02.824018518",
+         "meta": {
+             "nf-test": "0.9.5",
+             "nextflow": "26.04.4"
+@@ -62,6 +76,13 @@
+                         "test_SE.clustvec:md5,d41d8cd98f00b204e9800998ecf8427e"
+                     ]
+                 ],
++                "versions_statsmodels": [
++                    [
++                        "SUPPA_CLUSTEREVENTS",
++                        "statsmodels",
++                        "0.14.6"
++                    ]
++                ],
+                 "versions_suppa": [
+                     [
+                         "SUPPA_CLUSTEREVENTS",
+@@ -71,7 +92,7 @@
+                 ]
+             }
+         ],
+-        "timestamp": "2026-07-23T12:03:22.196960277",
++        "timestamp": "2026-10-11T13:48:51.727927161",
+         "meta": {
+             "nf-test": "0.9.5",
+             "nextflow": "26.04.4"
+@@ -88,6 +109,13 @@
+                         "test_SE.clustvec:md5,b4ca48e5306183aaecc9b890fe87e13c"
+                     ]
+                 ],
++                "versions_statsmodels": [
++                    [
++                        "SUPPA_CLUSTEREVENTS",
++                        "statsmodels",
++                        "0.14.6"
++                    ]
++                ],
+                 "versions_suppa": [
+                     [
+                         "SUPPA_CLUSTEREVENTS",
+@@ -97,7 +125,7 @@
+                 ]
+             }
+         ],
+-        "timestamp": "2026-07-23T12:45:30.145038587",
++        "timestamp": "2026-10-11T13:48:25.136538718",
+         "meta": {
+             "nf-test": "0.9.5",
+             "nextflow": "26.04.4"
+
 'modules/nf-core/suppa/clusterevents/tests/main.nf.test' is unchanged
 ************************************************************

@@ -8,8 +8,111 @@ Changes in 'suppa/psiperisoform/environment.yml':
    - bioconda::suppa=2.4
 +  - conda-forge::statsmodels=0.14.6
 
-'modules/nf-core/suppa/psiperisoform/main.nf' is unchanged
-'modules/nf-core/suppa/psiperisoform/meta.yml' is unchanged
-'modules/nf-core/suppa/psiperisoform/tests/main.nf.test.snap' is unchanged
+Changes in 'suppa/psiperisoform/main.nf':
+--- modules/nf-core/suppa/psiperisoform/main.nf
++++ modules/nf-core/suppa/psiperisoform/main.nf
+@@ -14,6 +14,7 @@
+     output:
+     tuple val(meta), path("*.psi"), emit: psi
+     tuple val("${task.process}"), val('suppa'), eval("suppa.py -v | sed '1!d;s/.* //'"), topic: versions, emit: versions_suppa
++    tuple val("${task.process}"), val('statsmodels'), eval("python -c 'import statsmodels; print(statsmodels.__version__)'"), topic: versions, emit: versions_statsmodels
+ 
+     when:
+     task.ext.when == null || task.ext.when
+
+Changes in 'suppa/psiperisoform/meta.yml':
+--- modules/nf-core/suppa/psiperisoform/meta.yml
++++ modules/nf-core/suppa/psiperisoform/meta.yml
+@@ -63,6 +63,16 @@
+       - "suppa.py -v | sed '1!d;s/.* //'":
+           type: eval
+           description: The expression to obtain the version of the tool
++  versions_statsmodels:
++    - - ${task.process}:
++          type: string
++          description: The name of the process
++      - statsmodels:
++          type: string
++          description: The name of the tool
++      - "python -c 'import statsmodels; print(statsmodels.__version__)'":
++          type: eval
++          description: The expression to obtain the version of the tool
+ topics:
+   versions:
+     - - ${task.process}:
+@@ -74,6 +84,15 @@
+       - "suppa.py -v | sed '1!d;s/.* //'":
+           type: eval
+           description: The expression to obtain the version of the tool
++    - - ${task.process}:
++          type: string
++          description: The name of the process
++      - statsmodels:
++          type: string
++          description: The name of the tool
++      - "python -c 'import statsmodels; print(statsmodels.__version__)'":
++          type: eval
++          description: The expression to obtain the version of the tool
+ authors:
+   - "@lathikaa"
+   - "@piplus2"
+
+Changes in 'suppa/psiperisoform/tests/main.nf.test.snap':
+--- modules/nf-core/suppa/psiperisoform/tests/main.nf.test.snap
++++ modules/nf-core/suppa/psiperisoform/tests/main.nf.test.snap
+@@ -10,6 +10,13 @@
+                         "sample1.psi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                     ]
+                 ],
++                "versions_statsmodels": [
++                    [
++                        "SUPPA_PSIPERISOFORM",
++                        "statsmodels",
++                        "0.14.6"
++                    ]
++                ],
+                 "versions_suppa": [
+                     [
+                         "SUPPA_PSIPERISOFORM",
+@@ -19,10 +26,10 @@
+                 ]
+             }
+         ],
+-        "timestamp": "2026-07-20T15:58:24.600122389",
++        "timestamp": "2026-10-11T13:53:04.503583438",
+         "meta": {
+             "nf-test": "0.9.5",
+-            "nextflow": "26.04.3"
++            "nextflow": "26.04.4"
+         }
+     },
+     "human - tpm": {
+@@ -36,6 +43,13 @@
+                         "sample1.psi_isoform.psi:md5,997759ca63af7047f47d3cb2355dc97f"
+                     ]
+                 ],
++                "versions_statsmodels": [
++                    [
++                        "SUPPA_PSIPERISOFORM",
++                        "statsmodels",
++                        "0.14.6"
++                    ]
++                ],
+                 "versions_suppa": [
+                     [
+                         "SUPPA_PSIPERISOFORM",
+@@ -45,10 +59,10 @@
+                 ]
+             }
+         ],
+-        "timestamp": "2026-07-20T15:58:35.301629843",
++        "timestamp": "2026-10-11T13:52:59.700958876",
+         "meta": {
+             "nf-test": "0.9.5",
+-            "nextflow": "26.04.3"
++            "nextflow": "26.04.4"
+         }
+     }
+ }
 'modules/nf-core/suppa/psiperisoform/tests/main.nf.test' is unchanged
 ************************************************************
