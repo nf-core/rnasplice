@@ -60,21 +60,27 @@
                     "stageR": "1.32.0"
                 },
                 "SUPPA_CLUSTEREVENTS": {
+                    "statsmodels": "0.14.6",
                     "suppa": 2.4
                 },
                 "SUPPA_DIFFSPLICE": {
+                    "statsmodels": "0.14.6",
                     "suppa": 2.4
                 },
                 "SUPPA_GENERATEEVENTS_IOE": {
+                    "statsmodels": "0.14.6",
                     "suppa": 2.4
                 },
                 "SUPPA_GENERATEEVENTS_IOI": {
+                    "statsmodels": "0.14.6",
                     "suppa": 2.4
                 },
                 "SUPPA_PSIPEREVENT": {
+                    "statsmodels": "0.14.6",
                     "suppa": 2.4
                 },
                 "SUPPA_PSIPERISOFORM": {
+                    "statsmodels": "0.14.6",
                     "suppa": 2.4
                 },
                 "TXIMPORT": {
@@ -372,7 +378,7 @@
                 "genes_chrX.ioi:md5,6c9ee3567554e3f74186b4c17ec777d6"
             ]
         ],
-        "timestamp": "2026-10-09T19:46:19.715579856",
+        "timestamp": "2026-10-11T20:03:00.620051561",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.4"
