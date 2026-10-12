@@ -5,7 +5,7 @@
                 "CLUSTERGROUPS": {
                     "python": "3.14.6"
                 },
-                "CREATE_BAMLIST": {
+                "CREATEBAMLIST": {
                     "sed": 4.9
                 },
                 "DEXSEQ_ANNOTATION": {
@@ -105,10 +105,10 @@
                 "SAMTOOLS_STATS": {
                     "samtools": 1.24
                 },
-                "SPLIT_FILES_PSI": {
+                "SPLITFILES_PSI": {
                     "r-base": "4.6.1"
                 },
-                "SPLIT_FILES_TPM": {
+                "SPLITFILES_TPM": {
                     "r-base": "4.6.1"
                 },
                 "STAGER": {
@@ -4677,7 +4677,7 @@
                 "ERR204916_sorted.bam": "c5ecfcfc8a738282a1dd2c00318e1de7"
             }
         ],
-        "timestamp": "2026-10-12T09:59:29.896553097",
+        "timestamp": "2026-10-12T17:52:57.451865256",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.4"

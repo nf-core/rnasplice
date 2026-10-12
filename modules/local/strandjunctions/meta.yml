@@ -1,5 +1,5 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
-name: "strand_junctions"
+name: "strandjunctions"
 description: Give a strand to the junction records regtools left strandless, from the splice motif in the genome and from the annotation
 keywords:
   - junctions

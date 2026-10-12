@@ -1,5 +1,5 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
-name: "create_bamlist"
+name: "createbamlist"
 description: Write the comma separated BAM file lists of the conditions of an rMATS
   run, which rMATS reads with `--b1` and `--b2`
 keywords:

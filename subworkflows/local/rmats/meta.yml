@@ -9,8 +9,8 @@ keywords:
   - bam
 components:
   - rmats/prep
-  - create_bamlist
-  - rmats_post
+  - createbamlist
+  - rmats/post
 input:
   - ch_samples:
       type: list

@@ -9,8 +9,8 @@ include { SUPPA_PSIPERISOFORM } from '../../../modules/nf-core/suppa/psiperisofo
 include { SUPPA_DIFFSPLICE } from '../../../modules/nf-core/suppa/diffsplice'
 include { SUPPA_CLUSTEREVENTS } from '../../../modules/nf-core/suppa/clusterevents'
 include { MERGEEVENTS } from '../../../modules/local/mergeevents'
-include { SPLIT_FILES as SPLIT_FILES_TPM } from '../../../modules/local/splitfiles'
-include { SPLIT_FILES as SPLIT_FILES_PSI } from '../../../modules/local/splitfiles'
+include { SPLITFILES as SPLITFILES_TPM } from '../../../modules/local/splitfiles'
+include { SPLITFILES as SPLITFILES_PSI } from '../../../modules/local/splitfiles'
 include { CLUSTERGROUPS } from '../../../modules/local/clustergroups'
 
 workflow SUPPA {
@@ -61,7 +61,7 @@ workflow SUPPA {
     //
     // MODULE: Split the TPM file into one file per condition
     //
-    SPLIT_FILES_TPM(
+    SPLITFILES_TPM(
         ch_tpm.combine(ch_condition_samples).map { meta, tpm, condition, sample_ids ->
             [meta + [id: "${meta.id}_${condition}".toString(), condition: condition], tpm, sample_ids]
         },
@@ -143,7 +143,7 @@ workflow SUPPA {
     //
     // MODULE: Split the PSI files into one file per condition
     //
-    SPLIT_FILES_PSI(
+    SPLITFILES_PSI(
         ch_level_psi.combine(ch_condition_samples).map { level, psi, condition, sample_ids ->
             [[id: "${level}_${condition}".toString(), level: level, condition: condition], psi, sample_ids]
         },
@@ -151,9 +151,9 @@ workflow SUPPA {
     )
 
     // TPM and PSI files of each condition: [ [ level, condition ], tpm, psi ]
-    ch_condition_tpm_psi = SPLIT_FILES_PSI.out.split
+    ch_condition_tpm_psi = SPLITFILES_PSI.out.split
         .map { meta, psi -> [meta.condition, meta.level, psi] }
-        .combine(SPLIT_FILES_TPM.out.split.map { meta, tpm -> [meta.condition, tpm] }, by: 0)
+        .combine(SPLITFILES_TPM.out.split.map { meta, tpm -> [meta.condition, tpm] }, by: 0)
         .map { condition, level, psi, tpm -> [[level, condition], tpm, psi] }
 
     // The events, and the files of the treatment and of the control, of each contrast:
@@ -227,9 +227,9 @@ workflow SUPPA {
     ioi_events = ch_events_ioi // channel: [ val(meta), path(ioi) ]
     suppa_local_psi = ch_events_psi // channel: [ val(meta), path(psi) ]
     suppa_isoform_psi = ch_isoform_psi // channel: [ val(meta), path(psi) ]
-    split_suppa_tpms = SPLIT_FILES_TPM.out.split // channel: [ val(meta), path(tpm) ], one per condition
-    split_suppa_local_psi = SPLIT_FILES_PSI.out.split.filter { meta, _psi -> meta.level == 'local' } // channel: [ val(meta), path(psi) ], one per condition
-    split_suppa_isoform_psi = SPLIT_FILES_PSI.out.split.filter { meta, _psi -> meta.level == 'transcript' } // channel: [ val(meta), path(psi) ], one per condition
+    split_suppa_tpms = SPLITFILES_TPM.out.split // channel: [ val(meta), path(tpm) ], one per condition
+    split_suppa_local_psi = SPLITFILES_PSI.out.split.filter { meta, _psi -> meta.level == 'local' } // channel: [ val(meta), path(psi) ], one per condition
+    split_suppa_isoform_psi = SPLITFILES_PSI.out.split.filter { meta, _psi -> meta.level == 'transcript' } // channel: [ val(meta), path(psi) ], one per condition
     dpsi_local = SUPPA_DIFFSPLICE.out.dpsi.filter { meta, _dpsi -> meta.level == 'local' } // channel: [ val(meta), path(dpsi) ]
     psivec_local = SUPPA_DIFFSPLICE.out.psivec.filter { meta, _psivec -> meta.level == 'local' } // channel: [ val(meta), path(psivec) ]
     dpsi_isoform = SUPPA_DIFFSPLICE.out.dpsi.filter { meta, _dpsi -> meta.level == 'transcript' } // channel: [ val(meta), path(dpsi) ]

@@ -1,4 +1,4 @@
-process CREATE_BAMLIST {
+process CREATEBAMLIST {
     tag "${contrast}"
     label 'process_single'
 

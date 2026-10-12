@@ -10,8 +10,8 @@ nextflow_workflow {
     tag "subworkflows/rmats"
     tag "rmats"
     tag "rmats/prep"
-    tag "create_bamlist"
-    tag "rmats_post"
+    tag "createbamlist"
+    tag "rmats/post"
 
     // Two GBR and two YRI samples of the pipeline test data
 

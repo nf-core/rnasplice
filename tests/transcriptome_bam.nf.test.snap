@@ -50,10 +50,10 @@
                 "SAMTOOLS_STATS": {
                     "samtools": 1.24
                 },
-                "SPLIT_FILES_PSI": {
+                "SPLITFILES_PSI": {
                     "r-base": "4.6.1"
                 },
-                "SPLIT_FILES_TPM": {
+                "SPLITFILES_TPM": {
                     "r-base": "4.6.1"
                 },
                 "STAGER": {
@@ -376,7 +376,7 @@
                 "ERR204916_sorted.bam": "bd622b25f9125e6e1a2bde6b6769c642"
             }
         ],
-        "timestamp": "2026-10-12T10:00:47.17005286",
+        "timestamp": "2026-10-12T18:08:52.913169826",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.4"

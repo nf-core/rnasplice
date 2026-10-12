@@ -1,4 +1,4 @@
-process STAR_GENOMEPARAMS_UPGRADE {
+process GENOMEPARAMSUPGRADE {
     tag "${meta.id ?: index.name}"
     label 'process_single'
 

@@ -1,13 +1,13 @@
-// nf-core modules test create_bamlist
+// nf-core modules test createbamlist
 nextflow_process {
 
-    name "Test Process CREATE_BAMLIST"
+    name "Test Process CREATEBAMLIST"
     script "../main.nf"
-    process "CREATE_BAMLIST"
+    process "CREATEBAMLIST"
 
     tag "modules"
     tag "modules_local"
-    tag "create_bamlist"
+    tag "createbamlist"
 
     // Two GBR and two YRI samples of the pipeline test data. The GBR files are given out
     // of name order, so that the list keeps the order it is given

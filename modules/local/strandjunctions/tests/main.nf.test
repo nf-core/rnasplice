@@ -1,13 +1,13 @@
-// nf-core modules test strand_junctions
+// nf-core modules test strandjunctions
 nextflow_process {
 
-    name "Test Process STRAND_JUNCTIONS"
+    name "Test Process STRANDJUNCTIONS"
     script "../main.nf"
-    process "STRAND_JUNCTIONS"
+    process "STRANDJUNCTIONS"
 
     tag "modules"
     tag "modules_local"
-    tag "strand_junctions"
+    tag "strandjunctions"
 
     setup {
         // The introns the junction records span, on a 600 base contig of A with the

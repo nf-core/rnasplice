@@ -1,4 +1,4 @@
-// nf-core modules test rmats_post
+// nf-core modules test rmats/post
 nextflow_process {
 
     name "Test Process RMATS_POST"
@@ -8,7 +8,7 @@ nextflow_process {
 
     tag "modules"
     tag "modules_local"
-    tag "rmats_post"
+    tag "rmats/post"
     tag "rmats"
     tag "rmats/prep"
 
@@ -19,7 +19,7 @@ nextflow_process {
         file("${outputDir}/YRI_bamlist.txt").text = 'ERR188454.Aligned.out.bam,ERR204916.Aligned.out.bam'
 
         run("RMATS_PREP") {
-            script "../../../nf-core/rmats/prep/main.nf"
+            script "../../../../nf-core/rmats/prep/main.nf"
             process {
                 """
                 input[0] = channel.of(

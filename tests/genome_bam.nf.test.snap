@@ -2,7 +2,7 @@
     "-profile test_genome_bam": {
         "content": [
             {
-                "CREATE_BAMLIST": {
+                "CREATEBAMLIST": {
                     "sed": 4.9
                 },
                 "DEXSEQ_ANNOTATION": {
@@ -4226,7 +4226,7 @@
                 "ERR204916_sorted.bam": "996a3a84107c5eb994ba2dbe428e9f5b"
             }
         ],
-        "timestamp": "2026-10-12T09:43:07.371273006",
+        "timestamp": "2026-10-12T18:00:38.995317516",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.4"

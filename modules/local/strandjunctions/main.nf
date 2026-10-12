@@ -1,4 +1,4 @@
-process STRAND_JUNCTIONS {
+process STRANDJUNCTIONS {
     tag "${meta.id}"
     label 'process_single'
 
@@ -20,7 +20,7 @@ process STRAND_JUNCTIONS {
     task.ext.when == null || task.ext.when
 
     script:
-    template 'strand_junctions.py'
+    template 'strandjunctions.py'
 
     stub:
     def prefix = task.ext.prefix ?: "${meta.id}"

@@ -58,7 +58,7 @@
                     "samtools": 1.21,
                     "star": "2.7.11b"
                 },
-                "STRAND_JUNCTIONS": {
+                "STRANDJUNCTIONS": {
                     "python": "3.14.6"
                 },
                 "TRIMGALORE": {
@@ -520,7 +520,7 @@
                 "ERR204916_sorted.bam": "c5ecfcfc8a738282a1dd2c00318e1de7"
             }
         ],
-        "timestamp": "2026-10-12T09:46:26.883046102",
+        "timestamp": "2026-10-12T18:03:53.664008035",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.4"
