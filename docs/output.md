@@ -30,14 +30,14 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
   - [MultiQC](#multiqc) - Aggregate report describing results and QC from the whole pipeline
 - Pseudo-alignment and quantification.
   - [Salmon](#salmon) - Wicked fast gene and isoform quantification relative to the transcriptome
-- Leafcutter(#leafcutter) - Quantification of splicing with Leafcutter.
+- [Leafcutter](#leafcutter) - Quantification of splicing with Leafcutter.
 - Differential Exon Usage (DEU).
   - [DEXSeq](#dexseq) - For differential exon usage analysis following quantification with HTSeq.
   - [edgeR](#edger) - For differential exon usage (includes differential exon expression) following quantification with featureCounts
 - Differential Transcript Usage (DTU).
   - [DRIMSeq](#drimseq) - Filtering of genes and features prior to DTU.
   - [DEXSeq](#dexseq-1) - For differential transcript usage analysis following Salmon pseudo-alignment and quantification.
-  - [IsoformSwitchAnalyzeR](#IsoformSwitchAnalyzeR) - For isoform switch analysis following Salmon pseudo-alignment.
+  - [IsoformSwitchAnalyzeR](#isoformswitchanalyzer) - For isoform switch analysis following Salmon pseudo-alignment.
 - Event-based Differential Splicing analysis.
   - [rMats](#rmats) - Designed for detection of differential alternative splicing from replicate RNA-Seq data.
   - [SUPPA2](#suppa2) - Differential splicing analysis across multiple conditions at local event based and transcript isoform level following Salmon pseuodo-alignment and quantification.
@@ -68,7 +68,9 @@ If multiple libraries/runs have been provided for the same sample in the input s
   - `*_fastqc.html`: FastQC report containing quality metrics.
   - `*_fastqc.zip`: Zip archive containing the FastQC report, tab-delimited data file and plot images.
 
-> **NB:** The FastQC plots in this directory are generated relative to the raw, input reads. They may contain adapter sequence and regions of low quality. To see how your reads look after adapter and quality trimming please refer to the FastQC reports in the `trimgalore/fastqc/` directory.
+:::note
+The FastQC plots in this directory are generated relative to the raw, input reads. They may contain adapter sequence and regions of low quality. To see how your reads look after adapter and quality trimming please refer to the FastQC reports in the `trimgalore/fastqc/` directory.
+:::
 
 </details>
 
@@ -100,7 +102,9 @@ The FastQC plots displayed in the MultiQC report shows _untrimmed_ reads. They m
 
 [Trim Galore!](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/) is a wrapper tool around Cutadapt and FastQC to peform quality and adapter trimming on FastQ files. Trim Galore! will automatically detect and trim the appropriate adapter sequence. It is the default trimming tool used by this pipeline, however you can use fastp instead by specifying the `--trimmer fastp` parameter. You can specify additional options for Trim Galore! via the `--extra_trimgalore_args` parameters.
 
-> **NB:** TrimGalore! will only run using multiple cores if you are able to use more than > 5 and > 6 CPUs for single- and paired-end data, respectively. The total cores available to TrimGalore! will also be capped at 4 (7 and 8 CPUs in total for single- and paired-end data, respectively) because there is no longer a run-time benefit. See [release notes](https://github.com/FelixKrueger/TrimGalore/blob/master/Changelog.md#version-060-release-on-1-mar-2019) and [discussion whilst adding this logic to the nf-core/atacseq pipeline](https://github.com/nf-core/atacseq/pull/65).
+:::note
+TrimGalore! will only run using multiple cores if you are able to use more than > 5 and > 6 CPUs for single- and paired-end data, respectively. The total cores available to TrimGalore! will also be capped at 4 (7 and 8 CPUs in total for single- and paired-end data, respectively) because there is no longer a run-time benefit. See [release notes](https://github.com/FelixKrueger/TrimGalore/blob/master/Changelog.md#version-060-release-on-1-mar-2019) and [discussion whilst adding this logic to the nf-core/atacseq pipeline](https://github.com/nf-core/atacseq/pull/65).
+:::
 
 ![MultiQC - cutadapt trimmed sequence length plot](images/mqc_cutadapt_trimmed.png)
 
@@ -294,9 +298,13 @@ Although this workflow does not deal in differential gene expression we also pro
 
 This workflow will also produce a `suppa_tpm.txt` which is a tab delimitated text file of TPM normalised counts formatted for SUPPA analysis.
 
-**NB:** As described by the [nf-core/rnaseq](https://github.com/nf-core/rnaseq) pipeline: "The default Salmon parameters and a k-mer size of 31 are used to create the index. As [documented here](https://salmon.readthedocs.io/en/latest/salmon.html#preparing-transcriptome-indices-mapping-based-mode) and [discussed here](https://github.com/COMBINE-lab/salmon/issues/482#issuecomment-583799668), a k-mer size off 31 works well with reads that are 75bp or longer".
+:::note
+As described by the [nf-core/rnaseq](https://github.com/nf-core/rnaseq) pipeline: "The default Salmon parameters and a k-mer size of 31 are used to create the index. As [documented here](https://salmon.readthedocs.io/en/latest/salmon.html#preparing-transcriptome-indices-mapping-based-mode) and [discussed here](https://github.com/COMBINE-lab/salmon/issues/482#issuecomment-583799668), a k-mer size off 31 works well with reads that are 75bp or longer".
+:::
 
-**NB:** As described by the [nf-core/rnaseq](https://github.com/nf-core/rnaseq) pipeline: "Transcripts with large inferential uncertainty won't be assigned the exact number of reads reproducibly, every time Salmon is run. Read more about this on the [nf-core/rnaseq](https://github.com/nf-core/rnaseq/issues/585) and [salmon](https://github.com/COMBINE-lab/salmon/issues/613) Github repos".
+:::note
+As described by the [nf-core/rnaseq](https://github.com/nf-core/rnaseq) pipeline: "Transcripts with large inferential uncertainty won't be assigned the exact number of reads reproducibly, every time Salmon is run. Read more about this on the [nf-core/rnaseq](https://github.com/nf-core/rnaseq/issues/585) and [salmon](https://github.com/COMBINE-lab/salmon/issues/613) Github repos".
+:::
 
 ## Splicing quantification
 
