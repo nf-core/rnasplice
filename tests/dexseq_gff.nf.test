@@ -20,6 +20,13 @@ nextflow_pipeline {
             // stable_content: All files in ${params.outdir}/ with stable content
             def stable_content = getAllFilesFromDir(params.outdir, ignoreFile: 'tests/.nftignore')
 
+            // Sorted BAM files: left out of stable_content by the ignoreFile, as the conda and
+            // container builds of samtools write different BAM headers, and snapshotted by the
+            // md5 of their alignments instead
+            def sorted_bams = []
+            new File(params.outdir).eachFileRecurse { bam_file -> if (bam_file.name.endsWith('_sorted.bam')) { sorted_bams << bam_file } }
+            sorted_bams = sorted_bams.sort { bam_file -> bam_file.path }.collectEntries { bam_file -> [ bam_file.name, bam(bam_file.path).getSamLinesMD5() ] }
+
             // The annotation is supplied gzipped, so it has to be uncompressed by
             // PREPARE_GENOME and used as is, rather than re-flattened from the GTF
             def task_names = workflow.trace.tasks().collect { task -> task.name }
@@ -38,7 +45,10 @@ nextflow_pipeline {
                     stable_path,
 
                     // Snapshot the deterministic data file contents
-                    stable_content
+                    stable_content,
+
+                    // Snapshot the sorted BAM files by the md5 of their alignments
+                    sorted_bams
                 ).match() }
             )
         }

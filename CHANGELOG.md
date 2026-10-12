@@ -138,6 +138,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #317 - Restore the MultiQC screenshots of the output docs, which the template update to nf-core/tools 3.0.0 deleted (by @piplus2)
 - #320 - Fix SUPPA with `-profile conda`, where a newer statsmodels lacked the `multipletests` import of SUPPA 2.4. The SUPPA modules now pin statsmodels 0.14.6, as in their container (by @piplus2)
 - #321 - Fix local modules giving different results with `-profile conda` and the containers: pin R and its packages to the container versions for DRIMSeq, edgeR and tximport, compare the edgeR result tables rounded to 6 significant digits in the tests, and stop the GFF3 header of `GFFREAD_GTF2GFF3` from being padded with tabs in the container (by @piplus2)
+- #323 - Fix the pipeline tests with `-profile conda` and Nextflow 26.09: the sorted BAM files, whose headers differ between the conda and container builds of samtools, are snapshotted by their alignments with nft-bam, and the rMATS test of unequal paired sample counts also looks for the error in stderr, where Nextflow 26.09 prints it (by @piplus2)
 - #324 - Update the nf-core SUPPA modules, which now pin statsmodels and report its version, replacing the patches of #320 (by @piplus2)
 
 ## v1.0.4 - 2024-04-21

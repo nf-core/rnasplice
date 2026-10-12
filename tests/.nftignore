@@ -131,3 +131,8 @@ isoformswitchanalyzer/isoformswitchanalyzer_isoformfeatures.csv
 
 # edgeR tables differ in the last digits between builds, the tests snapshot them rounded
 **/edger/contrast_*.usage.*.csv
+
+# The conda and container builds of samtools write different BAM headers: the tests
+# snapshot the alignments of the sorted BAM files with nft-bam, and their indexes by name
+**/*_sorted.bam
+**/*_sorted.bam.bai
