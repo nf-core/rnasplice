@@ -21,6 +21,13 @@ nextflow_pipeline {
             // stable_content: All files in ${params.outdir}/ with stable content
             def stable_content = getAllFilesFromDir(params.outdir, ignoreFile: 'tests/.nftignore')
 
+            // Sorted BAM files: left out of stable_content by the ignoreFile, as the conda and
+            // container builds of samtools write different BAM headers, and snapshotted by the
+            // md5 of their alignments instead
+            def sorted_bams = []
+            new File(params.outdir).eachFileRecurse { bam_file -> if (bam_file.name.endsWith('_sorted.bam')) { sorted_bams << bam_file } }
+            sorted_bams = sorted_bams.sort { bam_file -> bam_file.path }.collectEntries { bam_file -> [ bam_file.name, bam(bam_file.path).getSamLinesMD5() ] }
+
             // edgeR exon usage tables: left out of stable_content by the ignoreFile, as builds
             // of edgeR differ in the last digits, and snapshotted by their rounded values
             def edger_tables = new File("${params.outdir}/star_salmon/edger").listFiles()
@@ -42,7 +49,10 @@ nextflow_pipeline {
                     stable_content,
 
                     // Snapshot the edgeR exon usage tables rounded to 6 significant digits
-                    edger_tables
+                    edger_tables,
+
+                    // Snapshot the sorted BAM files by the md5 of their alignments
+                    sorted_bams
                 ).match() }
             )
         }

@@ -512,9 +512,15 @@
                 "ERR204916.flagstat:md5,77bbb66e375c4f9083d4aab0d55ddcdd",
                 "ERR204916.idxstats:md5,21ed2e992e836e620991e9a24078f1b6",
                 "ERR204916.stats:md5,f7baf2a47782b99be101c252debc293c"
-            ]
+            ],
+            {
+                "ERR188383_sorted.bam": "f333226f0560f0ec7a7f4757ca957f43",
+                "ERR188428_sorted.bam": "477e3d35ff169b85b89d73532b59ede6",
+                "ERR188454_sorted.bam": "b6f10b2c416402e5bb8be64bb6e98bfe",
+                "ERR204916_sorted.bam": "c5ecfcfc8a738282a1dd2c00318e1de7"
+            }
         ],
-        "timestamp": "2026-10-11T21:37:19.399755926",
+        "timestamp": "2026-10-12T09:46:26.883046102",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.4"

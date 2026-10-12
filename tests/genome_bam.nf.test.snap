@@ -4218,9 +4218,15 @@
                 "contrast_YRI-GBR.usage.exon.csv": "da5f933653d65cee4c995fa9c46144ce",
                 "contrast_YRI-GBR.usage.gene.csv": "368f60cbbb8dc82934037f7cdb83b346",
                 "contrast_YRI-GBR.usage.simes.csv": "cd4c38e9dbd8eb37954b6ef8baad93b8"
+            },
+            {
+                "ERR188383_sorted.bam": "511d48197ad35fb9fa647145f3913399",
+                "ERR188428_sorted.bam": "5db774be63e27d76716d9a23b0b17192",
+                "ERR188454_sorted.bam": "39de93fc28cf1f22ecdc88ad2ea99205",
+                "ERR204916_sorted.bam": "996a3a84107c5eb994ba2dbe428e9f5b"
             }
         ],
-        "timestamp": "2026-10-11T21:34:15.705199593",
+        "timestamp": "2026-10-12T09:43:07.371273006",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.4"
