@@ -25,6 +25,26 @@
                         "git_sha": "eac429d4c67ac5114ce7d4287d460d8f05fd9fab",
                         "installed_by": ["modules"]
                     },
+                    "dexseq/count": {
+                        "branch": "master",
+                        "git_sha": "fefdbf9dc2f108a2c9a401af1f0b5bb1c3a60754",
+                        "installed_by": ["modules"]
+                    },
+                    "dexseq/dtu": {
+                        "branch": "master",
+                        "git_sha": "6ec19c227668f806a4150248f90b34346be90310",
+                        "installed_by": ["modules"]
+                    },
+                    "dexseq/exon": {
+                        "branch": "master",
+                        "git_sha": "7d863b147abf8128c3f5ed996ef2631ce7fe99ba",
+                        "installed_by": ["modules"]
+                    },
+                    "dexseq/prepareannotation": {
+                        "branch": "master",
+                        "git_sha": "5b6aacd2394742aa94443f446797c58c322c6453",
+                        "installed_by": ["modules"]
+                    },
                     "fastqc": {
                         "branch": "master",
                         "git_sha": "6d46786420b4d7bc88eba026eb389c0c5535d120",
