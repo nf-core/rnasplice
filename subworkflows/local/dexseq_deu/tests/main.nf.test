@@ -41,6 +41,8 @@ nextflow_workflow {
             // order and are sorted before they are snapshotted
             assertAll(
                 { assert workflow.success },
+                // The fold change column is named after the target level, so its header pins the contrast direction
+                { assert path(workflow.out.dexseq_exon_results_tsv.find { meta, _tsv -> meta.id == 'GBR-YRI' }[1]).readLines()[0].split('\t').contains('log2fold_GBR_YRI') },
                 { assert snapshot(
                     workflow.out.dexseq_clean_txt,
                     workflow.out.dexseq_exon_dataset_rds.collect { _meta, rds -> file(rds).name }.sort(),
