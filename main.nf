@@ -59,7 +59,7 @@ params {
     // rMATs
     rmats: Boolean = true
     rmats_splice_diff_cutoff: Float = 0.0001
-    rmats_paired_stats: Boolean = true
+    rmats_paired_stats: Boolean
     rmats_read_len: Integer = 40
     rmats_novel_splice_site: Boolean
     rmats_min_intron_len: Integer = 50

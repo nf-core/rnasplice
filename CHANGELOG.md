@@ -163,6 +163,7 @@ Breaking changes, detailed below:
 - #324 - Update the nf-core SUPPA modules, which now pin statsmodels and report its version, replacing the patches of #320 (by @piplus2)
 - #327 - Default `--ignore_tx_version` to `false`, as documented, and fix `TXIMPORT` stopping with versioned transcript IDs when it is `true`: the transcript tables now drop the versions too (reported by @erikrikarddaniel, fix by @piplus2)
 - #327 - Accept decimal values for `--diffsplice_lower_bound`, `--diffsplice_tpm_threshold` and `--diffsplice_nan_threshold`, which SUPPA reads as decimals but the schema typed as integers (by @piplus2)
+- #327 - Declare `--rmats_paired_stats` without a `true` default in `main.nf`, which contradicted the documented `false` that `nextflow.config` sets (reported by @erikrikarddaniel, fix by @piplus2)
 
 ## v1.0.4 - 2024-04-21
 
