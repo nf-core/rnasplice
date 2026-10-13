@@ -18,6 +18,7 @@ Breaking changes, detailed below:
 - `--rmats_paired_stats` is off by default (#212)
 - DEXSeq counts BAM input following the samplesheet `strandedness` (#263)
 - Some rMATS and SUPPA output paths and file names changed (#285, #309)
+- The DEXSeq exon and DTU results are named `{contrast}.dexseq.*`, and the exon tables are TSV instead of CSV (#327)
 - The samplesheets of the BAM and Salmon sources need unique sample names (#285)
 - Local modules were renamed and moved, so `withName` selectors in custom configs may need updating (#195, #327)
 
@@ -101,6 +102,7 @@ Breaking changes, detailed below:
 - #310 - Move the `TX2GENE_TXIMPORT` subworkflow to the nf-core subworkflow template. It detects a tarball from the file name instead of the first element of the path, and no longer adds a `tgz` key to the meta map of the Salmon results it emits (by @piplus2)
 - #311 - Correct `MISOPY_SETTINGS` metadata and remove redundant prefix argument parsing and configuration overrides (by @felixhaidle)
 - #327 - **Breaking change**: Rename the local modules `CREATE_BAMLIST`, `STRAND_JUNCTIONS`, `SPLIT_FILES` and `STAR_GENOMEPARAMS_UPGRADE` to `CREATEBAMLIST`, `STRANDJUNCTIONS`, `SPLITFILES` and `GENOMEPARAMSUPGRADE`, and move `RMATS_POST` to `modules/local/rmats/post` (suggested by @mashehu, done by @piplus2)
+- #327 - **Breaking change**: Replace the local DEXSeq modules with the nf-core modules `dexseq/prepareannotation`, `dexseq/count`, `dexseq/exon` and `dexseq/dtu`. `DEXSEQ_EXON` and `DEXSEQ_DTU` run once per contrast, and their results are named `{contrast}.dexseq.{dataset,results,gene_qvalues}.{rds,tsv}` and `{contrast}.dexseq.plots.pdf`. The DEXSeq annotation is prepared with a fixed Python hash seed, so it is the same across runs (suggested by @mashehu, done by @piplus2)
 - #327 - `DEXSEQ_DEU` takes `skip_annotation` instead of `prepare_annotation`, and Salmon gets empty inputs instead of the `assets/dummy_file*.txt` placeholders (suggested by @mashehu, done by @piplus2)
 - #327 - Add icons, bounds and tidier descriptions to the parameter schema, the LeafCutter and RegTools citations, and fix the profile names in the `conf/test_*.config` headers (suggested by @mashehu and @erikrikarddaniel, done by @piplus2)
 

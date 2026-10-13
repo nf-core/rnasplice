@@ -90,11 +90,8 @@ trimgalore/*fastq.gz_trimming_report.txt
 
 # DEXSeq
 {salmon,star_salmon}/dexseq_exon/counts/*.count.txt
-{salmon,star_salmon}/dexseq_exon/results/{perGeneQValue,DEXSeqResults}.*.csv
-{salmon,star_salmon}/dexseq_exon/results/dexseq/{perGeneQValue,DEXSeqResults}.rds
-{salmon,star_salmon}/dexseq_exon/results/dexseq/{perGeneQValue,DEXSeqResults}.tsv
-{salmon,star_salmon}/dexseq_dtu/results/dexseq/{perGeneQValue,DEXSeqResults}.rds
-{salmon,star_salmon}/dexseq_dtu/results/dexseq/{perGeneQValue,DEXSeqResults}.tsv
+{salmon,star_salmon}/dexseq_exon/results/*.dexseq.{results,gene_qvalues}.{rds,tsv}
+{salmon,star_salmon}/dexseq_dtu/results/dexseq/*.dexseq.{results,gene_qvalues}.{rds,tsv}
 
 # SUPPA
 {salmon,star_salmon}/suppa/generate_events/per_local_event/*.gtf

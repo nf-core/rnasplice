@@ -5,15 +5,17 @@
                 "CREATEBAMLIST": {
                     "sed": 4.9
                 },
-                "DEXSEQ_ANNOTATION": {
-                    "htseq": "2.1.2"
-                },
                 "DEXSEQ_COUNT": {
+                    "bioconductor-dexseq": "1.56.0",
                     "htseq": "2.1.2"
                 },
                 "DEXSEQ_EXON": {
                     "bioconductor-dexseq": "1.56.0",
                     "r-base": "4.5.3"
+                },
+                "DEXSEQ_PREPAREANNOTATION": {
+                    "bioconductor-dexseq": "1.56.0",
+                    "htseq": "2.1.2"
                 },
                 "EDGER_EXON": {
                     "bioconductor-edger": "3.36.0",
@@ -3969,18 +3971,18 @@
                 "star_salmon/dexseq_exon/counts/ERR188454.clean.count.txt",
                 "star_salmon/dexseq_exon/counts/ERR204916.clean.count.txt",
                 "star_salmon/dexseq_exon/results",
-                "star_salmon/dexseq_exon/results/DEXSeqDataSet.GBR-YRI.rds",
-                "star_salmon/dexseq_exon/results/DEXSeqDataSet.YRI-GBR.rds",
-                "star_salmon/dexseq_exon/results/DEXSeqResults.GBR-YRI.csv",
-                "star_salmon/dexseq_exon/results/DEXSeqResults.GBR-YRI.rds",
-                "star_salmon/dexseq_exon/results/DEXSeqResults.YRI-GBR.csv",
-                "star_salmon/dexseq_exon/results/DEXSeqResults.YRI-GBR.rds",
-                "star_salmon/dexseq_exon/results/perGeneQValue.GBR-YRI.csv",
-                "star_salmon/dexseq_exon/results/perGeneQValue.GBR-YRI.rds",
-                "star_salmon/dexseq_exon/results/perGeneQValue.YRI-GBR.csv",
-                "star_salmon/dexseq_exon/results/perGeneQValue.YRI-GBR.rds",
-                "star_salmon/dexseq_exon/results/plotDEXSeq.GBR-YRI.pdf",
-                "star_salmon/dexseq_exon/results/plotDEXSeq.YRI-GBR.pdf",
+                "star_salmon/dexseq_exon/results/GBR-YRI.dexseq.dataset.rds",
+                "star_salmon/dexseq_exon/results/GBR-YRI.dexseq.gene_qvalues.rds",
+                "star_salmon/dexseq_exon/results/GBR-YRI.dexseq.gene_qvalues.tsv",
+                "star_salmon/dexseq_exon/results/GBR-YRI.dexseq.plots.pdf",
+                "star_salmon/dexseq_exon/results/GBR-YRI.dexseq.results.rds",
+                "star_salmon/dexseq_exon/results/GBR-YRI.dexseq.results.tsv",
+                "star_salmon/dexseq_exon/results/YRI-GBR.dexseq.dataset.rds",
+                "star_salmon/dexseq_exon/results/YRI-GBR.dexseq.gene_qvalues.rds",
+                "star_salmon/dexseq_exon/results/YRI-GBR.dexseq.gene_qvalues.tsv",
+                "star_salmon/dexseq_exon/results/YRI-GBR.dexseq.plots.pdf",
+                "star_salmon/dexseq_exon/results/YRI-GBR.dexseq.results.rds",
+                "star_salmon/dexseq_exon/results/YRI-GBR.dexseq.results.tsv",
                 "star_salmon/edger",
                 "star_salmon/edger/DGEGLM.rds",
                 "star_salmon/edger/DGELRT.exprs.rds",
@@ -4226,10 +4228,10 @@
                 "ERR204916_sorted.bam": "996a3a84107c5eb994ba2dbe428e9f5b"
             }
         ],
-        "timestamp": "2026-10-12T18:00:38.995317516",
+        "timestamp": "2026-10-13T16:39:25.847898844",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.4"
+            "nextflow": "26.04.3"
         }
     }
 }

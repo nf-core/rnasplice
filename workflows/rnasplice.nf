@@ -220,10 +220,7 @@ workflow RNASPLICE {
                 ch_dexseq_gff,
                 params.gff_dexseq as boolean,
                 ch_samplesheet_file,
-                ch_contrastsheet_file,
-                params.n_dexseq_plot,
-                params.aggregation,
-                params.alignment_quality,
+                ch_contrastsheet,
             )
         }
 
@@ -300,7 +297,7 @@ workflow RNASPLICE {
                 ch_txi,
                 ch_tximport_tx2gene,
                 ch_samplesheet_file,
-                ch_contrastsheet_file,
+                ch_contrastsheet,
             )
         }
 
@@ -371,7 +368,7 @@ workflow RNASPLICE {
                 ch_txi,
                 TX2GENE_TXIMPORT_SALMON.out.tximport_tx2gene,
                 ch_samplesheet_file,
-                ch_contrastsheet_file,
+                ch_contrastsheet,
             )
         }
 

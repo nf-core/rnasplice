@@ -111,16 +111,16 @@
                 "salmon/dexseq_dtu/filter/drimseq/dmDSdata.rds",
                 "salmon/dexseq_dtu/results",
                 "salmon/dexseq_dtu/results/dexseq",
-                "salmon/dexseq_dtu/results/dexseq/DEXSeqDataSet.GBR-YRI.rds",
-                "salmon/dexseq_dtu/results/dexseq/DEXSeqDataSet.YRI-GBR.rds",
-                "salmon/dexseq_dtu/results/dexseq/DEXSeqResults.GBR-YRI.rds",
-                "salmon/dexseq_dtu/results/dexseq/DEXSeqResults.GBR-YRI.tsv",
-                "salmon/dexseq_dtu/results/dexseq/DEXSeqResults.YRI-GBR.rds",
-                "salmon/dexseq_dtu/results/dexseq/DEXSeqResults.YRI-GBR.tsv",
-                "salmon/dexseq_dtu/results/dexseq/perGeneQValue.GBR-YRI.rds",
-                "salmon/dexseq_dtu/results/dexseq/perGeneQValue.GBR-YRI.tsv",
-                "salmon/dexseq_dtu/results/dexseq/perGeneQValue.YRI-GBR.rds",
-                "salmon/dexseq_dtu/results/dexseq/perGeneQValue.YRI-GBR.tsv",
+                "salmon/dexseq_dtu/results/dexseq/GBR-YRI.dexseq.dataset.rds",
+                "salmon/dexseq_dtu/results/dexseq/GBR-YRI.dexseq.gene_qvalues.rds",
+                "salmon/dexseq_dtu/results/dexseq/GBR-YRI.dexseq.gene_qvalues.tsv",
+                "salmon/dexseq_dtu/results/dexseq/GBR-YRI.dexseq.results.rds",
+                "salmon/dexseq_dtu/results/dexseq/GBR-YRI.dexseq.results.tsv",
+                "salmon/dexseq_dtu/results/dexseq/YRI-GBR.dexseq.dataset.rds",
+                "salmon/dexseq_dtu/results/dexseq/YRI-GBR.dexseq.gene_qvalues.rds",
+                "salmon/dexseq_dtu/results/dexseq/YRI-GBR.dexseq.gene_qvalues.tsv",
+                "salmon/dexseq_dtu/results/dexseq/YRI-GBR.dexseq.results.rds",
+                "salmon/dexseq_dtu/results/dexseq/YRI-GBR.dexseq.results.tsv",
                 "salmon/dexseq_dtu/results/stager",
                 "salmon/dexseq_dtu/results/stager/getAdjustedPValues.GBR-YRI.rds",
                 "salmon/dexseq_dtu/results/stager/getAdjustedPValues.GBR-YRI.tsv",
@@ -284,10 +284,10 @@
                 "genes_chrX.ioi:md5,6c9ee3567554e3f74186b4c17ec777d6"
             ]
         ],
-        "timestamp": "2026-10-12T18:07:32.400136085",
+        "timestamp": "2026-10-13T16:45:13.100566805",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.4"
+            "nextflow": "26.04.3"
         }
     }
 }

@@ -32,12 +32,12 @@ input:
         The input channel containing the samplesheet, which assigns each sample to a condition
         Structure: [ path(samplesheet) ]
       pattern: "*.csv"
-  - contrastsheet:
-      type: file
+  - ch_contrastsheet:
+      type: map
       description: |
-        The input channel containing the contrastsheet, which lists the conditions to compare
-        Structure: [ path(contrastsheet) ]
-      pattern: "*.csv"
+        The input channel containing the parsed contrastsheet, one row per contrast.
+        `DEXSEQ_DTU` runs once per contrast, with the contrast name as its id
+        Structure: [ contrast: val(contrast), treatment: val(condition), control: val(condition) ]
 output:
   - drimseq_dataset_rds:
       type: file
@@ -61,32 +61,32 @@ output:
       type: file
       description: |
         Channel containing the `DEXSeqDataSet` objects, one per contrast
-        Structure: [ path(rds) ]
-      pattern: "DEXSeqDataSet.*.rds"
+        Structure: [ val(meta), path(rds) ]
+      pattern: "*.dexseq.dataset.rds"
   - dexseq_exon_results_rds:
       type: file
       description: |
         Channel containing the transcript level `DEXSeqResults` objects, one per contrast
-        Structure: [ path(rds) ]
-      pattern: "DEXSeqResults.*.rds"
+        Structure: [ val(meta), path(rds) ]
+      pattern: "*.dexseq.results.rds"
   - dexseq_exon_results_tsv:
       type: file
       description: |
         Channel containing the transcript level results as TSV, one per contrast
-        Structure: [ path(tsv) ]
-      pattern: "DEXSeqResults.*.tsv"
+        Structure: [ val(meta), path(tsv) ]
+      pattern: "*.dexseq.results.tsv"
   - dexseq_gene_results_rds:
       type: file
       description: |
         Channel containing the gene level q-values, one per contrast
-        Structure: [ path(rds) ]
-      pattern: "perGeneQValue.*.rds"
+        Structure: [ val(meta), path(rds) ]
+      pattern: "*.dexseq.gene_qvalues.rds"
   - dexseq_gene_results_tsv:
       type: file
       description: |
         Channel containing the gene level q-values as TSV, one per contrast
-        Structure: [ path(tsv) ]
-      pattern: "perGeneQValue.*.tsv"
+        Structure: [ val(meta), path(tsv) ]
+      pattern: "*.dexseq.gene_qvalues.tsv"
   - stager_rds:
       type: file
       description: |

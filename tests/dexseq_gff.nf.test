@@ -35,7 +35,7 @@ nextflow_pipeline {
 
             assertAll(
                 { assert task_names.any { name -> name.contains('GUNZIP_GFF_DEXSEQ') } },
-                { assert !task_names.any { name -> name.contains('DEXSEQ_ANNOTATION') } },
+                { assert !task_names.any { name -> name.contains('DEXSEQ_PREPAREANNOTATION') } },
                 { assert task_names.count { name -> name.contains('DEXSEQ_COUNT') } == 4 },
                 { assert snapshot(
                     // Remove Nextflow version to prevent cross-version testing failures
