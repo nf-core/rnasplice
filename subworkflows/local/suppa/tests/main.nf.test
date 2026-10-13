@@ -107,6 +107,10 @@ nextflow_workflow {
                 { assert workflow.out.dpsi_local.size() == 2 },
                 { assert workflow.out.dpsi_isoform.size() == 2 },
                 { assert sorted(workflow.out.groups).collect { _meta, txt -> path(txt).text } == [ '1-2,3-4\n' ] * 4 },
+                // SUPPA names the dPSI column `cond1-cond2` and reports cond2 minus cond1, so a
+                // treatment minus control dPSI puts the control first
+                { assert path(workflow.out.dpsi_local.find { meta, _dpsi -> meta.id == 'local_GBR-YRI' }[1]).readLines()[0].startsWith('local_YRI-local_GBR_dPSI') },
+                { assert path(workflow.out.dpsi_isoform.find { meta, _dpsi -> meta.id == 'transcript_GBR-YRI' }[1]).readLines()[0].startsWith('transcript_YRI-transcript_GBR_dPSI') },
                 { assert snapshot(
                     names(workflow.out.ioe_events),
                     names(workflow.out.ioi_events),
