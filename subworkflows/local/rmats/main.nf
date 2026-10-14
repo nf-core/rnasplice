@@ -4,8 +4,8 @@
 
 include { RMATS_PREP } from '../../../modules/nf-core/rmats/prep'
 
-include { CREATE_BAMLIST } from '../../../modules/local/create_bamlist'
-include { RMATS_POST } from '../../../modules/local/rmats_post'
+include { CREATEBAMLIST } from '../../../modules/local/createbamlist'
+include { RMATS_POST } from '../../../modules/local/rmats/post'
 
 workflow RMATS {
     take:
@@ -93,7 +93,7 @@ workflow RMATS {
     }
 
     //
-    // MODULE: CREATE_BAMLIST
+    // MODULE: CREATEBAMLIST
     //
 
     // The BAM files of each run, in samplesheet order within each condition
@@ -114,7 +114,7 @@ workflow RMATS {
             [contrast, cond1, bam1, cond2, bam2]
         }
 
-    CREATE_BAMLIST(
+    CREATEBAMLIST(
         ch_bamlist_input
     )
 
@@ -131,12 +131,12 @@ workflow RMATS {
         .map { _sample_id, contrast, rmats -> [contrast, rmats] }
         .groupTuple()
 
-    // CREATE_BAMLIST only writes the second bam list when there is a second condition,
+    // CREATEBAMLIST only writes the second bam list when there is a second condition,
     // so a single condition run joins with no bam list 2. It has to become an empty list
     // rather than an empty string, which a `path` input rejects
     ch_post_input = ch_run_samples
-        .join(CREATE_BAMLIST.out.bam_list1, by: 0)
-        .join(CREATE_BAMLIST.out.bam_list2, by: 0, remainder: true)
+        .join(CREATEBAMLIST.out.bam_list1, by: 0)
+        .join(CREATEBAMLIST.out.bam_list2, by: 0, remainder: true)
         .join(ch_run_rmats, by: 0)
         .map { contrast, cond1, _ids1, cond2, _ids2, bam_list1, bam_list2, rmats ->
             // A single condition run has no control, so its meta map has no control key
@@ -155,8 +155,8 @@ workflow RMATS {
     emit:
     rmats = RMATS_PREP.out.rmats // channel: [ val(meta), path(rmats) ]
     read_outcomes = RMATS_PREP.out.read_outcomes // channel: [ val(meta), path(txt) ]
-    bam_list1 = CREATE_BAMLIST.out.bam_list1 // channel: [ val(contrast), path(txt) ]
-    bam_list2 = CREATE_BAMLIST.out.bam_list2 // channel: [ val(contrast), path(txt) ]
+    bam_list1 = CREATEBAMLIST.out.bam_list1 // channel: [ val(contrast), path(txt) ]
+    bam_list2 = CREATEBAMLIST.out.bam_list2 // channel: [ val(contrast), path(txt) ]
     mats = RMATS_POST.out.mats // channel: [ val(meta), [ path(txt) ] ]
     from_gtf = RMATS_POST.out.from_gtf // channel: [ val(meta), [ path(txt) ] ]
     raw_input = RMATS_POST.out.raw_input // channel: [ val(meta), [ path(txt) ] ]

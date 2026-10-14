@@ -99,6 +99,44 @@ nextflow_process {
 
     }
 
+    // The test data carries no transcript versions, so the case `--ignore_tx_version`
+    // exists for is built inline: versioned IDs in both the quantifications and tx2gene
+    test("versioned transcript IDs - ignore_tx_version") {
+
+        config "./ignore_tx_version.config"
+
+        when {
+            process {
+            """
+            def fixture = new File("\${launchDir}/versioned_fixture")
+            fixture.mkdirs()
+            def samples = []
+            ['S1', 'S2'].each { s ->
+                def dir = new File(fixture, s)
+                dir.mkdirs()
+                new File(dir, 'quant.sf').text = "Name\\tLength\\tEffectiveLength\\tTPM\\tNumReads\\nENST01.3\\t1000\\t900\\t500\\t50\\nENST02.1\\t2000\\t1900\\t500\\t100\\n"
+                samples << file(dir.toString(), type: 'dir')
+            }
+            def tx2gene = new File(fixture, 'tx2gene.tsv')
+            tx2gene.text = "ENST01.3\\tG1\\tg1\\nENST02.1\\tG1\\tg1\\n"
+
+            input[0] = [ [ id:'test' ], samples ]
+            input[1] = file(tx2gene.toString())
+            """
+            }
+        }
+
+        then {
+            // The transcript tables must lose the versions, as tx2gene does
+            assertAll(
+                { assert process.success },
+                { assert path(process.out.counts_transcript[0]).readLines().drop(1).collect { line -> line.split('\t')[0] } == ['ENST01', 'ENST02'] },
+                { assert path(process.out.counts_transcript_dtu_scaled[0]).readLines().drop(1).collect { line -> line.split('\t')[0] } == ['ENST01', 'ENST02'] }
+            )
+        }
+
+    }
+
     test("human chrX - salmon quant - stub") {
 
         options "-stub"

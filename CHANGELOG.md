@@ -3,7 +3,25 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## v2.0.0 - Fenix Reborn - [2026-10-09]
+## v2.0.0 - Fenix Reborn - [yyyy-mm-dd]
+
+The first release since 1.0.4 in April 2024 brings the pipeline up to the nf-core template 4.1.0, Nextflow 26.04 and nf-schema. Highlights:
+
+- New LeafCutter (`--leafcutter`) and IsoformSwitchAnalyzeR (`--isoformswitchanalyzer`) analyses
+- Every local module and subworkflow follows the nf-core template and has its own nf-tests, and the pipeline tests cover all four `--source` values with conda, Docker and Singularity
+- The AWS iGenomes STAR indices work with a current STAR version
+
+Breaking changes, detailed below:
+
+- Nextflow 26.04.0 or later is required (#210)
+- `--max_cpus`, `--max_memory` and `--max_time` are replaced by `process.resourceLimits` (#163)
+- `--rmats_paired_stats` is off by default (#212)
+- DEXSeq counts BAM input following the samplesheet `strandedness` (#263)
+- Some rMATS and SUPPA output paths and file names changed (#285, #309)
+- The DEXSeq exon and DTU results are named `{contrast}.dexseq.*`, and the exon tables are TSV instead of CSV (#327)
+- The DEXSeq log2 fold changes are treatment over control, as the contrast name says, where 1.x reported control over treatment (#327)
+- The samplesheets of the BAM and Salmon sources need unique sample names (#285)
+- Local modules were renamed and moved, so `withName` selectors in custom configs may need updating (#195, #327)
 
 ### Added
 
@@ -59,7 +77,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #255 - Refactor `EDGER_EXON` to the nf-core module template. `bin/run_edger_exon.R` is now a module template, `--n_edger_plot` moves to `ext.args` and the inputs and outputs carry a `meta` map (by @piplus2)
 - #256 - Move the `ALIGN_STAR` subworkflow to the nf-core subworkflow template, with nf-tests for both the `STAR_ALIGN` and the `STAR_ALIGN_IGENOMES` paths (by @piplus2)
 - #257 - Move the `DEXSEQ_DEU` subworkflow to the nf-core subworkflow template (by @piplus2)
-- #257 - `DEXSEQ_DEU` emits the DEXSeq exon count tables sorted by file name, and takes an explicit `prepare_annotation` input instead of reading `params.gff_dexseq` (by @piplus2)
+- #257 - `DEXSEQ_DEU` emits the DEXSeq exon count tables sorted by file name, and takes an explicit `skip_annotation` input instead of reading `params.gff_dexseq` (by @piplus2)
 - #261 - The pipeline parses the samplesheet and the contrastsheet once each, in `PIPELINE_INITIALISATION` (by @piplus2)
 - #261 - Remove the unused `INPUT_CHECK` subworkflow (by @piplus2)
 - #264 - Move the `DRIMSEQ_DEXSEQ_DTU` subworkflow to the nf-core subworkflow template (by @piplus2)
@@ -84,6 +102,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #309 - **Breaking change**: Rename the SUPPA cluster group files after their level, so `GBR-YRI_groups.txt` becomes `local_GBR-YRI_groups.txt`, with a new `transcript_GBR-YRI_groups.txt` next to it (by @piplus2)
 - #310 - Move the `TX2GENE_TXIMPORT` subworkflow to the nf-core subworkflow template. It detects a tarball from the file name instead of the first element of the path, and no longer adds a `tgz` key to the meta map of the Salmon results it emits (by @piplus2)
 - #311 - Correct `MISOPY_SETTINGS` metadata and remove redundant prefix argument parsing and configuration overrides (by @felixhaidle)
+- #327 - **Breaking change**: Rename the local modules `CREATE_BAMLIST`, `STRAND_JUNCTIONS`, `SPLIT_FILES` and `STAR_GENOMEPARAMS_UPGRADE` to `CREATEBAMLIST`, `STRANDJUNCTIONS`, `SPLITFILES` and `GENOMEPARAMSUPGRADE`, and move `RMATS_POST` to `modules/local/rmats/post` (suggested by @mashehu, done by @piplus2)
+- #327 - **Breaking change**: Replace the local DEXSeq modules with the nf-core modules `dexseq/prepareannotation`, `dexseq/count`, `dexseq/exon` and `dexseq/dtu`. `DEXSEQ_EXON` and `DEXSEQ_DTU` run once per contrast, and their results are named `{contrast}.dexseq.{dataset,results,gene_qvalues}.{rds,tsv}` and `{contrast}.dexseq.plots.pdf`. The log2 fold changes are now treatment over control, where the local scripts reported control over treatment (reported by @erikrikarddaniel). The DEXSeq annotation is prepared with a fixed Python hash seed, so it is the same across runs (suggested by @mashehu, done by @piplus2)
+- #327 - `DEXSEQ_DEU` takes `skip_annotation` instead of `prepare_annotation`, and Salmon gets empty inputs instead of the `assets/dummy_file*.txt` placeholders (suggested by @mashehu, done by @piplus2)
+- #327 - Add icons, bounds and tidier descriptions to the parameter schema, the LeafCutter and RegTools citations, and fix the profile names in the `conf/test_*.config` headers (suggested by @mashehu and @erikrikarddaniel, done by @piplus2)
 
 ### Fixed
 
@@ -140,6 +162,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #321 - Fix local modules giving different results with `-profile conda` and the containers: pin R and its packages to the container versions for DRIMSeq, edgeR and tximport, compare the edgeR result tables rounded to 6 significant digits in the tests, and stop the GFF3 header of `GFFREAD_GTF2GFF3` from being padded with tabs in the container (by @piplus2)
 - #323 - Fix the pipeline tests with `-profile conda` and Nextflow 26.09: the sorted BAM files, whose headers differ between the conda and container builds of samtools, are snapshotted by their alignments with nft-bam, and the rMATS test of unequal paired sample counts also looks for the error in stderr, where Nextflow 26.09 prints it (by @piplus2)
 - #324 - Update the nf-core SUPPA modules, which now pin statsmodels and report its version, replacing the patches of #320 (by @piplus2)
+- #327 - Default `--ignore_tx_version` to `false`, as documented, and fix `TXIMPORT` stopping with versioned transcript IDs when it is `true`: the transcript tables now drop the versions too (reported by @erikrikarddaniel, fix by @piplus2)
+- #327 - Accept decimal values for `--diffsplice_lower_bound`, `--diffsplice_tpm_threshold` and `--diffsplice_nan_threshold`, which SUPPA reads as decimals but the schema typed as integers (by @piplus2)
+- #327 - Declare `--rmats_paired_stats` without a `true` default in `main.nf`, which contradicted the documented `false` that `nextflow.config` sets (reported by @erikrikarddaniel, fix by @piplus2)
 
 ## v1.0.4 - 2024-04-21
 

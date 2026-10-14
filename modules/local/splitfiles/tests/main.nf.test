@@ -1,9 +1,9 @@
 // nf-core modules test splitfiles
 nextflow_process {
 
-    name "Test Process SPLIT_FILES"
+    name "Test Process SPLITFILES"
     script "../main.nf"
-    process "SPLIT_FILES"
+    process "SPLITFILES"
 
     tag "modules"
     tag "modules_local"

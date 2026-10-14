@@ -10,7 +10,7 @@ keywords:
 components:
   - regtools/junctionsextract
   - leafcutter/clusterregtools
-  - strand_junctions
+  - strandjunctions
 input:
   - ch_genome_bam:
       type: file

@@ -1,4 +1,4 @@
-process SPLIT_FILES {
+process SPLITFILES {
     tag "${meta.id}"
     label 'process_low'
 
@@ -21,7 +21,7 @@ process SPLIT_FILES {
     script:
     prefix = task.ext.prefix ?: "${meta.id}"
     if (!['tpm', 'psi'].contains(extension)) {
-        error("SPLIT_FILES: extension must be 'tpm' or 'psi', got '${extension}'")
+        error("SPLITFILES: extension must be 'tpm' or 'psi', got '${extension}'")
     }
     // The samples as an R character vector, in the order of the columns to write
     def samples_r = samples.collect { sample -> "\"${sample}\"" }.join(', ')

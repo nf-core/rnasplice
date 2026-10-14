@@ -218,12 +218,9 @@ workflow RNASPLICE {
                 ch_gtf,
                 ch_genome_bam,
                 ch_dexseq_gff,
-                !params.gff_dexseq,
+                params.gff_dexseq as boolean,
                 ch_samplesheet_file,
-                ch_contrastsheet_file,
-                params.n_dexseq_plot,
-                params.aggregation,
-                params.alignment_quality,
+                ch_contrastsheet,
             )
         }
 
@@ -278,11 +275,9 @@ workflow RNASPLICE {
     // ====================================================================
 
     if (params.source == 'transcriptome_bam' || ((params.source == 'fastq' && !params.skip_alignment && params.aligner == 'star_salmon'))) {
-        ch_dummy_salmon_index = channel.value(file("${projectDir}/assets/dummy_file.txt", checkIfExists: true))
-
         SALMON_QUANT_STAR(
             ch_transcriptome_bam_for_salmon,
-            ch_dummy_salmon_index,
+            [],
             ch_gtf,
             ch_transcript_fasta,
             true,
@@ -302,7 +297,7 @@ workflow RNASPLICE {
                 ch_txi,
                 ch_tximport_tx2gene,
                 ch_samplesheet_file,
-                ch_contrastsheet_file,
+                ch_contrastsheet,
             )
         }
 
@@ -346,13 +341,11 @@ workflow RNASPLICE {
     }
 
     if (params.source == 'fastq' && params.pseudo_aligner == 'salmon') {
-        ch_dummy_transcript_fasta = channel.value(file("${projectDir}/assets/dummy_file2.txt", checkIfExists: true))
-
         SALMON_QUANT_SALMON(
             ch_trim_reads,
             ch_salmon_index,
             ch_gtf,
-            ch_dummy_transcript_fasta,
+            [],
             false,
             params.salmon_quant_libtype ?: '',
         )
@@ -375,7 +368,7 @@ workflow RNASPLICE {
                 ch_txi,
                 TX2GENE_TXIMPORT_SALMON.out.tximport_tx2gene,
                 ch_samplesheet_file,
-                ch_contrastsheet_file,
+                ch_contrastsheet,
             )
         }
 

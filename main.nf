@@ -59,7 +59,7 @@ params {
     // rMATs
     rmats: Boolean = true
     rmats_splice_diff_cutoff: Float = 0.0001
-    rmats_paired_stats: Boolean = true
+    rmats_paired_stats: Boolean
     rmats_read_len: Integer = 40
     rmats_novel_splice_site: Boolean
     rmats_min_intron_len: Integer = 50
@@ -73,7 +73,7 @@ params {
     aggregation: Boolean = true
     save_dexseq_plot: Boolean = true
     n_dexseq_plot: Integer = 10
-    ignore_tx_version: Boolean = true
+    ignore_tx_version: Boolean = false
 
     // edgeR DEU
     edger_exon: Boolean = true
@@ -122,13 +122,13 @@ params {
     diffsplice_isoform: Boolean = true
     diffsplice_method: String = 'empirical'
     diffsplice_area: Integer = 1000
-    diffsplice_lower_bound: Integer = 0
+    diffsplice_lower_bound: Float = 0.0
     diffsplice_gene_correction: Boolean = true
     diffsplice_paired: Boolean = true
     diffsplice_alpha: Float = 0.05
     diffsplice_median: Boolean
-    diffsplice_tpm_threshold: Integer = 0
-    diffsplice_nan_threshold: Integer = 0
+    diffsplice_tpm_threshold: Float = 0.0
+    diffsplice_nan_threshold: Float = 0.0
 
     // SUPPA Cluster options
     clusterevents_local_event: Boolean = true

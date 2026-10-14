@@ -47,14 +47,17 @@ nextflow_workflow {
                 input[0] = ch_drimseq.txi
                 input[1] = ch_drimseq.tx2gene
                 input[2] = ch_drimseq.samplesheet
-                input[3] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/contrastsheet.csv', checkIfExists: true))
+                input[3] = channel.of(
+                    [ contrast:'GBR-YRI', treatment:'GBR', control:'YRI' ],
+                    [ contrast:'YRI-GBR', treatment:'YRI', control:'GBR' ],
+                )
                 """
             }
         }
 
         then {
-            // `STAGER` runs once per contrast, so its channels follow task completion
-            // order and have to be sorted before they can be snapshotted.
+            // `DEXSEQ_DTU` and `STAGER` run once per contrast, so their channels follow task
+            // completion order and have to be sorted before they can be snapshotted.
             //
             // The DRIMSeq tables are filtered input, so their content is snapshotted, but
             // everything downstream of DEXSeq is not reproducible across machines, which
@@ -67,17 +70,17 @@ nextflow_workflow {
                     workflow.out.drimseq_samples_tsv,
                     workflow.out.drimseq_counts_tsv,
                     workflow.out.drimseq_dataset_rds.flatten().collect { rds -> file(rds).name },
-                    workflow.out.dexseq_exon_dataset_rds.flatten().collect { rds -> file(rds).name },
-                    workflow.out.dexseq_exon_results_rds.flatten().collect { rds -> file(rds).name },
-                    workflow.out.dexseq_gene_results_rds.flatten().collect { rds -> file(rds).name },
-                    workflow.out.dexseq_exon_results_tsv.flatten().collect { tsv ->
+                    workflow.out.dexseq_exon_dataset_rds.collect { meta, rds -> [ meta, file(rds).name ] }.sort { rds -> rds[0].id },
+                    workflow.out.dexseq_exon_results_rds.collect { meta, rds -> [ meta, file(rds).name ] }.sort { rds -> rds[0].id },
+                    workflow.out.dexseq_gene_results_rds.collect { meta, rds -> [ meta, file(rds).name ] }.sort { rds -> rds[0].id },
+                    workflow.out.dexseq_exon_results_tsv.collect { meta, tsv ->
                         def lines = path(tsv).readLines()
-                        [ file(tsv).name, lines[0], lines.size() ]
-                    },
-                    workflow.out.dexseq_gene_results_tsv.flatten().collect { tsv ->
+                        [ meta, file(tsv).name, lines[0], lines.size() ]
+                    }.sort { tsv -> tsv[0].id },
+                    workflow.out.dexseq_gene_results_tsv.collect { meta, tsv ->
                         def lines = path(tsv).readLines()
-                        [ file(tsv).name, lines[0], lines.size() ]
-                    },
+                        [ meta, file(tsv).name, lines[0], lines.size() ]
+                    }.sort { tsv -> tsv[0].id },
                     workflow.out.stager_rds.collect { meta, rds -> [ meta, file(rds).name ] }.sort { rds -> rds[0].id },
                     workflow.out.stager_padj_rds.collect { meta, rds -> [ meta, file(rds).name ] }.sort { rds -> rds[0].id },
                     workflow.out.stager_padj_tsv.collect { meta, tsv ->
@@ -108,25 +111,28 @@ nextflow_workflow {
                 input[0] = ch_drimseq.txi
                 input[1] = ch_drimseq.tx2gene
                 input[2] = ch_drimseq.samplesheet
-                input[3] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/contrastsheet.csv', checkIfExists: true))
+                input[3] = channel.of(
+                    [ contrast:'GBR-YRI', treatment:'GBR', control:'YRI' ],
+                    [ contrast:'YRI-GBR', treatment:'YRI', control:'GBR' ],
+                )
                 """
             }
         }
 
         then {
-            // `STAGER` runs once per contrast, so its channels follow task completion
-            // order and have to be sorted before they can be snapshotted
+            // `DEXSEQ_DTU` and `STAGER` run once per contrast, so their channels follow task
+            // completion order and have to be sorted before they can be snapshotted
             assertAll(
                 { assert workflow.success },
                 { assert snapshot(
                     workflow.out.drimseq_dataset_rds,
                     workflow.out.drimseq_samples_tsv,
                     workflow.out.drimseq_counts_tsv,
-                    workflow.out.dexseq_exon_dataset_rds,
-                    workflow.out.dexseq_exon_results_rds,
-                    workflow.out.dexseq_exon_results_tsv,
-                    workflow.out.dexseq_gene_results_rds,
-                    workflow.out.dexseq_gene_results_tsv,
+                    workflow.out.dexseq_exon_dataset_rds.sort { rds -> rds[0].id },
+                    workflow.out.dexseq_exon_results_rds.sort { rds -> rds[0].id },
+                    workflow.out.dexseq_exon_results_tsv.sort { tsv -> tsv[0].id },
+                    workflow.out.dexseq_gene_results_rds.sort { rds -> rds[0].id },
+                    workflow.out.dexseq_gene_results_tsv.sort { tsv -> tsv[0].id },
                     workflow.out.stager_rds.sort { rds -> rds[0].id },
                     workflow.out.stager_padj_rds.sort { rds -> rds[0].id },
                     workflow.out.stager_padj_tsv.sort { tsv -> tsv[0].id }

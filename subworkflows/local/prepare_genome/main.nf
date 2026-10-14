@@ -20,7 +20,7 @@ include { RSEM_PREPAREREFERENCE as MAKE_TRANSCRIPTS_FASTA } from '../../../modul
 
 include { GTFGENEFILTER } from '../../../modules/local/gtfgenefilter'
 include { PREPROCESS_TRANSCRIPTS_FASTA_GENCODE } from '../../../modules/local/preprocess_transcripts_fasta_gencode'
-include { STAR_GENOMEPARAMS_UPGRADE } from '../../../modules/local/star_genomeparams_upgrade'
+include { GENOMEPARAMSUPGRADE } from '../../../modules/local/genomeparamsupgrade'
 
 workflow PREPARE_GENOME {
     take:
@@ -107,7 +107,7 @@ workflow PREPARE_GENOME {
     SAMTOOLS_FAIDX(ch_fasta.map { meta, fa -> [meta, fa, []] }, true)
 
     //
-    // MODULE: UNTAR_STAR_INDEX, STAR_GENOMEPARAMS_UPGRADE and STAR_GENOMEGENERATE
+    // MODULE: UNTAR_STAR_INDEX, GENOMEPARAMSUPGRADE and STAR_GENOMEGENERATE
     //
 
     ch_star_index = channel.empty()
@@ -121,9 +121,9 @@ workflow PREPARE_GENOME {
             }
 
             // A supplied index may have been built with STAR 2.6.x, as the AWS iGenomes ones were,
-            // which STAR 2.7.4a and later refuse to read. `STAR_GENOMEPARAMS_UPGRADE` rewrites the
+            // which STAR 2.7.4a and later refuse to read. `GENOMEPARAMSUPGRADE` rewrites the
             // `genomeParameters.txt` metadata that changed and leaves a modern index untouched.
-            ch_star_index = STAR_GENOMEPARAMS_UPGRADE(ch_star_index_raw).index
+            ch_star_index = GENOMEPARAMSUPGRADE(ch_star_index_raw).index
         }
         else {
             ch_star_index = STAR_GENOMEGENERATE(ch_fasta, ch_gtf).index

@@ -84,6 +84,18 @@ if (ignore_tx_version) {
   tx2gene\$tx <- sub("[.][0-9]+\$", "", tx2gene\$tx)
 }
 
+# tximport keeps the transcript versions in the row names when txOut = TRUE,
+# so remove them as well to match the tx2gene table
+
+strip_tx_version <- function(txi_obj) {
+  if (ignore_tx_version) {
+    for (assay in c("abundance", "counts", "length")) {
+      rownames(txi_obj[[assay]]) <- sub("[.][0-9]+\$", "", rownames(txi_obj[[assay]]))
+    }
+  }
+  txi_obj
+}
+
 # Collect salmon quant files
 
 fns <- list.files(path, pattern = "quant.sf", recursive = T, full.names = T)
@@ -96,20 +108,20 @@ names(fns) <- names
 
 # Run Tximport across countsFromAbundance options
 
-txi <- tximport::tximport(fns,
+txi <- strip_tx_version(tximport::tximport(fns,
   type = "salmon", txOut = TRUE,
   countsFromAbundance = "no", ignoreTxVersion = ignore_tx_version
-)
+))
 
-txi.s <- tximport::tximport(fns,
+txi.s <- strip_tx_version(tximport::tximport(fns,
   type = "salmon", txOut = TRUE,
   countsFromAbundance = "scaledTPM", ignoreTxVersion = ignore_tx_version
-)
+))
 
-txi.ls <- tximport::tximport(fns,
+txi.ls <- strip_tx_version(tximport::tximport(fns,
   type = "salmon", txOut = TRUE,
   countsFromAbundance = "lengthScaledTPM", ignoreTxVersion = ignore_tx_version
-)
+))
 
 ####################################################
 ########### Run Tximport:summarizeToGene ###########
@@ -142,13 +154,7 @@ gi.ls <- tximport::summarizeToGene(txi,
 # Add in tx ids from salmon quants into tx2gene to ensure Tximport:dtuScaledTPM
 # runs
 
-txi_rownames <- if (ignore_tx_version) {
-  sub("[.][0-9]+\$", "", rownames(txi[[1]]))
-} else {
-  rownames(txi[[1]])
-}
-
-missing_txids <- setdiff(txi_rownames, as.character(tx2gene[["tx"]]))
+missing_txids <- setdiff(rownames(txi[[1]]), as.character(tx2gene[["tx"]]))
 
 if (length(missing_txids) > 0) {
   message(
@@ -164,19 +170,19 @@ if (length(missing_txids) > 0) {
     match(rownames(txi[[1]]), as.character(tx2gene_complete[["tx"]])),
   ]
 
-  txi.dtu <- tximport::tximport(
+  txi.dtu <- strip_tx_version(tximport::tximport(
     fns,
     type = "salmon", tx2gene = tx2gene_complete,
     txOut = TRUE, countsFromAbundance = "dtuScaledTPM",
     ignoreTxVersion = ignore_tx_version
-  )
+  ))
 
 } else {
-  txi.dtu <- tximport::tximport(fns,
+  txi.dtu <- strip_tx_version(tximport::tximport(fns,
     type = "salmon", tx2gene = tx2gene,
     txOut = TRUE, countsFromAbundance = "dtuScaledTPM",
     ignoreTxVersion = ignore_tx_version
-  )
+  ))
 }
 
 ##############################################################################

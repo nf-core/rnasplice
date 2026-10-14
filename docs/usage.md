@@ -18,7 +18,7 @@ You will need to create a samplesheet with information about the samples you wou
 
 The samplesheet has to be a comma-seperated file with at least 3 columns, and a header row as shown in the example below.
 
-```console
+```csv
 sample,fastq_1,fastq_2,strandedness,condition
 CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz,forward,control
 CONTROL_REP2,AEG588A2_S2_L002_R1_001.fastq.gz,AEG588A2_S2_L002_R2_001.fastq.gz,forward,control
@@ -63,7 +63,7 @@ The pipeline can be started from four sources of input data. Use this parameter 
 
 The default configuration is `--source fastq` and takes compressed or uncompressed reads files as the input source. The samplesheet must have the 5 columns shown in the example below.
 
-```console
+```csv
 sample,fastq_1,fastq_2,strandedness,condition
 CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz,forward,control
 CONTROL_REP2,AEG588A2_S2_L002_R1_001.fastq.gz,AEG588A2_S2_L002_R2_001.fastq.gz,forward,control
@@ -80,7 +80,7 @@ This configuration allows the pipeline to run all downstream analysis methods.
 
 The `--source genome_bam` configuration takes genome BAM files derived from a splice aware mapper (STAR, HiSat, etc). The samplesheet must have the `sample`, `condition` and `genome_bam` columns, and can carry the optional `strandedness` and `single_end` columns shown in the example below.
 
-```console
+```csv
 sample,condition,strandedness,single_end,genome_bam
 CONTROL_REP1,control,reverse,false,AEG588A1.Aligned.out.bam
 CONTROL_REP2,control,reverse,false,AEG588A2.Aligned.out.bam
@@ -100,7 +100,7 @@ This configuration allows the pipeline to run the "dexseq_exon", "edger_exon" an
 
 The `--source transcriptome_bam` configuration takes transcriptome BAM files files derived from a splice aware mapper (STAR, HiSat, etc). The samplesheet must have the `sample`, `condition`, `genome_bam` and `transcriptome_bam` columns, and can carry the optional `strandedness` and `single_end` columns shown in the example below.
 
-```console
+```csv
 sample,condition,strandedness,single_end,genome_bam,transcriptome_bam
 CONTROL_REP1,control,reverse,false,AEG588A1.Aligned.out.bam,AEG588A1.Aligned.toTranscriptome.out.bam
 CONTROL_REP2,control,reverse,false,AEG588A2.Aligned.out.bam,AEG588A2.Aligned.toTranscriptome.out.bam
@@ -118,7 +118,7 @@ This configuration allows the pipeline to run the "dexseq_dtu" and "suppa" analy
 
 The `--source salmon_results` configuration takes the output quantification directories produced by Salmon. The samplesheet must have the 3 columns shown in the example below.
 
-```console
+```csv
 sample,condition,salmon
 CONTROL_REP1,control,AEG588A1.tar.gz
 CONTROL_REP2,control,AEG588A2.tar.gz
@@ -140,7 +140,7 @@ You will also need to create a contrastsheet with information about the contrast
 
 The contrastsheet has to be a comma-separated file with 3 columns, and a header row as shown in the examples below.
 
-```console
+```csv
 contrast,treatment,control
 TREATMENT_CONTROL,TREATMENT,CONTROL
 ```
@@ -183,7 +183,7 @@ For nf-core/rnasplice to run it requires a FASTA file and GTF file. These can be
 
 If a GTF is not available a GFF may be used by specifying the `--gff` parameter. This will convert the GFF file into a GTF.
 
-The STAR indices of AWS iGenomes were built with STAR 2.6.x, whose `genomeParameters.txt` STAR 2.7.4a and later refuse to read. A supplied STAR index is passed through `STAR_GENOMEPARAMS_UPGRADE` first, which rewrites that metadata and leaves the binary index files alone, so the pipeline runs one STAR version throughout. An index built with a recent STAR is left untouched.
+The STAR indices of AWS iGenomes were built with STAR 2.6.x, whose `genomeParameters.txt` STAR 2.7.4a and later refuse to read. A supplied STAR index is passed through `GENOMEPARAMSUPGRADE` first, which rewrites that metadata and leaves the binary index files alone, so the pipeline runs one STAR version throughout. An index built with a recent STAR is left untouched.
 
 Please note if you are using [GENCODE](https://www.gencodegenes.org/) reference genome files please specify the `--gencode` parameter. This is because reference files which come from GENCODE are different to ENSEMBL reference files and this can impact the running of the pipeline. Specifying this parameter can help to mitigate these differences. Furthermore it should be noted that when using GENCODE reference files if you are running Salmon, the `--gencode` flag will also be passed to the index building step (see [this issue](https://github.com/COMBINE-lab/salmon/issues/15)).
 
@@ -478,9 +478,11 @@ process {
 }
 ```
 
-> **NB:** We specify the full process name i.e. `NFCORE_RNASPLICE:RNASPLICE:ALIGN_STAR:STAR_ALIGN` in the config file because this takes priority over the short name (`STAR_ALIGN`) and allows existing configuration using the full process name to be correctly overridden.
->
-> If you get a warning suggesting that the process selector isn't recognised check that the process name has been specified correctly.
+:::note
+We specify the full process name i.e. `NFCORE_RNASPLICE:RNASPLICE:ALIGN_STAR:STAR_ALIGN` in the config file because this takes priority over the short name (`STAR_ALIGN`) and allows existing configuration using the full process name to be correctly overridden.
+
+If you get a warning suggesting that the process selector isn't recognised check that the process name has been specified correctly.
+:::
 
 ### Updating containers (advanced users)
 
@@ -519,7 +521,9 @@ The [Nextflow DSL2](https://www.nextflow.io/docs/latest/dsl2.html) implementatio
      }
      ```
 
-> **NB:** If you wish to periodically update individual tool-specific results (e.g. Pangolin) generated by the pipeline then you must ensure to keep the `work/` directory otherwise the `-resume` ability of the pipeline will be compromised and it will restart from scratch.
+:::note
+If you wish to periodically update individual tool-specific results (e.g. Pangolin) generated by the pipeline then you must ensure to keep the `work/` directory otherwise the `-resume` ability of the pipeline will be compromised and it will restart from scratch.
+:::
 
 ### nf-core/configs
 

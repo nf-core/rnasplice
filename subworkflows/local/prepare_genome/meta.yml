@@ -19,7 +19,7 @@ components:
   - rsem/preparereference
   - gtfgenefilter
   - preprocess_transcripts_fasta_gencode
-  - star_genomeparams_upgrade
+  - genomeparamsupgrade
 input:
   - fasta:
       type: string
