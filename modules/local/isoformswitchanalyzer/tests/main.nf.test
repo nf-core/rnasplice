@@ -98,6 +98,43 @@ nextflow_process {
 
     }
 
+    test("human chrX - salmon quant - one contrast, control is condition_1") {
+
+        // The test contrastsheet holds both GBR-YRI and YRI-GBR, so a swap of the two
+        // conditions cannot show. With GBR-YRI alone, treatment minus control puts the
+        // control, YRI, first
+        when {
+            def contrastsheet = File.createTempFile('contrastsheet', '.csv')
+            contrastsheet.text = 'contrast,treatment,control\nGBR-YRI,GBR,YRI\n'
+            process {
+                """
+                input[0] = UNTAR_SALMON_QUANT.out.untar
+                    .map { _meta, dir -> file(dir.toString() + '/ERR*', type: 'dir', checkIfExists: true) }
+                input[1] = file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
+                input[2] = GFFREAD.out.gffread_fasta.map { _meta, fasta -> fasta }
+                input[3] = file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true)
+                input[4] = file('${contrastsheet.absolutePath}', checkIfExists: true)
+                input[5] = 0.05
+                input[6] = 0.1
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            def lines = path(process.out.isoformswitchanalyzer_isoformFeatures[0]).readLines()
+            def header = lines[0].split(',').collect { it.replace('"', '') }
+            def pairs = lines.drop(1).collect { line ->
+                def fields = line.split(',').collect { it.replace('"', '') }
+                [ fields[header.indexOf('condition_1')], fields[header.indexOf('condition_2')] ]
+            }.unique()
+            assertAll(
+                { assert pairs == [ [ 'YRI', 'GBR' ] ] }
+            )
+        }
+
+    }
+
     test("human chrX - salmon quant - no switches") {
 
         // A dIF cutoff no isoform reaches: the analysis stops after the switch test,

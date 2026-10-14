@@ -468,7 +468,7 @@ If [IsoformSwitchAnalyzeR](https://www.bioconductor.org/packages/release/bioc/ht
   - `split_files/tpms/`
     - `*.tpm`: Contains normalised TPM per sample (split by condition)
   - `diffsplice/per_isoform/` or `diffsplice/per_local_event/`
-    - `{contrast}_*_diffsplice.dpsi`: Contains the information about which events are significantly differentially spliced in each pairwise comparison. The dPSI is the PSI of the treatment minus that of the control. SUPPA names the column `{control}-{treatment}_dPSI`, after its first and second condition.
+    - `{contrast}_*_diffsplice.dpsi`: Contains the information about which events are significantly differentially spliced in each pairwise comparison. The dPSI is the PSI of the treatment minus that of the control. SUPPA names the column `{level}_{control}-{level}_{treatment}_dPSI`, after its first and second condition, where `{level}` is `local` or `transcript`.
     - `{contrast}_*_diffsplice.psivec`: Contains the PSI values for all samples, either per replicate or the average PSI value per condition, averaging over the replicates.
   - `clustergroups/`
     - `{local,transcript}_{contrast}_groups.txt`: The column ranges of the two conditions in the `*.psivec` file of each contrast, as given to the clustering.
