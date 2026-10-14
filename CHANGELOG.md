@@ -20,6 +20,7 @@ Breaking changes, detailed below:
 - Some rMATS and SUPPA output paths and file names changed (#285, #309)
 - The DEXSeq exon and DTU results are named `{contrast}.dexseq.*`, and the exon tables are TSV instead of CSV (#327)
 - The DEXSeq log2 fold changes are treatment over control, as the contrast name says, where 1.x reported control over treatment (#327)
+- The SUPPA dPSI is treatment minus control, where 1.x reported control minus treatment (#328)
 - The samplesheets of the BAM and Salmon sources need unique sample names (#285)
 - Local modules were renamed and moved, so `withName` selectors in custom configs may need updating (#195, #327)
 
