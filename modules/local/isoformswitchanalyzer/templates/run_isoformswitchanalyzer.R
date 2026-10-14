@@ -281,7 +281,10 @@ if (file.exists(contrastsheet)) {
 
     contrasts <- read.csv(contrastsheet, check.names = FALSE)
 
-    contrasts <- contrasts[, c("treatment", "control"), drop = FALSE]
+    # IsoformSwitchAnalyzeR reports condition_2 minus condition_1, so the control goes
+    # first to give treatment minus control
+
+    contrasts <- contrasts[, c("control", "treatment"), drop = FALSE]
 
     colnames(contrasts) <- c("condition_1", "condition_2")
 

@@ -178,10 +178,12 @@ workflow SUPPA {
     //
     // MODULE: Differential splicing between the conditions of each contrast
     //
+    // SUPPA reports the PSI of its second condition minus that of its first, so the control
+    // goes first to give treatment minus control
     SUPPA_DIFFSPLICE(
         ch_diffsplice.map { meta, events, _tpm1, _psi1, _tpm2, _psi2 -> [meta, events] },
-        ch_diffsplice.map { meta, _events, tpm1, psi1, _tpm2, _psi2 -> [meta, meta.treatment, tpm1, psi1] },
         ch_diffsplice.map { meta, _events, _tpm1, _psi1, tpm2, psi2 -> [meta, meta.control, tpm2, psi2] },
+        ch_diffsplice.map { meta, _events, tpm1, psi1, _tpm2, _psi2 -> [meta, meta.treatment, tpm1, psi1] },
         diffsplice_method,
         diffsplice_area,
         diffsplice_lower_bound,

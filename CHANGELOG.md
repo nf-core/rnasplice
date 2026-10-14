@@ -20,6 +20,7 @@ Breaking changes, detailed below:
 - Some rMATS and SUPPA output paths and file names changed (#285, #309)
 - The DEXSeq exon and DTU results are named `{contrast}.dexseq.*`, and the exon tables are TSV instead of CSV (#327)
 - The DEXSeq log2 fold changes are treatment over control, as the contrast name says, where 1.x reported control over treatment (#327)
+- The SUPPA dPSI is treatment minus control, where 1.x reported control minus treatment (#328)
 - The samplesheets of the BAM and Salmon sources need unique sample names (#285)
 - Local modules were renamed and moved, so `withName` selectors in custom configs may need updating (#195, #327)
 
@@ -165,6 +166,7 @@ Breaking changes, detailed below:
 - #327 - Default `--ignore_tx_version` to `false`, as documented, and fix `TXIMPORT` stopping with versioned transcript IDs when it is `true`: the transcript tables now drop the versions too (reported by @erikrikarddaniel, fix by @piplus2)
 - #327 - Accept decimal values for `--diffsplice_lower_bound`, `--diffsplice_tpm_threshold` and `--diffsplice_nan_threshold`, which SUPPA reads as decimals but the schema typed as integers (by @piplus2)
 - #327 - Declare `--rmats_paired_stats` without a `true` default in `main.nf`, which contradicted the documented `false` that `nextflow.config` sets (reported by @erikrikarddaniel, fix by @piplus2)
+- #328 - **Breaking change**: SUPPA and IsoformSwitchAnalyzeR report treatment minus control, like the other tools, where they reported control minus treatment. The SUPPA dPSI columns are named `{level}_{control}-{level}_{treatment}_dPSI`, where `{level}` is `local` or `transcript`, and the `.psivec` columns list the control samples first. The IsoformSwitchAnalyzeR plot folders are named `{control}_vs_{treatment}`. Each tool names a comparison after its first and second condition (suggested by @erikrikarddaniel, done by @piplus2)
 
 ## v1.0.4 - 2024-04-21
 
