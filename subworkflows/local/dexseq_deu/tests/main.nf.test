@@ -1,0 +1,156 @@
+// nf-core subworkflows test dexseq_deu
+nextflow_workflow {
+
+    name "Test Subworkflow DEXSEQ_DEU"
+    script "../main.nf"
+    workflow "DEXSEQ_DEU"
+    config "./nextflow.config"
+
+    tag "subworkflows"
+    tag "subworkflows/dexseq_deu"
+    tag "dexseq"
+    tag "dexseq/prepareannotation"
+    tag "dexseq/count"
+    tag "dexseq/exon"
+
+    test("human chrX") {
+
+        when {
+            workflow {
+                """
+                input[0] = channel.value(file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true))
+                input[1] = channel.of(
+                    [ [ id:'ERR188383', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188428', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188454', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR204916', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916.Aligned.out.bam', checkIfExists: true) ],
+                )
+                input[2] = channel.empty()
+                input[3] = false
+                input[4] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true))
+                input[5] = channel.of(
+                    [ contrast:'GBR-YRI', treatment:'GBR', control:'YRI' ],
+                    [ contrast:'YRI-GBR', treatment:'YRI', control:'GBR' ],
+                )
+                """
+            }
+        }
+
+        then {
+            // `DEXSEQ_EXON` runs once per contrast, so its channels follow task completion
+            // order and are sorted before they are snapshotted
+            assertAll(
+                { assert workflow.success },
+                // The fold change column is named after the target level, so its header pins the contrast direction
+                { assert path(workflow.out.dexseq_exon_results_tsv.find { meta, _tsv -> meta.id == 'GBR-YRI' }[1]).readLines()[0].split('\t').contains('log2fold_GBR_YRI') },
+                { assert snapshot(
+                    workflow.out.dexseq_clean_txt,
+                    workflow.out.dexseq_exon_dataset_rds.collect { _meta, rds -> file(rds).name }.sort(),
+                    workflow.out.dexseq_exon_results_rds.collect { _meta, rds -> file(rds).name }.sort(),
+                    workflow.out.dexseq_gene_results_rds.collect { _meta, rds -> file(rds).name }.sort(),
+                    workflow.out.dexseq_exon_results_tsv.collect { _meta, tsv -> file(tsv).name }.sort(),
+                    workflow.out.dexseq_gene_results_tsv.collect { _meta, tsv -> file(tsv).name }.sort(),
+                    workflow.out.dexseq_plot_results_pdf.collect { _meta, pdf -> file(pdf).name }.sort()
+                ).match() }
+            )
+        }
+
+    }
+
+    test("human chrX - user supplied gff") {
+
+        // The user supplied annotation has to be a DEXSeq flattened GFF, which the test
+        // datasets do not carry, so it is prepared from the GTF first
+        setup {
+            run("DEXSEQ_PREPAREANNOTATION") {
+                script "../../../../modules/nf-core/dexseq/prepareannotation/main.nf"
+                process {
+                    """
+                    input[0] = [ [ id:'genes_chrX' ], file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true) ]
+                    input[1] = 0
+                    """
+                }
+            }
+        }
+
+        when {
+            workflow {
+                """
+                input[0] = channel.value(file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true))
+                input[1] = channel.of(
+                    [ [ id:'ERR188383', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188428', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188454', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR204916', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916.Aligned.out.bam', checkIfExists: true) ],
+                )
+                input[2] = DEXSEQ_PREPAREANNOTATION.out.gff.map { _meta, gff -> gff }
+                input[3] = true
+                input[4] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true))
+                input[5] = channel.of(
+                    [ contrast:'GBR-YRI', treatment:'GBR', control:'YRI' ],
+                    [ contrast:'YRI-GBR', treatment:'YRI', control:'GBR' ],
+                )
+                """
+            }
+        }
+
+        then {
+            // `DEXSEQ_EXON` runs once per contrast, so its channels follow task completion
+            // order and are sorted before they are snapshotted
+            assertAll(
+                { assert workflow.success },
+                { assert snapshot(
+                    workflow.out.dexseq_clean_txt,
+                    workflow.out.dexseq_exon_dataset_rds.collect { _meta, rds -> file(rds).name }.sort(),
+                    workflow.out.dexseq_exon_results_rds.collect { _meta, rds -> file(rds).name }.sort(),
+                    workflow.out.dexseq_gene_results_rds.collect { _meta, rds -> file(rds).name }.sort(),
+                    workflow.out.dexseq_exon_results_tsv.collect { _meta, tsv -> file(tsv).name }.sort(),
+                    workflow.out.dexseq_gene_results_tsv.collect { _meta, tsv -> file(tsv).name }.sort(),
+                    workflow.out.dexseq_plot_results_pdf.collect { _meta, pdf -> file(pdf).name }.sort()
+                ).match() }
+            )
+        }
+
+    }
+
+    test("human chrX - stub") {
+
+        options "-stub"
+
+        when {
+            workflow {
+                """
+                input[0] = channel.value(file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true))
+                input[1] = channel.of(
+                    [ [ id:'ERR188383', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188428', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true) ],
+                )
+                input[2] = channel.empty()
+                input[3] = false
+                input[4] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true))
+                input[5] = channel.of(
+                    [ contrast:'GBR-YRI', treatment:'GBR', control:'YRI' ],
+                    [ contrast:'YRI-GBR', treatment:'YRI', control:'GBR' ],
+                )
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert snapshot(
+                    workflow.out.dexseq_clean_txt,
+                    workflow.out.dexseq_exon_dataset_rds.sort { rds -> rds[0].id },
+                    workflow.out.dexseq_exon_results_rds.sort { rds -> rds[0].id },
+                    workflow.out.dexseq_gene_results_rds.sort { rds -> rds[0].id },
+                    workflow.out.dexseq_exon_results_tsv.sort { tsv -> tsv[0].id },
+                    workflow.out.dexseq_gene_results_tsv.sort { tsv -> tsv[0].id },
+                    workflow.out.dexseq_plot_results_pdf.sort { pdf -> pdf[0].id }
+                ).match() }
+            )
+        }
+
+    }
+
+}

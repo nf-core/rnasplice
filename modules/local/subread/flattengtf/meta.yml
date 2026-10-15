@@ -1,0 +1,68 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "subread_flattengtf"
+description: "Flatten GTF files using the Subread package."
+keywords:
+  - gtf
+  - subread
+  - annotation
+tools:
+  - "subread":
+      description: "High-performance read alignment, quantification, and mutation discovery."
+      homepage: "https://subread.sourceforge.net/SubreadUsersGuide.pdf"
+      documentation: "https://subread.sourceforge.net/SubreadUsersGuide.pdf"
+      tool_dev_url: "https://sourceforge.net/projects/subread"
+      doi: "10.1093/nar/gkz114"
+      licence: ["GPL v3"]
+      identifier: biotools:subread
+
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing GTF information
+          e.g. `[ id:'human_gtf' ]`
+    - bam:
+        type: file
+        description: GTF file to be flattened
+        pattern: "*.gtf"
+        ontologies:
+          - edam: "http://edamontology.org/format_0370" # GTF
+
+output:
+  saf:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing GTF information
+            e.g. `[ id:'human_gtf' ]`
+      - "*.saf":
+          type: file
+          description: SAF file
+          pattern: "*.saf"
+          ontologies: []
+  versions_subread:
+    - - "${task.process}":
+          type: string
+          description: The name of the process
+      - "subread":
+          type: string
+          description: The name of the tool
+      - 'flattenGTF -v 2>&1 | head -1 | sed -e "s/flattenGTF v//g"':
+          type: eval
+          description: The expression to obtain the version of the tool
+
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - subread:
+          type: string
+          description: The name of the tool
+      - flattenGTF -v 2>&1 | head -1 | sed -e "s/flattenGTF v//g":
+          type: eval
+          description: The expression to obtain the version of the tool
+authors:
+  - "James Ashmore"
+maintainers:
+  - "@piplus2"

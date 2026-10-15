@@ -1,0 +1,140 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "edger_exon"
+description: Test for differential exon usage and differential exon expression from
+  featureCounts exon-level counts with edgeR
+keywords:
+  - edgeR
+  - deu
+  - differential exon usage
+  - differential exon expression
+  - featurecounts
+tools:
+  - "edgeR":
+      description: "edgeR is an R package for the differential expression analysis
+        of digital gene expression data, and provides the diffSpliceDGE test for
+        differential exon usage."
+      homepage: "https://bioconductor.org/packages/edgeR"
+      documentation: "https://bioconductor.org/packages/release/bioc/vignettes/edgeR/inst/doc/edgeRUsersGuide.pdf"
+      tool_dev_url: "https://code.bioconductor.org/browse/edgeR"
+      doi: "10.1093/bioinformatics/btp616"
+      licence: ["GPL-2.0-or-later"]
+      identifier: biotools:edger
+
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing analysis information
+          e.g. `[ id:'samplesheet' ]`
+    - feature_counts:
+        type: file
+        description: featureCounts exon-level count tables, one per sample, named
+          `<sample>.featureCounts.tsv` after the samples of the samplesheet
+        pattern: "*.featureCounts.tsv"
+        ontologies:
+          - edam: "http://edamontology.org/format_3475" # TSV
+  - - meta2:
+        type: map
+        description: |
+          Groovy Map containing samplesheet information
+          e.g. `[ id:'samplesheet' ]`
+    - samplesheet:
+        type: file
+        description: Comma-separated sample sheet with at least `sample` and `condition`
+          column headers
+        pattern: "*.csv"
+        ontologies:
+          - edam: "http://edamontology.org/format_3752" # CSV
+  - - meta3:
+        type: map
+        description: |
+          Groovy Map containing contrastsheet information
+          e.g. `[ id:'contrastsheet' ]`
+    - contrastsheet:
+        type: file
+        description: Comma-separated contrast sheet with at least `contrast`, `treatment`
+          and `control` column headers
+        pattern: "*.csv"
+        ontologies:
+          - edam: "http://edamontology.org/format_3752" # CSV
+output:
+  edger_exon_dge:
+    - meta:
+        type: map
+        description: |
+          Groovy Map containing analysis information
+          e.g. `[ id:'samplesheet' ]`
+    - "DGEList.rds":
+        type: file
+        description: Serialised DGEList object holding the filtered and normalised
+          exon counts
+        pattern: "DGEList.rds"
+  edger_exon_glm:
+    - meta:
+        type: map
+        description: |
+          Groovy Map containing analysis information
+          e.g. `[ id:'samplesheet' ]`
+    - "DGEGLM.rds":
+        type: file
+        description: Serialised DGEGLM object holding the quasi-likelihood negative
+          binomial fit
+        pattern: "DGEGLM.rds"
+  edger_exon_lrt:
+    - meta:
+        type: map
+        description: |
+          Groovy Map containing analysis information
+          e.g. `[ id:'samplesheet' ]`
+    - "DGELRT.*.rds":
+        type: file
+        description: Serialised lists of DGELRT objects, one per contrast, for the
+          exon expression (`DGELRT.exprs.rds`) and the exon usage (`DGELRT.usage.rds`)
+          tests
+        pattern: "DGELRT.{exprs,usage}.rds"
+  edger_exon_csv:
+    - meta:
+        type: map
+        description: |
+          Groovy Map containing analysis information
+          e.g. `[ id:'samplesheet' ]`
+    - "*.csv":
+        type: file
+        description: Per contrast tables of the differential exon expression
+          (`*.exprs.csv`) and of the differential exon usage Simes, gene and exon
+          tests (`*.usage.{simes,gene,exon}.csv`)
+        pattern: "contrast_*.csv"
+        ontologies:
+          - edam: "http://edamontology.org/format_3752" # CSV
+  edger_exon_pdf:
+    - meta:
+        type: map
+        description: |
+          Groovy Map containing analysis information
+          e.g. `[ id:'samplesheet' ]`
+    - "*.pdf":
+        type: file
+        description: Per contrast exon usage plots of the top differentially used
+          genes of the Simes, gene and exon tests
+        pattern: "contrast_*.usage.{simes,gene,exon}.pdf"
+  versions_edger:
+    - "versions.yml":
+        type: file
+        description: File containing software versions
+        pattern: "versions.yml"
+        ontologies:
+          - edam: "http://edamontology.org/format_3750" # YAML
+
+topics:
+  versions:
+    - "versions.yml":
+        type: file
+        description: File containing software versions
+        pattern: "versions.yml"
+        ontologies:
+          - edam: "http://edamontology.org/format_3750" # YAML
+authors:
+  - "@jma1991"
+  - "@piplus2"
+maintainers:
+  - "@piplus2"

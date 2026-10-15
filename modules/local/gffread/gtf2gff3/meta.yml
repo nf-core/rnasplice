@@ -1,0 +1,72 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "gffread_gtf2gff3"
+description: Convert a GTF annotation into a gene-aware GFF3, renaming `transcript` features to `mRNA`
+keywords:
+  - gtf
+  - gff3
+  - annotation
+  - conversion
+tools:
+  - "gffread":
+      description: "GFF/GTF utility providing format conversions, region filtering,
+        FASTA sequence extraction and more."
+      homepage: "https://ccb.jhu.edu/software/stringtie/gff.shtml#gffread"
+      documentation: "https://ccb.jhu.edu/software/stringtie/gff.shtml#gffread"
+      tool_dev_url: "https://github.com/gpertea/gffread"
+      doi: "10.12688/f1000research.23297.1"
+      licence: ["MIT"]
+      identifier: biotools:gffread
+
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing annotation information
+          e.g. `[ id:'genome' ]`
+    - gtf:
+        type: file
+        description: GTF annotation file
+        pattern: "*.{gtf}"
+        ontologies:
+          - edam: "http://edamontology.org/format_2306" # GTF
+
+output:
+  gff3:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing annotation information
+            e.g. `[ id:'genome' ]`
+      - "*.gff3":
+          type: file
+          description: GFF3 annotation file with `mRNA` features and their parent genes
+          pattern: "*.{gff3}"
+          ontologies:
+            - edam: "http://edamontology.org/format_1975" # GFF3
+  versions_gffread:
+    - - "${task.process}":
+          type: string
+          description: The name of the process
+      - "gffread":
+          type: string
+          description: The name of the tool
+      - "gffread --version":
+          type: eval
+          description: The expression to obtain the version of the tool
+
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - gffread:
+          type: string
+          description: The name of the tool
+      - gffread --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+authors:
+  - "@valentinoruggieri"
+  - "@piplus2"
+maintainers:
+  - "@piplus2"

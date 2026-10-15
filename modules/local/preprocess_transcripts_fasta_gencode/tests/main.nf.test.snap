@@ -1,0 +1,95 @@
+{
+    "gencode fasta - gzipped": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "gencode.transcripts.fixed.fa:md5,f1330752bc0e3db2d2dc5a7b4a51f7f5"
+                ]
+            ],
+            {
+                "versions_cut": [
+                    [
+                        "PREPROCESS_TRANSCRIPTS_FASTA_GENCODE",
+                        "cut",
+                        "9.5"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-09-15T10:15:57.964340955",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.4"
+        }
+    },
+    "gencode fasta": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "gencode.transcripts.fixed.fa:md5,f1330752bc0e3db2d2dc5a7b4a51f7f5"
+                ]
+            ],
+            {
+                "versions_cut": [
+                    [
+                        "PREPROCESS_TRANSCRIPTS_FASTA_GENCODE",
+                        "cut",
+                        "9.5"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-09-15T10:15:52.861538513",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.4"
+        }
+    },
+    "gencode fasta - stub": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "gencode.transcripts.fixed.fa:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "1": [
+                    [
+                        "PREPROCESS_TRANSCRIPTS_FASTA_GENCODE",
+                        "cut",
+                        "9.5"
+                    ]
+                ],
+                "fasta": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "gencode.transcripts.fixed.fa:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "versions_cut": [
+                    [
+                        "PREPROCESS_TRANSCRIPTS_FASTA_GENCODE",
+                        "cut",
+                        "9.5"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-09-15T10:16:03.016288191",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.4"
+        }
+    }
+}

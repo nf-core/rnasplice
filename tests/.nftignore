@@ -1,0 +1,135 @@
+.DS_Store
+
+# Global binary and log artifacts
+**/*.log
+**/*.pdf
+**/*.zip
+**/*.gz
+**/*.rds
+**/*.psi
+**/*.tsv
+**/*.html
+**/*.png
+**/*.svg
+**/*.json
+**/*.ioe
+**/*.tpm
+**/batch-*.log
+**/main.*.log
+
+**/events_RI_strict.gtf
+**/suppa_tpm.txt
+**/*.Log.out
+**/*.Log.final.out
+**/*.Log.progress.out
+
+# MISO specific stochastic/dynamic files
+misopy/
+misopy/miso_data/**/logs/*.log
+misopy/miso_data/**/batch-logs/*.log
+misopy/**/*.miso
+misopy/**/batch-*
+misopy/**/batch-*.log
+misopy/**/batch-logs*.log
+
+# Salmon specific stochastic files
+**/libParams/flenDist.txt
+**/libParams/fld.gz
+
+**/quant.sf
+**/quant.genes.sf
+
+# Standard nf-core ignores
+pipeline_info/*.{html,json,txt,yml}
+fastqc/*/*.{html,zip}
+fastqc/*_fastqc.{html,zip}
+multiqc/multiqc_data/fastqc_top_overrepresented_sequences_table.txt
+multiqc/multiqc_data/multiqc.parquet
+multiqc/multiqc_data/multiqc.log
+multiqc/multiqc_data/multiqc_data.json
+multiqc/multiqc_data/multiqc_sources.txt
+multiqc/multiqc_data/multiqc_software_versions.txt
+multiqc/multiqc_data/llms-full.txt
+multiqc/multiqc_plots/{svg,pdf,png}/*.{svg,pdf,png}
+multiqc/multiqc_report.html
+trimgalore/*fastq.gz_trimming_report.txt
+
+**/salmon_plot.txt
+{multiqc,multiqc/**}/.stub
+{multiqc,multiqc/**}/multiqc_report.html
+{multiqc,multiqc/**}/multiqc_data/multiqc.parquet
+{multiqc,multiqc/**}/multiqc_data/*.txt
+{multiqc,multiqc/**}/multiqc_plots/{pdf,png,svg}/*.{pdf,png,svg}
+
+**/fastqc/**/*.{html,zip}
+**/fq_lint/**/*.fq_lint.txt
+**/*_multiqc_report.html
+**/*_multiqc_report_data/multiqc.parquet
+**/*_multiqc_report_data/multiqc.log
+**/*_multiqc_report_data/multiqc_data.json
+**/*_multiqc_report_data/*.txt
+**/*_multiqc_report_plots/{pdf,png,svg}/*.{pdf,png,svg}
+
+*/salmon/*.gene_counts.tsv
+*/salmon/*.gene_counts_scaled.tsv
+*/salmon/*.gene_lengths.tsv
+*/salmon/*.gene_tpm.tsv
+*/salmon/*.transcript_counts.tsv
+*/salmon/*.transcript_lengths.tsv
+*/salmon/*.transcript_tpm.tsv
+*/salmon/*/aux_info/fld.gz
+*/salmon/*/aux_info/meta_info.json
+*/salmon/*/libParams/flenDist.txt
+*/salmon/*/logs/salmon_quant.log
+*/salmon/*/quant.genes.sf
+*/salmon/*/quant.sf
+**/*_trimming_report.txt
+
+# EdgeR
+{salmon,star_salmon}/edger/*.exprs.csv
+
+# DEXSeq
+{salmon,star_salmon}/dexseq_exon/counts/*.count.txt
+{salmon,star_salmon}/dexseq_exon/results/*.dexseq.{results,gene_qvalues}.{rds,tsv}
+{salmon,star_salmon}/dexseq_dtu/results/dexseq/*.dexseq.{results,gene_qvalues}.{rds,tsv}
+
+# SUPPA
+{salmon,star_salmon}/suppa/generate_events/per_local_event/*.gtf
+{salmon,star_salmon}/suppa/clusterevents/*/*.{log,clustvec}
+{salmon,star_salmon}/suppa/diffsplice/*/*.{dpsi,psivec}
+
+{salmon,star_salmon}/*/aux_info/fld.gz
+{salmon,star_salmon}/*/aux_info/meta_info.json
+{salmon,star_salmon}/*/libParams/flenDist.txt
+{salmon,star_salmon}/*/logs/salmon_quant.log
+{salmon,star_salmon}/*/quant.genes.sf
+{salmon,star_salmon}/*/quant.sf
+{salmon,star_salmon}/*/lib_format_counts.json
+{salmon,star_salmon}/salmon.merged.gene_counts.tsv
+{salmon,star_salmon}/salmon.merged.gene_counts_length_scaled.tsv
+{salmon,star_salmon}/salmon.merged.gene_counts_scaled.tsv
+{salmon,star_salmon}/salmon.merged.gene_lengths.tsv
+{salmon,star_salmon}/salmon.merged.gene_tpm.tsv
+{salmon,star_salmon}/salmon.merged.transcript_counts.tsv
+{salmon,star_salmon}/salmon.merged.transcript_lengths.tsv
+{salmon,star_salmon}/salmon.merged.transcript_tpm.tsv
+
+# rMATS
+{salmon,star_salmon}/rmats/prep/*.rmats
+{salmon,star_salmon}/rmats/bamlist/*.txt
+
+# MISO
+**/*.miso
+**/*.pickle
+**/*.shelve.*
+
+# IsoformSwitchAnalyzeR
+isoformswitchanalyzer/isoformswitchanalyzer_isoformfeatures.csv
+
+# edgeR tables differ in the last digits between builds, the tests snapshot them rounded
+**/edger/contrast_*.usage.*.csv
+
+# The conda and container builds of samtools write different BAM headers: the tests
+# snapshot the alignments of the sorted BAM files with nft-bam, and their indexes by name
+**/*_sorted.bam
+**/*_sorted.bam.bai

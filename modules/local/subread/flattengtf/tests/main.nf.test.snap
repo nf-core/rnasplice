@@ -1,0 +1,78 @@
+{
+    "human chrX - gtf": {
+        "content": [
+            {
+                "saf": [
+                    [
+                        {
+                            "id": "human_chrX"
+                        },
+                        "human_chrX.saf:md5,3370bfd2d7c10a849dc385d30d3b5d26"
+                    ]
+                ],
+                "versions_subread": [
+                    [
+                        "SUBREAD_FLATTENGTF",
+                        "subread",
+                        "flattenGTF Version 2.0.1"
+                    ]
+                ]
+            },
+            {
+                "versions_subread": [
+                    [
+                        "SUBREAD_FLATTENGTF",
+                        "subread",
+                        "flattenGTF Version 2.0.1"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-06-30T14:40:35.78369725",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    },
+    "human chrX - gtf - stub": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "human_chrX"
+                        },
+                        "human_chrX.saf:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "1": [
+                    [
+                        "SUBREAD_FLATTENGTF",
+                        "subread",
+                        "flattenGTF Version 2.0.1"
+                    ]
+                ],
+                "saf": [
+                    [
+                        {
+                            "id": "human_chrX"
+                        },
+                        "human_chrX.saf:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "versions_subread": [
+                    [
+                        "SUBREAD_FLATTENGTF",
+                        "subread",
+                        "flattenGTF Version 2.0.1"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-06-30T14:40:41.507140339",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    }
+}

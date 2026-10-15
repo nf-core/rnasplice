@@ -1,0 +1,261 @@
+{
+    "human chrX - salmon quant - stub": {
+        "content": [
+            {
+                "counts_gene": [
+                    "test.gene_counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "counts_gene_length_scaled": [
+                    "test.gene_counts_length_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "counts_gene_scaled": [
+                    "test.gene_counts_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "counts_transcript": [
+                    "test.transcript_counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "counts_transcript_dtu_scaled": [
+                    "test.transcript_counts_dtu_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "counts_transcript_length_scaled": [
+                    "test.transcript_counts_length_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "counts_transcript_scaled": [
+                    "test.transcript_counts_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "gi": [
+                    "test.gi.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "gi_ls": [
+                    "test.gi.ls.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "gi_s": [
+                    "test.gi.s.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "suppa_tpm": [
+                    "suppa_tpm.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "tpm_gene": [
+                    "test.gene_tpm.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "tpm_gene_length_scaled": [
+                    "test.gene_tpm_length_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "tpm_gene_scaled": [
+                    "test.gene_tpm_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "tpm_transcript": [
+                    "test.transcript_tpm.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "tpm_transcript_dtu_scaled": [
+                    "test.transcript_tpm_dtu_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "tpm_transcript_length_scaled": [
+                    "test.transcript_tpm_length_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "tpm_transcript_scaled": [
+                    "test.transcript_tpm_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "txi": [
+                    "test.txi.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "txi_dtu": [
+                    "test.txi.dtu.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "txi_ls": [
+                    "test.txi.ls.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "txi_s": [
+                    "test.txi.s.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "tximport_tx2gene": [
+                    "tximport.tx2gene.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "versions": [
+                    "versions.yml:md5,521509fcc21440783bba0ed4304bc370"
+                ]
+            }
+        ],
+        "timestamp": "2026-08-25T14:24:10.759794167",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    },
+    "human chrX - salmon quant - ignore_tx_version": {
+        "content": [
+            {
+                "counts_gene": [
+                    "test.gene_counts.tsv:md5,be7d214ffd8027612e0f28a394889d20"
+                ],
+                "counts_gene_length_scaled": [
+                    "test.gene_counts_length_scaled.tsv:md5,28624e258171e0951777357031559e6d"
+                ],
+                "counts_gene_scaled": [
+                    "test.gene_counts_scaled.tsv:md5,97fef573e11e780524578317f7deb0ae"
+                ],
+                "counts_transcript": [
+                    "test.transcript_counts.tsv:md5,1a7e81af27349dc96ce6e87a9e672dc1"
+                ],
+                "counts_transcript_dtu_scaled": [
+                    "test.transcript_counts_dtu_scaled.tsv:md5,a0e458d1245ac3f672594b22e034a12e"
+                ],
+                "counts_transcript_length_scaled": [
+                    "test.transcript_counts_length_scaled.tsv:md5,510432b97882062b909a1f1ab452ac2d"
+                ],
+                "counts_transcript_scaled": [
+                    "test.transcript_counts_scaled.tsv:md5,171ce0f7c1721515d85faca2100f38ab"
+                ],
+                "gi": [
+                    "test.gi.rds"
+                ],
+                "gi_ls": [
+                    "test.gi.ls.rds"
+                ],
+                "gi_s": [
+                    "test.gi.s.rds"
+                ],
+                "suppa_tpm": [
+                    "suppa_tpm.txt:md5,93476b04f515a0da7634afdb01dfb674"
+                ],
+                "tpm_gene": [
+                    "test.gene_tpm.tsv:md5,48998e5541633edb2c452d4cc93ce066"
+                ],
+                "tpm_gene_length_scaled": [
+                    "test.gene_tpm_length_scaled.tsv:md5,48998e5541633edb2c452d4cc93ce066"
+                ],
+                "tpm_gene_scaled": [
+                    "test.gene_tpm_scaled.tsv:md5,48998e5541633edb2c452d4cc93ce066"
+                ],
+                "tpm_transcript": [
+                    "test.transcript_tpm.tsv:md5,5ddfd3c548d8ceee7d4690c12f8d4fc2"
+                ],
+                "tpm_transcript_dtu_scaled": [
+                    "test.transcript_tpm_dtu_scaled.tsv:md5,5ddfd3c548d8ceee7d4690c12f8d4fc2"
+                ],
+                "tpm_transcript_length_scaled": [
+                    "test.transcript_tpm_length_scaled.tsv:md5,5ddfd3c548d8ceee7d4690c12f8d4fc2"
+                ],
+                "tpm_transcript_scaled": [
+                    "test.transcript_tpm_scaled.tsv:md5,5ddfd3c548d8ceee7d4690c12f8d4fc2"
+                ],
+                "txi": [
+                    "test.txi.rds"
+                ],
+                "txi_dtu": [
+                    "test.txi.dtu.rds"
+                ],
+                "txi_ls": [
+                    "test.txi.ls.rds"
+                ],
+                "txi_s": [
+                    "test.txi.s.rds"
+                ],
+                "tximport_tx2gene": [
+                    "tximport.tx2gene.tsv:md5,d0e01bd4a7cdd04a989fbca69bb68636"
+                ],
+                "versions": [
+                    "versions.yml:md5,31f5614f528c5999940c300d73292aca"
+                ]
+            },
+            {
+                "versions": [
+                    "versions.yml:md5,31f5614f528c5999940c300d73292aca"
+                ]
+            }
+        ],
+        "timestamp": "2026-08-25T14:24:05.73839626",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    },
+    "human chrX - salmon quant": {
+        "content": [
+            {
+                "counts_gene": [
+                    "test.gene_counts.tsv:md5,be7d214ffd8027612e0f28a394889d20"
+                ],
+                "counts_gene_length_scaled": [
+                    "test.gene_counts_length_scaled.tsv:md5,28624e258171e0951777357031559e6d"
+                ],
+                "counts_gene_scaled": [
+                    "test.gene_counts_scaled.tsv:md5,97fef573e11e780524578317f7deb0ae"
+                ],
+                "counts_transcript": [
+                    "test.transcript_counts.tsv:md5,1a7e81af27349dc96ce6e87a9e672dc1"
+                ],
+                "counts_transcript_dtu_scaled": [
+                    "test.transcript_counts_dtu_scaled.tsv:md5,a0e458d1245ac3f672594b22e034a12e"
+                ],
+                "counts_transcript_length_scaled": [
+                    "test.transcript_counts_length_scaled.tsv:md5,510432b97882062b909a1f1ab452ac2d"
+                ],
+                "counts_transcript_scaled": [
+                    "test.transcript_counts_scaled.tsv:md5,171ce0f7c1721515d85faca2100f38ab"
+                ],
+                "gi": [
+                    "test.gi.rds"
+                ],
+                "gi_ls": [
+                    "test.gi.ls.rds"
+                ],
+                "gi_s": [
+                    "test.gi.s.rds"
+                ],
+                "suppa_tpm": [
+                    "suppa_tpm.txt:md5,93476b04f515a0da7634afdb01dfb674"
+                ],
+                "tpm_gene": [
+                    "test.gene_tpm.tsv:md5,48998e5541633edb2c452d4cc93ce066"
+                ],
+                "tpm_gene_length_scaled": [
+                    "test.gene_tpm_length_scaled.tsv:md5,48998e5541633edb2c452d4cc93ce066"
+                ],
+                "tpm_gene_scaled": [
+                    "test.gene_tpm_scaled.tsv:md5,48998e5541633edb2c452d4cc93ce066"
+                ],
+                "tpm_transcript": [
+                    "test.transcript_tpm.tsv:md5,5ddfd3c548d8ceee7d4690c12f8d4fc2"
+                ],
+                "tpm_transcript_dtu_scaled": [
+                    "test.transcript_tpm_dtu_scaled.tsv:md5,5ddfd3c548d8ceee7d4690c12f8d4fc2"
+                ],
+                "tpm_transcript_length_scaled": [
+                    "test.transcript_tpm_length_scaled.tsv:md5,5ddfd3c548d8ceee7d4690c12f8d4fc2"
+                ],
+                "tpm_transcript_scaled": [
+                    "test.transcript_tpm_scaled.tsv:md5,5ddfd3c548d8ceee7d4690c12f8d4fc2"
+                ],
+                "txi": [
+                    "test.txi.rds"
+                ],
+                "txi_dtu": [
+                    "test.txi.dtu.rds"
+                ],
+                "txi_ls": [
+                    "test.txi.ls.rds"
+                ],
+                "txi_s": [
+                    "test.txi.s.rds"
+                ],
+                "tximport_tx2gene": [
+                    "tximport.tx2gene.tsv:md5,d0e01bd4a7cdd04a989fbca69bb68636"
+                ],
+                "versions": [
+                    "versions.yml:md5,31f5614f528c5999940c300d73292aca"
+                ]
+            },
+            {
+                "versions": [
+                    "versions.yml:md5,31f5614f528c5999940c300d73292aca"
+                ]
+            }
+        ],
+        "timestamp": "2026-08-25T14:23:59.521505275",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    }
+}

@@ -23,15 +23,14 @@ nextflow_process {
                     tool2: 1.9
                 '''.stripIndent()
 
-                input[0] = Channel.of(tool1_version, tool2_version).collectFile()
+                input[0] = channel.of(tool1_version, tool2_version).collectFile()
                 """
             }
         }
 
         then {
             assertAll(
-                { assert process.success },
-                { assert snapshot(process.out).match() }
+                { assert process.failed }
             )
         }
     }

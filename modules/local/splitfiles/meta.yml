@@ -1,0 +1,80 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "splitfiles"
+description: Take the columns of the samples of one condition from a SUPPA TPM or
+  PSI matrix, which holds every sample of the run
+keywords:
+  - suppa
+  - alternative splicing
+  - genomics
+  - helper
+tools:
+  - "r-base":
+      description: "R is a free software environment for statistical computing and
+        graphics. The module runs an R script that subsets the matrix columns."
+      homepage: "https://www.r-project.org/"
+      documentation: "https://cran.r-project.org/manuals.html"
+      licence: ["GPL-2.0-or-later"]
+      identifier: biotools:r
+
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing matrix and condition information
+          e.g. `[ id:'tpm_GBR', condition:'GBR' ]`
+    - tpm_psi:
+        type: file
+        description: SUPPA TPM or PSI matrix with a column per sample. The header has
+          one field less than the rows, whose first field is the transcript or event
+          ID
+        pattern: "*.{tpm,psi,tsv,txt}"
+        ontologies:
+          - edam: "http://edamontology.org/format_3475" # TSV
+    - samples:
+        type: list
+        description: Names of the samples of the condition, in the order of the
+          columns to write. Every one must be a column of `tpm_psi`
+  - extension:
+      type: string
+      description: Extension of the output file, either `tpm` or `psi`
+
+output:
+  split:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing matrix and condition information
+            e.g. `[ id:'tpm_GBR', condition:'GBR' ]`
+      - ${prefix}.${extension}:
+          type: file
+          description: The matrix restricted to the samples of the condition
+          pattern: "*.{tpm,psi}"
+          ontologies:
+            - edam: "http://edamontology.org/format_3475" # TSV
+  versions_r:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - r-base:
+          type: string
+          description: The name of the tool
+      - R --version 2>&1 | head -n 1 | sed "s/^.*version //; s/ .*$//":
+          type: eval
+          description: The expression to obtain the version of the tool
+
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - r-base:
+          type: string
+          description: The name of the tool
+      - R --version 2>&1 | head -n 1 | sed "s/^.*version //; s/ .*$//":
+          type: eval
+          description: The expression to obtain the version of the tool
+authors:
+  - "@lathikaa"
+  - "@piplus2"
+maintainers:
+  - "@piplus2"

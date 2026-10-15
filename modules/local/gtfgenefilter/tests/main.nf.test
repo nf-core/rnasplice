@@ -1,0 +1,69 @@
+// nf-core modules test gtfgenefilter
+nextflow_process {
+
+    name "Test Process GTFGENEFILTER"
+    script "../main.nf"
+    process "GTFGENEFILTER"
+
+    tag "modules"
+    tag "modules_local"
+    tag "gtfgenefilter"
+
+    test("sarscov2 - fasta - gtf") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id:'sarscov2' ],
+                    file(params.modules_testdata_base_path + 'genomics/sarscov2/genome/genome.fasta', checkIfExists: true),
+                ]
+                input[1] = [
+                    [ id:'sarscov2' ],
+                    file(params.modules_testdata_base_path + 'genomics/sarscov2/genome/genome.gtf', checkIfExists: true),
+                ]
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assertAll(
+                { assert snapshot(
+                    process.out.gtf,
+                    process.out.findAll { key, val -> key.startsWith('versions') }
+                ).match() }
+            )
+        }
+
+    }
+
+    test("sarscov2 - fasta - gtf - stub") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id:'sarscov2' ],
+                    file(params.modules_testdata_base_path + 'genomics/sarscov2/genome/genome.fasta', checkIfExists: true),
+                ]
+                input[1] = [
+                    [ id:'sarscov2' ],
+                    file(params.modules_testdata_base_path + 'genomics/sarscov2/genome/genome.gtf', checkIfExists: true),
+                ]
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assertAll(
+                { assert snapshot(process.out).match() }
+            )
+        }
+
+    }
+
+}
