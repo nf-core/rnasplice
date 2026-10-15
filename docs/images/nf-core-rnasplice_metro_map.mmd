@@ -88,6 +88,8 @@ graph LR
     end
 
     subgraph transcript_analysis [Transcript based analysis]
+        %% Hidden station, so the DTU and event lines enter straight from tximport and split inside
+        _tx[hidden]
         drimseq[DRIMSeq]
         dexseq_dtu[DEXSeq]
         stager[stageR]
@@ -99,6 +101,9 @@ graph LR
         dtu_out[ ]
         event_tx_out[ ]
 
+        _tx -->|event| suppa_events
+        _tx -->|dtu| drimseq
+        _tx -->|dtu| isar
         drimseq -->|dtu| dexseq_dtu
         dexseq_dtu -->|dtu| stager
         stager -->|dtu| dtu_out
@@ -129,8 +134,6 @@ graph LR
     star -->|deu,event,qc| samtools
     _split -->|qc| bedtools
     _split -->|qc| miso
-    tximport -->|dtu| drimseq
-    tximport -->|event| suppa_events
-    salmon -->|dtu| isar
+    tximport -->|dtu,event| _tx
     _split -->|deu,event,qc| multiqc
     salmon -->|dtu| multiqc
