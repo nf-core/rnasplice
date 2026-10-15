@@ -3,46 +3,45 @@
 %%metro style: nfcore
 %%metro center_ports: true
 %%metro compact_offsets: true
+%%metro font_scale: 1.6
+%%metro stroke_scale: 1.5
+%%metro x_spacing: 120
+%%metro animate: true
 %%metro files: fastq_in | FASTQ | Reads
 %%metro file: genome_bam_in | BAM | Genome
 %%metro file: transcriptome_bam_in | BAM | Transcriptome
 %%metro dir: salmon_in | Salmon | Quant
+%%metro file: deu_out | TSV | DEU
+%%metro file: dtu_out | TSV | DTU
+%%metro file: event_exon_out | TSV | Events
+%%metro file: event_tx_out | TSV | Events
 %%metro file: bigwig_out | BW | Coverage
+%%metro file: sashimi_out | PDF | Sashimi
 %%metro file: report_out | HTML | MultiQC
 %%metro off_track: genome_bam_in, transcriptome_bam_in, salmon_in
-%%metro line: deu | Differential exon usage (DEU) | #e63946
-%%metro line: dtu | Differential transcript usage (DTU) | #4361ee
 %%metro line: event | Event-based splicing | #f39c12
+%%metro line: deu | Differential exon usage (DEU) | #e63946
 %%metro line: qc | QC & visualisation | #2db572
+%%metro line: dtu | Differential transcript usage (DTU) | #4361ee
 %%metro legend: bl
 %%metro grid: preprocessing | 0,0
-%%metro grid: alignment | 1,0
+%%metro grid: exon_analysis | 1,0
+%%metro grid: reporting | 2,0
 %%metro grid: quantification | 1,1
-%%metro grid: exon_analysis | 2,0
 %%metro grid: transcript_analysis | 2,1
-%%metro grid: reporting | 3,0
 
 graph LR
-    subgraph preprocessing [Pre-processing]
+    subgraph preprocessing [Pre-processing & alignment]
         fastq_in[ ]
-        cat_fastq[cat]
         fastqc_raw[FastQC]
-        trimgalore[Trim Galore!]
+        trimgalore[Trim Galore]
         fastqc_trim[FastQC]
+        star[STAR]
 
-        fastq_in -->|deu,dtu,event,qc| cat_fastq
-        cat_fastq -->|deu,dtu,event,qc| fastqc_raw
+        fastq_in -->|deu,dtu,event,qc| fastqc_raw
         fastqc_raw -->|deu,dtu,event,qc| trimgalore
         trimgalore -->|deu,dtu,event,qc| fastqc_trim
-    end
-
-    subgraph alignment [Genome alignment]
-        genome_bam_in[ ]
-        star[STAR]
-        samtools[SAMtools]
-
-        star -->|deu,event,qc| samtools
-        genome_bam_in -->|deu,event,qc| samtools
+        fastqc_trim -->|deu,dtu,event,qc| star
     end
 
     subgraph quantification [Transcript quantification]
@@ -57,6 +56,11 @@ graph LR
     end
 
     subgraph exon_analysis [Exon & junction based analysis]
+        genome_bam_in[ ]
+        samtools[SAMtools]
+        %% Hidden stations, so the lines leave SAMtools together and a single DEU line splits later
+        _split[hidden]
+        _deu[hidden]
         htseq[HTSeq]
         dexseq_exon[DEXSeq]
         featurecounts[featureCounts]
@@ -64,13 +68,28 @@ graph LR
         rmats[rMATS]
         regtools[regtools]
         leafcutter[LeafCutter]
+        deu_out[ ]
+        event_exon_out[ ]
 
+        genome_bam_in -->|deu,event,qc| samtools
+        samtools -->|deu,event,qc| _split
+        _split -->|deu| _deu
+        _deu -->|deu| htseq
+        _deu -->|deu| featurecounts
+        _split -->|event| rmats
+        _split -->|event| regtools
         htseq -->|deu| dexseq_exon
         featurecounts -->|deu| edger
         regtools -->|event| leafcutter
+        dexseq_exon -->|deu| deu_out
+        edger -->|deu| deu_out
+        rmats -->|event| event_exon_out
+        leafcutter -->|event| event_exon_out
     end
 
     subgraph transcript_analysis [Transcript based analysis]
+        %% Hidden station, so the DTU and event lines enter straight from tximport and split inside
+        _tx[hidden]
         drimseq[DRIMSeq]
         dexseq_dtu[DEXSeq]
         stager[stageR]
@@ -79,37 +98,42 @@ graph LR
         suppa_psi[SUPPA PSI]
         suppa_diff[SUPPA diffSplice]
         suppa_cluster[SUPPA cluster]
+        dtu_out[ ]
+        event_tx_out[ ]
 
+        _tx -->|event| suppa_events
+        _tx -->|dtu| drimseq
+        _tx -->|dtu| isar
         drimseq -->|dtu| dexseq_dtu
         dexseq_dtu -->|dtu| stager
+        stager -->|dtu| dtu_out
+        isar -->|dtu| dtu_out
         suppa_events -->|event| suppa_psi
         suppa_psi -->|event| suppa_diff
         suppa_diff -->|event| suppa_cluster
+        suppa_cluster -->|event| event_tx_out
     end
 
     subgraph reporting [Visualisation & reporting]
-        miso[MISO sashimi]
         bedtools[BEDTools]
         bigwig[bedGraphToBigWig]
+        miso[MISO sashimi]
         multiqc[MultiQC]
         bigwig_out[ ]
+        sashimi_out[ ]
         report_out[ ]
 
         bedtools -->|qc| bigwig
         bigwig -->|qc| bigwig_out
-        multiqc -->|qc| report_out
+        miso -->|qc| sashimi_out
+        multiqc -->|deu,dtu,event,qc| report_out
     end
 
     %% Inter-section edges
-    fastqc_trim -->|deu,dtu,event,qc| star
     star -->|dtu,event| salmon
-    samtools -->|deu| htseq
-    samtools -->|deu| featurecounts
-    samtools -->|event| rmats
-    samtools -->|event| regtools
-    samtools -->|qc| miso
-    samtools -->|qc| bedtools
-    samtools -->|qc| multiqc
-    tximport -->|dtu| drimseq
-    tximport -->|event| suppa_events
-    salmon -->|dtu| isar
+    star -->|deu,event,qc| samtools
+    _split -->|qc| bedtools
+    _split -->|qc| miso
+    tximport -->|dtu,event| _tx
+    _split -->|deu,event,qc| multiqc
+    salmon -->|dtu| multiqc
