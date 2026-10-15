@@ -19,9 +19,9 @@
 %%metro file: sashimi_out | PDF | Sashimi
 %%metro file: report_out | HTML | MultiQC
 %%metro off_track: genome_bam_in, transcriptome_bam_in, salmon_in
-%%metro line: qc | QC & visualisation | #2db572
 %%metro line: deu | Differential exon usage (DEU) | #e63946
 %%metro line: event | Event-based splicing | #f39c12
+%%metro line: qc | QC & visualisation | #2db572
 %%metro line: dtu | Differential transcript usage (DTU) | #4361ee
 %%metro legend: bl
 %%metro grid: preprocessing | 0,0
@@ -58,6 +58,10 @@ graph LR
     subgraph exon_analysis [Exon & junction based analysis]
         genome_bam_in[ ]
         samtools[SAMtools]
+        %% Hidden stations, so a single DEU and a single event line leave SAMtools and split later
+        _split[hidden]
+        _deu[hidden]
+        _event[hidden]
         htseq[HTSeq]
         dexseq_exon[DEXSeq]
         featurecounts[featureCounts]
@@ -69,6 +73,13 @@ graph LR
         event_exon_out[ ]
 
         genome_bam_in -->|deu,event,qc| samtools
+        samtools -->|deu,event,qc| _split
+        _split -->|deu| _deu
+        _split -->|event| _event
+        _deu -->|deu| htseq
+        _deu -->|deu| featurecounts
+        _event -->|event| rmats
+        _event -->|event| regtools
         htseq -->|deu| dexseq_exon
         featurecounts -->|deu| edger
         regtools -->|event| leafcutter
@@ -118,14 +129,10 @@ graph LR
     %% Inter-section edges
     star -->|dtu,event| salmon
     star -->|deu,event,qc| samtools
-    samtools -->|deu| htseq
-    samtools -->|deu| featurecounts
-    samtools -->|event| rmats
-    samtools -->|event| regtools
-    samtools -->|qc| bedtools
-    samtools -->|qc| miso
+    _split -->|qc| bedtools
+    _split -->|qc| miso
     tximport -->|dtu| drimseq
     tximport -->|event| suppa_events
     salmon -->|dtu| isar
-    samtools -->|deu,event,qc| multiqc
+    _split -->|deu,event,qc| multiqc
     salmon -->|dtu| multiqc
