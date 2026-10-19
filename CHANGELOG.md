@@ -5,13 +5,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## v2.0.0 - Fenix Reborn - [yyyy-mm-dd]
 
-The first release since 1.0.4 in April 2024 brings the pipeline up to the nf-core template 4.1.0, Nextflow 26.04 and nf-schema. Highlights:
+The first release since 1.0.4 in April 2024 brings the pipeline up to the nf-core template 4.1.0, Nextflow 26.04 and nf-schema.
+
+### Highlights
 
 - New LeafCutter (`--leafcutter`) and IsoformSwitchAnalyzeR (`--isoformswitchanalyzer`) analyses
 - Every local module and subworkflow follows the nf-core template and has its own nf-tests, and the pipeline tests cover all four `--source` values with conda, Docker and Singularity
 - The AWS iGenomes STAR indices work with a current STAR version
 
-Breaking changes, detailed below:
+### Breaking changes
+
+Detailed in the sections below:
 
 - Nextflow 26.04.0 or later is required (#210)
 - `--max_cpus`, `--max_memory` and `--max_time` are replaced by `process.resourceLimits` (#163)
@@ -22,7 +26,6 @@ Breaking changes, detailed below:
 - The DEXSeq log2 fold changes are treatment over control, as the contrast name says, where 1.x reported control over treatment (#327)
 - The SUPPA dPSI is treatment minus control, where 1.x reported control minus treatment (#328)
 - The samplesheets of the BAM and Salmon sources need unique sample names (#285)
-- Local modules were renamed and moved, so `withName` selectors in custom configs may need updating (#195, #327)
 
 ### Added
 
@@ -103,8 +106,9 @@ Breaking changes, detailed below:
 - #309 - **Breaking change**: Rename the SUPPA cluster group files after their level, so `GBR-YRI_groups.txt` becomes `local_GBR-YRI_groups.txt`, with a new `transcript_GBR-YRI_groups.txt` next to it (by @piplus2)
 - #310 - Move the `TX2GENE_TXIMPORT` subworkflow to the nf-core subworkflow template. It detects a tarball from the file name instead of the first element of the path, and no longer adds a `tgz` key to the meta map of the Salmon results it emits (by @piplus2)
 - #311 - Correct `MISOPY_SETTINGS` metadata and remove redundant prefix argument parsing and configuration overrides (by @felixhaidle)
-- #327 - **Breaking change**: Rename the local modules `CREATE_BAMLIST`, `STRAND_JUNCTIONS`, `SPLIT_FILES` and `STAR_GENOMEPARAMS_UPGRADE` to `CREATEBAMLIST`, `STRANDJUNCTIONS`, `SPLITFILES` and `GENOMEPARAMSUPGRADE`, and move `RMATS_POST` to `modules/local/rmats/post` (suggested by @mashehu, done by @piplus2)
-- #327 - **Breaking change**: Replace the local DEXSeq modules with the nf-core modules `dexseq/prepareannotation`, `dexseq/count`, `dexseq/exon` and `dexseq/dtu`. `DEXSEQ_EXON` and `DEXSEQ_DTU` run once per contrast, and their results are named `{contrast}.dexseq.{dataset,results,gene_qvalues}.{rds,tsv}` and `{contrast}.dexseq.plots.pdf`. The log2 fold changes are now treatment over control, where the local scripts reported control over treatment (reported by @erikrikarddaniel). The DEXSeq annotation is prepared with a fixed Python hash seed, so it is the same across runs (suggested by @mashehu, done by @piplus2)
+- #327 - Rename the local modules `CREATE_BAMLIST`, `STRAND_JUNCTIONS`, `SPLIT_FILES` and `STAR_GENOMEPARAMS_UPGRADE` to `CREATEBAMLIST`, `STRANDJUNCTIONS`, `SPLITFILES` and `GENOMEPARAMSUPGRADE`, and move `RMATS_POST` to `modules/local/rmats/post`. Custom configs that select these processes with `withName` need the new names (suggested by @mashehu, done by @piplus2)
+- #327 - Replace the local DEXSeq modules with the nf-core modules `dexseq/prepareannotation`, `dexseq/count`, `dexseq/exon` and `dexseq/dtu`. The DEXSeq annotation is prepared with a fixed Python hash seed, so it is the same across runs (suggested by @mashehu, done by @piplus2)
+- #327 - **Breaking change**: `DEXSEQ_EXON` and `DEXSEQ_DTU` run once per contrast, and their results are named `{contrast}.dexseq.{dataset,results,gene_qvalues}.{rds,tsv}` and `{contrast}.dexseq.plots.pdf`, so the exon tables are TSV instead of CSV. The log2 fold changes are now treatment over control, where the local scripts reported control over treatment (reported by @erikrikarddaniel, fix by @piplus2)
 - #327 - `DEXSEQ_DEU` takes `skip_annotation` instead of `prepare_annotation`, and Salmon gets empty inputs instead of the `assets/dummy_file*.txt` placeholders (suggested by @mashehu, done by @piplus2)
 - #327 - Add icons, bounds and tidier descriptions to the parameter schema, the LeafCutter and RegTools citations, and fix the profile names in the `conf/test_*.config` headers (suggested by @mashehu and @erikrikarddaniel, done by @piplus2)
 
