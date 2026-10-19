@@ -173,6 +173,7 @@ Detailed in the sections below:
 - #327 - Declare `--rmats_paired_stats` without a `true` default in `main.nf`, which contradicted the documented `false` that `nextflow.config` sets (reported by @erikrikarddaniel, fix by @piplus2)
 - #328 - **Breaking change**: SUPPA and IsoformSwitchAnalyzeR report treatment minus control, like the other tools, where they reported control minus treatment. The SUPPA dPSI columns are named `{level}_{control}-{level}_{treatment}_dPSI`, where `{level}` is `local` or `transcript`, and the `.psivec` columns list the control samples first. The IsoformSwitchAnalyzeR plot folders are named `{control}_vs_{treatment}`. Each tool names a comparison after its first and second condition (suggested by @erikrikarddaniel, done by @piplus2)
 - #329 - Fix the devcontainer setup script, which lacked the executable bit, so the devcontainer did not start in VS Code on macOS (by @tfallon-ionis)
+- #332 - Give the nf-test CI runners an 80 GB volume instead of 50 GB, which the Docker pipeline test filled while pulling the MultiQC container (by @piplus2)
 
 ## v1.0.4 - 2024-04-21
 
