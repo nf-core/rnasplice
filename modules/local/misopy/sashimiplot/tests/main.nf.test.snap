@@ -1,0 +1,68 @@
+{
+    "human chrX - one gene - stub": {
+        "content": [
+            {
+                "sashimi_plot": [
+                    [
+                        {
+                            "id": "miso"
+                        },
+                        "ENSG00000147403.pdf:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "versions_misopy": [
+                    [
+                        "MISOPY_SASHIMIPLOT",
+                        "misopy",
+                        "0.5.4"
+                    ]
+                ],
+                "versions_python": [
+                    [
+                        "MISOPY_SASHIMIPLOT",
+                        "python",
+                        "2.7.15"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-10-05T19:19:17.180013417",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.1"
+        }
+    },
+    "human chrX - one gene": {
+        "content": [
+            {
+                "sashimi_plot": [
+                    [
+                        {
+                            "id": "miso"
+                        },
+                        "ENSG00000147403.pdf"
+                    ]
+                ],
+                "versions_misopy": [
+                    [
+                        "MISOPY_SASHIMIPLOT",
+                        "misopy",
+                        "0.5.4"
+                    ]
+                ],
+                "versions_python": [
+                    [
+                        "MISOPY_SASHIMIPLOT",
+                        "python",
+                        "2.7.15"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-10-05T19:19:08.661071821",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.1"
+        }
+    }
+}

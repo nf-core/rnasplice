@@ -1,0 +1,105 @@
+{
+    "dexseq results - tsv - stub": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "treatment-control"
+                        },
+                        "stageRTx.treatment-control.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "1": [
+                    [
+                        {
+                            "id": "treatment-control"
+                        },
+                        "getAdjustedPValues.treatment-control.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "2": [
+                    [
+                        {
+                            "id": "treatment-control"
+                        },
+                        "getAdjustedPValues.treatment-control.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "3": [
+                    "versions.yml:md5,7811bc2ccd7007aa96cc5ff3ca86b839"
+                ],
+                "stager_padj_rds": [
+                    [
+                        {
+                            "id": "treatment-control"
+                        },
+                        "getAdjustedPValues.treatment-control.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "stager_padj_tsv": [
+                    [
+                        {
+                            "id": "treatment-control"
+                        },
+                        "getAdjustedPValues.treatment-control.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "stager_rds": [
+                    [
+                        {
+                            "id": "treatment-control"
+                        },
+                        "stageRTx.treatment-control.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "versions_stager": [
+                    "versions.yml:md5,7811bc2ccd7007aa96cc5ff3ca86b839"
+                ]
+            }
+        ],
+        "timestamp": "2026-08-26T17:41:29.61784885",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.4"
+        }
+    },
+    "dexseq results - tsv": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "treatment-control"
+                    },
+                    "getAdjustedPValues.treatment-control.tsv:md5,17079406e23571ff6d5b8f77787abc21"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "treatment-control"
+                    },
+                    "stageRTx.treatment-control.rds"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "treatment-control"
+                    },
+                    "getAdjustedPValues.treatment-control.rds"
+                ]
+            ],
+            {
+                "versions_stager": [
+                    "versions.yml:md5,7811bc2ccd7007aa96cc5ff3ca86b839"
+                ]
+            }
+        ],
+        "timestamp": "2026-08-26T17:41:21.701641003",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.4"
+        }
+    }
+}

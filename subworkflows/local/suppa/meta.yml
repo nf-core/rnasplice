@@ -1,0 +1,245 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "suppa"
+description: Differential splicing between the conditions of each contrast with SUPPA, per local event and per isoform, and clustering of the events by their PSI values
+keywords:
+  - suppa
+  - alternative splicing
+  - differential splicing
+  - psi
+  - rna-seq
+components:
+  - suppa/generateevents
+  - suppa/psiperevent
+  - suppa/psiperisoform
+  - suppa/diffsplice
+  - suppa/clusterevents
+  - mergeevents
+  - splitfiles
+  - clustergroups
+input:
+  - ch_gtf:
+      type: file
+      description: |
+        Channel containing the GTF annotation
+        Structure: [ val(meta), path(gtf) ]
+      pattern: "*.gtf"
+  - ch_tpm:
+      type: file
+      description: |
+        Channel containing the SUPPA TPM table, a column per sample and a row per transcript
+        Structure: [ val(meta), path(tpm) ]
+  - ch_samples:
+      type: list
+      description: |
+        Channel containing the sample id and the condition of every sample, in samplesheet order.
+        The paired diffSplice model pairs the n-th treatment sample with the n-th control sample
+        Structure: [ val(sample_id), val(condition) ]
+  - ch_contrastsheet:
+      type: map
+      description: |
+        Channel containing one map per contrast
+        Structure: [ contrast: val(contrast), treatment: val(condition), control: val(condition) ]
+  - suppa_per_local_event:
+      type: boolean
+      description: |
+        Whether to run the analysis per local event
+  - generateevents_boundary:
+      type: string
+      description: |
+        Boundary type of the local events, `S` (strict) or `V` (variable)
+  - generateevents_threshold:
+      type: integer
+      description: |
+        Variability threshold of the event boundaries with `--boundary V`
+  - generateevents_exon_length:
+      type: integer
+      description: |
+        Length of the exons that define the local events
+  - generateevents_event_type:
+      type: string
+      description: |
+        Space separated local event types to generate, among SE, SS, MX, RI and FL
+  - generateevents_pool_genes:
+      type: boolean
+      description: |
+        Whether to pool the genes with overlapping exons
+  - psiperevent_total_filter:
+      type: integer
+      description: |
+        Minimum total expression of the transcripts of an event to compute its PSI
+  - diffsplice_local_event:
+      type: boolean
+      description: |
+        Whether to run diffSplice per local event
+  - diffsplice_transcript_event:
+      type: boolean
+      description: |
+        Whether to run diffSplice per isoform
+  - diffsplice_method:
+      type: string
+      description: |
+        diffSplice method, `empirical` or `classical`
+  - diffsplice_area:
+      type: integer
+      description: |
+        Number of events of the empirical distribution around the event of interest
+  - diffsplice_lower_bound:
+      type: float
+      description: |
+        Lower bound of the absolute delta PSI of an event to be tested
+  - diffsplice_alpha:
+      type: float
+      description: |
+        Family-wise error rate for the multiple testing correction
+  - diffsplice_tpm_threshold:
+      type: float
+      description: |
+        Minimum mean TPM of the transcripts of an event in both conditions
+  - diffsplice_nan_threshold:
+      type: float
+      description: |
+        Maximum fraction of missing PSI values of an event in a condition
+  - diffsplice_gene_correction:
+      type: boolean
+      description: |
+        Whether to correct the p-values for multiple testing within each gene
+  - diffsplice_paired:
+      type: boolean
+      description: |
+        Whether the samples of the two conditions are paired
+  - diffsplice_median:
+      type: boolean
+      description: |
+        Whether to use the median instead of the mean to compute the delta PSI
+  - clusterevents_local_event:
+      type: boolean
+      description: |
+        Whether to cluster the local events
+  - clusterevents_transcript_event:
+      type: boolean
+      description: |
+        Whether to cluster the isoforms
+  - clusterevents_dpsithreshold:
+      type: float
+      description: |
+        Minimum absolute delta PSI of the events to cluster
+  - clusterevents_eps:
+      type: float
+      description: |
+        Maximum distance between two events of a cluster (DBSCAN)
+  - clusterevents_metric:
+      type: string
+      description: |
+        Distance metric, `euclidean`, `manhattan` or `cosine`
+  - clusterevents_min_pts:
+      type: integer
+      description: |
+        Minimum number of events of a cluster
+  - clusterevents_method:
+      type: string
+      description: |
+        Clustering method, `DBSCAN` or `OPTICS`
+  - clusterevents_sigthreshold:
+      type: float
+      description: |
+        p-value threshold of the events to cluster, or `false` for none
+  - clusterevents_separation:
+      type: float
+      description: |
+        Minimum reachability distance between clusters (OPTICS), or `false` for none
+  - suppa_per_isoform:
+      type: boolean
+      description: |
+        Whether to run the analysis per isoform
+output:
+  - ioe_events:
+      type: file
+      description: |
+        Channel containing the local events of every type, merged into one file
+        Structure: [ val(meta), path(ioe) ]
+      pattern: "*.ioe"
+  - ioi_events:
+      type: file
+      description: |
+        Channel containing the transcript events
+        Structure: [ val(meta), path(ioi) ]
+      pattern: "*.ioi"
+  - suppa_local_psi:
+      type: file
+      description: |
+        Channel containing the PSI value of each local event in each sample
+        Structure: [ val(meta), path(psi) ]
+      pattern: "*.psi"
+  - suppa_isoform_psi:
+      type: file
+      description: |
+        Channel containing the PSI value of each isoform in each sample
+        Structure: [ val(meta), path(psi) ]
+      pattern: "*.psi"
+  - split_suppa_tpms:
+      type: file
+      description: |
+        Channel containing the TPM table of each condition. The meta map carries the `condition`
+        Structure: [ val(meta), path(tpm) ]
+      pattern: "*.tpm"
+  - split_suppa_local_psi:
+      type: file
+      description: |
+        Channel containing the local event PSI values of each condition. The meta map carries the `condition` and the `level`, `local`
+        Structure: [ val(meta), path(psi) ]
+      pattern: "local_*.psi"
+  - split_suppa_isoform_psi:
+      type: file
+      description: |
+        Channel containing the isoform PSI values of each condition. The meta map carries the `condition` and the `level`, `transcript`
+        Structure: [ val(meta), path(psi) ]
+      pattern: "transcript_*.psi"
+  - dpsi_local:
+      type: file
+      description: |
+        Channel containing the delta PSI and p-value of each local event, per contrast. The meta map carries the `level`, the `treatment` and the `control`
+        Structure: [ val(meta), path(dpsi) ]
+      pattern: "local_*.dpsi"
+  - psivec_local:
+      type: file
+      description: |
+        Channel containing the PSI values of the local events in the samples of each contrast
+        Structure: [ val(meta), path(psivec) ]
+      pattern: "local_*.psivec"
+  - dpsi_isoform:
+      type: file
+      description: |
+        Channel containing the delta PSI and p-value of each isoform, per contrast
+        Structure: [ val(meta), path(dpsi) ]
+      pattern: "transcript_*.dpsi"
+  - psivec_isoform:
+      type: file
+      description: |
+        Channel containing the PSI values of the isoforms in the samples of each contrast
+        Structure: [ val(meta), path(psivec) ]
+      pattern: "transcript_*.psivec"
+  - groups:
+      type: file
+      description: |
+        Channel containing the column ranges of the two conditions in the PSI vector file of each contrast and level
+        Structure: [ val(meta), path(txt) ]
+      pattern: "*_groups.txt"
+  - cluster_vec_local:
+      type: file
+      description: |
+        Channel containing the cluster of each local event, per contrast
+        Structure: [ val(meta), path(clustvec) ]
+      pattern: "local_*.clustvec"
+  - cluster_vec_isoform:
+      type: file
+      description: |
+        Channel containing the cluster of each isoform, per contrast
+        Structure: [ val(meta), path(clustvec) ]
+      pattern: "transcript_*.clustvec"
+authors:
+  - "@bensouthgate"
+  - "@jma1991"
+  - "@lathikaa"
+  - "@piplus2"
+maintainers:
+  - "@piplus2"

@@ -1,0 +1,97 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "stager"
+description: Perform stage-wise testing of differential transcript usage results
+  produced by DEXSeq or DRIMSeq
+keywords:
+  - stageR
+  - dtu
+  - deu
+  - stage-wise testing
+  - multiple testing correction
+tools:
+  - "stageR":
+      description: "stageR is an R package that performs a two-stage (screening and
+        confirmation) analysis to increase power while controlling the overall false
+        discovery rate."
+      homepage: "https://bioconductor.org/packages/stageR"
+      documentation: "https://bioconductor.org/packages/release/bioc/vignettes/stageR/inst/doc/stageRVignette.html"
+      tool_dev_url: "https://github.com/statOmics/stageR"
+      doi: "10.1186/s13059-017-1277-0"
+      licence: ["GPL-3.0-or-later"]
+      identifier: biotools:stager
+
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing contrast information
+          e.g. `[ id:'treatment-control' ]`
+    - feature_tsv:
+        type: file
+        description: Tab-separated feature-level (transcript/exon) results table
+        pattern: "*.tsv"
+        ontologies:
+          - edam: "http://edamontology.org/format_3475" # TSV
+    - gene_tsv:
+        type: file
+        description: Tab-separated gene-level results table
+        pattern: "*.tsv"
+        ontologies:
+          - edam: "http://edamontology.org/format_3475" # TSV
+  - - analysis_type:
+        type: string
+        description: Tool that produced the input tables, either `dexseq` or `drimseq`
+
+output:
+  stager_rds:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing contrast information
+            e.g. `[ id:'treatment-control' ]`
+      - "stageRTx.*.rds":
+          type: file
+          description: Serialised stageRTx object after stage-wise adjustment
+          pattern: "stageRTx.*.rds"
+  stager_padj_rds:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing contrast information
+            e.g. `[ id:'treatment-control' ]`
+      - "getAdjustedPValues.*.rds":
+          type: file
+          description: Serialised data frame of stage-wise adjusted p-values
+          pattern: "getAdjustedPValues.*.rds"
+  stager_padj_tsv:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing contrast information
+            e.g. `[ id:'treatment-control' ]`
+      - "getAdjustedPValues.*.tsv":
+          type: file
+          description: Tab-separated table of stage-wise adjusted p-values
+          pattern: "getAdjustedPValues.*.tsv"
+          ontologies:
+            - edam: "http://edamontology.org/format_3475" # TSV
+  versions_stager:
+    - "versions.yml":
+        type: file
+        description: File containing software versions
+        pattern: "versions.yml"
+        ontologies:
+          - edam: "http://edamontology.org/format_3750" # YAML
+
+topics:
+  versions:
+    - "versions.yml":
+        type: file
+        description: File containing software versions
+        pattern: "versions.yml"
+        ontologies:
+          - edam: "http://edamontology.org/format_3750" # YAML
+authors:
+  - "@piplus2"
+maintainers:
+  - "@piplus2"

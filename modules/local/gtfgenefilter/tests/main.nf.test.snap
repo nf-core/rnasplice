@@ -1,0 +1,57 @@
+{
+    "sarscov2 - fasta - gtf": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "sarscov2"
+                    },
+                    "genome_genes.gtf:md5,90e30c9d2e1d5b7d79c7686a63c381be"
+                ]
+            ],
+            {
+                "versions_python": [
+                    "versions.yml:md5,fe8401a4638fc6f3bbd9618a5a23ace8"
+                ]
+            }
+        ],
+        "timestamp": "2026-09-04T09:14:23.259249516",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    },
+    "sarscov2 - fasta - gtf - stub": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "sarscov2"
+                        },
+                        "genome_genes.gtf:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "1": [
+                    "versions.yml:md5,831f1da3fcbe8139b578096066439347"
+                ],
+                "gtf": [
+                    [
+                        {
+                            "id": "sarscov2"
+                        },
+                        "genome_genes.gtf:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "versions_python": [
+                    "versions.yml:md5,831f1da3fcbe8139b578096066439347"
+                ]
+            }
+        ],
+        "timestamp": "2026-09-04T09:14:27.184498256",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    }
+}

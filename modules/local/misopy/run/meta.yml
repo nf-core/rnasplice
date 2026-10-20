@@ -1,0 +1,105 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: misopy_run
+description: Run the Mixture of Isoforms model (MISO) for isoform quantitation using RNA-Seq
+keywords:
+  - miso
+  - alternative splicing
+  - psi
+tools:
+  - "misopy":
+      description: "Mixture of Isoforms model (MISO) for isoform quantitation using
+        RNA-Seq"
+      homepage: "https://github.com/yarden/MISO/"
+      documentation: "https://miso.readthedocs.io/en/fastmiso/"
+      tool_dev_url: "https://github.com/yarden/MISO/"
+      doi: 10.1038/nmeth.1528
+      licence: ["GPL v2"]
+      identifier: biotools:misopy
+
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - bam:
+        type: file
+        description: Sorted BAM/CRAM/SAM file
+        pattern: "*.bam"
+        ontologies:
+          - edam: "http://edamontology.org/format_2572"
+    - bai:
+        type: file
+        description: BAM/CRAM/SAM index file
+        pattern: "*.bai"
+        ontologies:
+          - edam: "http://edamontology.org/format_2573"
+  - - meta2:
+        type: map
+        description: |
+          Groovy Map containing genome information
+          e.g. `[ id:'genome1' ]`
+    - miso_index:
+        type: file
+        description: Processed MISO index file
+        pattern: "*.{shelve.*,pickle}"
+        ontologies: []
+
+output:
+  miso:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - miso_data/*:
+          type: file
+          description: MISO output data files
+          pattern: "*"
+          ontologies: []
+  versions_python:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - python:
+          type: string
+          description: The name of the tool
+      - python --version 2>&1 | sed "s/Python //g":
+          type: eval
+          description: The expression to obtain the version of the tool
+  versions_misopy:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - misopy:
+          type: string
+          description: The name of the tool
+      - python -c "import pkg_resources; print(pkg_resources.get_distribution('misopy').version)":
+          type: eval
+          description: The expression to obtain the version of the tool
+
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - python:
+          type: string
+          description: The name of the tool
+      - python --version 2>&1 | sed "s/Python //g":
+          type: eval
+          description: The expression to obtain the version of the tool
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - misopy:
+          type: string
+          description: The name of the tool
+      - python -c "import pkg_resources; print(pkg_resources.get_distribution('misopy').version)":
+          type: eval
+          description: The expression to obtain the version of the tool
+authors:
+  - "@valentinoruggieri"
+  - "@piplus"
+maintainers:
+  - "@piplus"

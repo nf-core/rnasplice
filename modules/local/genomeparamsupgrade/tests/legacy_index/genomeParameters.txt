@@ -1,0 +1,5 @@
+versionGenome	20201
+genomeFastaFiles	genome.fa
+genomeSAindexNbases	14
+sjdbGTFfile	genes.gtf
+sjdbOverhang	100

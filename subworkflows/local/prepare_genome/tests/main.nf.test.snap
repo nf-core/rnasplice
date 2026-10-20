@@ -1,0 +1,246 @@
+{
+    "homo_sapiens - fasta and gtf - build indices": {
+        "content": [
+            [
+                "/nf-core/test-datasets/modules/data/genomics/homo_sapiens/genome/genome.fasta"
+            ],
+            [
+                [
+                    {
+                        
+                    },
+                    "genome.fasta.fai:md5,3520cd30e1b100e55f578db9c855f685"
+                ]
+            ],
+            [
+                [
+                    {
+                        
+                    },
+                    "genome.fasta.sizes:md5,b190587cae0531f3cf25552d8aa674db"
+                ]
+            ],
+            [
+                "/nf-core/test-datasets/modules/data/genomics/homo_sapiens/genome/genome.gtf"
+            ],
+            [
+                "genome.transcripts.fa:md5,050c521a2719c2ae48267c1e65218f29"
+            ],
+            [
+                [
+                    "Genome",
+                    "Log.out",
+                    "SA",
+                    "SAindex",
+                    "chrLength.txt",
+                    "chrName.txt",
+                    "chrNameLength.txt",
+                    "chrStart.txt",
+                    "exonGeTrInfo.tab",
+                    "exonInfo.tab",
+                    "geneInfo.tab",
+                    "genomeParameters.txt",
+                    "sjdbInfo.txt",
+                    "sjdbList.fromGTF.out.tab",
+                    "sjdbList.out.tab",
+                    "transcriptInfo.tab"
+                ]
+            ],
+            [
+                "salmon"
+            ],
+            [
+                
+            ],
+            [
+                
+            ]
+        ],
+        "timestamp": "2026-09-23T12:30:21.989618264",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.1"
+        }
+    },
+    "homo_sapiens - fasta and gtf - build indices - stub": {
+        "content": [
+            {
+                "chrom_sizes": [
+                    [
+                        {
+                            
+                        },
+                        "genome.fasta.sizes:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "dexseq_gff": [
+                    
+                ],
+                "fai": [
+                    [
+                        {
+                            
+                        },
+                        "genome.fasta.fai:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "fasta": [
+                    "/nf-core/test-datasets/modules/data/genomics/homo_sapiens/genome/genome.fasta"
+                ],
+                "gtf": [
+                    "/nf-core/test-datasets/modules/data/genomics/homo_sapiens/genome/genome.gtf"
+                ],
+                "salmon_index": [
+                    [
+                        "complete_ref_lens.bin:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "ctable.bin:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "ctg_offsets.bin:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "duplicate_clusters.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "info.json:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "mphf.bin:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "pos.bin:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "pre_indexing.log:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "rank.bin:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "refAccumLengths.bin:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "ref_indexing.log:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "reflengths.bin:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "refseq.bin:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "seq.bin:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "versionInfo.json:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "star_index": [
+                    [
+                        "Genome:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "Log.out:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "SA:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "SAindex:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "chrLength.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "chrName.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "chrNameLength.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "chrStart.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "exonGeTrInfo.tab:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "exonInfo.tab:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "geneInfo.tab:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "genomeParameters.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "sjdbInfo.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "sjdbList.fromGTF.out.tab:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "sjdbList.out.tab:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "transcriptInfo.tab:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "suppa_tpm": [
+                    
+                ],
+                "transcript_fasta": [
+                    "genome.transcripts.fa:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            }
+        ],
+        "timestamp": "2026-09-23T12:30:44.947864209",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.1"
+        }
+    },
+    "homo_sapiens - gzipped inputs, gff and supplied indices": {
+        "content": [
+            [
+                "genome.fasta:md5,f315020d899597c1b57e5fe9f60f4c3e"
+            ],
+            [
+                [
+                    {
+                        
+                    },
+                    "genome.fasta.fai:md5,3520cd30e1b100e55f578db9c855f685"
+                ]
+            ],
+            [
+                [
+                    {
+                        
+                    },
+                    "genome.fasta.sizes:md5,b190587cae0531f3cf25552d8aa674db"
+                ]
+            ],
+            [
+                "genes_chrX.gtf:md5,0624e70c0b23bae787b4bfd78cb331dd"
+            ],
+            [
+                "transcriptome.fixed.fa:md5,4e04341f8781429444f53f69beb31392"
+            ],
+            [
+                [
+                    "Genome",
+                    "Log.out",
+                    "SA",
+                    "SAindex",
+                    "chrLength.txt",
+                    "chrName.txt",
+                    "chrNameLength.txt",
+                    "chrStart.txt",
+                    "exonGeTrInfo.tab",
+                    "exonInfo.tab",
+                    "geneInfo.tab",
+                    "genomeParameters.txt",
+                    "sjdbInfo.txt",
+                    "sjdbList.fromGTF.out.tab",
+                    "sjdbList.out.tab",
+                    "transcriptInfo.tab"
+                ]
+            ],
+            [
+                "salmon_index"
+            ],
+            [
+                "genes_chrX.DEXSeq.gff:md5,ee8b662ee32c6c563802690491ec0633"
+            ],
+            [
+                "quant.tpm:md5,d606cb7c509c0f2d4287cd83243201d9"
+            ]
+        ],
+        "timestamp": "2026-09-23T16:48:37.469824792",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.1"
+        }
+    },
+    "homo_sapiens - genome_bam source - gzipped gtf - no indices": {
+        "content": [
+            [
+                "/nf-core/test-datasets/modules/data/genomics/homo_sapiens/genome/genome.fasta"
+            ],
+            [
+                [
+                    {
+                        
+                    },
+                    "genome.fasta.fai:md5,3520cd30e1b100e55f578db9c855f685"
+                ]
+            ],
+            [
+                [
+                    {
+                        
+                    },
+                    "genome.fasta.sizes:md5,b190587cae0531f3cf25552d8aa674db"
+                ]
+            ],
+            [
+                "genome.gtf:md5,50fc877b1c53b36b3b413aff88bda48c"
+            ],
+            [
+                "/nf-core/test-datasets/modules/data/genomics/homo_sapiens/genome/transcriptome.fasta"
+            ],
+            [
+                "quant.tpm:md5,d606cb7c509c0f2d4287cd83243201d9"
+            ]
+        ],
+        "timestamp": "2026-09-23T16:48:43.731886703",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.1"
+        }
+    }
+}

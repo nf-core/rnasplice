@@ -1,0 +1,97 @@
+// nf-core modules test misopy/run
+nextflow_process {
+
+    name "Test Process MISOPY_RUN"
+    script "../main.nf"
+    process "MISOPY_RUN"
+    config "./nextflow.config"
+
+    tag "modules"
+    tag "modules_"
+    tag "misopy"
+    tag "misopy/run"
+    tag "untar"
+
+    test("human chrX") {
+
+        setup {
+            run("UNTAR", alias: "UNTAR_MISO_INDEX") {
+                script '../../../../nf-core/untar/main.nf'
+                process {
+                """
+                input[0] = [
+                    [ id: 'human_genome' ],
+                    file(params.pipelines_testdata_base_path + 'reference/misopy_index.tar.gz', checkIfExists: true)
+                ]
+                """
+                }
+            }
+        }
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id:'test_sample' ],
+                    file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true),
+                    file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam.bai', checkIfExists: true)
+                ]
+                input[1] = UNTAR_MISO_INDEX.out.untar
+                """
+            }
+        }
+
+        then {
+            assert process.success
+
+            assertAll(
+                { assert snapshot(
+                    sanitizeOutput(process.out, unstableKeys: ["miso"]),
+                    process.out.findAll { key, val -> key.startsWith('versions') }
+                ).match() }
+            )
+        }
+
+    }
+
+    test("human chrX - stub") {
+
+        options "-stub"
+
+        setup {
+            run("UNTAR", alias: "UNTAR_MISO_INDEX") {
+                script '../../../../nf-core/untar/main.nf'
+                process {
+                """
+                input[0] = [
+                    [ id: 'human_genome' ],
+                    file(params.pipelines_testdata_base_path + 'reference/misopy_index.tar.gz', checkIfExists: true)
+                ]
+                """
+                }
+            }
+        }
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id:'test_sample' ],
+                    file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true),
+                    file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam.bai', checkIfExists: true)
+                ]
+                input[1] = UNTAR_MISO_INDEX.out.untar
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assertAll(
+                { assert snapshot(sanitizeOutput(process.out)).match() }
+            )
+        }
+
+    }
+
+}

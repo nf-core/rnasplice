@@ -1,0 +1,31 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://raw.githubusercontent.com/nf-core/rnasplice/master/assets/schema_contrasts.json",
+    "title": "nf-core/rnasplice pipeline - params.contrasts schema",
+    "description": "Schema for the file provided with params.contrasts",
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "contrast": {
+                "type": "string",
+                "pattern": "^\\S+$",
+                "errorMessage": "Contrast name must be provided and cannot contain spaces",
+                "meta": ["contrast"]
+            },
+            "treatment": {
+                "type": "string",
+                "pattern": "^(([A-Za-z]|[.][._A-Za-z])[._A-Za-z0-9]*)|[.]$",
+                "errorMessage": "Treatment must be provided and contain a syntactically valid name (letters, numbers, dots, underscores; must start with a letter or dot not followed by a number)",
+                "meta": ["treatment"]
+            },
+            "control": {
+                "type": "string",
+                "pattern": "^(([A-Za-z]|[.][._A-Za-z])[._A-Za-z0-9]*)|[.]$",
+                "errorMessage": "Control must be provided and contain a syntactically valid name (letters, numbers, dots, underscores; must start with a letter or dot not followed by a number)",
+                "meta": ["control"]
+            }
+        },
+        "required": ["contrast", "treatment", "control"]
+    }
+}

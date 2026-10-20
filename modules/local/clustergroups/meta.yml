@@ -1,0 +1,85 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "clustergroups"
+description: Get the column ranges of the two conditions of a SUPPA PSI vector file,
+  as needed by SUPPA `clusterEvents`
+keywords:
+  - alternative splicing
+  - suppa
+  - clustering
+  - genomics
+tools:
+  - "python":
+      description: "Python programming language. The module uses it to read the sample
+        names in the header of the PSI vector file and to group the consecutive columns
+        of each condition."
+      homepage: "https://www.python.org/"
+      documentation: "https://docs.python.org/3/"
+      tool_dev_url: "https://github.com/python/cpython"
+      licence: ["PSF-2.0"]
+      identifier: ""
+
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing contrast information
+          e.g. `[ id:'local_GBR-YRI', treatment:'GBR', control:'YRI' ]`
+    - psivec:
+        type: file
+        description: SUPPA `diffSplice` PSI vector file, with the samples of the first
+          condition followed by the samples of the second one. The sample names end in
+          an underscore and a replicate number
+        pattern: "*.psivec"
+        ontologies:
+          - edam: "http://edamontology.org/format_3475" # TSV
+
+output:
+  groups:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing contrast information
+            e.g. `[ id:'local_GBR-YRI', treatment:'GBR', control:'YRI' ]`
+      - "*_groups.txt":
+          type: file
+          description: The 1-based column ranges of the two conditions on a single line,
+            e.g. `1-3,4-6`
+          pattern: "*_groups.txt"
+          ontologies: []
+  ranges:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing contrast information
+            e.g. `[ id:'local_GBR-YRI', treatment:'GBR', control:'YRI' ]`
+      - cat *_groups.txt:
+          type: eval
+          description: The content of the groups file, e.g. `1-3,4-6`, as the
+            `groups` value of SUPPA `clusterEvents`
+  versions_python:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - python:
+          type: string
+          description: The name of the tool
+      - python3 -c "import platform; print(platform.python_version())":
+          type: eval
+          description: The expression to obtain the version of the tool
+
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - python:
+          type: string
+          description: The name of the tool
+      - python3 -c "import platform; print(platform.python_version())":
+          type: eval
+          description: The expression to obtain the version of the tool
+authors:
+  - "@jma1991"
+  - "@piplus2"
+maintainers:
+  - "@piplus2"

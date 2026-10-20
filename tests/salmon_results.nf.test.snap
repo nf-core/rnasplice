@@ -1,0 +1,293 @@
+{
+    "-profile test_salmon_results": {
+        "content": [
+            {
+                "CLUSTERGROUPS": {
+                    "python": "3.14.6"
+                },
+                "DEXSEQ_DTU": {
+                    "bioconductor-dexseq": "1.56.0",
+                    "r-base": "4.5.3"
+                },
+                "DRIMSEQ_DMFILTER": {
+                    "bioconductor-drimseq": "1.18.0",
+                    "r-base": "4.0.3"
+                },
+                "GFFREAD_TX2GENE": {
+                    "gffread": "0.12.7"
+                },
+                "GTFGENEFILTER": {
+                    "python": "3.14.6"
+                },
+                "GUNZIP_FASTA": {
+                    "gunzip": 1.13
+                },
+                "ISOFORMSWITCHANALYZER": {
+                    "bioconductor-isoformswitchanalyzer": "2.12.0",
+                    "r-base": "4.5.3"
+                },
+                "MAKE_TRANSCRIPTS_FASTA": {
+                    "rsem": "1.3.1",
+                    "star": "2.7.10a"
+                },
+                "MERGEEVENTS": {
+                    "gawk": "5.4.1"
+                },
+                "SAMTOOLS_FAIDX": {
+                    "samtools": 1.24
+                },
+                "SPLITFILES_PSI": {
+                    "r-base": "4.6.1"
+                },
+                "SPLITFILES_TPM": {
+                    "r-base": "4.6.1"
+                },
+                "STAGER": {
+                    "stageR": "1.32.0"
+                },
+                "SUPPA_CLUSTEREVENTS": {
+                    "statsmodels": "0.14.6",
+                    "suppa": 2.4
+                },
+                "SUPPA_DIFFSPLICE": {
+                    "statsmodels": "0.14.6",
+                    "suppa": 2.4
+                },
+                "SUPPA_GENERATEEVENTS_IOE": {
+                    "statsmodels": "0.14.6",
+                    "suppa": 2.4
+                },
+                "SUPPA_GENERATEEVENTS_IOI": {
+                    "statsmodels": "0.14.6",
+                    "suppa": 2.4
+                },
+                "SUPPA_PSIPEREVENT": {
+                    "statsmodels": "0.14.6",
+                    "suppa": 2.4
+                },
+                "SUPPA_PSIPERISOFORM": {
+                    "statsmodels": "0.14.6",
+                    "suppa": 2.4
+                },
+                "TXIMPORT": {
+                    "bioconductor-tximeta": "1.28.2",
+                    "bioconductor-tximport": "1.38.2"
+                },
+                "UNTAR": {
+                    "untar": 1.34
+                },
+                "Workflow": {
+                    "nf-core/rnasplice": "v2.0.0"
+                }
+            },
+            [
+                "genome",
+                "isoformswitchanalyzer",
+                "isoformswitchanalyzer/isoformswitchanalyzer_isoformfeatures.csv",
+                "isoformswitchanalyzer/isoformswitchanalyzer_summary.csv",
+                "isoformswitchanalyzer/results",
+                "isoformswitchanalyzer/results/GBR_vs_YRI",
+                "isoformswitchanalyzer/results/GBR_vs_YRI/1_switch_plot_RPL10_aka_RPL10.pdf",
+                "isoformswitchanalyzer/results/YRI_vs_GBR",
+                "isoformswitchanalyzer/results/YRI_vs_GBR/1_switch_plot_RPL10_aka_RPL10.pdf",
+                "isoformswitchanalyzer/results/common_switch_consequences.pdf",
+                "isoformswitchanalyzer/switchlist.rds",
+                "multiqc",
+                "multiqc/multiqc_data",
+                "multiqc/multiqc_data/llms-full.txt",
+                "multiqc/multiqc_data/multiqc.log",
+                "multiqc/multiqc_data/multiqc.parquet",
+                "multiqc/multiqc_data/multiqc_citations.txt",
+                "multiqc/multiqc_data/multiqc_data.json",
+                "multiqc/multiqc_data/multiqc_software_versions.txt",
+                "multiqc/multiqc_data/multiqc_sources.txt",
+                "multiqc/multiqc_report.html",
+                "pipeline_info",
+                "pipeline_info/nf_core_rnasplice_software_mqc_versions.yml",
+                "salmon",
+                "salmon/dexseq_dtu",
+                "salmon/dexseq_dtu/filter",
+                "salmon/dexseq_dtu/filter/drimseq",
+                "salmon/dexseq_dtu/filter/drimseq/dmDSdata.rds",
+                "salmon/dexseq_dtu/results",
+                "salmon/dexseq_dtu/results/dexseq",
+                "salmon/dexseq_dtu/results/dexseq/GBR-YRI.dexseq.dataset.rds",
+                "salmon/dexseq_dtu/results/dexseq/GBR-YRI.dexseq.gene_qvalues.rds",
+                "salmon/dexseq_dtu/results/dexseq/GBR-YRI.dexseq.gene_qvalues.tsv",
+                "salmon/dexseq_dtu/results/dexseq/GBR-YRI.dexseq.results.rds",
+                "salmon/dexseq_dtu/results/dexseq/GBR-YRI.dexseq.results.tsv",
+                "salmon/dexseq_dtu/results/dexseq/YRI-GBR.dexseq.dataset.rds",
+                "salmon/dexseq_dtu/results/dexseq/YRI-GBR.dexseq.gene_qvalues.rds",
+                "salmon/dexseq_dtu/results/dexseq/YRI-GBR.dexseq.gene_qvalues.tsv",
+                "salmon/dexseq_dtu/results/dexseq/YRI-GBR.dexseq.results.rds",
+                "salmon/dexseq_dtu/results/dexseq/YRI-GBR.dexseq.results.tsv",
+                "salmon/dexseq_dtu/results/stager",
+                "salmon/dexseq_dtu/results/stager/getAdjustedPValues.GBR-YRI.rds",
+                "salmon/dexseq_dtu/results/stager/getAdjustedPValues.GBR-YRI.tsv",
+                "salmon/dexseq_dtu/results/stager/getAdjustedPValues.YRI-GBR.rds",
+                "salmon/dexseq_dtu/results/stager/getAdjustedPValues.YRI-GBR.tsv",
+                "salmon/dexseq_dtu/results/stager/stageRTx.GBR-YRI.rds",
+                "salmon/dexseq_dtu/results/stager/stageRTx.YRI-GBR.rds",
+                "salmon/suppa",
+                "salmon/suppa/clusterevents",
+                "salmon/suppa/clusterevents/per_isoform",
+                "salmon/suppa/clusterevents/per_isoform/transcript_GBR-YRI.clustvec",
+                "salmon/suppa/clusterevents/per_isoform/transcript_YRI-GBR.clustvec",
+                "salmon/suppa/clusterevents/per_local_event",
+                "salmon/suppa/clusterevents/per_local_event/local_GBR-YRI.clustvec",
+                "salmon/suppa/clusterevents/per_local_event/local_YRI-GBR.clustvec",
+                "salmon/suppa/clustergroups",
+                "salmon/suppa/clustergroups/local_GBR-YRI_groups.txt",
+                "salmon/suppa/clustergroups/local_YRI-GBR_groups.txt",
+                "salmon/suppa/clustergroups/transcript_GBR-YRI_groups.txt",
+                "salmon/suppa/clustergroups/transcript_YRI-GBR_groups.txt",
+                "salmon/suppa/diffsplice",
+                "salmon/suppa/diffsplice/per_isoform",
+                "salmon/suppa/diffsplice/per_isoform/transcript_GBR-YRI.dpsi",
+                "salmon/suppa/diffsplice/per_isoform/transcript_GBR-YRI.psivec",
+                "salmon/suppa/diffsplice/per_isoform/transcript_YRI-GBR.dpsi",
+                "salmon/suppa/diffsplice/per_isoform/transcript_YRI-GBR.psivec",
+                "salmon/suppa/diffsplice/per_local_event",
+                "salmon/suppa/diffsplice/per_local_event/local_GBR-YRI.dpsi",
+                "salmon/suppa/diffsplice/per_local_event/local_GBR-YRI.psivec",
+                "salmon/suppa/diffsplice/per_local_event/local_YRI-GBR.dpsi",
+                "salmon/suppa/diffsplice/per_local_event/local_YRI-GBR.psivec",
+                "salmon/suppa/generate_events",
+                "salmon/suppa/generate_events/per_isoform",
+                "salmon/suppa/generate_events/per_isoform/genes_chrX.ioi",
+                "salmon/suppa/generate_events/per_local_event",
+                "salmon/suppa/generate_events/per_local_event/genes_chrX_A3_strict.gtf",
+                "salmon/suppa/generate_events/per_local_event/genes_chrX_A3_strict.ioe",
+                "salmon/suppa/generate_events/per_local_event/genes_chrX_A5_strict.gtf",
+                "salmon/suppa/generate_events/per_local_event/genes_chrX_A5_strict.ioe",
+                "salmon/suppa/generate_events/per_local_event/genes_chrX_AF_strict.gtf",
+                "salmon/suppa/generate_events/per_local_event/genes_chrX_AF_strict.ioe",
+                "salmon/suppa/generate_events/per_local_event/genes_chrX_AL_strict.gtf",
+                "salmon/suppa/generate_events/per_local_event/genes_chrX_AL_strict.ioe",
+                "salmon/suppa/generate_events/per_local_event/genes_chrX_MX_strict.gtf",
+                "salmon/suppa/generate_events/per_local_event/genes_chrX_MX_strict.ioe",
+                "salmon/suppa/generate_events/per_local_event/genes_chrX_RI_strict.gtf",
+                "salmon/suppa/generate_events/per_local_event/genes_chrX_RI_strict.ioe",
+                "salmon/suppa/generate_events/per_local_event/genes_chrX_SE_strict.gtf",
+                "salmon/suppa/generate_events/per_local_event/genes_chrX_SE_strict.ioe",
+                "salmon/suppa/generate_events/per_local_event/merged_events",
+                "salmon/suppa/generate_events/per_local_event/merged_events/genes_chrX.ioe",
+                "salmon/suppa/psi_per_isoform",
+                "salmon/suppa/psi_per_isoform/suppa_tpm.psi_isoform.psi",
+                "salmon/suppa/psi_per_local_event",
+                "salmon/suppa/psi_per_local_event/suppa_tpm.psi",
+                "salmon/suppa/split_files",
+                "salmon/suppa/split_files/per_isoform",
+                "salmon/suppa/split_files/per_isoform/transcript_GBR.psi",
+                "salmon/suppa/split_files/per_isoform/transcript_YRI.psi",
+                "salmon/suppa/split_files/per_local_event",
+                "salmon/suppa/split_files/per_local_event/local_GBR.psi",
+                "salmon/suppa/split_files/per_local_event/local_YRI.psi",
+                "salmon/suppa/split_files/tpms",
+                "salmon/suppa/split_files/tpms/GBR.tpm",
+                "salmon/suppa/split_files/tpms/YRI.tpm",
+                "salmon/tximport",
+                "salmon/tximport/ERR188383",
+                "salmon/tximport/ERR188383/aux_info",
+                "salmon/tximport/ERR188383/aux_info/ambig_info.tsv",
+                "salmon/tximport/ERR188383/aux_info/expected_bias.gz",
+                "salmon/tximport/ERR188383/aux_info/fld.gz",
+                "salmon/tximport/ERR188383/aux_info/meta_info.json",
+                "salmon/tximport/ERR188383/aux_info/observed_bias.gz",
+                "salmon/tximport/ERR188383/aux_info/observed_bias_3p.gz",
+                "salmon/tximport/ERR188383/cmd_info.json",
+                "salmon/tximport/ERR188383/libParams",
+                "salmon/tximport/ERR188383/libParams/flenDist.txt",
+                "salmon/tximport/ERR188383/lib_format_counts.json",
+                "salmon/tximport/ERR188383/logs",
+                "salmon/tximport/ERR188383/logs/salmon_quant.log",
+                "salmon/tximport/ERR188383/quant.genes.sf",
+                "salmon/tximport/ERR188383/quant.sf",
+                "salmon/tximport/ERR188428",
+                "salmon/tximport/ERR188428/aux_info",
+                "salmon/tximport/ERR188428/aux_info/ambig_info.tsv",
+                "salmon/tximport/ERR188428/aux_info/expected_bias.gz",
+                "salmon/tximport/ERR188428/aux_info/fld.gz",
+                "salmon/tximport/ERR188428/aux_info/meta_info.json",
+                "salmon/tximport/ERR188428/aux_info/observed_bias.gz",
+                "salmon/tximport/ERR188428/aux_info/observed_bias_3p.gz",
+                "salmon/tximport/ERR188428/cmd_info.json",
+                "salmon/tximport/ERR188428/libParams",
+                "salmon/tximport/ERR188428/libParams/flenDist.txt",
+                "salmon/tximport/ERR188428/lib_format_counts.json",
+                "salmon/tximport/ERR188428/logs",
+                "salmon/tximport/ERR188428/logs/salmon_quant.log",
+                "salmon/tximport/ERR188428/quant.genes.sf",
+                "salmon/tximport/ERR188428/quant.sf",
+                "salmon/tximport/ERR188454",
+                "salmon/tximport/ERR188454/aux_info",
+                "salmon/tximport/ERR188454/aux_info/ambig_info.tsv",
+                "salmon/tximport/ERR188454/aux_info/expected_bias.gz",
+                "salmon/tximport/ERR188454/aux_info/fld.gz",
+                "salmon/tximport/ERR188454/aux_info/meta_info.json",
+                "salmon/tximport/ERR188454/aux_info/observed_bias.gz",
+                "salmon/tximport/ERR188454/aux_info/observed_bias_3p.gz",
+                "salmon/tximport/ERR188454/cmd_info.json",
+                "salmon/tximport/ERR188454/libParams",
+                "salmon/tximport/ERR188454/libParams/flenDist.txt",
+                "salmon/tximport/ERR188454/lib_format_counts.json",
+                "salmon/tximport/ERR188454/logs",
+                "salmon/tximport/ERR188454/logs/salmon_quant.log",
+                "salmon/tximport/ERR188454/quant.genes.sf",
+                "salmon/tximport/ERR188454/quant.sf",
+                "salmon/tximport/ERR204916",
+                "salmon/tximport/ERR204916/aux_info",
+                "salmon/tximport/ERR204916/aux_info/ambig_info.tsv",
+                "salmon/tximport/ERR204916/aux_info/expected_bias.gz",
+                "salmon/tximport/ERR204916/aux_info/fld.gz",
+                "salmon/tximport/ERR204916/aux_info/meta_info.json",
+                "salmon/tximport/ERR204916/aux_info/observed_bias.gz",
+                "salmon/tximport/ERR204916/aux_info/observed_bias_3p.gz",
+                "salmon/tximport/ERR204916/cmd_info.json",
+                "salmon/tximport/ERR204916/libParams",
+                "salmon/tximport/ERR204916/libParams/flenDist.txt",
+                "salmon/tximport/ERR204916/lib_format_counts.json",
+                "salmon/tximport/ERR204916/logs",
+                "salmon/tximport/ERR204916/logs/salmon_quant.log",
+                "salmon/tximport/ERR204916/quant.genes.sf",
+                "salmon/tximport/ERR204916/quant.sf",
+                "salmon/tximport/salmon.merged.gene_counts.tsv",
+                "salmon/tximport/salmon.merged.gene_counts_length_scaled.tsv",
+                "salmon/tximport/salmon.merged.gene_counts_scaled.tsv",
+                "salmon/tximport/salmon.merged.gene_tpm.tsv",
+                "salmon/tximport/salmon.merged.gene_tpm_length_scaled.tsv",
+                "salmon/tximport/salmon.merged.gene_tpm_scaled.tsv",
+                "salmon/tximport/salmon.merged.gi.ls.rds",
+                "salmon/tximport/salmon.merged.gi.rds",
+                "salmon/tximport/salmon.merged.gi.s.rds",
+                "salmon/tximport/salmon.merged.transcript_counts.tsv",
+                "salmon/tximport/salmon.merged.transcript_counts_dtu_scaled.tsv",
+                "salmon/tximport/salmon.merged.transcript_counts_length_scaled.tsv",
+                "salmon/tximport/salmon.merged.transcript_counts_scaled.tsv",
+                "salmon/tximport/salmon.merged.transcript_tpm.tsv",
+                "salmon/tximport/salmon.merged.transcript_tpm_dtu_scaled.tsv",
+                "salmon/tximport/salmon.merged.transcript_tpm_length_scaled.tsv",
+                "salmon/tximport/salmon.merged.transcript_tpm_scaled.tsv",
+                "salmon/tximport/salmon.merged.txi.dtu.rds",
+                "salmon/tximport/salmon.merged.txi.ls.rds",
+                "salmon/tximport/salmon.merged.txi.rds",
+                "salmon/tximport/salmon.merged.txi.s.rds",
+                "salmon/tximport/suppa_tpm.txt",
+                "salmon/tximport/tximport.tx2gene.tsv"
+            ],
+            [
+                "isoformswitchanalyzer_summary.csv:md5,8cb2a864dbf6d26df508842d83a25bdb",
+                "local_GBR-YRI_groups.txt:md5,e9636d1c0a5cb00df8cedc61642a5d52",
+                "local_YRI-GBR_groups.txt:md5,e9636d1c0a5cb00df8cedc61642a5d52",
+                "transcript_GBR-YRI_groups.txt:md5,e9636d1c0a5cb00df8cedc61642a5d52",
+                "transcript_YRI-GBR_groups.txt:md5,e9636d1c0a5cb00df8cedc61642a5d52",
+                "genes_chrX.ioi:md5,6c9ee3567554e3f74186b4c17ec777d6"
+            ]
+        ],
+        "timestamp": "2026-10-13T16:45:13.100566805",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    }
+}

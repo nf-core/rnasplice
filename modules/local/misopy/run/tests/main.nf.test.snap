@@ -1,0 +1,86 @@
+{
+    "human chrX": {
+        "content": [
+            {
+                "miso": [
+                    [
+                        {
+                            "id": "test_sample"
+                        },
+                        "test_sample"
+                    ]
+                ],
+                "versions_misopy": [
+                    [
+                        "MISOPY_RUN",
+                        "misopy",
+                        "0.5.4"
+                    ]
+                ],
+                "versions_python": [
+                    [
+                        "MISOPY_RUN",
+                        "python",
+                        "2.7.15"
+                    ]
+                ]
+            },
+            {
+                "versions_misopy": [
+                    [
+                        "MISOPY_RUN",
+                        "misopy",
+                        "0.5.4"
+                    ]
+                ],
+                "versions_python": [
+                    [
+                        "MISOPY_RUN",
+                        "python",
+                        "2.7.15"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-06-26T20:34:03.280637345",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    },
+    "human chrX - stub": {
+        "content": [
+            {
+                "miso": [
+                    [
+                        {
+                            "id": "test_sample"
+                        },
+                        [
+                            "miso_results:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ]
+                ],
+                "versions_misopy": [
+                    [
+                        "MISOPY_RUN",
+                        "misopy",
+                        "0.5.4"
+                    ]
+                ],
+                "versions_python": [
+                    [
+                        "MISOPY_RUN",
+                        "python",
+                        "2.7.15"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-06-24T09:01:55.001864116",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.1"
+        }
+    }
+}

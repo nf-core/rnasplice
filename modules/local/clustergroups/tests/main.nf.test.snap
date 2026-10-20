@@ -1,0 +1,78 @@
+{
+    "psivec - stub": {
+        "content": [
+            {
+                "groups": [
+                    [
+                        {
+                            "id": "local_GBR-YRI",
+                            "treatment": "GBR",
+                            "control": "YRI"
+                        },
+                        "local_GBR-YRI_groups.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "ranges": [
+                    [
+                        {
+                            "id": "local_GBR-YRI",
+                            "treatment": "GBR",
+                            "control": "YRI"
+                        },
+                        ""
+                    ]
+                ],
+                "versions_python": [
+                    [
+                        "CLUSTERGROUPS",
+                        "python",
+                        "3.14.6"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-10-08T14:02:30.36991712",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    },
+    "psivec": {
+        "content": [
+            {
+                "groups": [
+                    [
+                        {
+                            "id": "local_GBR-YRI",
+                            "treatment": "GBR",
+                            "control": "YRI"
+                        },
+                        "local_GBR-YRI_groups.txt:md5,65f67cbb3aa83e89b5de67c4803aac54"
+                    ]
+                ],
+                "ranges": [
+                    [
+                        {
+                            "id": "local_GBR-YRI",
+                            "treatment": "GBR",
+                            "control": "YRI"
+                        },
+                        "1-3,4-5"
+                    ]
+                ],
+                "versions_python": [
+                    [
+                        "CLUSTERGROUPS",
+                        "python",
+                        "3.14.6"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-10-08T14:00:52.266229719",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    }
+}

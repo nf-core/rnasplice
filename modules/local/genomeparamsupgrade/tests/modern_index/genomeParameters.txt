@@ -1,0 +1,7 @@
+versionGenome	2.7.4a
+genomeType	Full
+genomeFastaFiles	genome.fa
+genomeSAindexNbases	14
+genomeTransformType	None
+genomeTransformVCF	-
+sjdbOverhang	100

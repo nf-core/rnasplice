@@ -1,0 +1,84 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "drimseq_dmfilter"
+description: Build a DRIMSeq data set from tximport transcript-level counts and filter
+  out genes and features with low expression
+keywords:
+  - DRIMSeq
+  - dtu
+  - filter
+  - transcript counts
+  - tximport
+tools:
+  - "DRIMSeq":
+      description: "DRIMSeq is an R package that fits a Dirichlet-multinomial model
+        to transcript or exon counts to test for differential transcript usage and
+        differential splicing."
+      homepage: "https://bioconductor.org/packages/DRIMSeq"
+      documentation: "https://bioconductor.org/packages/release/bioc/vignettes/DRIMSeq/inst/doc/DRIMSeq.pdf"
+      tool_dev_url: "https://github.com/gosianow/DRIMSeq"
+      doi: "10.12688/f1000research.8900.2"
+      licence: ["GPL-3.0-or-later"]
+      identifier: biotools:drimseq
+
+input:
+  - - txi:
+        type: file
+        description: Serialised tximport object holding transcript-level counts, either
+          scaledTPM (`*.txi.s.rds`) or dtuScaledTPM (`*.txi.dtu.rds`)
+        pattern: "*.rds"
+  - - tximport_tx2gene:
+        type: file
+        description: Tab-separated transcript to gene table with `tx` and `gene_id`
+          column headers
+        pattern: "*.tsv"
+        ontologies:
+          - edam: "http://edamontology.org/format_3475" # TSV
+  - - samplesheet:
+        type: file
+        description: Comma-separated sample sheet with at least `sample` and `condition`
+          column headers
+        pattern: "*.csv"
+        ontologies:
+          - edam: "http://edamontology.org/format_3752" # CSV
+
+output:
+  drimseq_dataset_rds:
+    - "dmDSdata.rds":
+        type: file
+        description: Serialised dmDSdata object after filtering
+        pattern: "dmDSdata.rds"
+  drimseq_samples_tsv:
+    - "samples.tsv":
+        type: file
+        description: Tab-separated sample table taken from the filtered dmDSdata object
+        pattern: "samples.tsv"
+        ontologies:
+          - edam: "http://edamontology.org/format_3475" # TSV
+  drimseq_counts_tsv:
+    - "counts.tsv":
+        type: file
+        description: Tab-separated feature counts taken from the filtered dmDSdata
+          object
+        pattern: "counts.tsv"
+        ontologies:
+          - edam: "http://edamontology.org/format_3475" # TSV
+  versions_drimseq:
+    - "versions.yml":
+        type: file
+        description: File containing software versions
+        pattern: "versions.yml"
+        ontologies:
+          - edam: "http://edamontology.org/format_3750" # YAML
+
+topics:
+  versions:
+    - "versions.yml":
+        type: file
+        description: File containing software versions
+        pattern: "versions.yml"
+        ontologies:
+          - edam: "http://edamontology.org/format_3750" # YAML
+authors:
+  - "@piplus2"
+maintainers:
+  - "@piplus2"

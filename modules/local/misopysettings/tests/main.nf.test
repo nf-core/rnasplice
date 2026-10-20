@@ -1,0 +1,107 @@
+// nf-core modules test misopysettings
+nextflow_process {
+
+    name "Test Process MISOPY_SETTINGS"
+    script "../main.nf"
+    process "MISOPY_SETTINGS"
+    config "./nextflow.config"
+
+    tag "modules"
+    tag "modules_local"
+    tag "misopysettings"
+    tag "misopy"
+    tag "misopy/run"
+    tag "misopy/index"
+    tag "gffread"
+    tag "gffread/gtf2gff3"
+
+    setup {
+        run("GFFREAD_GTF2GFF3") {
+            script "../../gffread/gtf2gff3/main.nf"
+            process {
+                """
+                input[0] = [
+                    [ id:'genes_chrX' ],
+                    file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
+                ]
+                """
+            }
+        }
+
+        run("MISOPY_INDEX") {
+            script "../../../nf-core/misopy/index/main.nf"
+            process {
+                """
+                input[0] = GFFREAD_GTF2GFF3.out.gff3
+                """
+            }
+        }
+
+        run("MISOPY_RUN") {
+            script "../../misopy/run/main.nf"
+            process {
+                """
+                input[0] = [
+                    [ id:'ERR188383' ],
+                    file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true),
+                    file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam.bai', checkIfExists: true)
+                ]
+                input[1] = MISOPY_INDEX.out.miso_index
+                """
+            }
+        }
+    }
+
+    test("human chrX") {
+
+        when {
+            process {
+                """
+                input[0] = MISOPY_RUN.out.miso.map { _meta, miso -> [
+                    [ id:'miso' ],
+                    [ file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
+                    [ miso ]
+                ] }
+                input[1] = 7
+                input[2] = 7
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(sanitizeOutput(process.out)).match() }
+            )
+        }
+
+    }
+
+    test("human chrX - stub") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id:'miso' ],
+                    [ file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
+                    []
+                ]
+                input[1] = 7
+                input[2] = 7
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(sanitizeOutput(process.out)).match() }
+            )
+        }
+
+    }
+
+}

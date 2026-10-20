@@ -1,0 +1,168 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "tximeta_tximport"
+description: Import and summarize transcript-level quantifications from salmon into gene-level and transcript-level count/TPM matrices using tximeta and tximport
+keywords:
+  - tximeta
+  - tximport
+  - salmon
+  - transcript
+  - quantification
+  - rnaseq
+tools:
+  - "tximeta":
+      description: "Transcript Quantification Import with Automatic Metadata"
+      homepage: "https://bioconductor.org/packages/tximeta/"
+      documentation: "https://bioconductor.org/packages/release/bioc/vignettes/tximeta/inst/doc/tximeta.html"
+      tool_dev_url: "https://github.com/thelovelab/tximeta"
+      doi: "10.1371/journal.pcbi.1007664"
+      licence: ["GPL-2"]
+      identifier: biotools:tximeta
+
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'experiment1' ]`
+    - "salmon/*":
+        type: file
+        description: Directory of per-sample salmon quantification results
+        pattern: "salmon/*"
+  - - tx2gene:
+        type: file
+        description: Transcript to gene mapping table
+        pattern: "*.{tsv,txt,csv}"
+
+output:
+  txi:
+    - "*txi.rds":
+        type: file
+        description: Transcript-level tximport object (no scaling)
+        pattern: "*txi.rds"
+  txi_s:
+    - "*txi.s.rds":
+        type: file
+        description: Transcript-level tximport object (scaledTPM)
+        pattern: "*txi.s.rds"
+  txi_ls:
+    - "*txi.ls.rds":
+        type: file
+        description: Transcript-level tximport object (lengthScaledTPM)
+        pattern: "*txi.ls.rds"
+  txi_dtu:
+    - "*txi.dtu.rds":
+        type: file
+        description: Transcript-level tximport object scaled for DTU analysis (dtuScaledTPM)
+        pattern: "*txi.dtu.rds"
+  gi:
+    - "*gi.rds":
+        type: file
+        description: Gene-level tximport object (no scaling)
+        pattern: "*gi.rds"
+  gi_s:
+    - "*gi.s.rds":
+        type: file
+        description: Gene-level tximport object (scaledTPM)
+        pattern: "*gi.s.rds"
+  gi_ls:
+    - "*gi.ls.rds":
+        type: file
+        description: Gene-level tximport object (lengthScaledTPM)
+        pattern: "*gi.ls.rds"
+  tpm_gene:
+    - "*gene_tpm.tsv":
+        type: file
+        description: Gene-level TPM matrix
+        pattern: "*gene_tpm.tsv"
+  counts_gene:
+    - "*gene_counts.tsv":
+        type: file
+        description: Gene-level counts matrix
+        pattern: "*gene_counts.tsv"
+  tpm_gene_scaled:
+    - "*gene_tpm_scaled.tsv":
+        type: file
+        description: Gene-level TPM matrix (scaledTPM)
+        pattern: "*gene_tpm_scaled.tsv"
+  counts_gene_scaled:
+    - "*gene_counts_scaled.tsv":
+        type: file
+        description: Gene-level counts matrix (scaledTPM)
+        pattern: "*gene_counts_scaled.tsv"
+  tpm_gene_length_scaled:
+    - "*gene_tpm_length_scaled.tsv":
+        type: file
+        description: Gene-level TPM matrix (lengthScaledTPM)
+        pattern: "*gene_tpm_length_scaled.tsv"
+  counts_gene_length_scaled:
+    - "*gene_counts_length_scaled.tsv":
+        type: file
+        description: Gene-level counts matrix (lengthScaledTPM)
+        pattern: "*gene_counts_length_scaled.tsv"
+  tpm_transcript:
+    - "*transcript_tpm.tsv":
+        type: file
+        description: Transcript-level TPM matrix
+        pattern: "*transcript_tpm.tsv"
+  counts_transcript:
+    - "*transcript_counts.tsv":
+        type: file
+        description: Transcript-level counts matrix
+        pattern: "*transcript_counts.tsv"
+  tpm_transcript_scaled:
+    - "*transcript_tpm_scaled.tsv":
+        type: file
+        description: Transcript-level TPM matrix (scaledTPM)
+        pattern: "*transcript_tpm_scaled.tsv"
+  counts_transcript_scaled:
+    - "*transcript_counts_scaled.tsv":
+        type: file
+        description: Transcript-level counts matrix (scaledTPM)
+        pattern: "*transcript_counts_scaled.tsv"
+  tpm_transcript_length_scaled:
+    - "*transcript_tpm_length_scaled.tsv":
+        type: file
+        description: Transcript-level TPM matrix (lengthScaledTPM)
+        pattern: "*transcript_tpm_length_scaled.tsv"
+  counts_transcript_length_scaled:
+    - "*transcript_counts_length_scaled.tsv":
+        type: file
+        description: Transcript-level counts matrix (lengthScaledTPM)
+        pattern: "*transcript_counts_length_scaled.tsv"
+  tpm_transcript_dtu_scaled:
+    - "*transcript_tpm_dtu_scaled.tsv":
+        type: file
+        description: Transcript-level TPM matrix scaled for DTU analysis (dtuScaledTPM)
+        pattern: "*transcript_tpm_dtu_scaled.tsv"
+  counts_transcript_dtu_scaled:
+    - "*transcript_counts_dtu_scaled.tsv":
+        type: file
+        description: Transcript-level counts matrix scaled for DTU analysis (dtuScaledTPM)
+        pattern: "*transcript_counts_dtu_scaled.tsv"
+  tximport_tx2gene:
+    - "tximport.tx2gene.tsv":
+        type: file
+        description: Transcript to gene mapping table used by tximport
+        pattern: "tximport.tx2gene.tsv"
+  suppa_tpm:
+    - "suppa_tpm.txt":
+        type: file
+        description: Transcript-level TPM matrix formatted for SUPPA
+        pattern: "suppa_tpm.txt"
+  versions:
+    - "versions.yml":
+        type: file
+        description: File containing software versions
+        pattern: "versions.yml"
+
+topics:
+  versions:
+    - "versions.yml":
+        type: file
+        description: File containing software versions
+        pattern: "versions.yml"
+authors:
+  - "@bensouthgate"
+  - "@piplus2"
+maintainers:
+  - "@piplus2"
