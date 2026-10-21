@@ -43,6 +43,8 @@ nextflow_workflow {
                 // A given strandedness is passed through untouched, and only 'auto' samples go through RSeQC
                 { assert metas.given_pe.strandedness == 'reverse' },
                 { assert !metas.given_pe.containsKey('rseqc_strand_analysis') },
+                // The sarscov2 test reads all fall on the forward strand of the test genes
+                { assert metas.auto_pe.strandedness == 'forward' },
                 { assert metas.auto_pe.rseqc_strand_analysis },
                 { assert workflow.out.txt.collect { meta, _txt -> meta.id } == ['auto_pe'] },
                 { assert snapshot(
@@ -112,11 +114,13 @@ nextflow_workflow {
         }
 
         then {
-            // The stub report is empty, so the 'auto' sample is undetermined and set to unstranded
+            // The stub report is empty, so the 'auto' sample is undetermined and leaves the
+            // subworkflow as 'unstranded', with its fractions kept
             def metas = workflow.out.bam_bai.collectEntries { meta, _bam, _bai -> [ (meta.id): meta ] }
             assertAll(
                 { assert workflow.success },
                 { assert metas.auto_pe.strandedness == 'unstranded' },
+                { assert metas.auto_pe.rseqc_strand_analysis.inferred_strandedness == 'undetermined' },
                 { assert metas.given_pe.strandedness == 'reverse' },
                 { assert workflow.out.txt.collect { meta, _txt -> meta.id } == ['auto_pe'] }
             )

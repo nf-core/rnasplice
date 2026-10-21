@@ -59,6 +59,9 @@ nextflow_workflow {
                 // A given strandedness is passed through untouched, and only 'auto' samples go through Salmon
                 { assert metas.given_pe.strandedness == 'reverse' },
                 { assert !metas.given_pe.containsKey('salmon_strand_analysis') },
+                // The test reads are forward stranded, about 97.6% of the stranded fragments
+                { assert metas.auto_pe.strandedness == 'forward' },
+                { assert metas.auto_se.strandedness == 'forward' },
                 { assert metas.auto_pe.salmon_strand_analysis },
                 { assert metas.auto_se.salmon_strand_analysis },
                 { assert workflow.out.lib_format_counts.collect { meta, _json -> meta.id }.sort() == ['auto_pe', 'auto_se'] },
@@ -143,9 +146,14 @@ nextflow_workflow {
         }
 
         then {
-            // The stub lib_format_counts.json is empty, so only the routing is checked here
+            // The stub lib_format_counts.json is empty, so the 'auto' sample is undetermined
+            // and leaves the subworkflow as 'unstranded', with its fractions kept
+            def metas = workflow.out.reads.collectEntries { meta, _reads -> [ (meta.id): meta ] }
             assertAll(
                 { assert workflow.success },
+                { assert metas.auto_pe.strandedness == 'unstranded' },
+                { assert metas.auto_pe.salmon_strand_analysis.inferred_strandedness == 'undetermined' },
+                { assert metas.given_pe.strandedness == 'reverse' },
                 { assert workflow.out.lib_format_counts.collect { meta, _json -> meta.id } == ['auto_pe'] }
             )
         }
