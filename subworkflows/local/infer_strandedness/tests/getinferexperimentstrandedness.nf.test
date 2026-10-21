@@ -8,14 +8,22 @@ nextflow_function {
     tag "subworkflows_local"
     tag "subworkflows/infer_strandedness"
 
-    // Small RSeQC infer_experiment.py reports, so that the parsing and the thresholds
-    // of nf-core/rnaseq (0.8 stranded, 0.1 unstranded) are tested without BAM files
+    // Small RSeQC infer_experiment.py reports, written by each test, so that the parsing
+    // and the thresholds of nf-core/rnaseq (0.8 stranded, 0.1 unstranded) are tested
+    // without BAM files
     test("paired end - forward") {
 
         when {
             function {
                 """
-                input[0] = file('${moduleDir}/tests/fixtures/pe_forward.infer_experiment.txt', checkIfExists: true)
+                def report = file('${outputDir}/pe_forward.infer_experiment.txt')
+                report.text = [
+                    'This is PairEnd Data',
+                    'Fraction of reads failed to determine: 0.0200',
+                    'Fraction of reads explained by "1++,1--,2+-,2-+": 0.9500',
+                    'Fraction of reads explained by "1+-,1-+,2++,2--": 0.0300'
+                ].join('\\n')
+                input[0] = report
                 input[1] = 0.8
                 input[2] = 0.1
                 """
@@ -37,7 +45,14 @@ nextflow_function {
         when {
             function {
                 """
-                input[0] = file('${moduleDir}/tests/fixtures/pe_reverse.infer_experiment.txt', checkIfExists: true)
+                def report = file('${outputDir}/pe_reverse.infer_experiment.txt')
+                report.text = [
+                    'This is PairEnd Data',
+                    'Fraction of reads failed to determine: 0.0150',
+                    'Fraction of reads explained by "1++,1--,2+-,2-+": 0.0210',
+                    'Fraction of reads explained by "1+-,1-+,2++,2--": 0.9640'
+                ].join('\\n')
+                input[0] = report
                 input[1] = 0.8
                 input[2] = 0.1
                 """
@@ -59,7 +74,14 @@ nextflow_function {
         when {
             function {
                 """
-                input[0] = file('${moduleDir}/tests/fixtures/pe_unstranded.infer_experiment.txt', checkIfExists: true)
+                def report = file('${outputDir}/pe_unstranded.infer_experiment.txt')
+                report.text = [
+                    'This is PairEnd Data',
+                    'Fraction of reads failed to determine: 0.0172',
+                    'Fraction of reads explained by "1++,1--,2+-,2-+": 0.4903',
+                    'Fraction of reads explained by "1+-,1-+,2++,2--": 0.4925'
+                ].join('\\n')
+                input[0] = report
                 input[1] = 0.8
                 input[2] = 0.1
                 """
@@ -81,7 +103,14 @@ nextflow_function {
         when {
             function {
                 """
-                input[0] = file('${moduleDir}/tests/fixtures/pe_undetermined.infer_experiment.txt', checkIfExists: true)
+                def report = file('${outputDir}/pe_undetermined.infer_experiment.txt')
+                report.text = [
+                    'This is PairEnd Data',
+                    'Fraction of reads failed to determine: 0.0500',
+                    'Fraction of reads explained by "1++,1--,2+-,2-+": 0.3000',
+                    'Fraction of reads explained by "1+-,1-+,2++,2--": 0.6500'
+                ].join('\\n')
+                input[0] = report
                 input[1] = 0.8
                 input[2] = 0.1
                 """
@@ -103,7 +132,14 @@ nextflow_function {
         when {
             function {
                 """
-                input[0] = file('${moduleDir}/tests/fixtures/se_forward.infer_experiment.txt', checkIfExists: true)
+                def report = file('${outputDir}/se_forward.infer_experiment.txt')
+                report.text = [
+                    'This is SingleEnd Data',
+                    'Fraction of reads failed to determine: 0.0170',
+                    'Fraction of reads explained by "++,--": 0.9669',
+                    'Fraction of reads explained by "+-,-+": 0.0161'
+                ].join('\\n')
+                input[0] = report
                 input[1] = 0.8
                 input[2] = 0.1
                 """
@@ -125,7 +161,14 @@ nextflow_function {
         when {
             function {
                 """
-                input[0] = file('${moduleDir}/tests/fixtures/se_reverse.infer_experiment.txt', checkIfExists: true)
+                def report = file('${outputDir}/se_reverse.infer_experiment.txt')
+                report.text = [
+                    'This is SingleEnd Data',
+                    'Fraction of reads failed to determine: 0.0100',
+                    'Fraction of reads explained by "++,--": 0.0200',
+                    'Fraction of reads explained by "+-,-+": 0.9700'
+                ].join('\\n')
+                input[0] = report
                 input[1] = 0.8
                 input[2] = 0.1
                 """
@@ -147,7 +190,14 @@ nextflow_function {
         when {
             function {
                 """
-                input[0] = file('${moduleDir}/tests/fixtures/se_unstranded.infer_experiment.txt', checkIfExists: true)
+                def report = file('${outputDir}/se_unstranded.infer_experiment.txt')
+                report.text = [
+                    'This is SingleEnd Data',
+                    'Fraction of reads failed to determine: 0.0300',
+                    'Fraction of reads explained by "++,--": 0.4800',
+                    'Fraction of reads explained by "+-,-+": 0.4900'
+                ].join('\\n')
+                input[0] = report
                 input[1] = 0.8
                 input[2] = 0.1
                 """
