@@ -1,0 +1,215 @@
+nextflow_function {
+
+    name "Test Function getInferexperimentStrandedness"
+    script "../main.nf"
+    function "getInferexperimentStrandedness"
+
+    tag "subworkflows"
+    tag "subworkflows/utils_nfcore_rnasplice_pipeline"
+
+    // Small RSeQC infer_experiment.py reports, written by each test, so that the parsing
+    // and the thresholds of nf-core/rnaseq (0.8 stranded, 0.1 unstranded) are tested
+    // without BAM files
+    test("paired end - forward") {
+
+        when {
+            function {
+                """
+                def report = file('${outputDir}/pe_forward.infer_experiment.txt')
+                report.text = [
+                    'This is PairEnd Data',
+                    'Fraction of reads failed to determine: 0.0200',
+                    'Fraction of reads explained by "1++,1--,2+-,2-+": 0.9500',
+                    'Fraction of reads explained by "1+-,1-+,2++,2--": 0.0300'
+                ].join('\\n')
+                input[0] = report
+                input[1] = 0.8
+                input[2] = 0.1
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result.inferred_strandedness == 'forward' },
+                { assert snapshot(function.result).match() }
+            )
+        }
+
+    }
+
+    test("paired end - reverse") {
+
+        when {
+            function {
+                """
+                def report = file('${outputDir}/pe_reverse.infer_experiment.txt')
+                report.text = [
+                    'This is PairEnd Data',
+                    'Fraction of reads failed to determine: 0.0150',
+                    'Fraction of reads explained by "1++,1--,2+-,2-+": 0.0210',
+                    'Fraction of reads explained by "1+-,1-+,2++,2--": 0.9640'
+                ].join('\\n')
+                input[0] = report
+                input[1] = 0.8
+                input[2] = 0.1
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result.inferred_strandedness == 'reverse' },
+                { assert snapshot(function.result).match() }
+            )
+        }
+
+    }
+
+    test("paired end - unstranded") {
+
+        when {
+            function {
+                """
+                def report = file('${outputDir}/pe_unstranded.infer_experiment.txt')
+                report.text = [
+                    'This is PairEnd Data',
+                    'Fraction of reads failed to determine: 0.0172',
+                    'Fraction of reads explained by "1++,1--,2+-,2-+": 0.4903',
+                    'Fraction of reads explained by "1+-,1-+,2++,2--": 0.4925'
+                ].join('\\n')
+                input[0] = report
+                input[1] = 0.8
+                input[2] = 0.1
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result.inferred_strandedness == 'unstranded' },
+                { assert snapshot(function.result).match() }
+            )
+        }
+
+    }
+
+    test("paired end - undetermined") {
+
+        when {
+            function {
+                """
+                def report = file('${outputDir}/pe_undetermined.infer_experiment.txt')
+                report.text = [
+                    'This is PairEnd Data',
+                    'Fraction of reads failed to determine: 0.0500',
+                    'Fraction of reads explained by "1++,1--,2+-,2-+": 0.3000',
+                    'Fraction of reads explained by "1+-,1-+,2++,2--": 0.6500'
+                ].join('\\n')
+                input[0] = report
+                input[1] = 0.8
+                input[2] = 0.1
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result.inferred_strandedness == 'undetermined' },
+                { assert snapshot(function.result).match() }
+            )
+        }
+
+    }
+
+    test("single end - forward") {
+
+        when {
+            function {
+                """
+                def report = file('${outputDir}/se_forward.infer_experiment.txt')
+                report.text = [
+                    'This is SingleEnd Data',
+                    'Fraction of reads failed to determine: 0.0170',
+                    'Fraction of reads explained by "++,--": 0.9669',
+                    'Fraction of reads explained by "+-,-+": 0.0161'
+                ].join('\\n')
+                input[0] = report
+                input[1] = 0.8
+                input[2] = 0.1
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result.inferred_strandedness == 'forward' },
+                { assert snapshot(function.result).match() }
+            )
+        }
+
+    }
+
+    test("single end - reverse") {
+
+        when {
+            function {
+                """
+                def report = file('${outputDir}/se_reverse.infer_experiment.txt')
+                report.text = [
+                    'This is SingleEnd Data',
+                    'Fraction of reads failed to determine: 0.0100',
+                    'Fraction of reads explained by "++,--": 0.0200',
+                    'Fraction of reads explained by "+-,-+": 0.9700'
+                ].join('\\n')
+                input[0] = report
+                input[1] = 0.8
+                input[2] = 0.1
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result.inferred_strandedness == 'reverse' },
+                { assert snapshot(function.result).match() }
+            )
+        }
+
+    }
+
+    test("single end - unstranded") {
+
+        when {
+            function {
+                """
+                def report = file('${outputDir}/se_unstranded.infer_experiment.txt')
+                report.text = [
+                    'This is SingleEnd Data',
+                    'Fraction of reads failed to determine: 0.0300',
+                    'Fraction of reads explained by "++,--": 0.4800',
+                    'Fraction of reads explained by "+-,-+": 0.4900'
+                ].join('\\n')
+                input[0] = report
+                input[1] = 0.8
+                input[2] = 0.1
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result.inferred_strandedness == 'unstranded' },
+                { assert snapshot(function.result).match() }
+            )
+        }
+
+    }
+}

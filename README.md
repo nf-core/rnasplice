@@ -28,30 +28,32 @@
 1. Merge re-sequenced FastQ files ([`cat`](http://www.linfo.org/cat.html))
 2. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
 3. Adapter and quality trimming ([`TrimGalore`](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/))
-4. Alignment with [`STAR`](https://github.com/alexdobin/STAR)
-5. Choice of quantification depending on analysis type:
+4. Strandedness inference of samples set to `auto` ([`fq`](https://github.com/stjude-rust-labs/fq), [`Salmon`](https://combine-lab.github.io/salmon/), or [`RSeQC`](https://rseqc.sourceforge.net/) for genome BAM input; _optional_)
+5. Alignment with [`STAR`](https://github.com/alexdobin/STAR)
+6. Choice of quantification depending on analysis type:
    1. [`STAR`](https://github.com/alexdobin/STAR) -> [`Salmon`](https://combine-lab.github.io/salmon/)
    2. [`STAR`](https://github.com/alexdobin/STAR) -> [`featureCounts`](https://academic.oup.com/bioinformatics/article/30/7/923/232889?login=false)
    3. [`STAR`](https://github.com/alexdobin/STAR) -> [`HTSeq`](https://htseq.readthedocs.io/en/master/) (DEXSeq count)
-6. Sort and index alignments ([`SAMtools`](https://sourceforge.net/projects/samtools/files/samtools/))
-7. Create bigWig coverage files ([`BEDTools`](https://github.com/arq5x/bedtools2/), [`bedGraphToBigWig`](http://hgdownload.soe.ucsc.edu/admin/exe/))
-8. Pseudo-alignment and quantification ([`Salmon`](https://combine-lab.github.io/salmon/); _optional_)
-9. Summarize QC ([`MultiQC`](http://multiqc.info/))
-10. Differential Exon Usage (DEU):
+7. Sort and index alignments ([`SAMtools`](https://sourceforge.net/projects/samtools/files/samtools/))
+8. Create bigWig coverage files ([`BEDTools`](https://github.com/arq5x/bedtools2/), [`bedGraphToBigWig`](http://hgdownload.soe.ucsc.edu/admin/exe/))
+9. Pseudo-alignment and quantification ([`Salmon`](https://combine-lab.github.io/salmon/); _optional_)
+10. Strandedness check of the alignments ([`RSeQC`](https://rseqc.sourceforge.net/); _optional_)
+11. Summarize QC ([`MultiQC`](http://multiqc.info/))
+12. Differential Exon Usage (DEU):
     1. [`HTSeq`](https://htseq.readthedocs.io/en/master/) -> [`DEXSeq`](https://bioconductor.org/packages/devel/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html)
     2. [`featureCounts`](https://academic.oup.com/bioinformatics/article/30/7/923/232889?login=false) -> [`edgeR`](https://bioconductor.org/packages/release/bioc/html/edgeR.html)
     3. Quantification with [`featureCounts`](https://academic.oup.com/bioinformatics/article/30/7/923/232889?login=false) or [`HTSeq`](https://htseq.readthedocs.io/en/master/)
     4. Differential exon usage with [`DEXSeq`](https://bioconductor.org/packages/devel/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html) or [`edgeR`](https://bioconductor.org/packages/release/bioc/html/edgeR.html)
-11. Differential Transcript Usage (DTU):
+13. Differential Transcript Usage (DTU):
     1. [`Salmon`](https://combine-lab.github.io/salmon/) -> [`DRIMSeq`](https://bioconductor.org/packages/release/bioc/html/DRIMSeq.html) -> [`DEXSeq`](https://f1000research.com/articles/7-952)
     2. Filtering with [`DRIMSeq`](https://bioconductor.org/packages/release/bioc/html/DRIMSeq.html)
     3. Differential transcript usage with [`DEXSeq`](https://bioconductor.org/packages/devel/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html)
     4. [`Salmon`](https://combine-lab.github.io/salmon/) -> [`IsoformSwitchAnalyzeR`](https://www.bioconductor.org/packages/release/bioc/html/IsoformSwitchAnalyzeR.html)
     5. Isoform switch analysis with [`IsoformSwitchAnalyzeR`](https://www.bioconductor.org/packages/release/bioc/html/IsoformSwitchAnalyzeR.html)
-12. Event-based splicing analysis:
+14. Event-based splicing analysis:
     1. [`STAR`](https://github.com/alexdobin/STAR) -> [`rMATS`](https://github.com/Xinglab/rmats-turbo)
     2. [`Salmon`](https://combine-lab.github.io/salmon/) -> [`SUPPA2`](https://github.com/comprna/SUPPA)
-13. Intron cluster quantification ([`RegTools`](https://github.com/griffithlab/regtools) -> [`LeafCutter`](https://github.com/davidaknowles/leafcutter); _optional_)
+15. Intron cluster quantification ([`RegTools`](https://github.com/griffithlab/regtools) -> [`LeafCutter`](https://github.com/davidaknowles/leafcutter); _optional_)
 
 ## Usage
 
@@ -69,7 +71,7 @@ CONTROL_REP1,AEG588A1_S1_L003_R1_001.fastq.gz,AEG588A1_S1_L003_R2_001.fastq.gz,f
 CONTROL_REP1,AEG588A1_S1_L004_R1_001.fastq.gz,AEG588A1_S1_L004_R2_001.fastq.gz,forward,CONTROL
 ```
 
-Each row represents a fastq file (single-end) or a pair of fastq files (paired end). Rows with the same sample identifier are considered technical replicates and merged automatically. The strandedness refers to the library preparation and should be specified by the user.
+Each row represents a fastq file (single-end) or a pair of fastq files (paired end). Rows with the same sample identifier are considered technical replicates and merged automatically. The strandedness refers to the library preparation and should be specified by the user, or set to `auto` to have it inferred with Salmon.
 
 :::warning
 Please provide pipeline parameters via the CLI or Nextflow `-params-file` option. Custom config files including those

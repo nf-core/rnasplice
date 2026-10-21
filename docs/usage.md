@@ -32,7 +32,7 @@ The samplesheet can have as many columns as you desire, however, there is a stri
 | `sample`            | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`).                                                                                         |
 | `fastq_1`           | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                                                                                                                     |
 | `fastq_2`           | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                                                                                                                     |
-| `strandedness`      | Sample strand-specificity. Must be one of `unstranded`, `forward` or `reverse`. Required with `--source fastq`, optional and defaulting to `unstranded` with `--source genome_bam` and `--source transcriptome_bam`.                                                           |
+| `strandedness`      | Sample strand-specificity. Must be one of `unstranded`, `forward`, `reverse` or `auto` to infer it, see [Strandedness](#strandedness). Required with `--source fastq`, optional and defaulting to `unstranded` with `--source genome_bam` and `--source transcriptome_bam`.    |
 | `single_end`        | Read type of a BAM sample, `true` for single end and `false` for paired end. Only read with `--source genome_bam` and `--source transcriptome_bam`, where it is optional and defaults to `false`. With `--source fastq` the read type is taken from the presence of `fastq_2`. |
 | `condition`         | The name of the condition a sample belongs to (e.g. 'control', or 'treatment') - these labels will be used for downstream analysis.                                                                                                                                            |
 | `genome_bam`        | Full path to aligned BAM file, derived from splicing aware mapper (STAR, HiSat, etc). File has to be in ".bam" format.                                                                                                                                                         |
@@ -50,6 +50,32 @@ TREATMENT_REP1,AEG588A4_S4_L003_R1_001.fastq.gz,AEG588A4_S4_L003_R2_001.fastq.gz
 TREATMENT_REP2,AEG588A5_S5_L003_R1_001.fastq.gz,AEG588A5_S5_L003_R2_001.fastq.gz,reverse,control
 TREATMENT_REP3,AEG588A6_S6_L003_R1_001.fastq.gz,AEG588A6_S6_L003_R2_001.fastq.gz,reverse,control
 ```
+
+### Strandedness
+
+The `strandedness` of a sample can be set to `auto` to have the pipeline infer it. With `--source fastq` this is done as in [nf-core/rnaseq](https://nf-co.re/rnaseq): the reads of each `auto` sample are sub-sampled to 1 million with [fq](https://github.com/stjude-rust-labs/fq) and pseudo-aligned with [Salmon](https://salmon.readthedocs.io/en/latest/library_type.html) in its library type detection mode, before alignment. The fraction of reads assigned to each strand then decides the strandedness:
+
+- `forward` or `reverse` when at least `--stranded_threshold` (default `0.8`) of the stranded reads are on that strand.
+- `unstranded` when the forward and reverse fractions differ by at most `--unstranded_threshold` (default `0.1`).
+- Otherwise the strandedness is undetermined. The sample is analysed as `unstranded`, with a warning in the log.
+
+The inferred value is then used for every step that needs one: Salmon, featureCounts, DEXSeq, rMATS and LeafCutter. A `forward`, `reverse` or `unstranded` value in the samplesheet is used as given, so samples set to `auto` and samples with a given strandedness can be mixed in the same samplesheet. Every run of a sample must have the same `strandedness`.
+
+BAM input has no reads to sub-sample, so `auto` is handled differently:
+
+- With `--source genome_bam`, [RSeQC infer_experiment.py](https://rseqc.sourceforge.net/#infer-experiment-py) is run on the BAM file of each `auto` sample, with a BED12 gene model made from the GTF, and its fractions are called with the same thresholds as above. The result is used by DEXSeq, featureCounts (edgeR), rMATS, LeafCutter and the bigWig coverage tracks.
+- With `--source transcriptome_bam`, the only tool that uses the strandedness is Salmon, which quantifies an `auto` sample with `--libType A` and detects the library type itself. Salmon writes no fragment counts in alignment mode, so the thresholds above do not apply and the strandedness follows Salmon's own call. Setting `--salmon_quant_libtype` overrides this for every sample.
+
+```csv title="samplesheet.csv"
+sample,fastq_1,fastq_2,strandedness,condition
+CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz,auto,control
+CONTROL_REP2,AEG588A2_S2_L002_R1_001.fastq.gz,AEG588A2_S2_L002_R2_001.fastq.gz,reverse,control
+```
+
+The strandedness used can be checked against the alignments with `--strand_check`, which runs [RSeQC infer_experiment.py](https://rseqc.sourceforge.net/#infer-experiment-py) on the genome BAM files with the same thresholds. A sample whose RSeQC result does not match the strandedness it was analysed with is reported with a warning in the log and in the Strandedness Checks table of the MultiQC report. `--strand_check` needs genome alignments, so it works with `--aligner star` or `star_salmon`, and with `--source genome_bam`. A genome BAM sample set to `auto` already has its RSeQC result, so RSeQC is not run on it again, and the table only reports whether a strandedness could be called.
+
+> [!NOTE]
+> rMATS needs every sample to have the same strandedness. With `auto` samples this is checked once their strandedness is inferred, and the pipeline stops if the samples differ.
 
 ### Source configuration
 
@@ -90,7 +116,7 @@ TREATMENT_REP2,treatment,reverse,false,AEG588A5.Aligned.out.bam
 TREATMENT_REP3,treatment,reverse,false,AEG588A6.Aligned.out.bam
 ```
 
-Neither the library type nor the read type can be read from a BAM file, so both come from the samplesheet: `strandedness` defaults to `unstranded` and `single_end` to `false` (paired end), which keeps samplesheets without those columns valid. They are passed on to the tools that need them, here DEXSeq, featureCounts (edgeR) and rMATS. Note that DEXSeq used to count BAM input as forward stranded and now follows `strandedness`.
+The read type cannot be read from a BAM file, so it comes from the samplesheet along with the library type: `strandedness` defaults to `unstranded` and `single_end` to `false` (paired end), which keeps samplesheets without those columns valid. `strandedness` can also be set to `auto` to infer it with RSeQC, see [Strandedness](#strandedness). Both are passed on to the tools that need them, here DEXSeq, featureCounts (edgeR) and rMATS. Note that DEXSeq used to count BAM input as forward stranded and now follows `strandedness`.
 
 Unlike the fastq source, the pipeline does not merge several rows of the same sample: the `sample` names must be unique for the BAM and Salmon sources, so merge the runs of a sample beforehand.
 
@@ -110,7 +136,7 @@ TREATMENT_REP2,treatment,reverse,false,AEG588A5.Aligned.out.bam,AEG588A5.Aligned
 TREATMENT_REP3,treatment,reverse,false,AEG588A6.Aligned.out.bam,AEG588A6.Aligned.toTranscriptome.out.bam
 ```
 
-Neither the library type nor the read type can be read from a BAM file, so both come from the samplesheet: `strandedness` defaults to `unstranded` and `single_end` to `false` (paired end), which keeps samplesheets without those columns valid. Both are passed on to Salmon, which quantifies the transcriptome BAM files.
+The read type cannot be read from a BAM file, so it comes from the samplesheet along with the library type: `strandedness` defaults to `unstranded` and `single_end` to `false` (paired end), which keeps samplesheets without those columns valid. `strandedness` can also be set to `auto` to let Salmon detect it, see [Strandedness](#strandedness). Both are passed on to Salmon, which quantifies the transcriptome BAM files.
 
 This configuration allows the pipeline to run the "dexseq_dtu" and "suppa" analysis methods.
 

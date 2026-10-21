@@ -45,10 +45,20 @@
                         "git_sha": "5b6aacd2394742aa94443f446797c58c322c6453",
                         "installed_by": ["modules"]
                     },
+                    "ea-utils/gtf2bed": {
+                        "branch": "master",
+                        "git_sha": "1298fbd2004c2913d6682ce4a419647d97a8fc3f",
+                        "installed_by": ["modules"]
+                    },
                     "fastqc": {
                         "branch": "master",
                         "git_sha": "6d46786420b4d7bc88eba026eb389c0c5535d120",
                         "installed_by": ["fastq_fastqc_umitools_trimgalore"]
+                    },
+                    "fq/subsample": {
+                        "branch": "master",
+                        "git_sha": "b1d01480e4306e33851d936d065b70b469dad352",
+                        "installed_by": ["fastq_subsample_fq_salmon"]
                     },
                     "gffread": {
                         "branch": "master",
@@ -90,15 +100,20 @@
                         "git_sha": "6d46786420b4d7bc88eba026eb389c0c5535d120",
                         "installed_by": ["modules"]
                     },
-                    "salmon/index": {
+                    "rseqc/inferexperiment": {
                         "branch": "master",
                         "git_sha": "6d46786420b4d7bc88eba026eb389c0c5535d120",
                         "installed_by": ["modules"]
                     },
+                    "salmon/index": {
+                        "branch": "master",
+                        "git_sha": "6d46786420b4d7bc88eba026eb389c0c5535d120",
+                        "installed_by": ["fastq_subsample_fq_salmon", "modules"]
+                    },
                     "salmon/quant": {
                         "branch": "master",
                         "git_sha": "6d46786420b4d7bc88eba026eb389c0c5535d120",
-                        "installed_by": ["modules"]
+                        "installed_by": ["fastq_subsample_fq_salmon", "modules"]
                     },
                     "samtools/faidx": {
                         "branch": "master",
@@ -217,6 +232,11 @@
                     "fastq_fastqc_umitools_trimgalore": {
                         "branch": "master",
                         "git_sha": "e5777ea46cc591b519b9bb931e952e4a149cb47d",
+                        "installed_by": ["subworkflows"]
+                    },
+                    "fastq_subsample_fq_salmon": {
+                        "branch": "master",
+                        "git_sha": "b1d01480e4306e33851d936d065b70b469dad352",
                         "installed_by": ["subworkflows"]
                     },
                     "utils_nextflow_pipeline": {

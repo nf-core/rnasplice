@@ -1,0 +1,45 @@
+{
+    "sarscov2 - mixed strandedness": {
+        "content": [
+            {
+                "auto_pe": {
+                    "id": "auto_pe",
+                    "single_end": false,
+                    "strandedness": "forward",
+                    "rseqc_strand_analysis": {
+                        "inferred_strandedness": "forward",
+                        "forwardFragments": 100.0,
+                        "reverseFragments": 0.0,
+                        "unstrandedFragments": 0.0
+                    }
+                },
+                "given_pe": {
+                    "id": "given_pe",
+                    "single_end": false,
+                    "strandedness": "reverse"
+                }
+            },
+            [
+                [
+                    {
+                        "id": "auto_pe",
+                        "single_end": false,
+                        "strandedness": "forward",
+                        "rseqc_strand_analysis": {
+                            "inferred_strandedness": "forward",
+                            "forwardFragments": 100.0,
+                            "reverseFragments": 0.0,
+                            "unstrandedFragments": 0.0
+                        }
+                    },
+                    "auto_pe.infer_experiment.txt:md5,f9d0bfc239df637cd8aeda40ade3c59a"
+                ]
+            ]
+        ],
+        "timestamp": "2026-10-21T15:34:12.372742888",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    }
+}

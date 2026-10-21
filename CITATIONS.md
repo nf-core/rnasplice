@@ -14,6 +14,8 @@
 
   > Quinlan AR, Hall IM. BEDTools: a flexible suite of utilities for comparing genomic features. Bioinformatics. 2010 Mar 15;26(6):841-2. doi: 10.1093/bioinformatics/btq033. Epub 2010 Jan 28. PubMed PMID: 20110278; PubMed Central PMCID: PMC2832824.
 
+- [ea-utils](https://github.com/ExpressionAnalysis/ea-utils)
+
 - [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
 
 > Andrews, S. (2010). FastQC: A Quality Control Tool for High Throughput Sequence Data [Online].
@@ -21,6 +23,8 @@
 - [featureCounts](https://academic.oup.com/bioinformatics/article/30/7/923/232889?login=false)
 
   > Yang Liao, Gordon K. Smyth, Wei Shi, featureCounts: an efficient general purpose program for assigning sequence reads to genomic features, Bioinformatics, Volume 30, Issue 7, 1 April 2014, Pages 923–930.
+
+- [fq](https://github.com/stjude-rust-labs/fq)
 
 - [gffread](https://github.com/gpertea/gffread)
 
@@ -51,6 +55,10 @@
 - [RSEM](https://pubmed.ncbi.nlm.nih.gov/21816040/)
 
   > Li B, Dewey CN. RSEM: accurate transcript quantification from RNA-Seq data with or without a reference genome. BMC Bioinformatics. 2011 Aug 4;12:323. doi: 10.1186/1471-2105-12-323. PMID: 21816040; PMCID: PMC3163565.
+
+- [RSeQC](https://pubmed.ncbi.nlm.nih.gov/22743226/)
+
+  > Wang L, Wang S, Li W. RSeQC: quality control of RNA-seq experiments Bioinformatics. 2012 Aug 15;28(16):2184-5. doi: 10.1093/bioinformatics/bts356. Epub 2012 Jun 27. PubMed PMID: 22743226.
 
 - [Salmon](https://pubmed.ncbi.nlm.nih.gov/28263959/)
 
