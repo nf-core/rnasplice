@@ -17,6 +17,9 @@
                     "bioconductor-dexseq": "1.56.0",
                     "htseq": "2.1.2"
                 },
+                "EAUTILS_GTF2BED": {
+                    "perl": "5.26.2"
+                },
                 "EDGER_EXON": {
                     "bioconductor-edger": "3.36.0",
                     "r-base": "4.1.1"
@@ -55,6 +58,9 @@
                 },
                 "RMATS_PREP": {
                     "rmats": "4.3.0"
+                },
+                "RSEQC_INFEREXPERIMENT": {
+                    "rseqc": "5.0.4"
                 },
                 "SAMTOOLS_FAIDX": {
                     "samtools": 1.24
@@ -3890,13 +3896,16 @@
                 "multiqc/multiqc_data/multiqc.parquet",
                 "multiqc/multiqc_data/multiqc_citations.txt",
                 "multiqc/multiqc_data/multiqc_data.json",
+                "multiqc/multiqc_data/multiqc_fail_strand_check_table.txt",
                 "multiqc/multiqc_data/multiqc_featurecounts.txt",
                 "multiqc/multiqc_data/multiqc_general_stats.txt",
+                "multiqc/multiqc_data/multiqc_rseqc_infer_experiment.txt",
                 "multiqc/multiqc_data/multiqc_samtools_flagstat.txt",
                 "multiqc/multiqc_data/multiqc_samtools_idxstats.txt",
                 "multiqc/multiqc_data/multiqc_samtools_stats.txt",
                 "multiqc/multiqc_data/multiqc_software_versions.txt",
                 "multiqc/multiqc_data/multiqc_sources.txt",
+                "multiqc/multiqc_data/rseqc_infer_experiment_plot.txt",
                 "multiqc/multiqc_data/samtools-flagstat-pct-table.txt",
                 "multiqc/multiqc_data/samtools-flagstat-table.txt",
                 "multiqc/multiqc_data/samtools-idxstats-mapped-reads-plot_Normalised_Counts.txt",
@@ -3907,8 +3916,10 @@
                 "multiqc/multiqc_data/samtools_insert_size.txt",
                 "multiqc/multiqc_plots",
                 "multiqc/multiqc_plots/pdf",
+                "multiqc/multiqc_plots/pdf/fail_strand_check_table.pdf",
                 "multiqc/multiqc_plots/pdf/featureCounts_assignment_plot-cnt.pdf",
                 "multiqc/multiqc_plots/pdf/featureCounts_assignment_plot-pct.pdf",
+                "multiqc/multiqc_plots/pdf/rseqc_infer_experiment_plot.pdf",
                 "multiqc/multiqc_plots/pdf/samtools-flagstat-pct-table.pdf",
                 "multiqc/multiqc_plots/pdf/samtools-flagstat-table.pdf",
                 "multiqc/multiqc_plots/pdf/samtools-idxstats-mapped-reads-plot_Normalised_Counts-cnt.pdf",
@@ -3922,8 +3933,10 @@
                 "multiqc/multiqc_plots/pdf/samtools_alignment_plot-pct.pdf",
                 "multiqc/multiqc_plots/pdf/samtools_insert_size.pdf",
                 "multiqc/multiqc_plots/png",
+                "multiqc/multiqc_plots/png/fail_strand_check_table.png",
                 "multiqc/multiqc_plots/png/featureCounts_assignment_plot-cnt.png",
                 "multiqc/multiqc_plots/png/featureCounts_assignment_plot-pct.png",
+                "multiqc/multiqc_plots/png/rseqc_infer_experiment_plot.png",
                 "multiqc/multiqc_plots/png/samtools-flagstat-pct-table.png",
                 "multiqc/multiqc_plots/png/samtools-flagstat-table.png",
                 "multiqc/multiqc_plots/png/samtools-idxstats-mapped-reads-plot_Normalised_Counts-cnt.png",
@@ -3937,8 +3950,10 @@
                 "multiqc/multiqc_plots/png/samtools_alignment_plot-pct.png",
                 "multiqc/multiqc_plots/png/samtools_insert_size.png",
                 "multiqc/multiqc_plots/svg",
+                "multiqc/multiqc_plots/svg/fail_strand_check_table.svg",
                 "multiqc/multiqc_plots/svg/featureCounts_assignment_plot-cnt.svg",
                 "multiqc/multiqc_plots/svg/featureCounts_assignment_plot-pct.svg",
+                "multiqc/multiqc_plots/svg/rseqc_infer_experiment_plot.svg",
                 "multiqc/multiqc_plots/svg/samtools-flagstat-pct-table.svg",
                 "multiqc/multiqc_plots/svg/samtools-flagstat-table.svg",
                 "multiqc/multiqc_plots/svg/samtools-idxstats-mapped-reads-plot_Normalised_Counts-cnt.svg",
@@ -4101,6 +4116,12 @@
                 "star_salmon/rmats/prep/ERR188454_read_outcomes_by_bam.txt",
                 "star_salmon/rmats/prep/ERR204916.rmats",
                 "star_salmon/rmats/prep/ERR204916_read_outcomes_by_bam.txt",
+                "star_salmon/rseqc",
+                "star_salmon/rseqc/infer_experiment",
+                "star_salmon/rseqc/infer_experiment/ERR188383.infer_experiment.txt",
+                "star_salmon/rseqc/infer_experiment/ERR188428.infer_experiment.txt",
+                "star_salmon/rseqc/infer_experiment/ERR188454.infer_experiment.txt",
+                "star_salmon/rseqc/infer_experiment/ERR204916.infer_experiment.txt",
                 "star_salmon/samtools_stats",
                 "star_salmon/samtools_stats/ERR188383.flagstat",
                 "star_salmon/samtools_stats/ERR188383.idxstats",
@@ -4200,6 +4221,10 @@
                 "ERR188428_read_outcomes_by_bam.txt:md5,069472bd8fffcf70dbf3b118c5826ecf",
                 "ERR188454_read_outcomes_by_bam.txt:md5,62a9d02259a1a183ef16ac68b12f9e12",
                 "ERR204916_read_outcomes_by_bam.txt:md5,b379a0cab564f0189c627a973518e8ed",
+                "ERR188383.infer_experiment.txt:md5,edfcbcf7bdab31be12abb1e92fea032c",
+                "ERR188428.infer_experiment.txt:md5,53ed1cb9ac990f4789b1fb1d9e8d7344",
+                "ERR188454.infer_experiment.txt:md5,20b31209ea952087307705433e9ba088",
+                "ERR204916.infer_experiment.txt:md5,0ca7f7f3fcff13bf49ad633b3d99aab2",
                 "ERR188383.flagstat:md5,1a44d90c2f412a66857bf6dafd596695",
                 "ERR188383.idxstats:md5,39b3294255fc950cf459a2a92380f930",
                 "ERR188383.stats:md5,7284beba15c2a4add9efe8463abfce19",
@@ -4228,7 +4253,7 @@
                 "ERR204916_sorted.bam": "996a3a84107c5eb994ba2dbe428e9f5b"
             }
         ],
-        "timestamp": "2026-10-21T10:23:31.896154835",
+        "timestamp": "2026-10-21T16:12:18.634199825",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.3"
