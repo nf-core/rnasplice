@@ -15,7 +15,7 @@ nextflow_function {
         when {
             function {
                 """
-                input[0] = file('${moduleDir}/tests/data/pe_forward.infer_experiment.txt', checkIfExists: true)
+                input[0] = file('${moduleDir}/tests/fixtures/pe_forward.infer_experiment.txt', checkIfExists: true)
                 input[1] = 0.8
                 input[2] = 0.1
                 """
@@ -37,7 +37,7 @@ nextflow_function {
         when {
             function {
                 """
-                input[0] = file('${moduleDir}/tests/data/pe_reverse.infer_experiment.txt', checkIfExists: true)
+                input[0] = file('${moduleDir}/tests/fixtures/pe_reverse.infer_experiment.txt', checkIfExists: true)
                 input[1] = 0.8
                 input[2] = 0.1
                 """
@@ -59,7 +59,7 @@ nextflow_function {
         when {
             function {
                 """
-                input[0] = file('${moduleDir}/tests/data/pe_unstranded.infer_experiment.txt', checkIfExists: true)
+                input[0] = file('${moduleDir}/tests/fixtures/pe_unstranded.infer_experiment.txt', checkIfExists: true)
                 input[1] = 0.8
                 input[2] = 0.1
                 """
@@ -81,7 +81,7 @@ nextflow_function {
         when {
             function {
                 """
-                input[0] = file('${moduleDir}/tests/data/pe_undetermined.infer_experiment.txt', checkIfExists: true)
+                input[0] = file('${moduleDir}/tests/fixtures/pe_undetermined.infer_experiment.txt', checkIfExists: true)
                 input[1] = 0.8
                 input[2] = 0.1
                 """
@@ -103,7 +103,7 @@ nextflow_function {
         when {
             function {
                 """
-                input[0] = file('${moduleDir}/tests/data/se_forward.infer_experiment.txt', checkIfExists: true)
+                input[0] = file('${moduleDir}/tests/fixtures/se_forward.infer_experiment.txt', checkIfExists: true)
                 input[1] = 0.8
                 input[2] = 0.1
                 """
@@ -125,7 +125,7 @@ nextflow_function {
         when {
             function {
                 """
-                input[0] = file('${moduleDir}/tests/data/se_reverse.infer_experiment.txt', checkIfExists: true)
+                input[0] = file('${moduleDir}/tests/fixtures/se_reverse.infer_experiment.txt', checkIfExists: true)
                 input[1] = 0.8
                 input[2] = 0.1
                 """
@@ -147,7 +147,7 @@ nextflow_function {
         when {
             function {
                 """
-                input[0] = file('${moduleDir}/tests/data/se_unstranded.infer_experiment.txt', checkIfExists: true)
+                input[0] = file('${moduleDir}/tests/fixtures/se_unstranded.infer_experiment.txt', checkIfExists: true)
                 input[1] = 0.8
                 input[2] = 0.1
                 """

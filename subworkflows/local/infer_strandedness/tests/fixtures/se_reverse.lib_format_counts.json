@@ -1,0 +1,19 @@
+{
+    "read_files": "[ test.fastq.gz ]",
+    "expected_format": "A",
+    "compatible_fragment_ratio": 1.0,
+    "num_compatible_fragments": 1000,
+    "num_assigned_fragments": 1000,
+    "MSF": 0,
+    "OSF": 0,
+    "ISF": 0,
+    "MSR": 0,
+    "OSR": 0,
+    "ISR": 0,
+    "SF": 20,
+    "SR": 980,
+    "MU": 0,
+    "OU": 0,
+    "IU": 0,
+    "U": 0
+}
