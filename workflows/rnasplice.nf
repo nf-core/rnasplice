@@ -20,8 +20,8 @@ include { SUPPA as SUPPA_STAR_SALMON                                      } from
 include { VISUALISE_MISO                                                  } from '../subworkflows/local/visualise_miso'
 include { LEAFCUTTER                                                      } from '../subworkflows/local/leafcutter'
 include { INFER_STRANDEDNESS                                              } from '../subworkflows/local/infer_strandedness'
-include { getInferexperimentStrandedness                                  } from '../subworkflows/local/infer_strandedness'
-include { getSalmonLibraryTypeStrandedness                                } from '../subworkflows/local/infer_strandedness'
+include { getInferexperimentStrandedness                                  } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
+include { getSalmonLibraryTypeStrandedness                                } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
 include { INFER_STRANDEDNESS_BAM                                          } from '../subworkflows/local/infer_strandedness_bam'
 
 include { rmatsReadError                                                  } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
@@ -273,8 +273,8 @@ workflow RNASPLICE {
         // A sample passes when RSeQC agrees with the strandedness it was analysed with, given
         // in the samplesheet or inferred with Salmon for an 'auto' sample. Unlike nf-core/rnaseq,
         // an 'auto' sample Salmon could not call is compared as the 'unstranded' it was analysed
-        // as. A genome
-        // BAM sample inferred with RSeQC already has its report, so RSeQC is not run again
+        // as. A genome BAM sample inferred with RSeQC already has its report, so RSeQC is not
+        // run again
         if (params.strand_check) {
             RSEQC_INFEREXPERIMENT(
                 ch_genome_bam.join(ch_genome_bam_index).filter { meta, _bam, _bai -> !meta.rseqc_strand_analysis },

@@ -5,8 +5,7 @@ nextflow_function {
     function "getInferexperimentStrandedness"
 
     tag "subworkflows"
-    tag "subworkflows_local"
-    tag "subworkflows/infer_strandedness"
+    tag "subworkflows/utils_nfcore_rnasplice_pipeline"
 
     // Small RSeQC infer_experiment.py reports, written by each test, so that the parsing
     // and the thresholds of nf-core/rnaseq (0.8 stranded, 0.1 unstranded) are tested

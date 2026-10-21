@@ -8,7 +8,7 @@
 //
 
 include { RSEQC_INFEREXPERIMENT          } from '../../../modules/nf-core/rseqc/inferexperiment'
-include { getInferexperimentStrandedness } from '../infer_strandedness'
+include { getInferexperimentStrandedness } from '../utils_nfcore_rnasplice_pipeline'
 
 workflow INFER_STRANDEDNESS_BAM {
     take:

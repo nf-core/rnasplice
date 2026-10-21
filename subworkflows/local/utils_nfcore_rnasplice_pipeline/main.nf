@@ -554,3 +554,116 @@ def rmatsStrandednessError(samples) {
             }
         }
 }
+
+//
+// Call a library forward, reverse or unstranded from the reads assigned to each strand.
+// Copied from nf-core/rnaseq 3.22.2:
+// https://github.com/nf-core/rnaseq/blob/3.22.2/subworkflows/nf-core/fastq_qc_trim_filter_setstrandedness/main.nf
+//
+def calculateStrandedness(forwardFragments, reverseFragments, unstrandedFragments, stranded_threshold = 0.8, unstranded_threshold = 0.1) {
+    def totalFragments = forwardFragments + reverseFragments + unstrandedFragments
+    def totalStrandedFragments = forwardFragments + reverseFragments
+
+    def strandedness = 'undetermined'
+    if (totalStrandedFragments > 0) {
+        def forwardProportion = forwardFragments / (totalStrandedFragments as double)
+        def reverseProportion = reverseFragments / (totalStrandedFragments as double)
+        def proportionDifference = Math.abs(forwardProportion - reverseProportion)
+
+        if (forwardProportion >= stranded_threshold) {
+            strandedness = 'forward'
+        }
+        else if (reverseProportion >= stranded_threshold) {
+            strandedness = 'reverse'
+        }
+        else if (proportionDifference <= unstranded_threshold) {
+            strandedness = 'unstranded'
+        }
+    }
+
+    // Without any fragment, as from a stub run, the percentages are 0 rather than NaN,
+    // which cannot be written to JSON
+    def scale = totalFragments > 0 ? 100 / (totalFragments as double) : 0
+
+    return [
+        inferred_strandedness: strandedness,
+        forwardFragments: forwardFragments * scale,
+        reverseFragments: reverseFragments * scale,
+        unstrandedFragments: unstrandedFragments * scale,
+    ]
+}
+
+//
+// Parse the Salmon 'lib_format_counts.json' file to get the inferred strandedness.
+// Copied from nf-core/rnaseq 3.22.2:
+// https://github.com/nf-core/rnaseq/blob/3.22.2/subworkflows/nf-core/fastq_qc_trim_filter_setstrandedness/main.nf
+//
+def getSalmonInferredStrandedness(json_file, stranded_threshold = 0.8, unstranded_threshold = 0.1) {
+    // The Salmon stub writes an empty file, which is read as no counts at all
+    def json_text = json_file.text
+    def libCounts = json_text.trim() ? new groovy.json.JsonSlurper().parseText(json_text) : [:]
+
+    def forwardKeys = ['SF', 'ISF', 'MSF', 'OSF']
+    def reverseKeys = ['SR', 'ISR', 'MSR', 'OSR']
+
+    // Every fragment Salmon assigns has a strand, even in an unstranded library, so these
+    // counts are in practice always zero: https://groups.google.com/g/sailfish-users/c/yxzBDv6NB6I
+    def unstrandedKeys = ['IU', 'U', 'MU']
+
+    def forwardFragments = forwardKeys.collect { key -> libCounts[key] ?: 0 }.sum()
+    def reverseFragments = reverseKeys.collect { key -> libCounts[key] ?: 0 }.sum()
+    def unstrandedFragments = unstrandedKeys.collect { key -> libCounts[key] ?: 0 }.sum()
+
+    return calculateStrandedness(forwardFragments, reverseFragments, unstrandedFragments, stranded_threshold, unstranded_threshold)
+}
+
+//
+// Parse the RSeQC 'infer_experiment.py' report to get the inferred strandedness, for
+// both the single end and the paired end patterns. Copied from nf-core/rnaseq 3.22.2:
+// https://github.com/nf-core/rnaseq/blob/3.22.2/subworkflows/local/utils_nfcore_rnaseq_pipeline/main.nf
+//
+def getInferexperimentStrandedness(inferexperiment_file, stranded_threshold = 0.8, unstranded_threshold = 0.1) {
+    def forwardFragments = 0
+    def reverseFragments = 0
+    def unstrandedFragments = 0
+
+    inferexperiment_file.eachLine { line ->
+        def unstranded_matcher = line =~ /Fraction of reads failed to determine:\s([\d\.]+)/
+        def se_sense_matcher = line =~ /Fraction of reads explained by "\++,--":\s([\d\.]+)/
+        def se_antisense_matcher = line =~ /Fraction of reads explained by "\+-,-\+":\s([\d\.]+)/
+        def pe_sense_matcher = line =~ /Fraction of reads explained by "1\++,1--,2\+-,2-\+":\s([\d\.]+)/
+        def pe_antisense_matcher = line =~ /Fraction of reads explained by "1\+-,1-\+,2\+\+,2--":\s([\d\.]+)/
+
+        if (unstranded_matcher) unstrandedFragments = unstranded_matcher[0][1].toFloat() * 100
+        if (se_sense_matcher) forwardFragments = se_sense_matcher[0][1].toFloat() * 100
+        if (se_antisense_matcher) reverseFragments = se_antisense_matcher[0][1].toFloat() * 100
+        if (pe_sense_matcher) forwardFragments = pe_sense_matcher[0][1].toFloat() * 100
+        if (pe_antisense_matcher) reverseFragments = pe_antisense_matcher[0][1].toFloat() * 100
+    }
+
+    return calculateStrandedness(forwardFragments, reverseFragments, unstrandedFragments, stranded_threshold, unstranded_threshold)
+}
+
+//
+// Get the strandedness from the library type Salmon detected with '--libType A', as written
+// to its 'meta_info.json'. In alignment mode Salmon writes no 'lib_format_counts.json', so
+// the call is Salmon's own rather than one made with the thresholds above
+//
+def getSalmonLibraryTypeStrandedness(json_file) {
+    def json_text = json_file.text
+    def meta_info = json_text.trim() ? new groovy.json.JsonSlurper().parseText(json_text) : [:]
+    def library_type = meta_info.library_types ? meta_info.library_types[0] : ''
+
+    def strandedness = 'undetermined'
+    if (library_type in ['SF', 'ISF', 'MSF', 'OSF']) {
+        strandedness = 'forward'
+    }
+    else if (library_type in ['SR', 'ISR', 'MSR', 'OSR']) {
+        strandedness = 'reverse'
+    }
+    else if (library_type in ['U', 'IU', 'MU', 'OU']) {
+        strandedness = 'unstranded'
+    }
+
+    return [inferred_strandedness: strandedness, library_type: library_type]
+}

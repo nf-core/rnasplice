@@ -5,8 +5,7 @@ nextflow_function {
     function "getSalmonLibraryTypeStrandedness"
 
     tag "subworkflows"
-    tag "subworkflows_local"
-    tag "subworkflows/infer_strandedness"
+    tag "subworkflows/utils_nfcore_rnasplice_pipeline"
 
     // Small Salmon meta_info.json files, written by each test, holding the library type
     // Salmon detects for a transcriptome BAM quantified with '--libType A'
