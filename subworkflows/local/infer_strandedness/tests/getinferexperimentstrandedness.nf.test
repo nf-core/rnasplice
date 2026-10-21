@@ -1,0 +1,166 @@
+nextflow_function {
+
+    name "Test Function getInferexperimentStrandedness"
+    script "../main.nf"
+    function "getInferexperimentStrandedness"
+
+    tag "subworkflows"
+    tag "subworkflows_local"
+    tag "subworkflows/infer_strandedness"
+
+    // Small RSeQC infer_experiment.py reports, so that the parsing and the thresholds
+    // of nf-core/rnaseq (0.8 stranded, 0.1 unstranded) are tested without BAM files
+    test("paired end - forward") {
+
+        when {
+            function {
+                """
+                input[0] = file('${moduleDir}/tests/data/pe_forward.infer_experiment.txt', checkIfExists: true)
+                input[1] = 0.8
+                input[2] = 0.1
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result.inferred_strandedness == 'forward' },
+                { assert snapshot(function.result).match() }
+            )
+        }
+
+    }
+
+    test("paired end - reverse") {
+
+        when {
+            function {
+                """
+                input[0] = file('${moduleDir}/tests/data/pe_reverse.infer_experiment.txt', checkIfExists: true)
+                input[1] = 0.8
+                input[2] = 0.1
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result.inferred_strandedness == 'reverse' },
+                { assert snapshot(function.result).match() }
+            )
+        }
+
+    }
+
+    test("paired end - unstranded") {
+
+        when {
+            function {
+                """
+                input[0] = file('${moduleDir}/tests/data/pe_unstranded.infer_experiment.txt', checkIfExists: true)
+                input[1] = 0.8
+                input[2] = 0.1
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result.inferred_strandedness == 'unstranded' },
+                { assert snapshot(function.result).match() }
+            )
+        }
+
+    }
+
+    test("paired end - undetermined") {
+
+        when {
+            function {
+                """
+                input[0] = file('${moduleDir}/tests/data/pe_undetermined.infer_experiment.txt', checkIfExists: true)
+                input[1] = 0.8
+                input[2] = 0.1
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result.inferred_strandedness == 'undetermined' },
+                { assert snapshot(function.result).match() }
+            )
+        }
+
+    }
+
+    test("single end - forward") {
+
+        when {
+            function {
+                """
+                input[0] = file('${moduleDir}/tests/data/se_forward.infer_experiment.txt', checkIfExists: true)
+                input[1] = 0.8
+                input[2] = 0.1
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result.inferred_strandedness == 'forward' },
+                { assert snapshot(function.result).match() }
+            )
+        }
+
+    }
+
+    test("single end - reverse") {
+
+        when {
+            function {
+                """
+                input[0] = file('${moduleDir}/tests/data/se_reverse.infer_experiment.txt', checkIfExists: true)
+                input[1] = 0.8
+                input[2] = 0.1
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result.inferred_strandedness == 'reverse' },
+                { assert snapshot(function.result).match() }
+            )
+        }
+
+    }
+
+    test("single end - unstranded") {
+
+        when {
+            function {
+                """
+                input[0] = file('${moduleDir}/tests/data/se_unstranded.infer_experiment.txt', checkIfExists: true)
+                input[1] = 0.8
+                input[2] = 0.1
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result.inferred_strandedness == 'unstranded' },
+                { assert snapshot(function.result).match() }
+            )
+        }
+
+    }
+}

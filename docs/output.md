@@ -27,6 +27,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 - Other steps.
   - [BEDTools and bedGraphToBigWig](#bedtools-and-bedgraphtobigwig) - Create bigWig coverage files
 - Quality control.
+  - [RSeQC](#rseqc) - Strandedness check of the genome alignments
   - [MultiQC](#multiqc) - Aggregate report describing results and QC from the whole pipeline
 - Pseudo-alignment and quantification.
   - [Salmon](#salmon) - Wicked fast gene and isoform quantification relative to the transcriptome
@@ -231,6 +232,18 @@ The [bigWig](https://genome.ucsc.edu/goldenpath/help/bigWig.html) format is an i
 [featureCounts](http://bioinf.wehi.edu.au/featureCounts/) from the [Subread](http://subread.sourceforge.net/) package is a quantification tool used to summarise the mapped read distribution over genomic features such as genes, exons, promotors, gene bodies, genomic bins and chromosomal locations. We can also use featureCounts to count overlaps with different classes of genomic features. This provides an additional QC to check which features are most abundant in the sample, and to highlight potential problems such as rRNA contamination.
 
 ![MultiQC - featureCounts biotypes plot](images/mqc_featurecounts_biotype.png)
+
+### RSeQC
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `<ALIGNER>/rseqc/infer_experiment/`
+  - `*.infer_experiment.txt`: If `--strand_check` is specified, the fraction of reads explained by each strand, from RSeQC infer_experiment.py.
+
+</details>
+
+[RSeQC](https://rseqc.sourceforge.net/) infer_experiment.py samples reads from the genome BAM file and compares their orientation with the strand of the genes they overlap. With `--strand_check`, its result is compared with the strandedness each sample was analysed with, given in the samplesheet or inferred with Salmon for an `auto` sample. The comparison is shown in the Strandedness Checks table of the MultiQC report, where a fail means that the two disagree or that RSeQC could not determine the strandedness. An undetermined strandedness can be a sign of genomic DNA contamination.
 
 ### MultiQC
 
@@ -489,6 +502,7 @@ If [IsoformSwitchAnalyzeR](https://www.bioconductor.org/packages/release/bioc/ht
 
 - `genome/`
   - `*.fa`, `*.gtf`, `*.gff`: If the `--save_reference` parameter is provided then all of the genome reference files will be placed in this directory.
+  - `*.bed`: If the `--save_reference` parameter is provided together with `--strand_check`, the BED12 gene model RSeQC reads, made from the GTF.
 - `genome/index/`
   - `star/`: Directory containing STAR indices.
   - `salmon/`: Directory containing Salmon indices.

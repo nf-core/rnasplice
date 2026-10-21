@@ -347,6 +347,12 @@ def samplesheetSchema(source) {
 def validateInputSamplesheet(input) {
     def (metas, fastqs) = input[1..2]
 
+    // Check that multiple runs of the same sample are of the same strandedness
+    def strandedness_ok = metas.collect { meta -> meta.strandedness }.unique().size == 1
+    if (!strandedness_ok) {
+        error("Please check input samplesheet -> Multiple runs of a sample must have the same strandedness: ${metas[0].id}")
+    }
+
     // Check that multiple runs of the same sample are of the same datatype i.e. single-end / paired-end
     def endedness_ok = metas.collect { meta -> meta.single_end }.unique().size == 1
     if (!endedness_ok) {

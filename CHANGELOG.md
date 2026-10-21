@@ -5,6 +5,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 2.0.1dev - 2026-10-21
 
+### Enhancements & fixes
+
+- Infer the strandedness of samples set to `auto` in the samplesheet with Salmon, as in nf-core/rnaseq, and check it against RSeQC infer_experiment.py with `--strand_check` (#336) [@piplus2]
+
 ## v2.0.0 - Fenix Reborn - [2026-10-20]
 
 The first release since 1.0.4 in April 2024 brings the pipeline up to the nf-core template 4.1.0, Nextflow 26.04 and nf-schema.

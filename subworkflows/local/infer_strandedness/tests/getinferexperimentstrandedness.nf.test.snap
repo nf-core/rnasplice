@@ -1,0 +1,107 @@
+{
+    "paired end - undetermined": {
+        "content": [
+            {
+                "inferred_strandedness": "undetermined",
+                "forwardFragments": 30.000001527369044,
+                "reverseFragments": 64.9999983422458,
+                "unstrandedFragments": 5.000000130385162
+            }
+        ],
+        "timestamp": "2026-10-21T11:50:04.661597676",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    },
+    "single end - reverse": {
+        "content": [
+            {
+                "inferred_strandedness": "reverse",
+                "forwardFragments": 1.9999998994171648,
+                "reverseFragments": 97.00000015087426,
+                "unstrandedFragments": 0.9999999497085824
+            }
+        ],
+        "timestamp": "2026-10-21T11:50:11.949341488",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    },
+    "paired end - unstranded": {
+        "content": [
+            {
+                "inferred_strandedness": "unstranded",
+                "forwardFragments": 49.029999606087806,
+                "reverseFragments": 49.250000348314636,
+                "unstrandedFragments": 1.7200000455975528
+            }
+        ],
+        "timestamp": "2026-10-21T11:50:01.044887165",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    },
+    "paired end - forward": {
+        "content": [
+            {
+                "inferred_strandedness": "forward",
+                "forwardFragments": 95.00000004656613,
+                "reverseFragments": 2.9999999720603228,
+                "unstrandedFragments": 1.9999999813735483
+            }
+        ],
+        "timestamp": "2026-10-21T11:49:53.629604638",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    },
+    "paired end - reverse": {
+        "content": [
+            {
+                "inferred_strandedness": "reverse",
+                "forwardFragments": 2.100000001024455,
+                "reverseFragments": 96.4000000115484,
+                "unstrandedFragments": 1.499999987427145
+            }
+        ],
+        "timestamp": "2026-10-21T11:49:57.280520207",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    },
+    "single end - forward": {
+        "content": [
+            {
+                "inferred_strandedness": "forward",
+                "forwardFragments": 96.68999982394277,
+                "reverseFragments": 1.6100000710040336,
+                "unstrandedFragments": 1.7000001050531872
+            }
+        ],
+        "timestamp": "2026-10-21T11:50:08.301769049",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    },
+    "single end - unstranded": {
+        "content": [
+            {
+                "inferred_strandedness": "unstranded",
+                "forwardFragments": 47.99999901652336,
+                "reverseFragments": 49.00000104494393,
+                "unstrandedFragments": 2.99999993853271
+            }
+        ],
+        "timestamp": "2026-10-21T11:50:15.602150166",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    }
+}

@@ -14,6 +14,7 @@ disable_version_detection: true
 # Order of modules
 top_modules:
   - "fail_trimmed_samples"
+  - "fail_strand_check"
 
 # Order of modules
 module_order:
@@ -24,6 +25,7 @@ module_order:
   - salmon
   - featurecounts
   - samtools
+  - rseqc
 
 custom_data:
   fail_trimmed_samples:
@@ -35,3 +37,26 @@ custom_data:
       table_title: "Samples failed trimming threshold"
       namespace: "Samples failed trimming threshold"
       format: "{:.0f}"
+  fail_strand_check:
+    section_name: "Strandedness Checks"
+    description: "<p>The strandedness used for analysis can either be provided by the user or automatically inferred by <b>Salmon</b> using a sample of reads ('auto'). In both cases, with <code>--strand_check</code>, strandedness is verified using <b>RSeQC</b>'s <a href='http://rseqc.sourceforge.net/#infer-experiment-py'>infer_experiment.py</a> on genomic alignments. In this table, a pass indicates a match between the supplied strandedness (or that inferred by Salmon) and RSeQC results. A fail indicates a mismatch or 'undetermined' strandedness. 'Undetermined' strandedness can signal QC issues, including potential genomic DNA contamination.</p><p><b>Note:</b> Rows are duplicated for an 'auto' setting to allow comparison of statistics between inference methods.</p>"
+    plot_type: "table"
+    pconfig:
+      id: "fail_strand_check_table"
+      title: "Samples strandedness check"
+      namespace: "Samples strandedness check"
+    headers:
+      Status:
+        description: Pass if the strandedness inferred by RSeQC matches that provided by the user or predicted by Salmon. Fail otherwise.
+      Strand inference method:
+        description: Tool used to detect strandedness
+      Provided strandedness:
+        description: User-provided strandedness
+      Inferred strandedness:
+        description: Inferred strandedness
+      Sense (%):
+        max: 100
+      Antisense (%):
+        max: 100
+      Unstranded (%):
+        max: 100

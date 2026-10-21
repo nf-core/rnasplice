@@ -387,6 +387,12 @@
                     "default": true,
                     "description": "Skip bigWig file creation.",
                     "fa_icon": "fas fa-fast-forward"
+                },
+                "strand_check": {
+                    "type": "boolean",
+                    "fa_icon": "fas fa-check-square",
+                    "description": "Check the strandedness of each sample against the one RSeQC infer_experiment.py infers from the genome BAM.",
+                    "help_text": "Mismatches are reported as warnings and in a 'Strandedness Checks' table in the MultiQC report. Requires genome alignments, from `--aligner` or `--source genome_bam`."
                 }
             }
         },
@@ -426,6 +432,24 @@
                     "fa_icon": "fas fa-fast-forward",
                     "description": " Override Salmon library type inferred based on strandedness defined in meta object.",
                     "help_text": "See [Salmon docs](https://salmon.readthedocs.io/en/latest/library_type.html)."
+                },
+                "stranded_threshold": {
+                    "type": "number",
+                    "minimum": 0.5,
+                    "maximum": 1,
+                    "default": 0.8,
+                    "fa_icon": "fas fa-arrows-alt-h",
+                    "description": "The fraction of stranded reads that must be assigned to a strandedness for confident assignment. Must be at least 0.5.",
+                    "help_text": "Used to infer the strandedness of samples set to 'auto' in the samplesheet with Salmon, and by `--strand_check` with RSeQC."
+                },
+                "unstranded_threshold": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "default": 0.1,
+                    "fa_icon": "fas fa-arrows-alt-h",
+                    "description": "The difference in fraction of stranded reads assigned to 'forward' and 'reverse' below which a sample is classified as 'unstranded'.",
+                    "help_text": "By default the forward and reverse fractions must differ by less than 0.1 for the sample to be called as unstranded. A sample that is neither stranded nor unstranded by these thresholds is undetermined, and analysed as unstranded."
                 },
                 "seq_center": {
                     "type": "string",

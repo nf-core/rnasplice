@@ -1,0 +1,122 @@
+nextflow_function {
+
+    name "Test Function getSalmonInferredStrandedness"
+    script "../main.nf"
+    function "getSalmonInferredStrandedness"
+
+    tag "subworkflows"
+    tag "subworkflows_local"
+    tag "subworkflows/infer_strandedness"
+
+    // Small Salmon lib_format_counts.json files, so that the parsing and the thresholds
+    // of nf-core/rnaseq (0.8 stranded, 0.1 unstranded) are tested without running Salmon
+    test("paired end - forward") {
+
+        when {
+            function {
+                """
+                input[0] = file('${moduleDir}/tests/data/pe_forward.lib_format_counts.json', checkIfExists: true)
+                input[1] = 0.8
+                input[2] = 0.1
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result.inferred_strandedness == 'forward' },
+                { assert snapshot(function.result).match() }
+            )
+        }
+
+    }
+
+    test("paired end - reverse") {
+
+        when {
+            function {
+                """
+                input[0] = file('${moduleDir}/tests/data/pe_reverse.lib_format_counts.json', checkIfExists: true)
+                input[1] = 0.8
+                input[2] = 0.1
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result.inferred_strandedness == 'reverse' },
+                { assert snapshot(function.result).match() }
+            )
+        }
+
+    }
+
+    test("paired end - unstranded") {
+
+        when {
+            function {
+                """
+                input[0] = file('${moduleDir}/tests/data/pe_unstranded.lib_format_counts.json', checkIfExists: true)
+                input[1] = 0.8
+                input[2] = 0.1
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result.inferred_strandedness == 'unstranded' },
+                { assert snapshot(function.result).match() }
+            )
+        }
+
+    }
+
+    test("paired end - undetermined") {
+
+        when {
+            function {
+                """
+                input[0] = file('${moduleDir}/tests/data/pe_undetermined.lib_format_counts.json', checkIfExists: true)
+                input[1] = 0.8
+                input[2] = 0.1
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result.inferred_strandedness == 'undetermined' },
+                { assert snapshot(function.result).match() }
+            )
+        }
+
+    }
+
+    test("single end - reverse") {
+
+        when {
+            function {
+                """
+                input[0] = file('${moduleDir}/tests/data/se_reverse.lib_format_counts.json', checkIfExists: true)
+                input[1] = 0.8
+                input[2] = 0.1
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result.inferred_strandedness == 'reverse' },
+                { assert snapshot(function.result).match() }
+            )
+        }
+
+    }
+}

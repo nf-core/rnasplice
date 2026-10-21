@@ -1,0 +1,58 @@
+{
+    "homo_sapiens - mixed strandedness": {
+        "content": [
+            {
+                "auto_pe": {
+                    "id": "auto_pe",
+                    "single_end": false,
+                    "strandedness": "forward",
+                    "salmon_strand_analysis": {
+                        "inferred_strandedness": "forward",
+                        "forwardFragments": 97.61904761904762,
+                        "reverseFragments": 2.380952380952381,
+                        "unstrandedFragments": 0.0
+                    }
+                },
+                "auto_se": {
+                    "id": "auto_se",
+                    "single_end": true,
+                    "strandedness": "forward",
+                    "salmon_strand_analysis": {
+                        "inferred_strandedness": "forward",
+                        "forwardFragments": 97.77777777777779,
+                        "reverseFragments": 2.2222222222222223,
+                        "unstrandedFragments": 0.0
+                    }
+                },
+                "given_pe": {
+                    "id": "given_pe",
+                    "single_end": false,
+                    "strandedness": "reverse"
+                }
+            },
+            [
+                [
+                    {
+                        "id": "auto_pe",
+                        "single_end": false,
+                        "strandedness": "auto"
+                    },
+                    "auto_pe_lib_format_counts.json:md5,9ba689031ebbf7edcc0b2a8aa4b913a7"
+                ],
+                [
+                    {
+                        "id": "auto_se",
+                        "single_end": true,
+                        "strandedness": "auto"
+                    },
+                    "auto_se_lib_format_counts.json:md5,26b87abf4633b8b3f31c7543b2da6e8e"
+                ]
+            ]
+        ],
+        "timestamp": "2026-10-21T11:50:40.267281349",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    }
+}

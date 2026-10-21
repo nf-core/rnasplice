@@ -19,6 +19,8 @@ include { SUPPA as SUPPA_SALMON                                           } from
 include { SUPPA as SUPPA_STAR_SALMON                                      } from '../subworkflows/local/suppa'
 include { VISUALISE_MISO                                                  } from '../subworkflows/local/visualise_miso'
 include { LEAFCUTTER                                                      } from '../subworkflows/local/leafcutter'
+include { INFER_STRANDEDNESS                                              } from '../subworkflows/local/infer_strandedness'
+include { getInferexperimentStrandedness                                  } from '../subworkflows/local/infer_strandedness'
 
 include { rmatsReadError                                                  } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
 include { rmatsStrandednessError                                          } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
@@ -37,6 +39,8 @@ include { FASTQC                                                          } from
 include { SALMON_QUANT as SALMON_QUANT_SALMON                             } from '../modules/nf-core/salmon/quant'
 include { SALMON_QUANT as SALMON_QUANT_STAR                               } from '../modules/nf-core/salmon/quant'
 include { MULTIQC                                                         } from '../modules/nf-core/multiqc/'
+include { EAUTILS_GTF2BED                                                 } from '../modules/nf-core/ea-utils/gtf2bed'
+include { RSEQC_INFEREXPERIMENT                                           } from '../modules/nf-core/rseqc/inferexperiment'
 include { CUSTOM_DUMPSOFTWAREVERSIONS                                     } from '../modules/nf-core/custom/dumpsoftwareversions'
 include { CAT_FASTQ                                                       } from '../modules/nf-core/cat/fastq'
 include { FASTQ_FASTQC_UMITOOLS_TRIMGALORE                                } from '../subworkflows/nf-core/fastq_fastqc_umitools_trimgalore'
@@ -116,10 +120,11 @@ workflow RNASPLICE {
 
     // rMATS takes the read type and the library type from the first sample of a
     // contrast, so every sample has to agree on both. Genome BAM samplesheets carry
-    // them as well as fastq ones, so they get the same checks
+    // them as well as fastq ones, so they get the same checks. The library type of an
+    // 'auto' sample is only known once it has been inferred, so that check is made on
+    // the genome BAM files instead, further down
     if (params.rmats && ['fastq', 'genome_bam'].contains(params.source)) {
         rmatsReadError(ch_samplesheet)
-        rmatsStrandednessError(ch_samplesheet)
     }
 
     //
@@ -143,8 +148,24 @@ workflow RNASPLICE {
             0,
             0,
         )
-        ch_trim_reads = FASTQ_FASTQC_UMITOOLS_TRIMGALORE.out.reads
         ch_trim_read_count = FASTQ_FASTQC_UMITOOLS_TRIMGALORE.out.trim_read_count
+
+        //
+        // SUBWORKFLOW: Infer the strandedness of the samples set to 'auto' with Salmon
+        //
+        // The Salmon index of `PREPARE_GENOME` is used where there is one, which is when
+        // the salmon pseudo aligner is run or an index is given alongside `star_salmon`
+        INFER_STRANDEDNESS(
+            FASTQ_FASTQC_UMITOOLS_TRIMGALORE.out.reads,
+            ch_fasta,
+            ch_transcript_fasta,
+            ch_gtf,
+            ch_salmon_index,
+            !(params.pseudo_aligner == 'salmon' || (params.salmon_index && params.aligner == 'star_salmon')),
+            params.stranded_threshold,
+            params.unstranded_threshold,
+        )
+        ch_trim_reads = INFER_STRANDEDNESS.out.reads
 
         // Parse custom evaluation warnings if reading maps fall below specific metric criteria
         ch_trim_read_count
@@ -213,6 +234,66 @@ workflow RNASPLICE {
             ( ( params.source == 'fastq') && ( !params.skip_alignment && (params.aligner == 'star' || params.aligner == 'star_salmon') ) )
         )
     {
+        //
+        // MODULE: Check the strandedness used against the one RSeQC infers from the genome BAM
+        //
+        // As in nf-core/rnaseq, a sample passes when RSeQC agrees with the strandedness given
+        // in the samplesheet, or with the one Salmon inferred for an 'auto' sample
+        if (params.strand_check) {
+            EAUTILS_GTF2BED(ch_gtf.map { gtf -> [[id: gtf.baseName], gtf] })
+
+            RSEQC_INFEREXPERIMENT(
+                ch_genome_bam.join(ch_genome_bam_index),
+                EAUTILS_GTF2BED.out.bed.map { _meta, bed -> bed },
+            )
+
+            ch_strand_check_multiqc = RSEQC_INFEREXPERIMENT.out.txt
+                .map { meta, strand_log ->
+                    def rseqc_inferred_strand = getInferexperimentStrandedness(strand_log, params.stranded_threshold, params.unstranded_threshold)
+                    def rseqc_strandedness = rseqc_inferred_strand.inferred_strandedness
+
+                    def status = 'fail'
+                    def multiqc_lines = []
+                    if (meta.salmon_strand_analysis) {
+                        def salmon_strandedness = meta.salmon_strand_analysis.inferred_strandedness
+                        if (salmon_strandedness == rseqc_strandedness && rseqc_strandedness != 'undetermined') {
+                            status = 'pass'
+                        }
+                        // MultiQC merges rows with the same sample name, and trims the
+                        // trailing space nf-core/rnaseq adds, so the Salmon row is labelled
+                        multiqc_lines = [
+                            "${meta.id} (Salmon)\tSalmon\t${status}\tauto\t${meta.salmon_strand_analysis.values().join('\t')}",
+                            "${meta.id}\tRSeQC\t${status}\tauto\t${rseqc_inferred_strand.values().join('\t')}"
+                        ]
+                    }
+                    else {
+                        if (meta.strandedness == rseqc_strandedness) {
+                            status = 'pass'
+                        }
+                        multiqc_lines = [ "${meta.id}\tRSeQC\t${status}\t${meta.strandedness}\t${rseqc_inferred_strand.values().join('\t')}" ]
+                    }
+                    if (status == 'fail') {
+                        log.warn("Strandedness check failed for sample '${meta.id}': it was analysed as '${meta.strandedness}', but RSeQC infers '${rseqc_strandedness}' from the genome BAM.")
+                    }
+                    return multiqc_lines
+                }
+                .flatten()
+                .collect()
+                .map { tsv_data ->
+                    def header = [
+                        "Sample",
+                        "Strand inference method",
+                        "Status",
+                        "Provided strandedness",
+                        "Inferred strandedness",
+                        "Sense (%)",
+                        "Antisense (%)",
+                        "Unstranded (%)"
+                    ]
+                    multiqcTsvFromList(tsv_data, header)
+                }
+        }
+
         if (params.dexseq_exon) {
             DEXSEQ_DEU(
                 ch_gtf,
@@ -234,6 +315,8 @@ workflow RNASPLICE {
         }
 
         if (params.rmats) {
+            rmatsStrandednessError(ch_genome_bam)
+
             // rMATS pairs treatment and control samples by their position within a
             // condition, so the samplesheet order of `ch_samples` is what it works from
             RMATS(
@@ -503,6 +586,11 @@ workflow RNASPLICE {
 
         if (params.edger_exon && params.source != 'transcriptome_bam') {
             ch_multiqc_files = ch_multiqc_files.mix(EDGER_DEU.out.featureCounts_summary.collect { it -> it[1] }.ifEmpty([]))
+        }
+
+        if (params.strand_check && params.source != 'transcriptome_bam') {
+            ch_multiqc_files = ch_multiqc_files.mix(RSEQC_INFEREXPERIMENT.out.txt.collect { it -> it[1] }.ifEmpty([]))
+            ch_multiqc_files = ch_multiqc_files.mix(ch_strand_check_multiqc.collectFile(name: 'fail_strand_check_mqc.tsv'))
         }
     }
 

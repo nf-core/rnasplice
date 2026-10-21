@@ -44,6 +44,8 @@ params {
     bam_csi_index: Boolean
     seq_center: String?
     salmon_quant_libtype: String?
+    stranded_threshold: Float = 0.8
+    unstranded_threshold: Float = 0.1
     star_index: String? = getGenomeAttribute('star')
     salmon_index: String? = getGenomeAttribute('salmon')
     star_ignore_sjdbgtf: Boolean
@@ -55,6 +57,7 @@ params {
     // QC
     skip_bigwig: Boolean = true
     skip_fastqc: Boolean
+    strand_check: Boolean
 
     // rMATs
     rmats: Boolean = true
