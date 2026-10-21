@@ -125,10 +125,11 @@ workflow RNASPLICE {
     // rMATS takes the read type and the library type from the first sample of a
     // contrast, so every sample has to agree on both. Genome BAM samplesheets carry
     // them as well as fastq ones, so they get the same checks. The library type of an
-    // 'auto' sample is only known once it has been inferred, so that check is made on
-    // the genome BAM files instead, further down
+    // 'auto' sample is only known once it has been inferred, so it is checked again on
+    // the genome BAM files further down
     if (params.rmats && ['fastq', 'genome_bam'].contains(params.source)) {
         rmatsReadError(ch_samplesheet)
+        rmatsStrandednessError(ch_samplesheet.filter { meta, _files -> meta.strandedness != 'auto' })
     }
 
     //
