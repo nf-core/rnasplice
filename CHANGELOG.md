@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Enhancements & fixes
 
-- Infer the strandedness of samples set to `auto` in the samplesheet with Salmon, as in nf-core/rnaseq, and check it against RSeQC infer_experiment.py with `--strand_check` (#336) [@piplus2]
+- Infer the strandedness of samples set to `auto` in the samplesheet with Salmon, as in nf-core/rnaseq, and check it against RSeQC infer_experiment.py with `--strand_check`. Genome BAM samples are inferred with RSeQC, and transcriptome BAM samples are quantified by Salmon with `--libType A` (#336) [@piplus2]
 
 ## v2.0.0 - Fenix Reborn - [2026-10-20]
 

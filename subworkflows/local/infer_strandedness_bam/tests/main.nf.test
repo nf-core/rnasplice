@@ -1,0 +1,127 @@
+nextflow_workflow {
+
+    name "Test Subworkflow INFER_STRANDEDNESS_BAM"
+    script "../main.nf"
+    workflow "INFER_STRANDEDNESS_BAM"
+
+    tag "subworkflows"
+    tag "subworkflows_local"
+    tag "subworkflows/infer_strandedness_bam"
+    tag "rseqc/inferexperiment"
+
+    test("sarscov2 - mixed strandedness") {
+
+        when {
+            workflow {
+                """
+                // One 'auto' sample next to one whose strandedness is given
+                input[0] = channel.of(
+                    [
+                        [ id:'auto_pe', single_end:false, strandedness:'auto' ],
+                        file(params.modules_testdata_base_path + 'genomics/sarscov2/illumina/bam/test.paired_end.sorted.bam', checkIfExists: true),
+                        file(params.modules_testdata_base_path + 'genomics/sarscov2/illumina/bam/test.paired_end.sorted.bam.bai', checkIfExists: true)
+                    ],
+                    [
+                        [ id:'given_pe', single_end:false, strandedness:'reverse' ],
+                        file(params.modules_testdata_base_path + 'genomics/sarscov2/illumina/bam/test.paired_end.sorted.bam', checkIfExists: true),
+                        file(params.modules_testdata_base_path + 'genomics/sarscov2/illumina/bam/test.paired_end.sorted.bam.bai', checkIfExists: true)
+                    ]
+                )
+                input[1] = channel.value(file(params.modules_testdata_base_path + 'genomics/sarscov2/genome/bed/test.bed', checkIfExists: true))
+                input[2] = 0.8
+                input[3] = 0.1
+                """
+            }
+        }
+
+        then {
+            def metas = workflow.out.bam_bai.collectEntries { meta, _bam, _bai -> [ (meta.id): meta ] }
+            assertAll(
+                { assert workflow.success },
+                // Every sample comes out with a strandedness the downstream tools understand
+                { assert metas.values().every { meta -> meta.strandedness in ['forward', 'reverse', 'unstranded'] } },
+                // A given strandedness is passed through untouched, and only 'auto' samples go through RSeQC
+                { assert metas.given_pe.strandedness == 'reverse' },
+                { assert !metas.given_pe.containsKey('rseqc_strand_analysis') },
+                { assert metas.auto_pe.rseqc_strand_analysis },
+                { assert workflow.out.txt.collect { meta, _txt -> meta.id } == ['auto_pe'] },
+                { assert snapshot(
+                    metas.sort(),
+                    workflow.out.txt
+                ).match() }
+            )
+        }
+
+    }
+
+    test("sarscov2 - no auto sample") {
+
+        when {
+            workflow {
+                """
+                input[0] = channel.of(
+                    [
+                        [ id:'given_pe', single_end:false, strandedness:'forward' ],
+                        file(params.modules_testdata_base_path + 'genomics/sarscov2/illumina/bam/test.paired_end.sorted.bam', checkIfExists: true),
+                        file(params.modules_testdata_base_path + 'genomics/sarscov2/illumina/bam/test.paired_end.sorted.bam.bai', checkIfExists: true)
+                    ]
+                )
+                input[1] = channel.value(file(params.modules_testdata_base_path + 'genomics/sarscov2/genome/bed/test.bed', checkIfExists: true))
+                input[2] = 0.8
+                input[3] = 0.1
+                """
+            }
+        }
+
+        then {
+            // Without an 'auto' sample RSeQC is not run
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.trace.tasks().size() == 0 },
+                { assert workflow.out.bam_bai.size() == 1 },
+                { assert workflow.out.bam_bai[0][0] == [ id:'given_pe', single_end:false, strandedness:'forward' ] }
+            )
+        }
+
+    }
+
+    test("sarscov2 - mixed strandedness - stub") {
+
+        options "-stub"
+
+        when {
+            workflow {
+                """
+                input[0] = channel.of(
+                    [
+                        [ id:'auto_pe', single_end:false, strandedness:'auto' ],
+                        file(params.modules_testdata_base_path + 'genomics/sarscov2/illumina/bam/test.paired_end.sorted.bam', checkIfExists: true),
+                        file(params.modules_testdata_base_path + 'genomics/sarscov2/illumina/bam/test.paired_end.sorted.bam.bai', checkIfExists: true)
+                    ],
+                    [
+                        [ id:'given_pe', single_end:false, strandedness:'reverse' ],
+                        file(params.modules_testdata_base_path + 'genomics/sarscov2/illumina/bam/test.paired_end.sorted.bam', checkIfExists: true),
+                        file(params.modules_testdata_base_path + 'genomics/sarscov2/illumina/bam/test.paired_end.sorted.bam.bai', checkIfExists: true)
+                    ]
+                )
+                input[1] = channel.value(file(params.modules_testdata_base_path + 'genomics/sarscov2/genome/bed/test.bed', checkIfExists: true))
+                input[2] = 0.8
+                input[3] = 0.1
+                """
+            }
+        }
+
+        then {
+            // The stub report is empty, so the 'auto' sample is undetermined and set to unstranded
+            def metas = workflow.out.bam_bai.collectEntries { meta, _bam, _bai -> [ (meta.id): meta ] }
+            assertAll(
+                { assert workflow.success },
+                { assert metas.auto_pe.strandedness == 'unstranded' },
+                { assert metas.given_pe.strandedness == 'reverse' },
+                { assert workflow.out.txt.collect { meta, _txt -> meta.id } == ['auto_pe'] }
+            )
+        }
+
+    }
+
+}

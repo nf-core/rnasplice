@@ -1,0 +1,89 @@
+nextflow_function {
+
+    name "Test Function getSalmonLibraryTypeStrandedness"
+    script "../main.nf"
+    function "getSalmonLibraryTypeStrandedness"
+
+    tag "subworkflows"
+    tag "subworkflows_local"
+    tag "subworkflows/infer_strandedness"
+
+    // Small Salmon meta_info.json files holding the library type Salmon detected, as it
+    // writes them for a transcriptome BAM quantified with '--libType A'
+    test("paired end - reverse") {
+
+        when {
+            function {
+                """
+                input[0] = file('${moduleDir}/tests/fixtures/pe_reverse.meta_info.json', checkIfExists: true)
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result == [ inferred_strandedness: 'reverse', library_type: 'ISR' ] }
+            )
+        }
+
+    }
+
+    test("single end - forward") {
+
+        when {
+            function {
+                """
+                input[0] = file('${moduleDir}/tests/fixtures/se_forward.meta_info.json', checkIfExists: true)
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result == [ inferred_strandedness: 'forward', library_type: 'SF' ] }
+            )
+        }
+
+    }
+
+    test("paired end - unstranded") {
+
+        when {
+            function {
+                """
+                input[0] = file('${moduleDir}/tests/fixtures/pe_unstranded.meta_info.json', checkIfExists: true)
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result == [ inferred_strandedness: 'unstranded', library_type: 'IU' ] }
+            )
+        }
+
+    }
+
+    test("stub - empty file") {
+
+        when {
+            function {
+                """
+                input[0] = file('${moduleDir}/tests/fixtures/empty.meta_info.json', checkIfExists: true)
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result == [ inferred_strandedness: 'undetermined', library_type: '' ] }
+            )
+        }
+
+    }
+
+}

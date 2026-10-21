@@ -239,11 +239,11 @@ The [bigWig](https://genome.ucsc.edu/goldenpath/help/bigWig.html) format is an i
 <summary>Output files</summary>
 
 - `<ALIGNER>/rseqc/infer_experiment/`
-  - `*.infer_experiment.txt`: If `--strand_check` is specified, the fraction of reads explained by each strand, from RSeQC infer_experiment.py.
+  - `*.infer_experiment.txt`: If `--strand_check` is specified, or for a genome BAM sample set to `auto`, the fraction of reads explained by each strand, from RSeQC infer_experiment.py.
 
 </details>
 
-[RSeQC](https://rseqc.sourceforge.net/) infer_experiment.py samples reads from the genome BAM file and compares their orientation with the strand of the genes they overlap. With `--strand_check`, its result is compared with the strandedness each sample was analysed with, given in the samplesheet or inferred with Salmon for an `auto` sample. The comparison is shown in the Strandedness Checks table of the MultiQC report, where a fail means that the two disagree or that RSeQC could not determine the strandedness. An undetermined strandedness can be a sign of genomic DNA contamination.
+[RSeQC](https://rseqc.sourceforge.net/) infer_experiment.py samples reads from the genome BAM file and compares their orientation with the strand of the genes they overlap. With `--strand_check`, its result is compared with the strandedness each sample was analysed with, given in the samplesheet or inferred with Salmon for an `auto` sample. For a genome BAM sample set to `auto` the strandedness was inferred from this same report, so the table only shows whether it could be called. The comparison is shown in the Strandedness Checks table of the MultiQC report, where a fail means that the two disagree or that RSeQC could not determine the strandedness. An undetermined strandedness can be a sign of genomic DNA contamination.
 
 ### MultiQC
 
@@ -502,7 +502,7 @@ If [IsoformSwitchAnalyzeR](https://www.bioconductor.org/packages/release/bioc/ht
 
 - `genome/`
   - `*.fa`, `*.gtf`, `*.gff`: If the `--save_reference` parameter is provided then all of the genome reference files will be placed in this directory.
-  - `*.bed`: If the `--save_reference` parameter is provided together with `--strand_check`, the BED12 gene model RSeQC reads, made from the GTF.
+  - `*.bed`: If the `--save_reference` parameter is provided together with `--strand_check`, or with a genome BAM samplesheet that has an `auto` sample, the BED12 gene model RSeQC reads, made from the GTF.
 - `genome/index/`
   - `star/`: Directory containing STAR indices.
   - `salmon/`: Directory containing Salmon indices.

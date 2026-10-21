@@ -21,6 +21,8 @@ include { VISUALISE_MISO                                                  } from
 include { LEAFCUTTER                                                      } from '../subworkflows/local/leafcutter'
 include { INFER_STRANDEDNESS                                              } from '../subworkflows/local/infer_strandedness'
 include { getInferexperimentStrandedness                                  } from '../subworkflows/local/infer_strandedness'
+include { getSalmonLibraryTypeStrandedness                                } from '../subworkflows/local/infer_strandedness'
+include { INFER_STRANDEDNESS_BAM                                          } from '../subworkflows/local/infer_strandedness_bam'
 
 include { rmatsReadError                                                  } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
 include { rmatsStrandednessError                                          } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
@@ -38,6 +40,7 @@ include { methodsDescriptionText                                          } from
 include { FASTQC                                                          } from '../modules/nf-core/fastqc/main'
 include { SALMON_QUANT as SALMON_QUANT_SALMON                             } from '../modules/nf-core/salmon/quant'
 include { SALMON_QUANT as SALMON_QUANT_STAR                               } from '../modules/nf-core/salmon/quant'
+include { SALMON_QUANT as SALMON_QUANT_STAR_AUTO                          } from '../modules/nf-core/salmon/quant'
 include { MULTIQC                                                         } from '../modules/nf-core/multiqc/'
 include { EAUTILS_GTF2BED                                                 } from '../modules/nf-core/ea-utils/gtf2bed'
 include { RSEQC_INFEREXPERIMENT                                           } from '../modules/nf-core/rseqc/inferexperiment'
@@ -81,6 +84,7 @@ workflow RNASPLICE {
     def ch_versions = channel.empty()
     def ch_multiqc_files = channel.empty()
     def pass_trimmed_reads = [:]
+    def ch_rseqc_txt = channel.empty()
 
     // Branch samplesheet channel based on source type
     if (params.source == 'fastq') {
@@ -185,12 +189,40 @@ workflow RNASPLICE {
     }
 
     //
+    // MODULE: BED12 annotation for RSeQC, made for the strand check, or for a genome BAM
+    // samplesheet with an 'auto' sample
+    //
+    def strand_check_genome_bam = params.strand_check && (params.source == 'genome_bam' ||
+        (params.source == 'fastq' && !params.skip_alignment && ['star', 'star_salmon'].contains(params.aligner)))
+    if (strand_check_genome_bam || params.source == 'genome_bam') {
+        ch_gtf_for_bed = strand_check_genome_bam
+            ? ch_gtf
+            : ch_gtf
+                .combine(ch_samplesheet.filter { meta, _files -> meta.strandedness == 'auto' })
+                .map { items -> items.first() }
+                .first()
+        EAUTILS_GTF2BED(ch_gtf_for_bed.map { gtf -> [[id: gtf.baseName], gtf] })
+        ch_gene_bed = EAUTILS_GTF2BED.out.bed.map { _meta, bed -> bed }
+    }
+
+    //
     // SUBWORKFLOW: BAM post-processing and indexing loops
     //
     if (params.source == 'genome_bam') {
         BAM_SORT_STATS_SAMTOOLS(ch_genome_bam, ch_fasta.map { fasta -> [[:], fasta, []] })
-        ch_genome_bam = BAM_SORT_STATS_SAMTOOLS.out.bam
-        ch_genome_bam_index = BAM_SORT_STATS_SAMTOOLS.out.index
+
+        //
+        // SUBWORKFLOW: Infer the strandedness of the samples set to 'auto' with RSeQC
+        //
+        INFER_STRANDEDNESS_BAM(
+            BAM_SORT_STATS_SAMTOOLS.out.bam.join(BAM_SORT_STATS_SAMTOOLS.out.index),
+            ch_gene_bed,
+            params.stranded_threshold,
+            params.unstranded_threshold,
+        )
+        ch_genome_bam = INFER_STRANDEDNESS_BAM.out.bam_bai.map { meta, bam, _bai -> [meta, bam] }
+        ch_genome_bam_index = INFER_STRANDEDNESS_BAM.out.bam_bai.map { meta, _bam, bai -> [meta, bai] }
+        ch_rseqc_txt = INFER_STRANDEDNESS_BAM.out.txt
         ch_samtools_stats = BAM_SORT_STATS_SAMTOOLS.out.stats
         ch_samtools_flagstat = BAM_SORT_STATS_SAMTOOLS.out.flagstat
         ch_samtools_idxstats = BAM_SORT_STATS_SAMTOOLS.out.idxstats
@@ -238,16 +270,16 @@ workflow RNASPLICE {
         // MODULE: Check the strandedness used against the one RSeQC infers from the genome BAM
         //
         // As in nf-core/rnaseq, a sample passes when RSeQC agrees with the strandedness given
-        // in the samplesheet, or with the one Salmon inferred for an 'auto' sample
+        // in the samplesheet, or with the one Salmon inferred for an 'auto' sample. A genome
+        // BAM sample inferred with RSeQC already has its report, so RSeQC is not run again
         if (params.strand_check) {
-            EAUTILS_GTF2BED(ch_gtf.map { gtf -> [[id: gtf.baseName], gtf] })
-
             RSEQC_INFEREXPERIMENT(
-                ch_genome_bam.join(ch_genome_bam_index),
-                EAUTILS_GTF2BED.out.bed.map { _meta, bed -> bed },
+                ch_genome_bam.join(ch_genome_bam_index).filter { meta, _bam, _bai -> !meta.rseqc_strand_analysis },
+                ch_gene_bed,
             )
+            ch_rseqc_txt = ch_rseqc_txt.mix(RSEQC_INFEREXPERIMENT.out.txt)
 
-            ch_strand_check_multiqc = RSEQC_INFEREXPERIMENT.out.txt
+            ch_strand_check_multiqc = ch_rseqc_txt
                 .map { meta, strand_log ->
                     def rseqc_inferred_strand = getInferexperimentStrandedness(strand_log, params.stranded_threshold, params.unstranded_threshold)
                     def rseqc_strandedness = rseqc_inferred_strand.inferred_strandedness
@@ -266,13 +298,21 @@ workflow RNASPLICE {
                             "${meta.id}\tRSeQC\t${status}\tauto\t${rseqc_inferred_strand.values().join('\t')}"
                         ]
                     }
+                    else if (meta.rseqc_strand_analysis) {
+                        // The strandedness was called from this same report, so there is
+                        // nothing to compare it with, only whether it could be called at all
+                        if (rseqc_strandedness != 'undetermined') {
+                            status = 'pass'
+                        }
+                        multiqc_lines = [ "${meta.id}\tRSeQC\t${status}\tauto\t${rseqc_inferred_strand.values().join('\t')}" ]
+                    }
                     else {
                         if (meta.strandedness == rseqc_strandedness) {
                             status = 'pass'
                         }
                         multiqc_lines = [ "${meta.id}\tRSeQC\t${status}\t${meta.strandedness}\t${rseqc_inferred_strand.values().join('\t')}" ]
                     }
-                    if (status == 'fail') {
+                    if (status == 'fail' && !meta.rseqc_strand_analysis) {
                         log.warn("Strandedness check failed for sample '${meta.id}': it was analysed as '${meta.strandedness}', but RSeQC infers '${rseqc_strandedness}' from the genome BAM.")
                     }
                     return multiqc_lines
@@ -358,15 +398,51 @@ workflow RNASPLICE {
     // ====================================================================
 
     if (params.source == 'transcriptome_bam' || ((params.source == 'fastq' && !params.skip_alignment && params.aligner == 'star_salmon'))) {
+        // Salmon detects the library type of an 'auto' transcriptome BAM itself, with
+        // --libType A, unless --salmon_quant_libtype sets one for every sample. Reads given
+        // as FASTQ have had theirs inferred already, so they are never 'auto' here
+        ch_transcriptome_bam_for_salmon
+            .branch { meta, bam ->
+                auto_strand: meta.strandedness == 'auto' && !params.salmon_quant_libtype
+                return [meta, bam]
+                known_strand: true
+                return [meta, bam]
+            }
+            .set { ch_salmon_bam }
+
         SALMON_QUANT_STAR(
-            ch_transcriptome_bam_for_salmon,
+            ch_salmon_bam.known_strand,
             [],
             ch_gtf,
             ch_transcript_fasta,
             true,
             params.salmon_quant_libtype ?: '',
         )
-        ch_salmon_results = SALMON_QUANT_STAR.out.results
+
+        SALMON_QUANT_STAR_AUTO(
+            ch_salmon_bam.auto_strand,
+            [],
+            ch_gtf,
+            ch_transcript_fasta,
+            true,
+            'A',
+        )
+
+        // Salmon writes no library format counts in alignment mode, so the meta map takes the
+        // strandedness of the library type Salmon detected and quantified the sample with
+        SALMON_QUANT_STAR_AUTO.out.results
+            .join(SALMON_QUANT_STAR_AUTO.out.json_info)
+            .map { meta, results, json ->
+                def salmon_library_type = getSalmonLibraryTypeStrandedness(json)
+                def strandedness = salmon_library_type.inferred_strandedness
+                if (strandedness == 'undetermined') {
+                    log.warn("Strandedness of sample '${meta.id}' could not be read from the library type Salmon detected, '${salmon_library_type.library_type}', so it is reported as 'unstranded'. Set it in the samplesheet if that is wrong.")
+                    strandedness = 'unstranded'
+                }
+                return [meta + [strandedness: strandedness, salmon_library_type: salmon_library_type.library_type], results]
+            }
+            .mix(SALMON_QUANT_STAR.out.results)
+            .set { ch_salmon_results }
 
         TX2GENE_TXIMPORT_STAR_SALMON(ch_salmon_results, ch_gtf)
         ch_tximport_tx2gene = TX2GENE_TXIMPORT_STAR_SALMON.out.tximport_tx2gene
@@ -588,8 +664,8 @@ workflow RNASPLICE {
             ch_multiqc_files = ch_multiqc_files.mix(EDGER_DEU.out.featureCounts_summary.collect { it -> it[1] }.ifEmpty([]))
         }
 
-        if (params.strand_check && params.source != 'transcriptome_bam') {
-            ch_multiqc_files = ch_multiqc_files.mix(RSEQC_INFEREXPERIMENT.out.txt.collect { it -> it[1] }.ifEmpty([]))
+        ch_multiqc_files = ch_multiqc_files.mix(ch_rseqc_txt.collect { it -> it[1] }.ifEmpty([]))
+        if (strand_check_genome_bam) {
             ch_multiqc_files = ch_multiqc_files.mix(ch_strand_check_multiqc.collectFile(name: 'fail_strand_check_mqc.tsv'))
         }
     }

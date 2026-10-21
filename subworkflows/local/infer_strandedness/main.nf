@@ -156,3 +156,27 @@ def getInferexperimentStrandedness(inferexperiment_file, stranded_threshold = 0.
 
     return calculateStrandedness(forwardFragments, reverseFragments, unstrandedFragments, stranded_threshold, unstranded_threshold)
 }
+
+//
+// Get the strandedness from the library type Salmon detected with '--libType A', as written
+// to its 'meta_info.json'. In alignment mode Salmon writes no 'lib_format_counts.json', so
+// the call is Salmon's own rather than one made with the thresholds above
+//
+def getSalmonLibraryTypeStrandedness(json_file) {
+    def json_text = json_file.text
+    def meta_info = json_text.trim() ? new groovy.json.JsonSlurper().parseText(json_text) : [:]
+    def library_type = meta_info.library_types ? meta_info.library_types[0] : ''
+
+    def strandedness = 'undetermined'
+    if (library_type in ['SF', 'ISF', 'MSF', 'OSF']) {
+        strandedness = 'forward'
+    }
+    else if (library_type in ['SR', 'ISR', 'MSR', 'OSR']) {
+        strandedness = 'reverse'
+    }
+    else if (library_type in ['U', 'IU', 'MU', 'OU']) {
+        strandedness = 'unstranded'
+    }
+
+    return [inferred_strandedness: strandedness, library_type: library_type]
+}

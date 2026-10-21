@@ -28,7 +28,7 @@
 1. Merge re-sequenced FastQ files ([`cat`](http://www.linfo.org/cat.html))
 2. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
 3. Adapter and quality trimming ([`TrimGalore`](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/))
-4. Strandedness inference of samples set to `auto` ([`fq`](https://github.com/stjude-rust-labs/fq), [`Salmon`](https://combine-lab.github.io/salmon/); _optional_)
+4. Strandedness inference of samples set to `auto` ([`fq`](https://github.com/stjude-rust-labs/fq), [`Salmon`](https://combine-lab.github.io/salmon/), or [`RSeQC`](https://rseqc.sourceforge.net/) for genome BAM input; _optional_)
 5. Alignment with [`STAR`](https://github.com/alexdobin/STAR)
 6. Choice of quantification depending on analysis type:
    1. [`STAR`](https://github.com/alexdobin/STAR) -> [`Salmon`](https://combine-lab.github.io/salmon/)
