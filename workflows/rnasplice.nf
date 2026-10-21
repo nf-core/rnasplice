@@ -270,8 +270,10 @@ workflow RNASPLICE {
         //
         // MODULE: Check the strandedness used against the one RSeQC infers from the genome BAM
         //
-        // As in nf-core/rnaseq, a sample passes when RSeQC agrees with the strandedness given
-        // in the samplesheet, or with the one Salmon inferred for an 'auto' sample. A genome
+        // A sample passes when RSeQC agrees with the strandedness it was analysed with, given
+        // in the samplesheet or inferred with Salmon for an 'auto' sample. Unlike nf-core/rnaseq,
+        // an 'auto' sample Salmon could not call is compared as the 'unstranded' it was analysed
+        // as. A genome
         // BAM sample inferred with RSeQC already has its report, so RSeQC is not run again
         if (params.strand_check) {
             RSEQC_INFEREXPERIMENT(
@@ -288,8 +290,9 @@ workflow RNASPLICE {
                     def status = 'fail'
                     def multiqc_lines = []
                     if (meta.salmon_strand_analysis) {
-                        def salmon_strandedness = meta.salmon_strand_analysis.inferred_strandedness
-                        if (salmon_strandedness == rseqc_strandedness && rseqc_strandedness != 'undetermined') {
+                        // Compared with the strandedness the sample was analysed with, which is
+                        // 'unstranded' where Salmon could not call it, so it is never undetermined
+                        if (meta.strandedness == rseqc_strandedness) {
                             status = 'pass'
                         }
                         // MultiQC merges rows with the same sample name, and trims the

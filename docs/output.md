@@ -243,7 +243,7 @@ The [bigWig](https://genome.ucsc.edu/goldenpath/help/bigWig.html) format is an i
 
 </details>
 
-[RSeQC](https://rseqc.sourceforge.net/) infer_experiment.py samples reads from the genome BAM file and compares their orientation with the strand of the genes they overlap. With `--strand_check`, its result is compared with the strandedness each sample was analysed with, given in the samplesheet or inferred with Salmon for an `auto` sample. For a genome BAM sample set to `auto` the strandedness was inferred from this same report, so the table only shows whether it could be called. The comparison is shown in the Strandedness Checks table of the MultiQC report, where a fail means that the two disagree or that RSeQC could not determine the strandedness. An undetermined strandedness can be a sign of genomic DNA contamination.
+[RSeQC](https://rseqc.sourceforge.net/) infer_experiment.py samples reads from the genome BAM file and compares their orientation with the strand of the genes they overlap. With `--strand_check`, its result is compared with the strandedness each sample was analysed with, given in the samplesheet or inferred with Salmon for an `auto` sample, which is `unstranded` where Salmon could not call it. For a genome BAM sample set to `auto` the strandedness was inferred from this same report, so the table only shows whether it could be called. The comparison is shown in the Strandedness Checks table of the MultiQC report, where a fail means that the two disagree or that RSeQC could not determine the strandedness. An undetermined strandedness can be a sign of genomic DNA contamination.
 
 ### MultiQC
 
