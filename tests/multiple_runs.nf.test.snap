@@ -76,14 +76,14 @@
                     "bioconductor-tximport": "1.38.2"
                 },
                 "Workflow": {
-                    "nf-core/rnasplice": "v2.0.0"
+                    "nf-core/rnasplice": "v2.0.1dev"
                 }
             }
         ],
-        "timestamp": "2026-10-12T18:06:04.966743206",
+        "timestamp": "2026-10-21T10:28:01.885022184",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.4"
+            "nextflow": "26.04.3"
         }
     }
 }

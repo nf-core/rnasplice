@@ -81,7 +81,7 @@
                     "subread": "flattenGTF Version 2.0.1"
                 },
                 "Workflow": {
-                    "nf-core/rnasplice": "v2.0.0"
+                    "nf-core/rnasplice": "v2.0.1dev"
                 }
             },
             [
@@ -4228,7 +4228,7 @@
                 "ERR204916_sorted.bam": "996a3a84107c5eb994ba2dbe428e9f5b"
             }
         ],
-        "timestamp": "2026-10-13T16:39:25.847898844",
+        "timestamp": "2026-10-21T10:23:31.896154835",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.3"
