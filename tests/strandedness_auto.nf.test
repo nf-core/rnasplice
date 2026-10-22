@@ -1,0 +1,125 @@
+nextflow_pipeline {
+
+    name "Test pipeline with strandedness auto on reverse stranded reads"
+    script "../main.nf"
+    profile "test"
+    tag "pipeline"
+
+    test("-profile test - strandedness auto") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+
+                // Reverse stranded chrX reads, with two of the four samples set to 'auto'
+                input        = 'https://raw.githubusercontent.com/nf-core/test-datasets/rnasplice/samplesheet/samplesheet_strandedness_auto.csv'
+                strand_check = true
+
+                // Only the steps that use the strandedness are under test here
+                leafcutter            = true
+                dexseq_dtu            = false
+                suppa                 = false
+                isoformswitchanalyzer = false
+                sashimi_plot          = false
+            }
+        }
+
+        then {
+            // stable_path: All files + folders in ${params.outdir}/ with a stable path
+            def stable_path = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,json,txt}'])
+
+            // stable_content: All files in ${params.outdir}/ with stable content
+            def stable_content = getAllFilesFromDir(params.outdir, ignoreFile: 'tests/.nftignore')
+
+            // Sorted BAM files: left out of stable_content by the ignoreFile, as the conda and
+            // container builds of samtools write different BAM headers, and snapshotted by the
+            // md5 of their alignments instead
+            def sorted_bams = []
+            new File(params.outdir).eachFileRecurse { bam_file -> if (bam_file.name.endsWith('_sorted.bam')) { sorted_bams << bam_file } }
+            sorted_bams = sorted_bams.sort { bam_file -> bam_file.path }.collectEntries { bam_file -> [ bam_file.name, bam(bam_file.path).getSamLinesMD5() ] }
+
+            // edgeR exon usage tables: left out of stable_content by the ignoreFile, as builds
+            // of edgeR differ in the last digits, and snapshotted by their rounded values
+            def edger_tables = new File("${params.outdir}/star_salmon/edger").listFiles()
+                .findAll { table -> table.name ==~ /contrast_.*\.usage\..*\.csv/ }
+                .sort { table -> table.name }
+                .collectEntries { table -> [ table.name, RoundedCsv.md5(table) ] }
+
+            // Strand check table: one RSeQC row per sample, and a Salmon row for each 'auto' sample
+            def strand_check = path("${params.outdir}/multiqc/multiqc_data/multiqc_fail_strand_check_table.txt").readLines()
+                .drop(1)
+                .collect { line -> line.split('\t') }
+                .collectEntries { fields -> [ (fields[0]): [ status: fields[2], provided: fields[3], inferred: fields[4] ] ] }
+
+            // Library type Salmon quantified each sample with after STAR
+            def salmon_library_types = ['ERR188383', 'ERR188428', 'ERR188454', 'ERR204916'].collectEntries { sample ->
+                [ (sample): path("${params.outdir}/star_salmon/salmon/${sample}/aux_info/meta_info.json").json.library_types ]
+            }
+
+            // Strand option featureCounts ran with, from the command line in the header of its table
+            def featurecounts_strand = ['ERR188383', 'ERR188428', 'ERR188454', 'ERR204916'].collectEntries { sample ->
+                def header = path("${params.outdir}/star_salmon/featurecounts/${sample}.featureCounts.tsv").readLines()[0]
+                [ (sample): (header =~ /"-s" "(\d)"/)[0][1] ]
+            }
+
+            // Strand options DEXSeq and rMATS ran with. Neither records them in its outputs, so
+            // they are read from the scripts of the tasks
+            def scripts = []
+            new File("${launchDir}/work").eachFileRecurse { script -> if (script.name == '.command.sh') { scripts << script.text } }
+            def dexseq_strand = scripts.findAll { script -> script.contains('dexseq_count.py') }
+                .collect { script -> (script =~ /--stranded (\S+)/)[0][1] }
+            def rmats_prep_libtype = scripts.findAll { script -> script.contains('rmats.py') && script.contains('--task prep') }
+                .collect { script -> (script =~ /--libType (\S+)/)[0][1] }
+
+            // Processes run, one entry per task, to check which LeafCutter junction extraction
+            // each sample went to
+            def processes = workflow.trace.tasks().collect { task -> task.name.tokenize(':').last().tokenize(' ').first() }
+
+            assert workflow.success
+
+            assertAll(
+                // Both 'auto' samples are called reverse from Salmon and from RSeQC, and the
+                // strand check passes for every sample
+                { assert strand_check.keySet() == ['ERR188383', 'ERR188383 (Salmon)', 'ERR188428', 'ERR188454', 'ERR188454 (Salmon)', 'ERR204916'] as Set },
+                { assert strand_check.values().every { row -> row.status == 'pass' && row.inferred == 'reverse' } },
+                { assert strand_check.findAll { _sample, row -> row.provided == 'auto' }.keySet() == ['ERR188383', 'ERR188383 (Salmon)', 'ERR188454', 'ERR188454 (Salmon)'] as Set },
+                // The inferred strandedness reaches the tools that use it
+                { assert salmon_library_types.values().every { library_types -> library_types == ['ISR'] } },
+                { assert featurecounts_strand.values().every { strand -> strand == '2' } },
+                { assert dexseq_strand == ['reverse'] * 4 },
+                // rMATS prepares the samples of each condition together, for both contrasts
+                { assert rmats_prep_libtype == ['fr-firststrand'] * 4 },
+                { assert processes.count('REGTOOLS_JUNCTIONSEXTRACT_RF') == 4 },
+                { assert !('REGTOOLS_JUNCTIONSEXTRACT_FR' in processes) },
+                { assert !('REGTOOLS_JUNCTIONSEXTRACT_XS' in processes) },
+                { assert snapshot(
+                    // Remove Nextflow version to prevent cross-version testing failures
+                    removeNextflowVersion("$outputDir/pipeline_info/nf_core_rnasplice_software_mqc_versions.yml"),
+
+                    // Snapshot the clean directory structure
+                    stable_path,
+
+                    // Snapshot the deterministic data file contents
+                    stable_content,
+
+                    // Snapshot the edgeR exon usage tables rounded to 6 significant digits
+                    edger_tables,
+
+                    // Snapshot the sorted BAM files by the md5 of their alignments
+                    sorted_bams
+                ).match() }
+            )
+        }
+
+        cleanup {
+            // Only prune/delete on CI - keeping local VM state intact prevents
+            // cross-test launchDir wipes that break nf-test snapshot walks.
+            if (System.getenv("CI") == "true") {
+                if (System.getenv("NFT_PROFILE")?.contains("docker")) {
+                    "docker system prune -a -f --volumes".execute()
+                }
+                new File("${launchDir}").deleteDir()
+            }
+        }
+    }
+}
