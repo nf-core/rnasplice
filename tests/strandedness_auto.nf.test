@@ -56,8 +56,24 @@ nextflow_pipeline {
                 [ (sample): path("${params.outdir}/star_salmon/salmon/${sample}/aux_info/meta_info.json").json.library_types ]
             }
 
-            // Processes run, to check which LeafCutter junction extraction the samples went to
-            def processes = workflow.trace.tasks().collect { task -> task.name.tokenize(':').last().tokenize(' ').first() }.unique()
+            // Strand option featureCounts ran with, from the command line in the header of its table
+            def featurecounts_strand = ['ERR188383', 'ERR188428', 'ERR188454', 'ERR204916'].collectEntries { sample ->
+                def header = path("${params.outdir}/star_salmon/featurecounts/${sample}.featureCounts.tsv").readLines()[0]
+                [ (sample): (header =~ /"-s" "(\d)"/)[0][1] ]
+            }
+
+            // Strand options DEXSeq and rMATS ran with. Neither records them in its outputs, so
+            // they are read from the scripts of the tasks
+            def scripts = []
+            new File("${launchDir}/work").eachFileRecurse { script -> if (script.name == '.command.sh') { scripts << script.text } }
+            def dexseq_strand = scripts.findAll { script -> script.contains('dexseq_count.py') }
+                .collect { script -> (script =~ /--stranded (\S+)/)[0][1] }
+            def rmats_prep_libtype = scripts.findAll { script -> script.contains('rmats.py') && script.contains('--task prep') }
+                .collect { script -> (script =~ /--libType (\S+)/)[0][1] }
+
+            // Processes run, one entry per task, to check which LeafCutter junction extraction
+            // each sample went to
+            def processes = workflow.trace.tasks().collect { task -> task.name.tokenize(':').last().tokenize(' ').first() }
 
             assert workflow.success
 
@@ -69,7 +85,11 @@ nextflow_pipeline {
                 { assert strand_check.findAll { _sample, row -> row.provided == 'auto' }.keySet() == ['ERR188383', 'ERR188383 (Salmon)', 'ERR188454', 'ERR188454 (Salmon)'] as Set },
                 // The inferred strandedness reaches the tools that use it
                 { assert salmon_library_types.values().every { library_types -> library_types == ['ISR'] } },
-                { assert 'REGTOOLS_JUNCTIONSEXTRACT_RF' in processes },
+                { assert featurecounts_strand.values().every { strand -> strand == '2' } },
+                { assert dexseq_strand == ['reverse'] * 4 },
+                // rMATS prepares the samples of each condition together, for both contrasts
+                { assert rmats_prep_libtype == ['fr-firststrand'] * 4 },
+                { assert processes.count('REGTOOLS_JUNCTIONSEXTRACT_RF') == 4 },
                 { assert !('REGTOOLS_JUNCTIONSEXTRACT_FR' in processes) },
                 { assert !('REGTOOLS_JUNCTIONSEXTRACT_XS' in processes) },
                 { assert snapshot(
