@@ -33,7 +33,7 @@
     "chrX gtf": {
         "content": [
             [
-                "genes_chrX.tx2gene.tsv:md5,3fafda41b35f045538151b82a4abb59c"
+                "genes_chrX.tx2gene.tsv:md5,82067b6528ec063131fa4416f6719f54"
             ],
             {
                 "versions_gffread": [
@@ -45,10 +45,10 @@
                 ]
             }
         ],
-        "timestamp": "2026-08-26T13:40:36.586701321",
+        "timestamp": "2026-10-23T11:20:58.635025622",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.4"
+            "nextflow": "26.04.3"
         }
     }
 }

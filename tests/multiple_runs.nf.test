@@ -14,7 +14,7 @@ nextflow_pipeline {
         setup {
             // `params` is not populated yet in a setup block, so the base path of
             // `tests/nextflow.config` is spelled out here
-            def testdata = 'https://raw.githubusercontent.com/nf-core/test-datasets/rnasplice/testdata/'
+            def testdata = 'https://raw.githubusercontent.com/nf-core/test-datasets/rnasplice/chrX_subset/testdata/'
             def runs = [ 'GBR_SAMPLE': [ 'ERR188383', 'ERR188428' ], 'YRI_SAMPLE': [ 'ERR188454', 'ERR204916' ] ]
 
             def samplesheet = new File("${launchDir}/samplesheet_multiple_runs.csv")

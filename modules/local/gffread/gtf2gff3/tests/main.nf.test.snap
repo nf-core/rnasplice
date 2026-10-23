@@ -47,7 +47,7 @@
                     {
                         "id": "test"
                     },
-                    "test_genes.gff3:md5,de15950af6c51c53177f250ee1305495"
+                    "test_genes.gff3:md5,8143d91e8c2057f1b56e8a19dfb75413"
                 ]
             ],
             {
@@ -60,10 +60,10 @@
                 ]
             }
         ],
-        "timestamp": "2026-10-11T15:01:02.220971042",
+        "timestamp": "2026-10-23T11:20:50.86725579",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.4"
+            "nextflow": "26.04.3"
         }
     }
 }

@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #336 - Accept `auto` as a samplesheet `strandedness` value and infer it with Salmon, as in nf-core/rnaseq, and check it against RSeQC infer_experiment.py with `--strand_check`. Genome BAM samples are inferred with RSeQC, and transcriptome BAM samples are quantified by Salmon with `--libType A` (by @piplus2)
 - #339 - Add a pipeline level nf-test for strandedness `auto` on reverse stranded reads, checking that the inferred strandedness reaches Salmon, featureCounts, DEXSeq, rMATS and LeafCutter (requested by @erikrikarddaniel, done by @piplus2)
 
+### Changed
+
+- #341 - The test profiles and nf-tests use `chrX_subset/` from nf-core/test-datasets, a 3.4 Mb part of chrX with 82 genes and 10,000 read pairs per sample, instead of all of chrX. The STAR index of the tests drops from 1.7 GB to 42 MB, the Salmon index from 0.9 GB to 23 MB and STAR alignment from 4.9 GB to under 1 GB of memory. The LeafCutter reverse stranded subworkflow test runs on reverse stranded alignments (by @piplus2)
+
 ## v2.0.0 - Fenix Reborn - [2026-10-20]
 
 The first release since 1.0.4 in April 2024 brings the pipeline up to the nf-core template 4.1.0, Nextflow 26.04 and nf-schema.

@@ -281,10 +281,10 @@
                 "local_YRI-GBR_groups.txt:md5,e9636d1c0a5cb00df8cedc61642a5d52",
                 "transcript_GBR-YRI_groups.txt:md5,e9636d1c0a5cb00df8cedc61642a5d52",
                 "transcript_YRI-GBR_groups.txt:md5,e9636d1c0a5cb00df8cedc61642a5d52",
-                "genes_chrX.ioi:md5,6c9ee3567554e3f74186b4c17ec777d6"
+                "genes_chrX.ioi:md5,aa178a4526493cc55fbd9d6f59ed5c4f"
             ]
         ],
-        "timestamp": "2026-10-21T10:29:08.493621497",
+        "timestamp": "2026-10-23T11:38:01.16889513",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.3"
