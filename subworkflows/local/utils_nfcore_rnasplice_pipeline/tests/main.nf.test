@@ -13,7 +13,7 @@ nextflow_workflow {
     // and paired end, see https://github.com/nf-core/rnasplice/issues/184
 
     setup {
-        def testdata = 'https://raw.githubusercontent.com/nf-core/test-datasets/rnasplice/testdata/'
+        def testdata = 'https://raw.githubusercontent.com/nf-core/test-datasets/rnasplice/chrX_subset/testdata/'
         def samples = [ 'ERR188383': 'GBR', 'ERR188428': 'GBR', 'ERR188454': 'YRI', 'ERR204916': 'YRI' ]
 
         def genome_bam = new File("${launchDir}/samplesheet_genome_bam_optional_columns.csv")

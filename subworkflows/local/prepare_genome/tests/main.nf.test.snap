@@ -165,7 +165,7 @@
                 ]
             ],
             [
-                "genes_chrX.gtf:md5,0624e70c0b23bae787b4bfd78cb331dd"
+                "genes_chrX.gtf:md5,e0de60b724d78ec513a01dceddfa4f6e"
             ],
             [
                 "transcriptome.fixed.fa:md5,4e04341f8781429444f53f69beb31392"
@@ -194,16 +194,16 @@
                 "salmon_index"
             ],
             [
-                "genes_chrX.DEXSeq.gff:md5,ee8b662ee32c6c563802690491ec0633"
+                "genes_chrX.DEXSeq.gff:md5,7864dce3c839e276723b48596a311b96"
             ],
             [
                 "quant.tpm:md5,d606cb7c509c0f2d4287cd83243201d9"
             ]
         ],
-        "timestamp": "2026-09-23T16:48:37.469824792",
+        "timestamp": "2026-10-23T11:30:01.4732445",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.1"
+            "nextflow": "26.04.3"
         }
     },
     "homo_sapiens - genome_bam source - gzipped gtf - no indices": {

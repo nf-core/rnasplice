@@ -98,16 +98,16 @@ nextflow_workflow {
             workflow {
                 """
                 input[0] = channel.of(
-                    [ [ id:'ERR188383', strandedness:'reverse' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
-                    [ [ id:'ERR188428', strandedness:'reverse' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true) ],
-                    [ [ id:'ERR188454', strandedness:'reverse' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454.Aligned.out.bam', checkIfExists: true) ],
-                    [ [ id:'ERR204916', strandedness:'reverse' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188383', strandedness:'reverse' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383_reverse.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188428', strandedness:'reverse' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428_reverse.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188454', strandedness:'reverse' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454_reverse.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR204916', strandedness:'reverse' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916_reverse.Aligned.out.bam', checkIfExists: true) ],
                 )
                 input[1] = channel.of(
-                    [ [ id:'ERR188383', strandedness:'reverse' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam.bai', checkIfExists: true) ],
-                    [ [ id:'ERR188428', strandedness:'reverse' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam.bai', checkIfExists: true) ],
-                    [ [ id:'ERR188454', strandedness:'reverse' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454.Aligned.out.bam.bai', checkIfExists: true) ],
-                    [ [ id:'ERR204916', strandedness:'reverse' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916.Aligned.out.bam.bai', checkIfExists: true) ],
+                    [ [ id:'ERR188383', strandedness:'reverse' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383_reverse.Aligned.out.bam.bai', checkIfExists: true) ],
+                    [ [ id:'ERR188428', strandedness:'reverse' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428_reverse.Aligned.out.bam.bai', checkIfExists: true) ],
+                    [ [ id:'ERR188454', strandedness:'reverse' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454_reverse.Aligned.out.bam.bai', checkIfExists: true) ],
+                    [ [ id:'ERR204916', strandedness:'reverse' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916_reverse.Aligned.out.bam.bai', checkIfExists: true) ],
                 )
                 // A stranded sample takes its strand from the read orientation, so
                 // `STRANDJUNCTIONS` never runs and needs no genome
@@ -118,12 +118,10 @@ nextflow_workflow {
         }
 
         then {
-            // These GEUVADIS libraries are in fact unstranded, so calling them reverse
-            // stranded leaves regtools reading the strand off an orientation that carries
-            // none and the clusters are not biologically meaningful. What the case does
-            // exercise is the stranded path, the one `--source genome_bam` depends on: the
-            // junctions reach `leafcutter-cluster` with a strand without any `XS` tag, and
-            // the clustering outputs come back non empty
+            // The reverse stranded versions of the GEUVADIS reads, so regtools reads the
+            // strand off the read orientation. This is the stranded path, the one
+            // `--source genome_bam` depends on: the junctions reach `leafcutter-cluster`
+            // with a strand without any `XS` tag, and the clustering outputs come back non empty
             assertAll(
                 { assert workflow.success },
                 { assert path(workflow.out.pooled[0][1]).size() > 0 },

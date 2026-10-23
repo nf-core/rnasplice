@@ -7,28 +7,28 @@
                         "id": "ERR188383",
                         "strandedness": "unstranded"
                     },
-                    "ERR188383.junc:md5,b78b0de69c08c2e767ca6700746104df"
+                    "ERR188383.junc:md5,a72e6e8417825d50a54e2a51b80c9f3d"
                 ],
                 [
                     {
                         "id": "ERR188428",
                         "strandedness": "unstranded"
                     },
-                    "ERR188428.junc:md5,d16121e66af13e90aec24ccf82cd01b5"
+                    "ERR188428.junc:md5,d199fbbef6f86131320834477c28d535"
                 ],
                 [
                     {
                         "id": "ERR188454",
                         "strandedness": "unstranded"
                     },
-                    "ERR188454.junc:md5,2abf48cdcdcdef0c26691e2a4d4ea20c"
+                    "ERR188454.junc:md5,4ba470a59a6b476701417464b34f2664"
                 ],
                 [
                     {
                         "id": "ERR204916",
                         "strandedness": "unstranded"
                     },
-                    "ERR204916.junc:md5,761b07883f896ce94bfbe5c445de5014"
+                    "ERR204916.junc:md5,44b439b6c797b26aae35eb37acc43948"
                 ]
             ],
             [
@@ -37,8 +37,8 @@
                         "id": "lc"
                     },
                     [
-                        "lc_perind.counts.gz:md5,00db9695c30c56b1c626481614e7aa21",
-                        "lc_perind_numers.counts.gz:md5,792ead545e64d6c6cb71d5c2e5b6ead1"
+                        "lc_perind.counts.gz:md5,0ab58e27af0e570881470db533df8b3f",
+                        "lc_perind_numers.counts.gz:md5,292552f08d836815026e806ce2dec20c"
                     ]
                 ]
             ],
@@ -47,7 +47,7 @@
                     {
                         "id": "lc"
                     },
-                    "lc_perind_numers.counts.gz:md5,792ead545e64d6c6cb71d5c2e5b6ead1"
+                    "lc_perind_numers.counts.gz:md5,292552f08d836815026e806ce2dec20c"
                 ]
             ],
             [
@@ -55,7 +55,7 @@
                     {
                         "id": "lc"
                     },
-                    "lc_pooled:md5,0db6f917fd63a5677ef43e280aae9304"
+                    "lc_pooled:md5,1fc91476d37c7b618d223752c0a579de"
                 ]
             ],
             [
@@ -63,7 +63,7 @@
                     {
                         "id": "lc"
                     },
-                    "lc_refined:md5,5ad0f8f34e809232b4f387674d1a75d3"
+                    "lc_refined:md5,e2dd8081e9b187c750061b447448009d"
                 ]
             ],
             [
@@ -75,10 +75,10 @@
                 ]
             ]
         ],
-        "timestamp": "2026-09-10T18:38:57.545302743",
+        "timestamp": "2026-10-23T12:05:28.013426643",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.4"
+            "nextflow": "26.04.3"
         }
     },
     "human chrX - reverse stranded": {
@@ -89,28 +89,28 @@
                         "id": "ERR188383",
                         "strandedness": "reverse"
                     },
-                    "ERR188383.junc:md5,53ffd2f9f67f8ceddde8e538326b531e"
+                    "ERR188383.junc:md5,e81ae710a94d15463ed8ec2d087ac11b"
                 ],
                 [
                     {
                         "id": "ERR188428",
                         "strandedness": "reverse"
                     },
-                    "ERR188428.junc:md5,f18b7276ef4f70b884a21247b6a74d84"
+                    "ERR188428.junc:md5,251823ff82f67c1eacf36ce8180b5174"
                 ],
                 [
                     {
                         "id": "ERR188454",
                         "strandedness": "reverse"
                     },
-                    "ERR188454.junc:md5,901505e025d7aad1110a2dedc00aea97"
+                    "ERR188454.junc:md5,a30f7b4082529a38534666f2907c0f68"
                 ],
                 [
                     {
                         "id": "ERR204916",
                         "strandedness": "reverse"
                     },
-                    "ERR204916.junc:md5,4c22cb7692db8d9929e32ec0c71f544c"
+                    "ERR204916.junc:md5,cf150ab1efdfa1a4e2d6f869d7027403"
                 ]
             ],
             [
@@ -119,8 +119,8 @@
                         "id": "lc"
                     },
                     [
-                        "lc_perind.counts.gz:md5,d70f10c858f94447c424d9844e2265dd",
-                        "lc_perind_numers.counts.gz:md5,4479d9da47f276b7372cab7ecba4254e"
+                        "lc_perind.counts.gz:md5,0ab58e27af0e570881470db533df8b3f",
+                        "lc_perind_numers.counts.gz:md5,292552f08d836815026e806ce2dec20c"
                     ]
                 ]
             ],
@@ -129,7 +129,7 @@
                     {
                         "id": "lc"
                     },
-                    "lc_perind_numers.counts.gz:md5,4479d9da47f276b7372cab7ecba4254e"
+                    "lc_perind_numers.counts.gz:md5,292552f08d836815026e806ce2dec20c"
                 ]
             ],
             [
@@ -137,7 +137,7 @@
                     {
                         "id": "lc"
                     },
-                    "lc_pooled:md5,e85090a699ed9c70bf68ada4181b006d"
+                    "lc_pooled:md5,05de80ea4581ad58192aee190dd6319a"
                 ]
             ],
             [
@@ -145,7 +145,7 @@
                     {
                         "id": "lc"
                     },
-                    "lc_refined:md5,3a3dae564a7717968e660d07d9a4c013"
+                    "lc_refined:md5,e2dd8081e9b187c750061b447448009d"
                 ]
             ],
             [
@@ -157,10 +157,10 @@
                 ]
             ]
         ],
-        "timestamp": "2026-09-10T18:39:07.243686087",
+        "timestamp": "2026-10-23T12:36:06.87302696",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.4"
+            "nextflow": "26.04.3"
         }
     },
     "human chrX - stub": {

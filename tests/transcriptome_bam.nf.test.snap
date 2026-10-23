@@ -351,32 +351,32 @@
                 "star_salmon/tximport/tximport.tx2gene.tsv"
             ],
             [
-                "ERR188383.flagstat:md5,11c1f37a0e40cb73e045b513a8ce3f60",
-                "ERR188383.idxstats:md5,5c833e1ca7a54d38b759ab66bf33bf5e",
-                "ERR188383.stats:md5,0d76fc426d895acc917f94a3d71ab887",
-                "ERR188428.flagstat:md5,427a9ead27210e4300c32417fcfab22e",
-                "ERR188428.idxstats:md5,febbf63e2cf7b524dbc684cb3a9b724f",
-                "ERR188428.stats:md5,e7135a6619a81f75d540ae33d94248ac",
-                "ERR188454.flagstat:md5,5d0a55b86f4e693eba58b66a09a31921",
-                "ERR188454.idxstats:md5,e1dcffbfafe52ec6acfe8d7081afa7b0",
-                "ERR188454.stats:md5,d5444647b1a33c9853dbc000bfc05fbd",
-                "ERR204916.flagstat:md5,52694c401a56f4ff424dba559a55786b",
-                "ERR204916.idxstats:md5,4f679176e2476f743a765fa2c963676d",
-                "ERR204916.stats:md5,4378a35300f97adc4d32e6cb4002c122",
+                "ERR188383.flagstat:md5,a481ecc42fbf7c515735ab706445f47e",
+                "ERR188383.idxstats:md5,91b607f6168a4df88541dbb618f0583d",
+                "ERR188383.stats:md5,16030320f6dd9146eebfd5ebef2894a2",
+                "ERR188428.flagstat:md5,8a382e85057215b63a406d208462343a",
+                "ERR188428.idxstats:md5,f3875b9148f5780fcebb00d57b59f27c",
+                "ERR188428.stats:md5,e6f5c282254f2951c26c770aecd4b018",
+                "ERR188454.flagstat:md5,5e1cb20b28720e632bd160d4ba56682d",
+                "ERR188454.idxstats:md5,751d26b01053db7614f7a3de32086588",
+                "ERR188454.stats:md5,e8349762a2e82a23904b27b6abb38de3",
+                "ERR204916.flagstat:md5,891b10d17c50926f166b1a84aac9cfee",
+                "ERR204916.idxstats:md5,bc6d071bd285b76619d53718a209b825",
+                "ERR204916.stats:md5,5cbd9ed78770b71af24dcde67e129dc6",
                 "local_GBR-YRI_groups.txt:md5,e9636d1c0a5cb00df8cedc61642a5d52",
                 "local_YRI-GBR_groups.txt:md5,e9636d1c0a5cb00df8cedc61642a5d52",
                 "transcript_GBR-YRI_groups.txt:md5,e9636d1c0a5cb00df8cedc61642a5d52",
                 "transcript_YRI-GBR_groups.txt:md5,e9636d1c0a5cb00df8cedc61642a5d52",
-                "genes_chrX.ioi:md5,6c9ee3567554e3f74186b4c17ec777d6"
+                "genes_chrX.ioi:md5,aa178a4526493cc55fbd9d6f59ed5c4f"
             ],
             {
-                "ERR188383_sorted.bam": "21470116679173628a97f3f364105906",
-                "ERR188428_sorted.bam": "ae983f84cd5fb1234bde3fc1d5d6f01e",
-                "ERR188454_sorted.bam": "7d7c1571448bb99db0a73a26b5f9b506",
-                "ERR204916_sorted.bam": "bd622b25f9125e6e1a2bde6b6769c642"
+                "ERR188383_sorted.bam": "a06a280949a4ca6e46837c45cb51f2ad",
+                "ERR188428_sorted.bam": "b7568b264e194f1cabcc16ace796fb1d",
+                "ERR188454_sorted.bam": "eeec96f6860df420243bd92b7edaff60",
+                "ERR204916_sorted.bam": "7e7f9ebdb3ed2f2452bf794352625e9f"
             }
         ],
-        "timestamp": "2026-10-21T10:30:07.980108636",
+        "timestamp": "2026-10-23T12:15:37.069237263",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.3"

@@ -27,8 +27,8 @@
     },
     "human chrX - suppa events": {
         "content": [
-            3920,
-            "f1fd904bb6ef2d7fedb408df10b167d7",
+            339,
+            "5f0c69da9b4bd7f6186b78f1c2e65423",
             {
                 "versions_gawk": [
                     [
@@ -39,10 +39,10 @@
                 ]
             }
         ],
-        "timestamp": "2026-10-06T19:52:40.128979859",
+        "timestamp": "2026-10-23T11:22:42.185921133",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.1"
+            "nextflow": "26.04.3"
         }
     },
     "human chrX - suppa events - stub": {
