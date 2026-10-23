@@ -17,6 +17,7 @@ nextflow_pipeline {
 
                 // Only the steps that use the strandedness are under test here
                 leafcutter            = true
+                dexseq_exon           = true
                 dexseq_dtu            = false
                 suppa                 = false
                 isoformswitchanalyzer = false

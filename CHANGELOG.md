@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - #336 - Accept `auto` as a samplesheet `strandedness` value and infer it with Salmon, as in nf-core/rnaseq, and check it against RSeQC infer_experiment.py with `--strand_check`. Genome BAM samples are inferred with RSeQC, and transcriptome BAM samples are quantified by Salmon with `--libType A` (by @piplus2)
 - #339 - Add a pipeline level nf-test for strandedness `auto` on reverse stranded reads, checking that the inferred strandedness reaches Salmon, featureCounts, DEXSeq, rMATS and LeafCutter (requested by @erikrikarddaniel, done by @piplus2)
+- #340 - Add pipeline level nf-tests for the `test_dexseq` and `test_suppa` profiles, which had none, and a test that runs every analysis at once from the same reads, defined only for PRs to `master` or with `NFT_TEST_ALL_TOOLS=true` (by @piplus2)
+
+### Changed
+
+- #340 - `-profile test` runs the alignment, rMATS, edgeR and the MISO sashimi plots only. DEXSeq exon usage and DTU move to `test_dexseq`, and SUPPA and IsoformSwitchAnalyzeR to `test_suppa`, so that no single CI test pulls the containers of every tool (by @piplus2)
 
 ## v2.0.0 - Fenix Reborn - [2026-10-20]
 

@@ -1,0 +1,88 @@
+nextflow_pipeline {
+
+    name "Test pipeline with every analysis at once"
+    script "../main.nf"
+    profile "test"
+    tag "pipeline"
+
+    // Each analysis has its own lighter test on every PR. This one runs them all together
+    // from the same reads, to catch what only breaks when they share channels and outputs,
+    // and pulls the containers of every tool. It is only defined for PRs to master or main,
+    // where GitHub sets GITHUB_BASE_REF, or locally with NFT_TEST_ALL_TOOLS=true
+    if (System.getenv('GITHUB_BASE_REF') in ['master', 'main'] || System.getenv('NFT_TEST_ALL_TOOLS') == 'true') {
+
+        test("-profile test - all tools") {
+
+            when {
+                params {
+                    outdir = "$outputDir"
+
+                    dexseq_exon           = true
+                    dexseq_dtu            = true
+                    edger_exon            = true
+                    rmats                 = true
+                    suppa                 = true
+                    isoformswitchanalyzer = true
+                    sashimi_plot          = true
+                    leafcutter            = true
+                }
+            }
+
+            then {
+                // stable_path: All files + folders in ${params.outdir}/ with a stable path
+                // CRITICAL: We pass the ignoreFile here so MISO timestamped directories are NOT collected
+                def stable_path = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,json,txt}', 'misopy/miso_data/*/batch-logs/*.{log,txt}', 'misopy/miso_data/*/logs/*.{log,txt}'])
+
+                // stable_content: All files in ${params.outdir}/ with stable content
+                // We pass the ignoreFile here so non-deterministic files are NOT hashed
+                def stable_content = getAllFilesFromDir(params.outdir, ignoreFile: 'tests/.nftignore')
+
+                // Sorted BAM files: left out of stable_content by the ignoreFile, as the conda and
+                // container builds of samtools write different BAM headers, and snapshotted by the
+                // md5 of their alignments instead
+                def sorted_bams = []
+                new File(params.outdir).eachFileRecurse { bam_file -> if (bam_file.name.endsWith('_sorted.bam')) { sorted_bams << bam_file } }
+                sorted_bams = sorted_bams.sort { bam_file -> bam_file.path }.collectEntries { bam_file -> [ bam_file.name, bam(bam_file.path).getSamLinesMD5() ] }
+
+                // edgeR exon usage tables: left out of stable_content by the ignoreFile, as builds
+                // of edgeR differ in the last digits, and snapshotted by their rounded values
+                def edger_tables = new File("${params.outdir}/star_salmon/edger").listFiles()
+                    .findAll { table -> table.name ==~ /contrast_.*\.usage\..*\.csv/ }
+                    .sort { table -> table.name }
+                    .collectEntries { table -> [ table.name, RoundedCsv.md5(table) ] }
+
+                assert workflow.success
+
+                assertAll(
+                    { assert snapshot(
+                        // Remove Nextflow version to prevent cross-version testing failures
+                        removeNextflowVersion("$outputDir/pipeline_info/nf_core_rnasplice_software_mqc_versions.yml"),
+
+                        // Snapshot the clean directory structure
+                        stable_path,
+
+                        // Snapshot the deterministic data file contents
+                        stable_content,
+
+                        // Snapshot the edgeR exon usage tables rounded to 6 significant digits
+                        edger_tables,
+
+                        // Snapshot the sorted BAM files by the md5 of their alignments
+                        sorted_bams
+                    ).match() }
+                )
+            }
+
+            cleanup {
+                // Only prune/delete on CI - keeping local VM state intact prevents
+                // cross-test launchDir wipes that break nf-test snapshot walks.
+                if (System.getenv("CI") == "true") {
+                    if (System.getenv("NFT_PROFILE")?.contains("docker")) {
+                        "docker system prune -a -f --volumes".execute()
+                    }
+                    new File("${launchDir}").deleteDir()
+                }
+            }
+        }
+    }
+}
