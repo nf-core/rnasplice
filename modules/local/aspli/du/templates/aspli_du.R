@@ -66,7 +66,7 @@ opt <- list(
     bin_fc         = 3,
     bin_fdr        = 0.05,
     bin_inclusion  = 0.2,
-    bjs_inclusion  = 10.3,
+    bjs_inclusion  = 10.3, # as in ASpli, although the other inclusion filters are fractions
     bjs_fdr        = 0.01,
     a_inclusion    = 0.3,
     a_fdr          = 0.01,
@@ -219,6 +219,9 @@ write_table(localec(j_du), paste0(prefix, ".locale_clusters.tsv"), "cluster")
 
 write_table(anchorj(j_du), paste0(prefix, ".anchor_junctions.tsv"), "junction")
 
+# Each anchor cluster is one junction tested against its flanking intron, so its rows
+# are junctions, while the locale clusters above are groups of junctions
+
 write_table(anchorc(j_du), paste0(prefix, ".anchor_clusters.tsv"), "junction")
 
 write_table(jir(j_du), paste0(prefix, ".ir_junctions.tsv"), "junction")
@@ -270,7 +273,7 @@ if (length(report_dir) != 1) {
 
 }
 
-file.rename(report_dir, paste0(prefix, "_integrated_signals"))
+stopifnot(file.rename(report_dir, paste0(prefix, "_integrated_signals")))
 
 
 # Save the software versions to disk
