@@ -48,12 +48,12 @@ workflow ASPLI {
     // MODULE: ASPLI_COUNTS
     //
 
-    // The genome is binned and the reads counted once, for all the contrasts
+    // The genome is binned and the reads counted once, for all the contrasts. The list
+    // of samples is wrapped so that combine keeps it as one item next to the targets
     ch_counts_input = ch_samples
+        .map { rows -> [rows] }
         .combine(ch_targets)
-        .map { items ->
-            def targets = items.last()
-            def rows = items.init()
+        .map { rows, targets ->
             [[id: 'aspli'], targets, rows.collect { _meta, bam, _bai -> bam }, rows.collect { _meta, _bam, bai -> bai }]
         }
 
