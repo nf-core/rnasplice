@@ -1,0 +1,131 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "aspli_du"
+description: Test a contrast for differential bin and junction usage with ASpli and
+  integrate the bin and junction signals
+keywords:
+  - ASpli
+  - splicing
+  - alternative splicing
+  - differential bin usage
+  - differential junction usage
+tools:
+  - "aspli":
+      description: "ASpli integrates bin and junction usage to analyse alternative
+        splicing from RNA-Seq data."
+      homepage: "https://bioconductor.org/packages/ASpli"
+      documentation: "https://bioconductor.org/packages/release/bioc/vignettes/ASpli/inst/doc/ASpli.pdf"
+      tool_dev_url: "https://code.bioconductor.org/browse/ASpli"
+      doi: "10.1093/bioinformatics/btab141"
+      licence: ["GPL"]
+      identifier: ""
+
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing contrast information. `treatment` and `control` are
+          conditions of the counts
+          e.g. `[ id:'GBR-YRI', treatment:'GBR', control:'YRI' ]`
+    - features:
+        type: file
+        description: Serialised ASpliFeatures object of ASPLI_COUNTS
+        pattern: "*.features.rds"
+    - gbcounts:
+        type: file
+        description: Serialised ASpliCounts object of ASPLI_COUNTS
+        pattern: "*.gbcounts.rds"
+    - jcounts:
+        type: file
+        description: Serialised ASpliAS object of ASPLI_COUNTS
+        pattern: "*.jcounts.rds"
+output:
+  gb_du:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing contrast information
+            e.g. `[ id:'GBR-YRI', treatment:'GBR', control:'YRI' ]`
+      - "*.{genes_de,bins_du}.tsv":
+          type: file
+          description: Differential gene expression and differential bin usage
+          pattern: "*.{genes_de,bins_du}.tsv"
+          ontologies:
+            - edam: "http://edamontology.org/format_3475" # TSV
+  j_du:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing contrast information
+            e.g. `[ id:'GBR-YRI', treatment:'GBR', control:'YRI' ]`
+      - "*.{locale,anchor,ir,es,alt}_{junctions,clusters}.tsv":
+          type: file
+          description: Differential junction usage per junction and per cluster
+          pattern: "*.{locale,anchor,ir,es,alt}_{junctions,clusters}.tsv"
+          ontologies:
+            - edam: "http://edamontology.org/format_3475" # TSV
+  splicing_report:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing contrast information
+            e.g. `[ id:'GBR-YRI', treatment:'GBR', control:'YRI' ]`
+      - "*.splicing_report_*.tsv":
+          type: file
+          description: Bin, locale and anchor based splicing reports
+          pattern: "*.splicing_report_{bins,locale,anchor}.tsv"
+          ontologies:
+            - edam: "http://edamontology.org/format_3475" # TSV
+  integrated_signals:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing contrast information
+            e.g. `[ id:'GBR-YRI', treatment:'GBR', control:'YRI' ]`
+      - "*.integrated_signals.tsv":
+          type: file
+          description: Regions where the bin and junction signals overlap
+          pattern: "*.integrated_signals.tsv"
+          ontologies:
+            - edam: "http://edamontology.org/format_3475" # TSV
+  integrated_signals_html:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing contrast information
+            e.g. `[ id:'GBR-YRI', treatment:'GBR', control:'YRI' ]`
+      - "*_integrated_signals":
+          type: directory
+          description: HTML report of the integrated signals, with the libraries it
+            loads
+          pattern: "*_integrated_signals"
+  rds:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing contrast information
+            e.g. `[ id:'GBR-YRI', treatment:'GBR', control:'YRI' ]`
+      - "*.aspli_du.rds":
+          type: file
+          description: Serialised list of the ASpliDU, ASpliJDU, ASpliSplicingReport
+            and ASpliIntegratedSignals objects
+          pattern: "*.aspli_du.rds"
+  versions_aspli:
+    - "versions.yml":
+        type: file
+        description: File containing software versions
+        pattern: "versions.yml"
+        ontologies:
+          - edam: "http://edamontology.org/format_3750" # YAML
+
+topics:
+  versions:
+    - "versions.yml":
+        type: file
+        description: File containing software versions
+        pattern: "versions.yml"
+        ontologies:
+          - edam: "http://edamontology.org/format_3750" # YAML
+authors:
+  - "@piplus2"
+maintainers:
+  - "@piplus2"

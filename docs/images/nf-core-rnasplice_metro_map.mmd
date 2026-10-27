@@ -65,6 +65,7 @@ graph LR
         dexseq_exon[DEXSeq]
         featurecounts[featureCounts]
         edger[edgeR]
+        aspli[ASpli]
         rmats[rMATS]
         regtools[regtools]
         leafcutter[LeafCutter]
@@ -76,6 +77,7 @@ graph LR
         _split -->|deu| _deu
         _deu -->|deu| htseq
         _deu -->|deu| featurecounts
+        _deu -->|deu| aspli
         _split -->|event| rmats
         _split -->|event| regtools
         htseq -->|deu| dexseq_exon
@@ -83,6 +85,7 @@ graph LR
         regtools -->|event| leafcutter
         dexseq_exon -->|deu| deu_out
         edger -->|deu| deu_out
+        aspli -->|deu| deu_out
         rmats -->|event| event_exon_out
         leafcutter -->|event| event_exon_out
     end

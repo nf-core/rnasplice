@@ -317,6 +317,12 @@ def validateInputParameters() {
     if (!params.input) {
         error("Please provide an input samplesheet to the pipeline e.g. '--input samplesheet.csv'")
     }
+
+    // ASpli reads genome BAM files, which only the STAR alignment or a genome BAM
+    // samplesheet provide
+    if (params.aspli && !(params.source == 'genome_bam' || (params.source == 'fastq' && !params.skip_alignment))) {
+        error("--aspli needs genome BAM files: use '--source genome_bam', or '--source fastq' without '--skip_alignment'.")
+    }
 }
 
 //
@@ -551,6 +557,21 @@ def rmatsStrandednessError(samples) {
         .map {
             if (it.size() > 1) {
                 error("Please check input samplesheet -> Cannot run rMats with mixed stranded samples.")
+            }
+        }
+}
+
+//
+// Exit pipeline if ASpli requested with mixed single and paired end samples
+//
+def aspliReadError(samples) {
+    samples
+        .map { meta, _files -> meta.single_end }
+        .unique()
+        .collect()
+        .map {
+            if (it.size() > 1) {
+                error("Please check input samplesheet -> Cannot run ASpli with mixed single and paired end samples.")
             }
         }
 }

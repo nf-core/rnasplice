@@ -54,6 +54,7 @@
     1. [`STAR`](https://github.com/alexdobin/STAR) -> [`rMATS`](https://github.com/Xinglab/rmats-turbo)
     2. [`Salmon`](https://combine-lab.github.io/salmon/) -> [`SUPPA2`](https://github.com/comprna/SUPPA)
 15. Intron cluster quantification ([`RegTools`](https://github.com/griffithlab/regtools) -> [`LeafCutter`](https://github.com/davidaknowles/leafcutter); _optional_)
+16. Differential bin and junction usage, with the bin and junction signals integrated ([`ASpli`](https://bioconductor.org/packages/ASpli); _optional_)
 
 ## Usage
 

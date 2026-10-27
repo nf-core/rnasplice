@@ -329,6 +329,36 @@ Every junction LeafCutter clusters needs a strand, and one that has none is disc
 
 A BAM file given with `--source genome_bam` that already carries `XS` tags is stranded from those tags first, and only the junctions left over go through the motif and the annotation.
 
+### ASpli
+
+[ASpli](https://bioconductor.org/packages/ASpli) runs when `--aspli` is set, with `--aligner star` or `--aligner star_salmon`, or with `--source genome_bam`. It is off by default. The pipeline stops at the start if `--aspli` is set without a route that produces genome BAM files.
+
+ASpli splits each gene of the GTF into bins: exonic and intronic pieces bounded by every annotated exon boundary. It counts reads over genes, bins and junctions in one pass over all the samples, then tests each contrast of the contrastsheet. The differences from the other analyses are:
+
+- Compared with DEXSeq and edgeR, which test exon counts only, ASpli also tests intronic bins and the junctions themselves, so intron retention and unannotated splice sites are covered.
+- Compared with rMATS, which tests predefined event types between two groups of samples, ASpli tests bins and junctions with one model fitted to all the samples, the same way as edgeR, and reports junction based PSI and PIR (percent intron retention) values alongside.
+- `integrateSignals` combines the bin, junction (`localebased`) and anchor junction (`anchorbased`) evidence for each region, so a region supported by more than one signal stands out.
+
+Enable it when you want splicing changes supported by both bin and junction evidence, or when intron retention matters to the analysis. On a large dataset expect it to take longer and use more memory than DEXSeq or edgeR, since ASpli reads every BAM file into memory in full.
+
+Each contrast becomes a contrast vector over the conditions in the order ASpli reads them: `1` for the treatment, `-1` for the control and `0` for every other condition. The model is fitted to all the samples of the samplesheet, as with edgeR, and log fold changes are treatment over control. With more than 24 conditions, ASpli estimates the junction dispersions from the contrasted conditions plus a random sample of the others, with a fixed seed.
+
+Some things to be aware of:
+
+- All the samples must be single end, or all paired end. The pipeline stops otherwise.
+- ASpli counts reads over bins and junctions whatever their strand. The samplesheet `strandedness` only decides how the two reads of a pair are given a strand (`strandMode` 1 for `forward`, 2 for `reverse`, 0 for `unstranded` or a mix).
+- ASpli only counts a read over an exon-intron boundary when it overlaps the boundary by at least the minimum read length. `--aspli_read_len` sets it. When it is not set, it is the 5th percentile of the lengths of all the primary mapped reads of each BAM file, taken from the BAM file with the shortest reads, so that most trimmed reads of varying length are still counted. The value used is written to `aspli/counts/aspli.settings.tsv`.
+- The options of the ASpli functions are set with `ext.args` (see [custom configuration](#custom-configuration)). `ASPLI_COUNTS` accepts `--max_intron_size`, `--min_anchor` and `--junction_threshold`. `ASPLI_DU` accepts `--min_gen_reads`, `--min_bin_reads`, `--min_rds` and `--min_avg_counts` for the filters, `--strong_filter` for `jDUreport`, and `--bin_fc`, `--bin_fdr`, `--bin_inclusion`, `--bjs_inclusion`, `--bjs_fdr`, `--a_inclusion`, `--a_fdr`, `--l_inclusion` and `--l_fdr` for `integrateSignals`. The defaults are the ASpli ones. This includes `--bjs_inclusion 10.3`, as documented for `integrateSignals`, although the other inclusion filters are fractions between 0 and 1. `gbCounts` has no default for `maxISize`, so `--max_intron_size` takes the 50,000 bases used in the ASpli vignette.
+- With the strong filter (the ASpli default), an event is dropped as soon as one of its junctions fails the filter. On a small dataset this can leave no junction to test, and `ASPLI_DU` then stops with a message suggesting `--strong_filter false`:
+
+```groovy
+process {
+    withName: 'ASPLI_DU' {
+        ext.args = '--strong_filter false'
+    }
+}
+```
+
 ## Running the pipeline
 
 The typical command for running the pipeline is as follows:

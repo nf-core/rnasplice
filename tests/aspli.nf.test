@@ -1,0 +1,78 @@
+nextflow_pipeline {
+
+    name "Test pipeline with ASpli"
+    script "../main.nf"
+    profile "test_aspli"
+    tag "pipeline"
+
+    test("-profile test_aspli") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+        }
+
+        then {
+            // stable_path: All files + folders in ${params.outdir}/ with a stable path. The
+            // HTML reports of ASpli bundle their JavaScript libraries in folders named after
+            // the library versions, which differ between the conda and container builds
+            def stable_path = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,json,txt}', 'star/aspli/*/*_integrated_signals/integratedSignals_files/**'])
+
+            // stable_content: All files in ${params.outdir}/ with stable content
+            def stable_content = getAllFilesFromDir(params.outdir, ignoreFile: 'tests/.nftignore', ignore: ['star/aspli/*/*_integrated_signals/integratedSignals_files/**'])
+
+            // Sorted BAM files: left out of stable_content by the ignoreFile, as the conda and
+            // container builds of samtools write different BAM headers, and snapshotted by the
+            // md5 of their alignments instead
+            def sorted_bams = []
+            new File(params.outdir).eachFileRecurse { bam_file -> if (bam_file.name.endsWith('_sorted.bam')) { sorted_bams << bam_file } }
+            sorted_bams = sorted_bams.sort { bam_file -> bam_file.path }.collectEntries { bam_file -> [ bam_file.name, bam(bam_file.path).getSamLinesMD5() ] }
+
+            // The counts are integers and do not depend on the build, unlike the statistics,
+            // so they are snapshotted by md5 although the ignoreFile leaves out TSV files
+            def aspli_counts = ['gene', 'bin', 'junction', 'e1i', 'ie2'].collectEntries { table ->
+                def tsv = "${params.outdir}/star/aspli/counts/aspli.${table}_counts.tsv"
+                [ table, path(tsv).md5 ]
+            }
+
+            // The read length is estimated from the BAM files, whose reads are 75 bases
+            def settings = path("${params.outdir}/star/aspli/counts/aspli.settings.tsv").text
+
+            assert workflow.success
+
+            assertAll(
+                { assert settings.contains('read_length\t71\n') },
+                { assert settings.contains('library_type\tPE\n') },
+                { assert path("${params.outdir}/star/aspli/GBR-YRI/GBR-YRI_integrated_signals/integratedSignals.html").exists() },
+                { assert snapshot(
+                    // Remove Nextflow version to prevent cross-version testing failures
+                    removeNextflowVersion("$outputDir/pipeline_info/nf_core_rnasplice_software_mqc_versions.yml"),
+
+                    // Snapshot the clean directory structure
+                    stable_path,
+
+                    // Snapshot the deterministic data file contents
+                    stable_content,
+
+                    // Snapshot the sorted BAM files by the md5 of their alignments
+                    sorted_bams,
+
+                    // Snapshot the ASpli counts
+                    aspli_counts
+                ).match() }
+            )
+        }
+
+        cleanup {
+            // Only prune/delete on CI - keeping local VM state intact prevents
+            // cross-test launchDir wipes that break nf-test snapshot walks.
+            if (System.getenv("CI") == "true") {
+                if (System.getenv("NFT_PROFILE")?.contains("docker")) {
+                    "docker system prune -a -f --volumes".execute()
+                }
+                new File("${launchDir}").deleteDir()
+            }
+        }
+    }
+}

@@ -88,6 +88,10 @@
 
   > R Core Team (2017). R: A language and environment for statistical computing. R Foundation for Statistical Computing, Vienna, Austria.
 
+- [ASpli](https://bioconductor.org/packages/ASpli)
+
+  > Mancini E, Rabinovich A, Iserte J, Yanovsky M, Chernomoretz A. ASpli: integrative analysis of splicing landscapes through RNA-Seq assays. Bioinformatics. 2021 Sep 1;37(17):2609-2616. doi: 10.1093/bioinformatics/btab141.
+
 - [DEXSeq](https://bioconductor.org/packages/devel/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html#References)
 
   > Anders S, Reyes A, Huber W (2012). “Detecting differential usage of exons from RNA-seq data.” Genome Research, 22, 4025. doi: 10.1101/gr.133744.111.

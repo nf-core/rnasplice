@@ -1,0 +1,155 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "aspli_counts"
+description: Bin the genome from a GTF and count the reads of a set of genome BAM files
+  over genes, bins and junctions with ASpli
+keywords:
+  - ASpli
+  - splicing
+  - alternative splicing
+  - bins
+  - junctions
+  - counts
+tools:
+  - "aspli":
+      description: "ASpli integrates bin and junction usage to analyse alternative
+        splicing from RNA-Seq data."
+      homepage: "https://bioconductor.org/packages/ASpli"
+      documentation: "https://bioconductor.org/packages/release/bioc/vignettes/ASpli/inst/doc/ASpli.pdf"
+      tool_dev_url: "https://code.bioconductor.org/browse/ASpli"
+      doi: "10.1093/bioinformatics/btab141"
+      licence: ["GPL"]
+      identifier: ""
+
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing analysis information
+          e.g. `[ id:'aspli' ]`
+    - targets:
+        type: file
+        description: Tab-separated table of the samples, with `sample`, `condition`,
+          `bam` (the name of the BAM file), `single_end` and `strandedness` columns
+        pattern: "*.tsv"
+        ontologies:
+          - edam: "http://edamontology.org/format_3475" # TSV
+    - bams:
+        type: file
+        description: Coordinate sorted genome BAM files of the samples
+        pattern: "*.bam"
+        ontologies:
+          - edam: "http://edamontology.org/format_2572" # BAM
+    - bais:
+        type: file
+        description: Indexes of the BAM files
+        pattern: "*.bai"
+        ontologies:
+          - edam: "http://edamontology.org/format_3327" # BAI
+  - - meta2:
+        type: map
+        description: |
+          Groovy Map containing annotation information
+          e.g. `[ id:'genes' ]`
+    - gtf:
+        type: file
+        description: GTF annotation the genome is binned from
+        pattern: "*.gtf"
+        ontologies:
+          - edam: "http://edamontology.org/format_2306" # GTF
+  - read_length:
+      type: integer
+      description: Minimum read length of ASpli. A read is only counted over an
+        exon-intron boundary when it overlaps it by at least this many bases. 0
+        estimates it from the BAM files
+output:
+  features:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing analysis information
+            e.g. `[ id:'aspli' ]`
+      - "*.features.rds":
+          type: file
+          description: Serialised ASpliFeatures object with the genes, bins and
+            junctions of the annotation
+          pattern: "*.features.rds"
+  gbcounts:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing analysis information
+            e.g. `[ id:'aspli' ]`
+      - "*.gbcounts.rds":
+          type: file
+          description: Serialised ASpliCounts object with the gene, bin and junction
+            counts
+          pattern: "*.gbcounts.rds"
+  jcounts:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing analysis information
+            e.g. `[ id:'aspli' ]`
+      - "*.jcounts.rds":
+          type: file
+          description: Serialised ASpliAS object with the junction based PSI and PIR
+            values
+          pattern: "*.jcounts.rds"
+  counts:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing analysis information
+            e.g. `[ id:'aspli' ]`
+      - "*_counts.tsv":
+          type: file
+          description: Read counts of each sample over the genes, bins, junctions and
+            exon-intron boundaries
+          pattern: "*.{gene,bin,junction,e1i,ie2}_counts.tsv"
+          ontologies:
+            - edam: "http://edamontology.org/format_3475" # TSV
+  junction_usage:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing analysis information
+            e.g. `[ id:'aspli' ]`
+      - "*.{pir,pju,psi}.tsv":
+          type: file
+          description: Junction based PIR, PJU and PSI values per condition
+          pattern: "*.{junctions.pir,junctions.pju,ir.pir,alt.psi,es.psi}.tsv"
+          ontologies:
+            - edam: "http://edamontology.org/format_3475" # TSV
+  settings:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing analysis information
+            e.g. `[ id:'aspli' ]`
+      - "*.settings.tsv":
+          type: file
+          description: Library type, strand mode, read length and options the samples
+            were counted with, and the order of the conditions
+          pattern: "*.settings.tsv"
+          ontologies:
+            - edam: "http://edamontology.org/format_3475" # TSV
+  versions_aspli:
+    - "versions.yml":
+        type: file
+        description: File containing software versions
+        pattern: "versions.yml"
+        ontologies:
+          - edam: "http://edamontology.org/format_3750" # YAML
+
+topics:
+  versions:
+    - "versions.yml":
+        type: file
+        description: File containing software versions
+        pattern: "versions.yml"
+        ontologies:
+          - edam: "http://edamontology.org/format_3750" # YAML
+authors:
+  - "@piplus2"
+maintainers:
+  - "@piplus2"

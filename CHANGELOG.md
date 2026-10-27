@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - #336 - Accept `auto` as a samplesheet `strandedness` value and infer it with Salmon, as in nf-core/rnaseq, and check it against RSeQC infer_experiment.py with `--strand_check`. Genome BAM samples are inferred with RSeQC, and transcriptome BAM samples are quantified by Salmon with `--libType A` (by @piplus2)
 - #339 - Add a pipeline level nf-test for strandedness `auto` on reverse stranded reads, checking that the inferred strandedness reaches Salmon, featureCounts, DEXSeq, rMATS and LeafCutter (requested by @erikrikarddaniel, done by @piplus2)
+- #344 - Add ASpli (`--aspli`, off by default) for differential bin and junction usage on the genome BAM files, with the bin and junction signals of each contrast integrated into one report. Uses ASpli 2.16.0, the latest version with a Singularity image, and a 50,000 base maximum intron size as in the ASpli vignette. ASpli is on the DEU line of the metro map. Closes #343 (by @piplus2)
 
 ### Changed
 
