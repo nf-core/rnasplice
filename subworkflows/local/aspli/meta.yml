@@ -1,0 +1,121 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "aspli"
+description: Count reads over genes, bins and junctions with ASpli once for all the
+  samples, then test each contrast for differential bin and junction usage and
+  integrate the bin and junction signals
+keywords:
+  - aspli
+  - splicing
+  - differential bin usage
+  - differential junction usage
+components:
+  - aspli/counts
+  - aspli/du
+input:
+  - ch_bam:
+      type: file
+      description: |
+        The input channel containing the coordinate sorted genome BAM files. `meta.condition`,
+        `meta.single_end` and `meta.strandedness` are required, and every sample must have
+        the same `single_end`
+        Structure: [ val(meta), path(bam) ]
+      pattern: "*.bam"
+  - ch_bai:
+      type: file
+      description: |
+        The input channel containing the BAM index files, joined to `ch_bam` on the meta map
+        Structure: [ val(meta), path(bai) ]
+      pattern: "*.bai"
+  - ch_gtf:
+      type: file
+      description: |
+        The GTF annotation the genome is binned from
+        Structure: [ val(meta2), path(gtf) ]
+      pattern: "*.gtf"
+  - ch_contrastsheet:
+      type: map
+      description: |
+        The contrasts to test, one map per row of the contrastsheet. Both conditions of
+        a contrast must have samples
+        Structure: [ contrast:, treatment:, control: ]
+  - read_length:
+      type: integer
+      description: |
+        Minimum read length of ASpli, 0 to estimate it from the BAM files
+output:
+  - features:
+      type: file
+      description: |
+        Channel containing the serialised ASpliFeatures object
+        Structure: [ val(meta), path(rds) ]
+      pattern: "*.features.rds"
+  - gbcounts:
+      type: file
+      description: |
+        Channel containing the serialised ASpliCounts object
+        Structure: [ val(meta), path(rds) ]
+      pattern: "*.gbcounts.rds"
+  - jcounts:
+      type: file
+      description: |
+        Channel containing the serialised ASpliAS object
+        Structure: [ val(meta), path(rds) ]
+      pattern: "*.jcounts.rds"
+  - counts:
+      type: file
+      description: |
+        Channel containing the gene, bin, junction and exon-intron boundary counts
+        Structure: [ val(meta), [ path(tsv) ] ]
+      pattern: "*_counts.tsv"
+  - junction_usage:
+      type: file
+      description: |
+        Channel containing the junction based PIR, PJU and PSI tables
+        Structure: [ val(meta), [ path(tsv) ] ]
+      pattern: "*.{pir,pju,psi}.tsv"
+  - settings:
+      type: file
+      description: |
+        Channel containing the settings the samples were counted with
+        Structure: [ val(meta), path(tsv) ]
+      pattern: "*.settings.tsv"
+  - gb_du:
+      type: file
+      description: |
+        Channel containing the differential gene expression and bin usage of each contrast
+        Structure: [ val(meta), [ path(tsv) ] ]
+      pattern: "*.{genes_de,bins_du}.tsv"
+  - j_du:
+      type: file
+      description: |
+        Channel containing the differential junction usage of each contrast
+        Structure: [ val(meta), [ path(tsv) ] ]
+      pattern: "*_{junctions,clusters}.tsv"
+  - splicing_report:
+      type: file
+      description: |
+        Channel containing the splicing reports of each contrast
+        Structure: [ val(meta), [ path(tsv) ] ]
+      pattern: "*.splicing_report_*.tsv"
+  - integrated_signals:
+      type: file
+      description: |
+        Channel containing the integrated signals of each contrast
+        Structure: [ val(meta), path(tsv) ]
+      pattern: "*.integrated_signals.tsv"
+  - integrated_signals_html:
+      type: directory
+      description: |
+        Channel containing the HTML report of the integrated signals of each contrast
+        Structure: [ val(meta), path(dir) ]
+      pattern: "*_integrated_signals"
+  - rds:
+      type: file
+      description: |
+        Channel containing the serialised differential usage objects of each contrast
+        Structure: [ val(meta), path(rds) ]
+      pattern: "*.aspli_du.rds"
+authors:
+  - "@piplus2"
+maintainers:
+  - "@piplus2"
