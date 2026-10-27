@@ -1,0 +1,213 @@
+{
+    "human chrX - bam": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "aspli"
+                    },
+                    [
+                        "aspli.bin_counts.tsv:md5,81669c3fce74c02150fc79cf787cc767",
+                        "aspli.e1i_counts.tsv:md5,be948e88c1692cde113950a14eeb8772",
+                        "aspli.gene_counts.tsv:md5,2f9c53d71316828661707592b9853fb7",
+                        "aspli.ie2_counts.tsv:md5,730b83645b2c1bdb76e69b0dff59a355",
+                        "aspli.junction_counts.tsv:md5,dca7427b92378ae73977faa1c00cfb69"
+                    ]
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "aspli"
+                    },
+                    "aspli.settings.tsv:md5,880dd205e3b30054a802356887bfcd0c"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "aspli"
+                    },
+                    [
+                        "aspli.alt.psi.tsv",
+                        "aspli.es.psi.tsv",
+                        "aspli.ir.pir.tsv",
+                        "aspli.junctions.pir.tsv",
+                        "aspli.junctions.pju.tsv"
+                    ]
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "aspli"
+                    },
+                    "aspli.features.rds"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "aspli"
+                    },
+                    "aspli.gbcounts.rds"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "aspli"
+                    },
+                    "aspli.jcounts.rds"
+                ]
+            ],
+            {
+                "versions_aspli": [
+                    "versions.yml:md5,de0accc34ae0dee895699dc571a97524"
+                ]
+            }
+        ],
+        "timestamp": "2026-10-27T12:52:03.34421782",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    },
+    "human chrX - bam - stub": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "aspli"
+                        },
+                        "aspli.features.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "1": [
+                    [
+                        {
+                            "id": "aspli"
+                        },
+                        "aspli.gbcounts.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "2": [
+                    [
+                        {
+                            "id": "aspli"
+                        },
+                        "aspli.jcounts.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "3": [
+                    [
+                        {
+                            "id": "aspli"
+                        },
+                        [
+                            "aspli.bin_counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "aspli.e1i_counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "aspli.gene_counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "aspli.ie2_counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "aspli.junction_counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ]
+                ],
+                "4": [
+                    [
+                        {
+                            "id": "aspli"
+                        },
+                        [
+                            "aspli.alt.psi.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "aspli.es.psi.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "aspli.ir.pir.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "aspli.junctions.pir.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "aspli.junctions.pju.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ]
+                ],
+                "5": [
+                    [
+                        {
+                            "id": "aspli"
+                        },
+                        "aspli.settings.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "6": [
+                    "versions.yml:md5,de0accc34ae0dee895699dc571a97524"
+                ],
+                "counts": [
+                    [
+                        {
+                            "id": "aspli"
+                        },
+                        [
+                            "aspli.bin_counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "aspli.e1i_counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "aspli.gene_counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "aspli.ie2_counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "aspli.junction_counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ]
+                ],
+                "features": [
+                    [
+                        {
+                            "id": "aspli"
+                        },
+                        "aspli.features.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "gbcounts": [
+                    [
+                        {
+                            "id": "aspli"
+                        },
+                        "aspli.gbcounts.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "jcounts": [
+                    [
+                        {
+                            "id": "aspli"
+                        },
+                        "aspli.jcounts.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "junction_usage": [
+                    [
+                        {
+                            "id": "aspli"
+                        },
+                        [
+                            "aspli.alt.psi.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "aspli.es.psi.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "aspli.ir.pir.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "aspli.junctions.pir.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "aspli.junctions.pju.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ]
+                ],
+                "settings": [
+                    [
+                        {
+                            "id": "aspli"
+                        },
+                        "aspli.settings.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "versions_aspli": [
+                    "versions.yml:md5,de0accc34ae0dee895699dc571a97524"
+                ]
+            }
+        ],
+        "timestamp": "2026-10-27T12:52:07.732106504",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    }
+}

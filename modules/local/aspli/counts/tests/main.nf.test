@@ -1,0 +1,97 @@
+// nf-core modules test aspli/counts
+nextflow_process {
+
+    name "Test Process ASPLI_COUNTS"
+    script "../main.nf"
+    process "ASPLI_COUNTS"
+
+    tag "modules"
+    tag "modules_local"
+    tag "aspli"
+    tag "aspli/counts"
+
+    // Two GBR and two YRI samples of the pipeline test data, unstranded paired end reads
+    test("human chrX - bam") {
+
+        when {
+            process {
+                """
+                def samples = [ ERR188383:'GBR', ERR188428:'GBR', ERR188454:'YRI', ERR204916:'YRI' ]
+                def targets = channel
+                    .of(
+                        ( [ 'sample\\tcondition\\tbam\\tsingle_end\\tstrandedness' ] +
+                          samples.collect { id, condition -> "\${id}\\t\${condition}\\t\${id}.Aligned.out.bam\\tfalse\\tunstranded" } ).join('\\n') + '\\n'
+                    )
+                    .collectFile(name: 'targets.tsv')
+                input[0] = targets.map { tsv ->
+                    [
+                        [ id:'aspli' ],
+                        tsv,
+                        samples.keySet().collect { id -> file(params.pipelines_testdata_base_path + "testdata/\${id}.Aligned.out.bam", checkIfExists: true) },
+                        samples.keySet().collect { id -> file(params.pipelines_testdata_base_path + "testdata/\${id}.Aligned.out.bam.bai", checkIfExists: true) },
+                    ]
+                }
+                input[1] = [
+                    [ id:'genes_chrX' ],
+                    file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true),
+                ]
+                input[2] = 0
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assertAll(
+                // The read length is estimated from the BAM files, whose reads are 75 bases
+                { assert path(process.out.settings[0][1]).text.contains('read_length\t75\n') },
+                { assert path(process.out.settings[0][1]).text.contains('library_type\tPE\n') },
+                { assert snapshot(
+                    // The counts are integers, so they are snapshotted by md5. The junction
+                    // usage tables hold ratios, checked by name only, as are the R objects
+                    process.out.counts,
+                    process.out.settings,
+                    process.out.junction_usage.collect { meta, tsvs -> [ meta, tsvs.collect { tsv -> file(tsv).name } ] },
+                    process.out.features.collect { meta, rds -> [ meta, file(rds).name ] },
+                    process.out.gbcounts.collect { meta, rds -> [ meta, file(rds).name ] },
+                    process.out.jcounts.collect { meta, rds -> [ meta, file(rds).name ] },
+                    process.out.findAll { key, val -> key.startsWith('versions') }
+                ).match() }
+            )
+        }
+
+    }
+
+    test("human chrX - bam - stub") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                // The stub does not read the targets table, so any file stands in for it
+                input[0] = [
+                    [ id:'aspli' ],
+                    file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true),
+                    [ file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
+                    [ file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam.bai', checkIfExists: true) ],
+                ]
+                input[1] = [
+                    [ id:'genes_chrX' ],
+                    file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true),
+                ]
+                input[2] = 0
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assertAll(
+                { assert snapshot(process.out).match() }
+            )
+        }
+
+    }
+
+}
