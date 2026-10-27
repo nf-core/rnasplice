@@ -61,8 +61,23 @@ nextflow_process {
 
         then {
             assert process.success
+            def table = { tsvs, suffix -> path(tsvs.find { tsv -> tsv.endsWith(suffix) }).readLines() }
+            def columns = { lines -> lines[0].split('\t').toList() }
+            def genes_de = table(process.out.gb_du[0][1], '.genes_de.tsv')
+            def bins_du = table(process.out.gb_du[0][1], '.bins_du.tsv')
+            def locale_junctions = table(process.out.j_du[0][1], '.locale_junctions.tsv')
+            def integrated_signals = path(process.out.integrated_signals[0][1]).readLines()
             assertAll(
-                { assert path(process.out.gb_du[0][1].find { tsv -> tsv.endsWith('.genes_de.tsv') }).readLines()[0].startsWith('gene\tsymbol') },
+                // The statistics differ in the last digits between builds, so the content
+                // is checked by columns and number of rows
+                { assert columns(genes_de).containsAll([ 'gene', 'symbol', 'logFC', 'pvalue', 'gen.fdr' ]) },
+                { assert genes_de.size() > 1 },
+                { assert columns(bins_du).containsAll([ 'bin', 'feature', 'event', 'logFC', 'pvalue', 'bin.fdr' ]) },
+                { assert bins_du.size() > 1 },
+                { assert columns(locale_junctions).containsAll([ 'junction', 'logFC', 'pvalue', 'FDR' ]) },
+                { assert locale_junctions.size() > 1 },
+                // No region passes the filters on the test data, so only the columns are checked
+                { assert columns(integrated_signals).containsAll([ 'region', 'b.fdr', 'b.logfc', 'bjs.fdr', 'a.fdr', 'l.fdr' ]) },
                 { assert path(process.out.integrated_signals_html[0][1]).resolve('integratedSignals.html').exists() },
                 { assert snapshot(
                     // The tables hold statistics that differ in the last digits between

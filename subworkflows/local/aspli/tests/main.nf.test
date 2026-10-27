@@ -48,6 +48,28 @@ nextflow_workflow {
             def gbr_yri = logfc('GBR-YRI')
             def yri_gbr = logfc('YRI-GBR')
 
+            // The gene log fold changes of GBR-YRI must have the sign of GBR over YRI in
+            // the gene counts, which a swapped treatment and control would reverse. Genes
+            // whose counts per million barely differ are left out, as normalisation can
+            // flip their sign
+            def samples = [ ERR188383:'GBR', ERR188428:'GBR', ERR188454:'YRI', ERR204916:'YRI' ]
+            def gene_counts = path(workflow.out.counts[0][1].find { tsv -> tsv.endsWith('.gene_counts.tsv') }).readLines()*.split('\t')
+            def library_sizes = samples.keySet().collectEntries { id ->
+                def column = gene_counts[0].toList().indexOf(id)
+                [ id, gene_counts.drop(1).sum { row -> row[column] as double } ]
+            }
+            def mean_cpm = { row, condition ->
+                def ids = samples.findAll { _id, c -> c == condition }.keySet()
+                ids.sum { id -> (row[gene_counts[0].toList().indexOf(id)] as double) / library_sizes[id] * 1e6 } / ids.size()
+            }
+            def genes_de = path(workflow.out.gb_du.find { meta, _tsvs -> meta.id == 'GBR-YRI' }[1].find { tsv -> tsv.endsWith('.genes_de.tsv') }).readLines()*.split('\t')
+            def gene_logfc = genes_de.drop(1).collectEntries { row -> [ row[0], row[genes_de[0].toList().indexOf('logFC')] as double ] }
+            // The genes tested by ASpli have reads in both conditions
+            def count_ratio = gene_counts.drop(1).findAll { row -> gene_logfc.containsKey(row[0]) }.collectEntries { row ->
+                [ row[0], Math.log(mean_cpm(row, 'GBR') / mean_cpm(row, 'YRI')) / Math.log(2) ]
+            }
+            def clear_genes = gene_logfc.keySet().findAll { gene -> count_ratio[gene].abs() > 0.05 }
+
             assertAll(
                 { assert workflow.success },
                 // The genome is binned and the reads counted once for both contrasts
@@ -56,6 +78,8 @@ nextflow_workflow {
                 { assert gbr_yri.size() > 0 },
                 { assert gbr_yri.keySet() == yri_gbr.keySet() },
                 { assert gbr_yri.every { junction, value -> (value + yri_gbr[junction]).abs() < 1e-6 } },
+                { assert clear_genes.size() > 0 },
+                { assert clear_genes.every { gene -> Math.signum(gene_logfc[gene]) == Math.signum(count_ratio[gene]) } },
                 { assert snapshot(
                     workflow.out.counts,
                     workflow.out.settings,
