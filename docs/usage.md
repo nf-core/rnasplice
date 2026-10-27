@@ -329,6 +329,8 @@ Every junction LeafCutter clusters needs a strand, and one that has none is disc
 
 A BAM file given with `--source genome_bam` that already carries `XS` tags is stranded from those tags first, and only the junctions left over go through the motif and the annotation.
 
+## Differential Bin and Junction Usage
+
 ### ASpli
 
 [ASpli](https://bioconductor.org/packages/ASpli) runs when `--aspli` is set, with `--aligner star` or `--aligner star_salmon`, or with `--source genome_bam`. It is off by default. The pipeline stops at the start if `--aspli` is set without a route that produces genome BAM files.
