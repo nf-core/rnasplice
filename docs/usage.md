@@ -116,11 +116,11 @@ TREATMENT_REP2,treatment,reverse,false,AEG588A5.Aligned.out.bam
 TREATMENT_REP3,treatment,reverse,false,AEG588A6.Aligned.out.bam
 ```
 
-The read type cannot be read from a BAM file, so it comes from the samplesheet along with the library type: `strandedness` defaults to `unstranded` and `single_end` to `false` (paired end), which keeps samplesheets without those columns valid. `strandedness` can also be set to `auto` to infer it with RSeQC, see [Strandedness](#strandedness). Both are passed on to the tools that need them, here DEXSeq, featureCounts (edgeR), rMATS, LeafCutter and ASpli. Note that DEXSeq used to count BAM input as forward stranded and now follows `strandedness`.
+The read type cannot be read from a BAM file, so it comes from the samplesheet along with the library type: `strandedness` defaults to `unstranded` and `single_end` to `false` (paired end), which keeps samplesheets without those columns valid. `strandedness` can also be set to `auto` to infer it with RSeQC, see [Strandedness](#strandedness). `strandedness` is passed on to DEXSeq, featureCounts (edgeR), rMATS, LeafCutter and ASpli, and `single_end` to all of them except LeafCutter. Note that DEXSeq used to count BAM input as forward stranded and now follows `strandedness`.
 
 Unlike the fastq source, the pipeline does not merge several rows of the same sample: the `sample` names must be unique for the BAM and Salmon sources, so merge the runs of a sample beforehand.
 
-This configuration allows the pipeline to run the "dexseq_exon", "edger_exon", "rmats", "leafcutter" and "aspli" analysis methods.
+This configuration allows the pipeline to run the "dexseq_exon", "edger_exon", "rmats", "leafcutter" and "aspli" analysis methods, and the "sashimi_plot" visualisation.
 
 #### Transcriptome BAM files
 
