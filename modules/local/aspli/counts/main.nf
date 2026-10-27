@@ -1,8 +1,10 @@
 process ASPLI_COUNTS {
     tag "${meta.id}"
-    // ASpli reads every BAM file into memory in full, so memory grows with the size of
-    // the BAM files. These resources have not been measured on a real dataset yet
-    label 'process_high'
+    // Only binGenome can use more than one core, and gbCounts and jCounts run on one,
+    // so the task asks for a single cpu. ASpli reads every BAM file into memory in
+    // full, so memory grows with the size of the BAM files and is set in modules.config.
+    // These resources have not been measured on a real dataset yet
+    label 'process_single'
 
     conda "${moduleDir}/environment.yml"
     container "${workflow.containerEngine in ['singularity', 'apptainer'] && !task.ext.singularity_pull_docker_container
