@@ -59,11 +59,11 @@ The `strandedness` of a sample can be set to `auto` to have the pipeline infer i
 - `unstranded` when the forward and reverse fractions differ by at most `--unstranded_threshold` (default `0.1`).
 - Otherwise the strandedness is undetermined. The sample is analysed as `unstranded`, with a warning in the log.
 
-The inferred value is then used for every step that needs one: Salmon, featureCounts, DEXSeq, rMATS and LeafCutter. A `forward`, `reverse` or `unstranded` value in the samplesheet is used as given, so samples set to `auto` and samples with a given strandedness can be mixed in the same samplesheet. Every run of a sample must have the same `strandedness`.
+The inferred value is then used for every step that needs one: Salmon, featureCounts, DEXSeq, rMATS, LeafCutter and ASpli. A `forward`, `reverse` or `unstranded` value in the samplesheet is used as given, so samples set to `auto` and samples with a given strandedness can be mixed in the same samplesheet. Every run of a sample must have the same `strandedness`.
 
 BAM input has no reads to sub-sample, so `auto` is handled differently:
 
-- With `--source genome_bam`, [RSeQC infer_experiment.py](https://rseqc.sourceforge.net/#infer-experiment-py) is run on the BAM file of each `auto` sample, with a BED12 gene model made from the GTF, and its fractions are called with the same thresholds as above. The result is used by DEXSeq, featureCounts (edgeR), rMATS, LeafCutter and the bigWig coverage tracks.
+- With `--source genome_bam`, [RSeQC infer_experiment.py](https://rseqc.sourceforge.net/#infer-experiment-py) is run on the BAM file of each `auto` sample, with a BED12 gene model made from the GTF, and its fractions are called with the same thresholds as above. The result is used by DEXSeq, featureCounts (edgeR), rMATS, LeafCutter, ASpli and the bigWig coverage tracks.
 - With `--source transcriptome_bam`, the only tool that uses the strandedness is Salmon, which quantifies an `auto` sample with `--libType A` and detects the library type itself. Salmon writes no fragment counts in alignment mode, so the thresholds above do not apply and the strandedness follows Salmon's own call. Setting `--salmon_quant_libtype` overrides this for every sample.
 
 ```csv title="samplesheet.csv"
@@ -116,11 +116,11 @@ TREATMENT_REP2,treatment,reverse,false,AEG588A5.Aligned.out.bam
 TREATMENT_REP3,treatment,reverse,false,AEG588A6.Aligned.out.bam
 ```
 
-The read type cannot be read from a BAM file, so it comes from the samplesheet along with the library type: `strandedness` defaults to `unstranded` and `single_end` to `false` (paired end), which keeps samplesheets without those columns valid. `strandedness` can also be set to `auto` to infer it with RSeQC, see [Strandedness](#strandedness). Both are passed on to the tools that need them, here DEXSeq, featureCounts (edgeR) and rMATS. Note that DEXSeq used to count BAM input as forward stranded and now follows `strandedness`.
+The read type cannot be read from a BAM file, so it comes from the samplesheet along with the library type: `strandedness` defaults to `unstranded` and `single_end` to `false` (paired end), which keeps samplesheets without those columns valid. `strandedness` can also be set to `auto` to infer it with RSeQC, see [Strandedness](#strandedness). Both are passed on to the tools that need them, here DEXSeq, featureCounts (edgeR), rMATS, LeafCutter and ASpli. Note that DEXSeq used to count BAM input as forward stranded and now follows `strandedness`.
 
 Unlike the fastq source, the pipeline does not merge several rows of the same sample: the `sample` names must be unique for the BAM and Salmon sources, so merge the runs of a sample beforehand.
 
-This configuration allows the pipeline to run the "dexseq_exon", "edger_exon" and "rmats" analysis methods.
+This configuration allows the pipeline to run the "dexseq_exon", "edger_exon", "rmats", "leafcutter" and "aspli" analysis methods.
 
 #### Transcriptome BAM files
 
