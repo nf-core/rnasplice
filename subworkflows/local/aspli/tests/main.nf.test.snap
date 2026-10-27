@@ -11,7 +11,7 @@
                         "aspli.e1i_counts.tsv:md5,be948e88c1692cde113950a14eeb8772",
                         "aspli.gene_counts.tsv:md5,2f9c53d71316828661707592b9853fb7",
                         "aspli.ie2_counts.tsv:md5,730b83645b2c1bdb76e69b0dff59a355",
-                        "aspli.junction_counts.tsv:md5,dca7427b92378ae73977faa1c00cfb69"
+                        "aspli.junction_counts.tsv:md5,e4fda109cda8239fb8d6a68cd0d54118"
                     ]
                 ]
             ],
@@ -20,7 +20,7 @@
                     {
                         "id": "aspli"
                     },
-                    "aspli.settings.tsv:md5,880dd205e3b30054a802356887bfcd0c"
+                    "aspli.settings.tsv:md5,8647ab467463de66a44131ea9836b201"
                 ]
             ],
             [
@@ -126,7 +126,7 @@
                 ]
             ]
         ],
-        "timestamp": "2026-10-27T12:54:26.238056385",
+        "timestamp": "2026-10-27T14:58:29.049007054",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.3"

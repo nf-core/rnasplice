@@ -84,7 +84,7 @@ write_table <- function(x, file, id) {
 # Set defaults and parse the options provided via `task.ext.args`
 
 opt <- list(
-    max_intron_size    = 500000L,
+    max_intron_size    = 50000L,
     min_anchor         = 10L,
     junction_threshold = 5L
 )
