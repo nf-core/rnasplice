@@ -35,6 +35,8 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 - Differential Exon Usage (DEU).
   - [DEXSeq](#dexseq) - For differential exon usage analysis following quantification with HTSeq.
   - [edgeR](#edger) - For differential exon usage (includes differential exon expression) following quantification with featureCounts
+- Differential Bin and Junction Usage.
+  - [ASpli](#aspli) - Differential usage of exonic and intronic bins and of junctions, and integration of the bin and junction signals.
 - Differential Transcript Usage (DTU).
   - [DRIMSeq](#drimseq) - Filtering of genes and features prior to DTU.
   - [DEXSeq](#dexseq-1) - For differential transcript usage analysis following Salmon pseudo-alignment and quantification.
@@ -378,6 +380,34 @@ Finally, as discussed above in the DEXSeq count section, users can inspect count
 [edgeR](https://bioconductor.org/packages/release/bioc/html/edgeR.html) is a bioconductor R package typically used for differential gene expression, however, it contains numerous additional functions which make it useful for splicing analysis. In particular, edgeR can perform differential exon usage analysis, and we leverage this functionality here. As output users can retrieve `DGEList.rds`, and `DGEGLM.rds` R objects which contain the first steps of the edgeR analysis. Users can also find `DGELRT.exprs.rds` and `DGELRT.usage.rds` R objects which provide R objects following differential exon expression and differential exon usage steps respectively. Results CSV files are also output per comparison as `{contrast}.usage.usage.csv` which contain the differential exon usage results, `{contrast}.usage.gene.csv` which contain results at a gene level identified with F-tests, and `{contrast}.usage.simes.csv` which contain results at a gene level using the Simes adjustment.
 
 It was felt that users may wish to retrieve differential exon results at this point on top of differential exon usage results as edgeR is able to calculate them without difficulty. By default, this workflow will calculate all possible pairwise comparisons between conditions.
+
+## Differential Bin and Junction Usage
+
+### ASpli
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `aspli/counts/`
+  - `aspli.settings.tsv`: Library type, strand mode, minimum read length (and whether it was given or estimated), the counting options and the order of the conditions the samples were counted with.
+  - `aspli.{gene,bin,junction}_counts.tsv`: Read counts of each sample over the genes, bins and junctions.
+  - `aspli.{e1i,ie2}_counts.tsv`: Read counts of each sample over the exon-intron (`e1i`) and intron-exon (`ie2`) boundaries of the intron bins.
+  - `aspli.junctions.{pir,pju}.tsv`: Percent intron retention (PIR) and percent junction usage (PJU) of each junction, per condition.
+  - `aspli.ir.pir.tsv`, `aspli.{alt,es}.psi.tsv`: PIR of the intron retention bins, and percent spliced in (PSI) of the alternative splice site and exon skipping bins, computed from junction counts.
+  - `aspli.{features,gbcounts,jcounts}.rds`: The `ASpliFeatures`, `ASpliCounts` and `ASpliAS` R objects.
+- `aspli/{contrast}/`
+  - `{contrast}.genes_de.tsv`: Differential gene expression.
+  - `{contrast}.bins_du.tsv`: Differential bin usage.
+  - `{contrast}.{locale,anchor}_junctions.tsv`, `{contrast}.{locale,anchor}_clusters.tsv`: Differential junction usage of junctions sharing a splice site (`locale`) and of junctions against their flanking intron (`anchor`), per junction and per cluster.
+  - `{contrast}.{ir,es,alt}_junctions.tsv`: Differential usage of the junctions supporting the intron retention, exon skipping and alternative splice site bins.
+  - `{contrast}.splicing_report_{bins,locale,anchor}.tsv`: The splicing report, which joins the bin, locale and anchor results with the junctions that support them.
+  - `{contrast}.integrated_signals.tsv`: The regions where the bin, junction and anchor signals that pass the `integrateSignals` filters overlap.
+  - `{contrast}_integrated_signals/integratedSignals.html`: Interactive HTML table of the integrated signals. Open it from inside its folder, as it loads its libraries from `integratedSignals_files/`.
+  - `{contrast}.aspli_du.rds`: List of the `ASpliDU`, `ASpliJDU`, `ASpliSplicingReport` and `ASpliIntegratedSignals` R objects.
+
+</details>
+
+[ASpli](https://bioconductor.org/packages/ASpli) splits the genes of the GTF into exonic and intronic bins, counts reads over genes, bins and junctions, and tests each contrast for differential bin and junction usage with edgeR. It then integrates the bin and junction signals of each region. The reads are counted once for all the contrasts. Log fold changes are treatment over control, and `dPIR` is treatment minus control. `dParticipation` in the locale tables is the change in the junction with the highest participation, so its sign does not follow the contrast. See the [ASpli vignette](https://bioconductor.org/packages/release/bioc/vignettes/ASpli/inst/doc/ASpli.pdf) for a description of every column.
 
 ## Differential Transcript Usage (DTU)
 
