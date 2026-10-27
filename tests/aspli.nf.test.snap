@@ -359,11 +359,11 @@
                 "gene": "ff8268fb0323d8709eb9dca3cfb87d00",
                 "bin": "920ec96ed93f6b78d64a483a5dec7004",
                 "junction": "d549ebaea89068aa6ed3f2a87651a89d",
-                "e1i": "fb184005c448637ec5c33d6596274b58",
-                "ie2": "2f869267a4a41b48b1d0d03595f05ff8"
+                "e1i": "12d5cc25b6cc6428c387654f7ccca851",
+                "ie2": "d44a37ce7692b6aae05fbbe08abbef90"
             }
         ],
-        "timestamp": "2026-10-27T15:00:03.272073593",
+        "timestamp": "2026-10-27T16:19:20.804738209",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.3"

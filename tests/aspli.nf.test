@@ -42,7 +42,7 @@ nextflow_pipeline {
             assert workflow.success
 
             assertAll(
-                { assert settings.contains('read_length\t75\n') },
+                { assert settings.contains('read_length\t71\n') },
                 { assert settings.contains('library_type\tPE\n') },
                 { assert path("${params.outdir}/star/aspli/GBR-YRI/GBR-YRI_integrated_signals/integratedSignals.html").exists() },
                 { assert snapshot(

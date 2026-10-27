@@ -43,8 +43,9 @@ nextflow_process {
         then {
             assert process.success
             assertAll(
-                // The read length is estimated from the BAM files, whose reads are 75 bases
-                { assert path(process.out.settings[0][1]).text.contains('read_length\t75\n') },
+                // The read length is estimated from the BAM files, whose reads are up to 75 bases
+                // long after trimming, with 5% shorter than 71
+                { assert path(process.out.settings[0][1]).text.contains('read_length\t71\n') },
                 { assert path(process.out.settings[0][1]).text.contains('library_type\tPE\n') },
                 { assert snapshot(
                     // The counts are integers, so they are snapshotted by md5. The junction

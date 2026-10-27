@@ -501,7 +501,7 @@
                 "aspli_read_len": {
                     "type": "integer",
                     "description": "Minimum read length given to ASpli. Estimated from the BAM files when not set.",
-                    "help_text": "ASpli only counts a read over an exon-intron boundary when it overlaps the boundary by at least this many bases, so it must not be longer than the reads. When it is not set, it is the median length of the first 100,000 primary mapped reads of each BAM file, taken from the BAM file with the shortest reads.",
+                    "help_text": "ASpli only counts a read over an exon-intron boundary when it overlaps the boundary by at least this many bases, so it must not be longer than the reads. When it is not set, it is the 5th percentile of the lengths of all the primary mapped reads of each BAM file, taken from the BAM file with the shortest reads.",
                     "minimum": 1,
                     "fa_icon": "fas fa-ruler-horizontal"
                 }

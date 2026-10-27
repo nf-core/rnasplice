@@ -36,31 +36,50 @@ parse_args <- function(x) {
 #' Estimate the read length of a BAM file
 #'
 #' @param bam Path of the BAM file
-#' @param n Number of primary mapped reads to look at
+#' @param probs Quantile of the read lengths to return
+#' @param chunk Number of reads to read at a time
 #'
-#' @return Median query width of the first n primary mapped reads
+#' @return Quantile of the query widths of all the primary mapped reads. The reads are
+#'   read in chunks and only their lengths are tabulated, so memory does not grow with
+#'   the size of the BAM file
 
-estimate_read_length <- function(bam, n = 100000L) {
+estimate_read_length <- function(bam, probs = 0.05, chunk = 1000000L) {
 
     flag <- Rsamtools::scanBamFlag(isUnmappedQuery = FALSE, isSecondaryAlignment = FALSE)
 
     param <- Rsamtools::ScanBamParam(what = "qwidth", flag = flag)
 
-    bam_file <- Rsamtools::BamFile(bam, yieldSize = n)
+    bam_file <- Rsamtools::BamFile(bam, yieldSize = chunk)
 
     open(bam_file)
 
     on.exit(close(bam_file))
 
-    widths <- Rsamtools::scanBam(bam_file, param = param)[[1]][["qwidth"]]
+    counts <- integer(0)
 
-    if (length(widths) == 0) {
+    repeat {
+
+        widths <- Rsamtools::scanBam(bam_file, param = param)[[1]][["qwidth"]]
+
+        if (length(widths) == 0) break
+
+        tabulated <- tabulate(widths)
+
+        length(counts) <- max(length(counts), length(tabulated))
+
+        counts[is.na(counts)] <- 0L
+
+        counts[seq_along(tabulated)] <- counts[seq_along(tabulated)] + tabulated
+
+    }
+
+    if (sum(counts) == 0) {
 
         stop(paste0("No mapped reads to estimate the read length from in ", bam), call. = FALSE)
 
     }
 
-    as.integer(stats::median(widths))
+    as.integer(which(cumsum(counts) / sum(counts) >= probs)[1])
 
 }
 
@@ -208,8 +227,9 @@ if (length(strandedness) > 1) {
 
 
 # Read length. ASpli only counts a read over an exon-intron boundary when it overlaps
-# it by at least this many bases, so it must not be longer than the reads. When it is
-# not given it is the median read length of the BAM file with the shortest reads
+# it by at least this many bases, so a read shorter than it is never counted there. When
+# it is not given it is the 5th percentile of the read lengths of the BAM file with the
+# shortest reads, so that trimmed reads of varying length are still counted
 
 read_length_source <- "given"
 
