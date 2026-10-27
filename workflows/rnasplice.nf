@@ -19,6 +19,7 @@ include { SUPPA as SUPPA_SALMON                                           } from
 include { SUPPA as SUPPA_STAR_SALMON                                      } from '../subworkflows/local/suppa'
 include { VISUALISE_MISO                                                  } from '../subworkflows/local/visualise_miso'
 include { LEAFCUTTER                                                      } from '../subworkflows/local/leafcutter'
+include { ASPLI                                                           } from '../subworkflows/local/aspli'
 include { INFER_STRANDEDNESS                                              } from '../subworkflows/local/infer_strandedness'
 include { getInferexperimentStrandedness                                  } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
 include { getSalmonLibraryTypeStrandedness                                } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
@@ -26,6 +27,7 @@ include { INFER_STRANDEDNESS_BAM                                          } from
 
 include { rmatsReadError                                                  } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
 include { rmatsStrandednessError                                          } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
+include { aspliReadError                                                  } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
 include { multiqcTsvFromList                                              } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
 include { paramsSummaryMultiqc                                            } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { methodsDescriptionText                                          } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
@@ -130,6 +132,12 @@ workflow RNASPLICE {
     if (params.rmats && ['fastq', 'genome_bam'].contains(params.source)) {
         rmatsReadError(ch_samplesheet)
         rmatsStrandednessError(ch_samplesheet.filter { meta, _files -> meta.strandedness != 'auto' })
+    }
+
+    // ASpli counts every sample with one library type, so the read type is checked
+    // before the samples are aligned
+    if (params.aspli && ['fastq', 'genome_bam'].contains(params.source)) {
+        aspliReadError(ch_samplesheet)
     }
 
     //
@@ -393,6 +401,16 @@ workflow RNASPLICE {
                 ch_genome_bam_index,
                 ch_fasta.combine(ch_fai).map { fasta, _meta, fai -> [[id: fasta.baseName], fasta, fai] }.first(),
                 ch_gtf.map { gtf -> [[id: gtf.baseName], gtf] }.first(),
+            )
+        }
+
+        if (params.aspli) {
+            ASPLI(
+                ch_genome_bam,
+                ch_genome_bam_index,
+                ch_gtf.map { gtf -> [[id: gtf.baseName], gtf] }.first(),
+                ch_contrastsheet,
+                params.aspli_read_len ?: 0,
             )
         }
     }

@@ -487,6 +487,27 @@
             },
             "fa_icon": "fas fa-leaf"
         },
+        "aspli_options": {
+            "title": "ASpli options",
+            "type": "object",
+            "description": "Options for the ASpli differential bin and junction usage analysis.",
+            "properties": {
+                "aspli": {
+                    "type": "boolean",
+                    "description": "Run the ASpli workflow.",
+                    "help_text": "Run [ASpli](https://bioconductor.org/packages/ASpli) on the genome BAM files, with `--aligner star` or `--aligner star_salmon`, or with `--source genome_bam`. ASpli bins the genome from the GTF, counts reads over genes, bins and junctions, tests each contrast of the contrastsheet for differential bin and junction usage, and integrates the bin and junction signals of each region into one report. The samples must be all single end or all paired end, and the samplesheet needs at least two conditions.",
+                    "fa_icon": "fas fa-play"
+                },
+                "aspli_read_len": {
+                    "type": "integer",
+                    "description": "Minimum read length given to ASpli. Estimated from the BAM files when not set.",
+                    "help_text": "ASpli only counts a read over an exon-intron boundary when it overlaps the boundary by at least this many bases, so it must not be longer than the reads. When it is not set, it is the median length of the first 100,000 primary mapped reads of each BAM file, taken from the BAM file with the shortest reads.",
+                    "minimum": 1,
+                    "fa_icon": "fas fa-ruler-horizontal"
+                }
+            },
+            "fa_icon": "far fa-chart-bar"
+        },
         "rmats_options": {
             "type": "object",
             "title": "rMATS options",
@@ -1009,6 +1030,9 @@
         },
         {
             "$ref": "#/$defs/leafcutter_options"
+        },
+        {
+            "$ref": "#/$defs/aspli_options"
         },
         {
             "$ref": "#/$defs/rmats_options"
