@@ -7,10 +7,10 @@
 
 [![Open in GitHub Codespaces](https://img.shields.io/badge/Open_In_GitHub_Codespaces-black?labelColor=grey&logo=github)](https://github.com/codespaces/new/nf-core/rnasplice)
 [![GitHub Actions CI Status](https://github.com/nf-core/rnasplice/actions/workflows/nf-test.yml/badge.svg)](https://github.com/nf-core/rnasplice/actions/workflows/nf-test.yml)
-[![GitHub Actions Linting Status](https://github.com/nf-core/rnasplice/actions/workflows/linting.yml/badge.svg)](https://github.com/nf-core/rnasplice/actions/workflows/linting.yml)[![AWS CI](https://img.shields.io/badge/CI%20tests-full%20size-FF9900?labelColor=000000&logo=Amazon%20AWS)](https://nf-co.re/rnasplice/results)[![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.XXXXXXX-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.XXXXXXX)
+[![GitHub Actions Linting Status](https://github.com/nf-core/rnasplice/actions/workflows/linting.yml/badge.svg)](https://github.com/nf-core/rnasplice/actions/workflows/linting.yml)[![AWS CI](https://img.shields.io/badge/CI%20tests-full%20size-FF9900?labelColor=000000&logo=Amazon%20AWS)](https://nf-co.re/rnasplice/results)[![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.8424632-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.8424632)
 [![nf-test](https://img.shields.io/badge/unit_tests-nf--test-337ab7.svg)](https://www.nf-test.com)
 
-[![Nextflow](https://img.shields.io/badge/version-%E2%89%A525.10.4-green?style=flat&logo=nextflow&logoColor=white&color=%230DC09D&link=https%3A%2F%2Fnextflow.io)](https://www.nextflow.io/)
+[![Nextflow](https://img.shields.io/badge/version-%E2%89%A526.04.0-green?style=flat&logo=nextflow&logoColor=white&color=%230DC09D&link=https%3A%2F%2Fnextflow.io)](https://www.nextflow.io/)
 [![nf-core template version](https://img.shields.io/badge/nf--core_template-4.2.1-green?style=flat&logo=nfcore&logoColor=white&color=%2324B064&link=https%3A%2F%2Fnf-co.re)](https://github.com/nf-core/tools/releases/tag/4.2.1)
 [![run with conda](http://img.shields.io/badge/run%20with-conda-3EB049?labelColor=000000&logo=anaconda)](https://docs.conda.io/en/latest/)
 [![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?labelColor=000000&logo=docker)](https://www.docker.com/)
@@ -21,48 +21,74 @@
 
 ## Introduction
 
-**nf-core/rnasplice** is a bioinformatics pipeline that ...
+**nf-core/rnasplice** is a bioinformatics pipeline for alternative splicing analysis of RNA sequencing data obtained from organisms with a reference genome and annotation.
 
-<!-- TODO nf-core:
-   Complete this sentence with a 2-3 sentence summary of what types of data the pipeline ingests, a brief overview of the
-   major pipeline sections and the types of output it produces. You're giving an overview to someone new
-   to nf-core here, in 15-20 seconds. For an example, see https://github.com/nf-core/rnaseq/blob/master/README.md#introduction
--->
+![nf-core/rnasplice metro map](docs/images/nf-core-rnasplice_metro_map.svg)
 
-<!-- TODO nf-core: Include a figure that guides the user through the major workflow steps. Many nf-core
-     workflows use the "tube map" design for that. See https://nf-co.re/docs/community/brand/workflow-schematics#examples for examples.   -->
-<!-- TODO nf-core: Fill in short bullet-pointed list of the default steps in the pipeline -->1. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))2. Present QC for raw reads ([`MultiQC`](http://multiqc.info/))
+1. Merge re-sequenced FastQ files ([`cat`](http://www.linfo.org/cat.html))
+2. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
+3. Adapter and quality trimming ([`TrimGalore`](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/))
+4. Strandedness inference of samples set to `auto` ([`fq`](https://github.com/stjude-rust-labs/fq), [`Salmon`](https://combine-lab.github.io/salmon/), or [`RSeQC`](https://rseqc.sourceforge.net/) for genome BAM input; _optional_)
+5. Alignment with [`STAR`](https://github.com/alexdobin/STAR)
+6. Choice of quantification depending on analysis type:
+   1. [`STAR`](https://github.com/alexdobin/STAR) -> [`Salmon`](https://combine-lab.github.io/salmon/)
+   2. [`STAR`](https://github.com/alexdobin/STAR) -> [`featureCounts`](https://academic.oup.com/bioinformatics/article/30/7/923/232889?login=false)
+   3. [`STAR`](https://github.com/alexdobin/STAR) -> [`HTSeq`](https://htseq.readthedocs.io/en/master/) (DEXSeq count)
+7. Sort and index alignments ([`SAMtools`](https://sourceforge.net/projects/samtools/files/samtools/))
+8. Create bigWig coverage files ([`BEDTools`](https://github.com/arq5x/bedtools2/), [`bedGraphToBigWig`](http://hgdownload.soe.ucsc.edu/admin/exe/))
+9. Pseudo-alignment and quantification ([`Salmon`](https://combine-lab.github.io/salmon/); _optional_)
+10. Strandedness check of the alignments ([`RSeQC`](https://rseqc.sourceforge.net/); _optional_)
+11. Summarize QC ([`MultiQC`](http://multiqc.info/))
+12. Differential Exon Usage (DEU):
+    1. [`HTSeq`](https://htseq.readthedocs.io/en/master/) -> [`DEXSeq`](https://bioconductor.org/packages/devel/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html)
+    2. [`featureCounts`](https://academic.oup.com/bioinformatics/article/30/7/923/232889?login=false) -> [`edgeR`](https://bioconductor.org/packages/release/bioc/html/edgeR.html)
+    3. Quantification with [`featureCounts`](https://academic.oup.com/bioinformatics/article/30/7/923/232889?login=false) or [`HTSeq`](https://htseq.readthedocs.io/en/master/)
+    4. Differential exon usage with [`DEXSeq`](https://bioconductor.org/packages/devel/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html) or [`edgeR`](https://bioconductor.org/packages/release/bioc/html/edgeR.html)
+13. Differential Transcript Usage (DTU):
+    1. [`Salmon`](https://combine-lab.github.io/salmon/) -> [`DRIMSeq`](https://bioconductor.org/packages/release/bioc/html/DRIMSeq.html) -> [`DEXSeq`](https://f1000research.com/articles/7-952)
+    2. Filtering with [`DRIMSeq`](https://bioconductor.org/packages/release/bioc/html/DRIMSeq.html)
+    3. Differential transcript usage with [`DEXSeq`](https://bioconductor.org/packages/devel/bioc/vignettes/DEXSeq/inst/doc/DEXSeq.html)
+    4. [`Salmon`](https://combine-lab.github.io/salmon/) -> [`IsoformSwitchAnalyzeR`](https://www.bioconductor.org/packages/release/bioc/html/IsoformSwitchAnalyzeR.html)
+    5. Isoform switch analysis with [`IsoformSwitchAnalyzeR`](https://www.bioconductor.org/packages/release/bioc/html/IsoformSwitchAnalyzeR.html)
+14. Event-based splicing analysis:
+    1. [`STAR`](https://github.com/alexdobin/STAR) -> [`rMATS`](https://github.com/Xinglab/rmats-turbo)
+    2. [`Salmon`](https://combine-lab.github.io/salmon/) -> [`SUPPA2`](https://github.com/comprna/SUPPA)
+15. Intron cluster quantification ([`RegTools`](https://github.com/griffithlab/regtools) -> [`LeafCutter`](https://github.com/davidaknowles/leafcutter); _optional_)
+16. Differential bin and junction usage, with the bin and junction signals integrated ([`ASpli`](https://bioconductor.org/packages/ASpli); _optional_)
 
 ## Usage
 
 > [!NOTE]
 > If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/get_started/environment_setup/overview) on how to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/get_started/run-your-first-pipeline) with `-profile test` before running the workflow on actual data.
 
-<!-- TODO nf-core: Describe the minimum required steps to execute the pipeline, e.g. how to prepare samplesheets.
-     Explain what rows and columns represent. For instance (please edit as appropriate):
-
 First, prepare a samplesheet with your input data that looks as follows:
 
 `samplesheet.csv`:
 
 ```csv
-sample,fastq_1,fastq_2
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
+sample,fastq_1,fastq_2,strandedness,condition
+CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz,forward,CONTROL
+CONTROL_REP1,AEG588A1_S1_L003_R1_001.fastq.gz,AEG588A1_S1_L003_R2_001.fastq.gz,forward,CONTROL
+CONTROL_REP1,AEG588A1_S1_L004_R1_001.fastq.gz,AEG588A1_S1_L004_R2_001.fastq.gz,forward,CONTROL
 ```
 
-Each row represents a fastq file (single-end) or a pair of fastq files (paired end).
+Each row represents a fastq file (single-end) or a pair of fastq files (paired end). Rows with the same sample identifier are considered technical replicates and merged automatically. The strandedness refers to the library preparation and should be specified by the user, or set to `auto` to have it inferred with Salmon.
 
--->
+:::warning
+Please provide pipeline parameters via the CLI or Nextflow `-params-file` option. Custom config files including those
+provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_;
+see [docs](https://nf-co.re/usage/configuration#custom-configuration-files).
+:::
 
 Now, you can run the pipeline using:
 
-<!-- TODO nf-core: update the following command to include all required parameters for a minimal example -->
-
 ```bash
 nextflow run nf-core/rnasplice \
-   -profile <docker/singularity/.../institute> \
    --input samplesheet.csv \
-   --outdir <OUTDIR>
+   --contrasts contrastsheet.csv \
+   --genome GRCh37 \
+   --outdir <OUTDIR> \
+   -profile <docker/singularity/.../institute>
 ```
 
 > [!WARNING]
@@ -73,16 +99,35 @@ For more details and further functionality, please refer to the [usage documenta
 ## Pipeline output
 
 To see the results of an example test run with a full size dataset refer to the [results](https://nf-co.re/rnasplice/results) tab on the nf-core website pipeline page.
-For more details about the output files and reports, please refer to the
-[output documentation](https://nf-co.re/rnasplice/output).
+For more details about the output files and reports, please refer to the [output documentation](https://nf-co.re/rnasplice/output).
+
+## Online videos
+
+You can find numerous talks on the [nf-core events page](https://nf-co.re/events) from various topics including writing pipelines/modules in Nextflow DSL2, using nf-core tooling, running nf-core pipelines as well as more generic content like contributing to Github. Please check them out!
 
 ## Credits
 
-nf-core/rnasplice was originally written by Ben Southgate, James Ashmore.
+nf-core/rnasplice was originally written by the bioinformatics team from [Zifo RnD Solutions](https://www.zifornd.com/):
 
-We thank the following people for their extensive assistance in the development of this pipeline:
+- [Benjamin Southgate](https://github.com/bensouthgate)
+- [James Ashmore](https://github.com/jma1991)
+- [Valentino Ruggieri](https://github.com/valentinoruggieri)
+- [Claire Prince](https://github.com/claire-prince)
+- [Keerthana Bhaskaran](https://github.com/Keerthana-Bhaskaran-TG)
+- [Asma Ali](https://github.com/asmaali98)
+- [Lathika Madhan Mohan](https://github.com/lathikaa)
 
-<!-- TODO nf-core: If applicable, make list of people who have also contributed -->
+The pipeline is currently maintained by [Paolo Inglese](https://github.com/piplus2) ([Genomics Facility (GEFA), Istituto Italiano di Tecnologia](https://www.iit.it/)).
+
+We thank the following people for their contributions to the pipeline:
+
+- [Lorena Pantano](https://github.com/lpantano) and [Alex Bartlett](https://github.com/abartlett004), for the LeafCutter analysis
+- [Fabian Hausmann](https://github.com/fhausmann), for the sample name validation
+- [Felix Haidle](https://github.com/felixhaidle), for the `MISOPY_SETTINGS` module
+
+We also thank Harshil Patel ([@drpatelh](https://github.com/drpatelh)), Seqera Labs ([seqeralabs](https://github.com/seqeralabs)) and Jesse Angelis ([@jesseangelis](https://github.com/jesseangelis)) for their assistance in the development of this pipeline.
+
+<img src="docs/images/zifo_logo.jpg" alt="Zifo RnD Solutions" width="200"/>
 
 ## Contributions and Support
 
@@ -92,10 +137,7 @@ For further information or help, don't hesitate to get in touch on the [Slack `#
 
 ## Citations
 
-<!-- TODO nf-core: Add citation for pipeline after first release. Uncomment lines below and update Zenodo doi and badge at the top of this file. -->
-<!-- If you use nf-core/rnasplice for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX) -->
-
-<!-- TODO nf-core: Add bibliography of tools and data used in your pipeline -->
+If you use nf-core/rnasplice for your analysis, please cite it using the following doi: [10.5281/zenodo.8424632](https://doi.org/10.5281/zenodo.8424632)
 
 An extensive list of references for the tools used by the pipeline can be found in the [`CITATIONS.md`](CITATIONS.md) file.
 

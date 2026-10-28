@@ -9,8 +9,44 @@
         "properties": {
             "sample": {
                 "type": "string",
-                "pattern": "^\\S+$",
-                "errorMessage": "Sample name must be provided and cannot contain spaces",
+                "pattern": "^(?!\\.\\.\\d+)(?!\\.$)[a-zA-Z.]([a-zA-Z0-9._]*)?$",
+                "not": {
+                    "enum": [
+                        "if",
+                        "else",
+                        "repeat",
+                        "while",
+                        "function",
+                        "for",
+                        "in",
+                        "next",
+                        "break",
+                        "TRUE",
+                        "FALSE",
+                        "NULL",
+                        "Inf",
+                        "NaN",
+                        "NA",
+                        "NA_integer_",
+                        "NA_real_",
+                        "NA_complex_",
+                        "NA_character_",
+                        "...",
+                        "..1",
+                        "..2",
+                        "..3",
+                        "..4",
+                        "..5",
+                        "..6",
+                        "..7",
+                        "..8",
+                        "..9"
+                    ]
+                },
+                "errorMessage": {
+                    "pattern": "Sample name must be a valid R identifier: start with a letter or '.', contain only letters, digits, '.', or '_', and not start with '.' followed by a digit",
+                    "not": "Sample name must not be an R reserved keyword"
+                },
                 "meta": ["id"]
             },
             "fastq_1": {
@@ -26,8 +62,20 @@
                 "exists": true,
                 "pattern": "^([\\S\\s]*\\/)?[^\\s\\/]+\\.f(ast)?q\\.gz$",
                 "errorMessage": "FastQ file for reads 2 cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
+            },
+            "strandedness": {
+                "type": "string",
+                "errorMessage": "Strandedness must be provided and be one of 'auto', 'forward', 'reverse' or 'unstranded'",
+                "enum": ["auto", "forward", "reverse", "unstranded"],
+                "meta": ["strandedness"]
+            },
+            "condition": {
+                "type": "string",
+                "pattern": "^\\S+$",
+                "errorMessage": "Condition must be provided and contain syntactically valid names.",
+                "meta": ["condition"]
             }
         },
-        "required": ["sample", "fastq_1"]
+        "required": ["sample", "fastq_1", "strandedness", "condition"]
     }
 }

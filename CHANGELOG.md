@@ -3,14 +3,241 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## v2.0.1dev - [unreleased<!-- TODO nf-core: replace with date on release -->]
+## 2.0.1dev - 2026-10-21
 
-Initial release of nf-core/rnasplice, created with the [nf-core](https://nf-co.re/) template.
+### Added
+
+- #336 - Accept `auto` as a samplesheet `strandedness` value and infer it with Salmon, as in nf-core/rnaseq, and check it against RSeQC infer_experiment.py with `--strand_check`. Genome BAM samples are inferred with RSeQC, and transcriptome BAM samples are quantified by Salmon with `--libType A` (by @piplus2)
+- #339 - Add a pipeline level nf-test for strandedness `auto` on reverse stranded reads, checking that the inferred strandedness reaches Salmon, featureCounts, DEXSeq, rMATS and LeafCutter (requested by @erikrikarddaniel, done by @piplus2)
+- #344 - Add ASpli (`--aspli`, off by default) for differential bin and junction usage on the genome BAM files, with the bin and junction signals of each contrast integrated into one report. Uses ASpli 2.16.0, the latest version with a Singularity image, and a 50,000 base maximum intron size as in the ASpli vignette. ASpli is on the DEU line of the metro map. Closes #343 (by @piplus2)
+
+### Changed
+
+- #341 - The test profiles and nf-tests use `chrX_subset/` from nf-core/test-datasets, a 3.4 Mb part of chrX with 82 genes and 10,000 read pairs per sample, instead of all of chrX. The STAR index of the tests drops from 1.7 GB to 42 MB, the Salmon index from 0.9 GB to 23 MB and STAR alignment from 4.9 GB to under 1 GB of memory. The LeafCutter reverse stranded subworkflow test runs on reverse stranded alignments (by @piplus2)
+
+## v2.0.0 - Fenix Reborn - [2026-10-20]
+
+The first release since 1.0.4 in April 2024 brings the pipeline up to the nf-core template 4.1.0, Nextflow 26.04 and nf-schema.
+
+### Highlights
+
+- New LeafCutter (`--leafcutter`) and IsoformSwitchAnalyzeR (`--isoformswitchanalyzer`) analyses
+- Every local module and subworkflow follows the nf-core template and has its own nf-tests, and the pipeline tests cover all four `--source` values with conda, Docker and Singularity
+- The AWS iGenomes STAR indices work with a current STAR version
+
+### Breaking changes
+
+Detailed in the sections below:
+
+- Nextflow 26.04.0 or later is required (#210)
+- `--max_cpus`, `--max_memory` and `--max_time` are replaced by `process.resourceLimits` (#163)
+- `--rmats_paired_stats` is off by default (#212)
+- DEXSeq counts BAM input following the samplesheet `strandedness` (#263)
+- Some rMATS and SUPPA output paths and file names changed (#285, #309)
+- The DEXSeq exon and DTU results are named `{contrast}.dexseq.*`, and the exon tables are TSV instead of CSV (#327)
+- The DEXSeq log2 fold changes are treatment over control, as the contrast name says, where 1.x reported control over treatment (#327)
+- The SUPPA dPSI is treatment minus control, where 1.x reported control minus treatment (#328)
+- The samplesheets of the BAM and Salmon sources need unique sample names (#285)
+
+### Added
+
+- #161 - Add LeafCutter splicing quantification with `--leafcutter`, off by default (by @lpantano, @abartlett004)
+- #163 - Add IsoformSwitchAnalyzeR with `--isoformswitchanalyzer` (by @lathikaa)
+- #200 - Add `--ignore_tx_version` to ignore transcript versions in tximport, for tx2gene files whose transcript IDs carry no version (e.g. from GENCODE) (requested by @Oliverfeudj, done by @piplus2)
+- #204 - Improve documentation for `--rmats_paired_stats` (requested by @mlbonatelli, done by @piplus2)
+- #212 - Add test config for unpaired `rMATS` (by @piplus2)
+- #257 - Add a `test_dexseq_gff` profile and a pipeline level nf-test for a user supplied DEXSeq annotation (`--gff_dexseq`) (by @piplus2)
+- #258 - Add pipeline level nf-tests for `--source genome_bam`, `transcriptome_bam` and `salmon_results`, which had no test coverage (by @piplus2)
+- #261 - Add a pipeline nf-test for samples split over several runs (by @piplus2)
+- #263 - Accept optional `strandedness` and `single_end` columns when starting from `--source genome_bam` or `transcriptome_bam`, defaulting to `unstranded` and paired end (requested by @albamasmalavila, done by @piplus2)
+- #272 - Add a `test_leafcutter` profile and a pipeline level nf-test for `--leafcutter`, which had no test coverage at all (by @piplus2)
+- #272 - Add the `STRAND_JUNCTIONS` module, which gives the junctions of an unstranded sample a strand from the splice motif and the annotation (by @piplus2)
+- #264 - Add an nf-test for the `DEXSEQ_DTU` module, which had no test coverage (by @piplus2)
+- #281 - Add an nf-test for the `ISOFORMSWITCHANALYZER` module, which had no test coverage (by @piplus2)
+- #281 - Redraw the pipeline metro map with [nf-metro](https://github.com/seqeralabs/nf-metro), now covering LeafCutter, the `--source` inputs and the coverage tracks. The `.mmd` source lives next to the SVG in `docs/images/` (by @piplus2)
+- #285 - Add nf-tests for the `RMATS_POST` module, which had no test coverage: unpaired, paired, single condition and stub (by @piplus2)
+- #302 - Add nf-tests for the `MISOPY_SASHIMIPLOT` module, which had no test coverage of its own (by @piplus2)
+- #303 - Add nf-tests for the `MERGEEVENTS` module, which had no test coverage (by @piplus2)
+- #305 - Add nf-tests for the `DEXSEQ_EXON` module, which had no test coverage of its own (by @piplus2)
+- #308 - Add nf-tests for the `CLUSTERGROUPS` module, which had no test coverage (by @piplus2)
+- #309 - Add nf-tests for the `SUPPA` subworkflow: local events and isoforms, local events only, the diffSplice and clustering flags of each level, and stub (by @piplus2)
+- #310 - Add nf-tests for the `TX2GENE_TXIMPORT` subworkflow, which had no test coverage of its own: Salmon directories, Salmon tarballs and stub (by @piplus2)
+- #311 - Add real and stub nf-tests for the `MISOPY_SETTINGS` module, which had no module test coverage (by @felixhaidle)
+
+### Changed
+
+- #163 - **Breaking change**: `--max_cpus`, `--max_memory` and `--max_time` are removed. Cap resources with `process.resourceLimits` in a config file instead (by @lathikaa)
+- #163 - Migrate from nf-validation to nf-schema and sync with the nf-core template 3.0.2 (by @lathikaa)
+- #195 - Sync with the nf-core template 4.0.2, migrate samplesheet and contrastsheet validation from Python scripts to nf-schema, move local modules to `TOOL/SUBTOOL/main.nf`, track software versions with `topic: versions` and replace the deprecated `CUSTOM_GETCHROMSIZES` with `SAMTOOLS_FAIDX` (by @piplus2)
+- #195 - `PIPELINE_INITIALISATION` handles all four input sources (fastq, genome_bam, transcriptome_bam, salmon_results) (by @piplus2)
+- #207 - Update `StageR` to 1.32.0, `HTSeq` to 2.1.2 and `DEXSeq` to 1.56.0 (by @piplus2)
+- #210 - **Breaking change**: Bump `nf-schema` to 2.7.2 and apply static typing to `params` in `main.nf`. The minimum Nextflow version is now 26.04.0 (by @piplus2)
+- #212 - **Breaking change**: Default `--rmats_paired_stats` to `false`. The paired test requires a specific paired design in the samplesheet, so it is now opt in, see the documentation (by @piplus2)
+- #215 - Refactor the `dexseq` modules to the nf-core module template (by @piplus2)
+- #219 - Rename `MISO_INDEX` and `MISO_RUN` to `MISOPY_INDEX` and `MISOPY_RUN` and refactor them to the nf-core module template (by @piplus2)
+- #220 - Remove `parse_miso_index.py`, which misopy does not need (by @piplus2)
+- #221 - Refactor `SUBREAD_FLATTENGTF` to the nf-core module template (by @piplus2)
+- #225 - `DEXSEQ_EXON` runs DEXSeq in parallel through `BPPARAM`, defaulting to `SerialParam()` (by @piplus2)
+- #229 - Use the nf-core `SUPPA` modules and move the `SUPPA` helper modules to `modules/local` (by @piplus2)
+- #238, #244, #253 - Sync with the nf-core templates 4.0.3, 4.1.0 and 4.1.0-2 (by @piplus2)
+- #242 - Refactor the `misopy` modules to the nf-core module template (by @piplus2)
+- #243 - Remove the unused `contrast_check` workflow (by @piplus2)
+- #245 - Refactor `TXIMPORT` to the nf-core module template, update `bioconductor-tximeta` 1.8.0 -> 1.28.2 (`tximport` 1.38.2, R 4.0 -> 4.5) and default `--ignore_tx_version` to `FALSE` (by @piplus2)
+- #246 - Replace the local `LEAFCUTTER_CLUSTER` module and `bin/leafcutter_cluster_regtools.py` with the nf-core `leafcutter/clusterregtools` module (by @piplus2)
+- #247 - Rename `GTF_2_GFF3` to `GFFREAD_GTF2GFF3` and refactor it to the nf-core module template (by @piplus2)
+- #248 - Move `GFFREAD_TX2GENE` to `modules/local/gffread/tx2gene` and update `gffread` 0.12.1 -> 0.12.7 (by @piplus2)
+- #249 - Refactor `STAGER` to the nf-core module template and expose the `stageR` options through `ext.args` (`--alpha`, `--method`, `--allow_na`, `--only_significant_genes`, `--order`), which were previously ignored. Defaults are unchanged (by @piplus2)
+- #250 - Move the `VISUALISE_MISO` subworkflow to the nf-core subworkflow template (by @piplus2)
+- #251 - Rename `DRIMSEQ_FILTER` to `DRIMSEQ_DMFILTER` and refactor it to the nf-core module template (by @piplus2)
+- #254 - Rename `GTF_GENE_FILTER` to `GTFGENEFILTER` and refactor it to the nf-core module template. `bin/filter_gtf_for_genes_in_genome.py` is now a module template (by @piplus2)
+- #255 - Refactor `EDGER_EXON` to the nf-core module template. `bin/run_edger_exon.R` is now a module template, `--n_edger_plot` moves to `ext.args` and the inputs and outputs carry a `meta` map (by @piplus2)
+- #256 - Move the `ALIGN_STAR` subworkflow to the nf-core subworkflow template, with nf-tests for both the `STAR_ALIGN` and the `STAR_ALIGN_IGENOMES` paths (by @piplus2)
+- #257 - Move the `DEXSEQ_DEU` subworkflow to the nf-core subworkflow template (by @piplus2)
+- #257 - `DEXSEQ_DEU` emits the DEXSeq exon count tables sorted by file name, and takes an explicit `skip_annotation` input instead of reading `params.gff_dexseq` (by @piplus2)
+- #261 - The pipeline parses the samplesheet and the contrastsheet once each, in `PIPELINE_INITIALISATION` (by @piplus2)
+- #261 - Remove the unused `INPUT_CHECK` subworkflow (by @piplus2)
+- #264 - Move the `DRIMSEQ_DEXSEQ_DTU` subworkflow to the nf-core subworkflow template (by @piplus2)
+- #268 - Move the `EDGER_DEU` subworkflow to the nf-core subworkflow template. It now emits the `EDGER_EXON` results and the featureCounts tables, which it ran but discarded (by @piplus2)
+- #270 - Move the `LEAFCUTTER` subworkflow to the nf-core subworkflow template. Its `juncs` output is now the per sample `[ meta, junc ]` tuples, instead of a single list flattening the meta maps in with the paths (by @piplus2)
+- #272 - `--leafcutter` now works with `--source genome_bam`, whatever the strandedness, since the junction strand no longer has to come from the alignment. For unstranded libraries the clusters differ slightly from LeafCutter's documented STAR route, see the LeafCutter section of `docs/usage.md` (by @piplus2)
+- #281 - Refactor `ISOFORMSWITCHANALYZER` to the nf-core module template and update `IsoformSwitchAnalyzeR` 2.2.0 -> 2.12.0 (R 4.3 -> 4.5). `bin/run_isoformswitchanalyzer.R` is now a module template (by @piplus2)
+- #284 - Refactor `PREPROCESS_TRANSCRIPTS_FASTA_GENCODE` to the nf-core module template, with `environment.yml`, `meta.yml`, a stub and nf-tests. It reports the `coreutils` version of `cut`, which does the work, instead of `sed` (by @piplus2)
+- #285 - Replace the local `RMATS_PREP` module with the nf-core `rmats/prep` module, which preps each BAM file once and on its own instead of every BAM file of a contrast in one go, and refactor `RMATS_POST` to the nf-core module template, with `environment.yml`, `meta.yml`, a stub and the `--paired-stats`, `--cstat` and `--novelSS` options in `ext.args`. It also reports the `PAIRADISE` version (by @piplus2)
+- #285 - **Breaking change**: The rMATS `.rmats` files are published to `rmats/prep/{sample}.rmats` and the results of a contrast to `rmats/{contrast}{_paired}/`, with the log next to the folder. The intermediate `tmp/` folder of the post step is no longer published (by @piplus2)
+- #285 - **Breaking change**: The samplesheet of `--source genome_bam`, `transcriptome_bam` and `salmon_results` must have unique `sample` names, which the schema now checks up front. Duplicates already collided in the per sample outputs, since only the fastq source merges the runs of a sample (by @piplus2)
+- #286 - Replace the local `STAR_ALIGN_IGENOMES` module with the nf-core `star/align` module, aliased and pinned in `conf/modules.config` to the STAR 2.6.1d container that reads the AWS iGenomes indices. The `--seq_center` read group tag is set in `ext.args` and now applies to every STAR alignment, not only to the iGenomes path (by @piplus2)
+- #287 - Replace the local `STAR_GENOMEGENERATE_IGENOMES` module with the nf-core `star/genomegenerate` module, aliased and pinned in `conf/modules.config` to the same STAR 2.6.1d container as `STAR_ALIGN_IGENOMES` (by @piplus2)
+- #289 - Drop the STAR 2.6.1d pin. A supplied STAR index now goes through the new `STAR_GENOMEPARAMS_UPGRADE` module, which rewrites the `genomeParameters.txt` metadata that STAR 2.7.4a and later validate and copies the binary index files through untouched, so the AWS iGenomes indices work with a single STAR version. This removes the `STAR_ALIGN_IGENOMES` and `STAR_GENOMEGENERATE_IGENOMES` aliases, the legacy `--quantTranscriptomeBan` argument and the `is_aws_igenome` flag (suggested by @pinin4fjords, done by @piplus2)
+- #290 - Move the `PREPARE_GENOME` subworkflow to the nf-core subworkflow template. It takes `--source`, `--aligner`, `--pseudo_aligner` and `--skip_alignment` as inputs instead of reading `params`, and the GTF converted from `--gff` is named after the GFF file instead of `null.gtf` (by @piplus2)
+- #291 - Move the `RMATS` subworkflow to the nf-core subworkflow template. It takes the genome BAM files as `[ meta, bam ]` and reads the condition from the meta map, and it also emits the bam lists. The BAM files of a contrast are listed in samplesheet order in both the paired and the unpaired model (by @piplus2)
+- #301 - Refactor `SPLIT_FILES` to the nf-core module template, with nf-tests. The split SUPPA files keep the values as SUPPA wrote them, so missing PSI values stay `nan` instead of becoming `NA` (by @piplus2)
+- #306 - Refactor `CREATE_BAMLIST` to the nf-core module template, with nf-tests, a stub and a Seqera container (by @piplus2)
+- #308 - Refactor `CLUSTERGROUPS` to the nf-core module template. The contrast conditions travel in the meta map, the versions are reported through a topic `eval` tuple and the container holds Python only (by @piplus2)
+- #309 - Move the `SUPPA` subworkflow to the nf-core subworkflow template. The local event and isoform analyses share a single `SPLIT_FILES_PSI`, `SUPPA_DIFFSPLICE`, `CLUSTERGROUPS` and `SUPPA_CLUSTEREVENTS` call, with the level in the meta map, and `CLUSTERGROUPS` gives the column ranges to `SUPPA_CLUSTEREVENTS` as a value instead of a file read in the subworkflow (by @piplus2)
+- #309 - **Breaking change**: Move the merged SUPPA local events from a top level `mergeevents/` folder to `suppa/generate_events/per_local_event/merged_events/` (by @piplus2)
+- #309 - **Breaking change**: Rename the SUPPA cluster group files after their level, so `GBR-YRI_groups.txt` becomes `local_GBR-YRI_groups.txt`, with a new `transcript_GBR-YRI_groups.txt` next to it (by @piplus2)
+- #310 - Move the `TX2GENE_TXIMPORT` subworkflow to the nf-core subworkflow template. It detects a tarball from the file name instead of the first element of the path, and no longer adds a `tgz` key to the meta map of the Salmon results it emits (by @piplus2)
+- #311 - Correct `MISOPY_SETTINGS` metadata and remove redundant prefix argument parsing and configuration overrides (by @felixhaidle)
+- #327 - Rename the local modules `CREATE_BAMLIST`, `STRAND_JUNCTIONS`, `SPLIT_FILES` and `STAR_GENOMEPARAMS_UPGRADE` to `CREATEBAMLIST`, `STRANDJUNCTIONS`, `SPLITFILES` and `GENOMEPARAMSUPGRADE`, and move `RMATS_POST` to `modules/local/rmats/post`. Custom configs that select these processes with `withName` need the new names (suggested by @mashehu, done by @piplus2)
+- #327 - Replace the local DEXSeq modules with the nf-core modules `dexseq/prepareannotation`, `dexseq/count`, `dexseq/exon` and `dexseq/dtu`. The DEXSeq annotation is prepared with a fixed Python hash seed, so it is the same across runs (suggested by @mashehu, done by @piplus2)
+- #327 - **Breaking change**: `DEXSEQ_EXON` and `DEXSEQ_DTU` run once per contrast, and their results are named `{contrast}.dexseq.{dataset,results,gene_qvalues}.{rds,tsv}` and `{contrast}.dexseq.plots.pdf`, so the exon tables are TSV instead of CSV. The log2 fold changes are now treatment over control, where the local scripts reported control over treatment (reported by @erikrikarddaniel, fix by @piplus2)
+- #327 - `DEXSEQ_DEU` takes `skip_annotation` instead of `prepare_annotation`, and Salmon gets empty inputs instead of the `assets/dummy_file*.txt` placeholders (suggested by @mashehu, done by @piplus2)
+- #327 - Add icons, bounds and tidier descriptions to the parameter schema, the LeafCutter and RegTools citations, and fix the profile names in the `conf/test_*.config` headers (suggested by @mashehu and @erikrikarddaniel, done by @piplus2)
+
+### Fixed
+
+- #195 - Fix Nextflow 26+ compatibility: no deprecated `if/else` blocks in `nextflow.config`, `ext.when` closures in `conf/modules.config` and no `switch/case` statements (by @piplus2)
+- #195 - Fix channel reuse in the `SUPPA` subworkflow, `CREATE_BAMLIST` null paths for single condition rMATS runs, `SUBREAD_FLATTENGTF` multi-line versions breaking the YAML and the `STAR_ALIGN` argument renamed to `--quantTranscriptomeSAMoutput` (by @piplus2)
+- #198 - Do not pass sorted BAM files to Salmon (reported by @albamasmalavila, fix by @piplus2)
+- #199 - Fix the ignored `--clip_r1` and `--clip_r2` arguments of `TRIMGALORE` (reported by @misiti-1864309, fix by @piplus2)
+- #201 - Pass the contrasts channel, instead of the samplesheet channel, to `RMATS` and `SUPPA` (by @piplus2)
+- #208 - Follow the nf-core standard for conditional output in `publishDir.saveAs` (by @piplus2)
+- #140 - Add validation of sample names for R compatibility (by @fhausmann)
+- #212 - Fix the sample order of the `RMATS` paired model, which was not taken from the samplesheet (by @piplus2)
+- #214 - Fix the missing `BPPARAM` argument of `DEXSEQ_DTU` and remove its unused `ntop` argument (by @piplus2)
+- #218 - Fix a regex error in `parse_miso_index.py` (by @piplus2)
+- #219 - Fix `MISOPY` handling of paired-end reads and the BAM files passed to it (by @piplus2)
+- #224 - Fix the sample IDs in the `DEXSEQ_DTU` script (reported by @albamasmalavila, fix by @piplus2)
+- #232 - Fix the wrong branch taken when the input is BAM (reported by @albamasmalavila, fix by @piplus2)
+- #238 - Add a missing backslash in the `mergeevents` command (by @piplus2)
+- #241 - Add a missing backslash in the `clustergroups` command (by @piplus2)
+- #245 - Fix the ignored `--tximport_ignore_tx_version` argument of `TXIMPORT` (by @piplus2)
+- #254 - Fix `GTFGENEFILTER` logging the characters of the last GTF sequence name instead of the sequence names found, and raising a `NameError` on an empty GTF. It now fails explicitly when no GTF feature matches the genome FASTA (by @piplus2)
+- #255 - Fix `EDGER_EXON` writing an unreadable zero-page PDF when a contrast has no gene to plot. It now fails explicitly on missing samplesheet or contrastsheet columns, on a sample assigned to more than one condition, on a contrast condition absent from the samplesheet and on a missing featureCounts table (by @piplus2)
+- #256 - Fix the software version commands of `STAR_ALIGN_IGENOMES` and `STAR_GENOMEGENERATE_IGENOMES`, which failed with a shell syntax error and aborted both processes (by @piplus2)
+- #256 - Use `--quantTranscriptomeBan Singleend` on the iGenomes path, as the pinned STAR 2.6.1d does not accept `--quantTranscriptomeSAMoutput` (by @piplus2)
+- #257 - Fix `--gff_dexseq` aborting with `Not a valid argument for 'combine' operator [String]`. `RNASPLICE` overwrote the `ch_dexseq_gff` channel it receives from `PREPARE_GENOME` with the raw parameter string (by @piplus2)
+- #258 - Fix `--source genome_bam`, `transcriptome_bam` and `salmon_results` aborting at startup, as the samplesheet was always validated against the fastq schema. The schema is now selected from `--source` by `samplesheetSchema()` (by @piplus2)
+- #258 - `PIPELINE_INITIALISATION` parses the samplesheet and passes it through `NFCORE_RNASPLICE` into `RNASPLICE`, as in the nf-core template. `RMATS` receives that samplesheet channel instead of a second `file(params.input)`, and the rMATS single condition check goes through the same source schema instead of reading the CSV with `new File`/`new URL`, which only handled local and `http` paths (by @piplus2)
+- #258 - Fix `BAM_SORT_STATS_SAMTOOLS` being called with a bare fasta path in the `genome_bam` and `transcriptome_bam` paths, which aborted the run (by @piplus2)
+- #258 - Fix `No such variable: ch_txi_suppa_tpm` with `--source salmon_results` and `--suppa` (by @piplus2)
+- #258 - Fix `ISOFORMSWITCHANALYZER` receiving the `.tar.gz` archives instead of the extracted Salmon directories with `--source salmon_results`. `TX2GENE_TXIMPORT` extracts them and now emits them (by @piplus2)
+- #261 - Fix the paired rMATS sample order when a sample spans several samplesheet rows (by @piplus2)
+- #261 - Fix single condition rMATS runs, which aborted before producing any output (by @piplus2)
+- #284 - Fix `--gencode` with `--transcript_fasta` aborting in `PREPARE_GENOME`, as `PREPROCESS_TRANSCRIPTS_FASTA_GENCODE` dropped the meta map the downstream channel expects (by @piplus2)
+- #261 - Fix samples split over several samplesheet rows, whose fastq files were passed on without being concatenated (by @piplus2)
+- #263 - **Breaking change**: `DEXSEQ_COUNT` no longer counts BAM input as forward stranded, it follows the samplesheet `strandedness`, so DEXSeq results change for BAM samplesheets that do not set the column (reported by @albamasmalavila, fix by @piplus2)
+- #264 - Fix the `DEXSEQ_DTU` stub, which wrote file names the process outputs did not match, so a stub run of the DTU path failed (by @piplus2)
+- #266 - Fix `DEXSEQ_DTU`, which ignored `task.cpus` and ran DEXSeq on every core of the host, as `parallel::detectCores()` does not see the container cpu limit. It now takes the worker count from `task.cpus` and defaults to `SerialParam()`, as `DEXSEQ_EXON` has since #225 (by @piplus2)
+- #267 - Fix `SPLIT_FILES`, whose stub wrote an unescaped `$` that Nextflow 26.08-edge refuses to parse, taking the whole pipeline down with it as `SUPPA` could no longer import the module (by @piplus2)
+- #271 - Fix `--leafcutter`, which aborted at `REGTOOLS_JUNCTIONSEXTRACT` with `invalid option -- 'i'`. The intron length arguments were the `-i`/`-I` of regtools 0.5.x, which 1.0.0 spells `-m`/`-M` (by @piplus2)
+- #272 - Fix `--leafcutter` clustering nothing. regtools now takes the junction strand from the samplesheet `strandedness`, and the junctions of an unstranded sample are stranded afterwards from the splice motif and the annotation, so the BAM files the other analyses read are left alone (by @piplus2)
+- #275 - Fix missing yaml from singularity container in `GTFGENEFILTER` (reported by @srira25, fix by @piplus2)
+- #277 - Fix missing pyyaml from singularity container in `STRAND_JUNCTIONS`, `CLUSTERGROUPS` and `MISOPY_SETTINGS` (by @piplus2)
+- #281 - Fix `ISOFORMSWITCHANALYZER` writing `common_switch_consequences.pdf` next to the `results` directory instead of inside it, so it was never published (by @piplus2)
+- #290 - Fix an uncompressed `--salmon_index` or `--suppa_tpm`, which reached `SALMON_QUANT` and `SUPPA` still wrapped with an empty meta map (by @piplus2)
+- #291 - Fix `--rmats_paired_stats` with conditions of different sizes, which dropped the samples with no counterpart without a warning instead of stopping with an error. A contrast naming a condition with no sample now also stops with an error instead of being skipped (by @piplus2)
+- #303 - Fix `MERGEEVENTS` hanging when the last SUPPA event file holds no events, only its header (by @piplus2)
+- #304 - Fix the pipeline stopping at launch with Nextflow 26.09 edge releases, which take a parameter without a default as required unless it is declared nullable. The optional parameters are now nullable (by @piplus2)
+- #305 - Fix the stub of `DEXSEQ_EXON`, whose output files now take their names from the contrastsheet like those of the script (by @piplus2)
+- #309 - Publish the SUPPA cluster groups with `--source salmon_results`, and publish the groups of both levels instead of one overwriting the other (by @piplus2)
+- #312 - Remove the 4 cpu, 12 GB and 12 h caps from the `test_full` profile, which are too small for STAR to align to GRCh37 in the AWS full size test (by @piplus2)
+- #315 - Fix the AWS tests stopping at launch on the Seqera Platform, which ran an older Nextflow with the old syntax parser (by @piplus2)
+- #316 - Fix the AWS full size test failing at `paramsSummaryLog`, as its Slack config dropped the pinned nf-schema version (by @piplus2)
+- #317 - Restore the MultiQC screenshots of the output docs, which the template update to nf-core/tools 3.0.0 deleted (by @piplus2)
+- #320 - Fix SUPPA with `-profile conda`, where a newer statsmodels lacked the `multipletests` import of SUPPA 2.4. The SUPPA modules now pin statsmodels 0.14.6, as in their container (by @piplus2)
+- #321 - Fix local modules giving different results with `-profile conda` and the containers: pin R and its packages to the container versions for DRIMSeq, edgeR and tximport, compare the edgeR result tables rounded to 6 significant digits in the tests, and stop the GFF3 header of `GFFREAD_GTF2GFF3` from being padded with tabs in the container (by @piplus2)
+- #323 - Fix the pipeline tests with `-profile conda` and Nextflow 26.09: the sorted BAM files, whose headers differ between the conda and container builds of samtools, are snapshotted by their alignments with nft-bam, and the rMATS test of unequal paired sample counts also looks for the error in stderr, where Nextflow 26.09 prints it (by @piplus2)
+- #324 - Update the nf-core SUPPA modules, which now pin statsmodels and report its version, replacing the patches of #320 (by @piplus2)
+- #325 - Redraw the metro map with nf-metro 2.1.0, with larger stations, labels and spacing so the single-line stations are easier to read, and the transcript quantification under the exon and junction based analysis (suggested by @mashehu, done by @piplus2)
+- #327 - Default `--ignore_tx_version` to `false`, as documented, and fix `TXIMPORT` stopping with versioned transcript IDs when it is `true`: the transcript tables now drop the versions too (reported by @erikrikarddaniel, fix by @piplus2)
+- #327 - Accept decimal values for `--diffsplice_lower_bound`, `--diffsplice_tpm_threshold` and `--diffsplice_nan_threshold`, which SUPPA reads as decimals but the schema typed as integers (by @piplus2)
+- #327 - Declare `--rmats_paired_stats` without a `true` default in `main.nf`, which contradicted the documented `false` that `nextflow.config` sets (reported by @erikrikarddaniel, fix by @piplus2)
+- #328 - **Breaking change**: SUPPA and IsoformSwitchAnalyzeR report treatment minus control, like the other tools, where they reported control minus treatment. The SUPPA dPSI columns are named `{level}_{control}-{level}_{treatment}_dPSI`, where `{level}` is `local` or `transcript`, and the `.psivec` columns list the control samples first. The IsoformSwitchAnalyzeR plot folders are named `{control}_vs_{treatment}`. Each tool names a comparison after its first and second condition (suggested by @erikrikarddaniel, done by @piplus2)
+- #329 - Fix the devcontainer setup script, which lacked the executable bit, so the devcontainer did not start in VS Code on macOS (by @tfallon-ionis)
+
+## v1.0.4 - 2024-04-21
+
+- Fixed incorrect assignment of cluster groups (Issue #131).
+
+## v1.0.3 - 2024-02-23
+
+- Improved TPM file splitting performance (Issue #120).
+- Fixed an issue where R scripts altered sample names upon loading (Issue #122).
+
+## v1.0.2 - 2024-01-08
+
+Patch for run_stager.R (#108) and template update v2.11.1 (#109).
+
+## v1.0.1 - 2023-11-15
+
+Patch for run_drimseq_filter.R to cast command line arguments to numeric. See issue #98 on nf-core/rnasplice.
+
+## v1.0.0 - 2023-05-22
+
+First release of nf-core/rnasplice, created with the [nf-core](https://nf-co.re/) template.
 
 ### `Added`
 
-### `Fixed`
+Implemented pipeline:
 
-### `Dependencies`
+- Merge re-sequenced FastQ files (cat)
+- Read QC (FastQC)
+- Adapter and quality trimming (TrimGalore)
+- Alignment with STAR:
+  - STAR -> Salmon
+  - STAR -> featureCounts
+  - STAR -> HTSeq (DEXSeq count)
+- Sort and index alignments (SAMtools)
+- Create bigWig coverage files (BEDTools, bedGraphToBigWig)
+- Pseudo-alignment and quantification (Salmon; optional)
+- Summarize QC (MultiQC)
+- Differential Exon Usage (DEU):
+  - HTSeq -> DEXSeq
+  - featureCounts -> edgeR
+  - Quantification with featureCounts or HTSeq
+- Differential exon usage with DEXSeq or edgeR
+  - Differential Transcript Usage (DTU):
+  - Salmon -> DRIMSeq -> DEXSeq
+  - Filtering with DRIMSeq
+- Differential transcript usage with DEXSeq
+- Event-based splicing analysis:
+  - STAR -> rMATS
+  - Salmon -> SUPPA2
 
-### `Deprecated`
+Updated pipeline:
+
+- Visualization of differential results with edgeR, DEXSeq, and MISO
+- Contrasts specified using contrastsheet.csv
+- Allow users to specify input data type and start point (e.g., fastq, genome_bam, transcript_bam, salmon_results)
+- Pipeline schematic updated

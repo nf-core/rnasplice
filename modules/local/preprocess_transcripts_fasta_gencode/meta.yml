@@ -1,0 +1,72 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "preprocess_transcripts_fasta_gencode"
+description: Strip the GENCODE transcript FASTA headers down to the transcript id,
+  so that they match the transcript ids of the GTF
+keywords:
+  - fasta
+  - gencode
+  - transcriptome
+  - header
+tools:
+  - "cut":
+      description: "GNU coreutils cut, which removes sections from each line of a file"
+      homepage: "https://www.gnu.org/software/coreutils/"
+      documentation: "https://www.gnu.org/software/coreutils/manual/html_node/cut-invocation.html"
+      licence: ["GPL-3.0-or-later"]
+      identifier: ""
+
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. [ id:'test' ]
+    - fasta:
+        type: file
+        description: GENCODE transcript FASTA, whose headers hold the transcript id,
+          gene id, names, length and biotype separated by `|`, optionally gzipped
+        pattern: "*.{fa,fasta,fa.gz,fasta.gz}"
+        ontologies:
+          - edam: "http://edamontology.org/format_1929" # FASTA
+
+output:
+  fasta:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. [ id:'test' ]
+      - "*.fixed.fa":
+          type: file
+          description: Uncompressed transcript FASTA with the headers cut down to
+            the transcript id, the first `|` separated field
+          pattern: "*.fixed.fa"
+          ontologies:
+            - edam: "http://edamontology.org/format_1929" # FASTA
+  versions_cut:
+    - - ${task.process}:
+          type: string
+          description: The process the versions were collected from
+      - cut:
+          type: string
+          description: The tool name
+      - cut --version 2>&1 | head -1 | sed "s/^.*coreutils) //":
+          type: eval
+          description: The expression to obtain the version of the tool
+
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The process the versions were collected from
+      - cut:
+          type: string
+          description: The tool name
+      - cut --version 2>&1 | head -1 | sed "s/^.*coreutils) //":
+          type: eval
+          description: The expression to obtain the version of the tool
+authors:
+  - "@drpatelh"
+  - "@piplus2"
+maintainers:
+  - "@piplus2"

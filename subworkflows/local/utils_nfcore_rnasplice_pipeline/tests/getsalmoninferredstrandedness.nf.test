@@ -1,0 +1,132 @@
+nextflow_function {
+
+    name "Test Function getSalmonInferredStrandedness"
+    script "../main.nf"
+    function "getSalmonInferredStrandedness"
+
+    tag "subworkflows"
+    tag "subworkflows/utils_nfcore_rnasplice_pipeline"
+
+    // Small Salmon lib_format_counts.json files, written by each test, so that the parsing
+    // and the thresholds of nf-core/rnaseq (0.8 stranded, 0.1 unstranded) are tested
+    // without running Salmon
+    test("paired end - forward") {
+
+        when {
+            function {
+                """
+                def json = file('${outputDir}/pe_forward.lib_format_counts.json')
+                json.text = '{ "ISF": 950, "ISR": 50 }'
+                input[0] = json
+                input[1] = 0.8
+                input[2] = 0.1
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result.inferred_strandedness == 'forward' },
+                { assert snapshot(function.result).match() }
+            )
+        }
+
+    }
+
+    test("paired end - reverse") {
+
+        when {
+            function {
+                """
+                def json = file('${outputDir}/pe_reverse.lib_format_counts.json')
+                json.text = '{ "ISF": 30, "ISR": 970 }'
+                input[0] = json
+                input[1] = 0.8
+                input[2] = 0.1
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result.inferred_strandedness == 'reverse' },
+                { assert snapshot(function.result).match() }
+            )
+        }
+
+    }
+
+    test("paired end - unstranded") {
+
+        when {
+            function {
+                """
+                def json = file('${outputDir}/pe_unstranded.lib_format_counts.json')
+                json.text = '{ "ISF": 498, "ISR": 502 }'
+                input[0] = json
+                input[1] = 0.8
+                input[2] = 0.1
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result.inferred_strandedness == 'unstranded' },
+                { assert snapshot(function.result).match() }
+            )
+        }
+
+    }
+
+    test("paired end - undetermined") {
+
+        when {
+            function {
+                """
+                def json = file('${outputDir}/pe_undetermined.lib_format_counts.json')
+                json.text = '{ "ISF": 300, "ISR": 700 }'
+                input[0] = json
+                input[1] = 0.8
+                input[2] = 0.1
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result.inferred_strandedness == 'undetermined' },
+                { assert snapshot(function.result).match() }
+            )
+        }
+
+    }
+
+    test("single end - reverse") {
+
+        when {
+            function {
+                """
+                def json = file('${outputDir}/se_reverse.lib_format_counts.json')
+                json.text = '{ "SF": 20, "SR": 980 }'
+                input[0] = json
+                input[1] = 0.8
+                input[2] = 0.1
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result.inferred_strandedness == 'reverse' },
+                { assert snapshot(function.result).match() }
+            )
+        }
+
+    }
+}

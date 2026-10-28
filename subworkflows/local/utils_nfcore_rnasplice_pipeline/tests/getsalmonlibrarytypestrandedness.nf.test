@@ -1,0 +1,96 @@
+nextflow_function {
+
+    name "Test Function getSalmonLibraryTypeStrandedness"
+    script "../main.nf"
+    function "getSalmonLibraryTypeStrandedness"
+
+    tag "subworkflows"
+    tag "subworkflows/utils_nfcore_rnasplice_pipeline"
+
+    // Small Salmon meta_info.json files, written by each test, holding the library type
+    // Salmon detects for a transcriptome BAM quantified with '--libType A'
+    test("paired end - reverse") {
+
+        when {
+            function {
+                """
+                def json = file('${outputDir}/pe_reverse.meta_info.json')
+                json.text = '{ "library_types": ["ISR"] }'
+                input[0] = json
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result == [ inferred_strandedness: 'reverse', library_type: 'ISR' ] }
+            )
+        }
+
+    }
+
+    test("single end - forward") {
+
+        when {
+            function {
+                """
+                def json = file('${outputDir}/se_forward.meta_info.json')
+                json.text = '{ "library_types": ["SF"] }'
+                input[0] = json
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result == [ inferred_strandedness: 'forward', library_type: 'SF' ] }
+            )
+        }
+
+    }
+
+    test("paired end - unstranded") {
+
+        when {
+            function {
+                """
+                def json = file('${outputDir}/pe_unstranded.meta_info.json')
+                json.text = '{ "library_types": ["IU"] }'
+                input[0] = json
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result == [ inferred_strandedness: 'unstranded', library_type: 'IU' ] }
+            )
+        }
+
+    }
+
+    test("stub - empty file") {
+
+        when {
+            function {
+                """
+                def json = file('${outputDir}/empty.meta_info.json')
+                json.text = ''
+                input[0] = json
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result == [ inferred_strandedness: 'undetermined', library_type: '' ] }
+            )
+        }
+
+    }
+
+}

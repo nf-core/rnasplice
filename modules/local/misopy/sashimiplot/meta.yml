@@ -1,0 +1,119 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "misopy_sashimiplot"
+description: "Generates sashimi plots for visualizing alternative splicing events using the MISO model."
+keywords:
+  - genomics
+  - alternative splicing
+  - miso
+  - sashimi plot
+tools:
+  - "misopy":
+      description: "Mixture of Isoforms model (MISO) for isoform quantitation using
+        RNA-Seq"
+      homepage: "https://github.com/yarden/MISO/"
+      documentation: "https://miso.readthedocs.io/en/fastmiso/"
+      tool_dev_url: "https://github.com/yarden/MISO/"
+      doi: 10.1038/nmeth.1528
+      licence: ["GPL v2"]
+      identifier: biotools:misopy
+
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing information on the set of samples plotted together
+          e.g. `[ id:'miso' ]`
+    - bam_files:
+        type: file
+        description: Coordinate sorted BAM files of the samples to plot, the ones
+          the settings file lists
+        pattern: "*.bam"
+        ontologies:
+          - edam: "http://edamontology.org/format_2572" # BAM
+    - bai_files:
+        type: file
+        description: Indices of the BAM files
+        pattern: "*.bai"
+        ontologies:
+          - edam: "http://edamontology.org/format_3327" # BAI
+    - miso_data:
+        type: directory
+        description: MISO output directories of the samples, as written by
+          `MISOPY_RUN`, the ones the settings file lists
+    - miso_settings:
+        type: file
+        description: Sashimi plot settings file, listing the BAM files and MISO
+          output directories to plot and the figure layout
+        pattern: "*.txt"
+        ontologies: []
+    - miso_gene:
+        type: string
+        description: ID of the gene or event to plot, as named in the MISO index
+  - - meta2:
+        type: map
+        description: |
+          Groovy Map containing genome information
+          e.g. `[ id:'genome1' ]`
+    - miso_index:
+        type: directory
+        description: MISO index directory, as written by `index_gff`
+
+output:
+  sashimi_plot:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing information on the set of samples plotted together
+            e.g. `[ id:'miso' ]`
+      - "*.pdf":
+          type: file
+          description: Sashimi plot of the gene or event, named after it
+          pattern: "*.pdf"
+          ontologies:
+            - edam: "http://edamontology.org/format_3508" # PDF
+  versions_python:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - python:
+          type: string
+          description: The name of the tool
+      - python --version 2>&1 | sed "s/Python //g":
+          type: eval
+          description: The expression to obtain the version of the tool
+  versions_misopy:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - misopy:
+          type: string
+          description: The name of the tool
+      - python -c "import pkg_resources; print(pkg_resources.get_distribution('misopy').version)":
+          type: eval
+          description: The expression to obtain the version of the tool
+
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - python:
+          type: string
+          description: The name of the tool
+      - python --version 2>&1 | sed "s/Python //g":
+          type: eval
+          description: The expression to obtain the version of the tool
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - misopy:
+          type: string
+          description: The name of the tool
+      - python -c "import pkg_resources; print(pkg_resources.get_distribution('misopy').version)":
+          type: eval
+          description: The expression to obtain the version of the tool
+authors:
+  - "@valentinoruggieri"
+  - "@piplus2"
+maintainers:
+  - "@piplus2"

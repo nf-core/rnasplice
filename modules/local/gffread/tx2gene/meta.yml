@@ -1,0 +1,62 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "gffread_tx2gene"
+description: Build a transcript-to-gene mapping table from a GTF annotation
+keywords:
+  - gtf
+  - tx2gene
+  - annotation
+  - transcript
+tools:
+  - "gffread":
+      description: "GFF/GTF utility providing format conversions, region filtering,
+        FASTA sequence extraction and more."
+      homepage: "https://ccb.jhu.edu/software/stringtie/gff.shtml#gffread"
+      documentation: "https://ccb.jhu.edu/software/stringtie/gff.shtml#gffread"
+      tool_dev_url: "https://github.com/gpertea/gffread"
+      doi: "10.12688/f1000research.23297.1"
+      licence: ["MIT"]
+      identifier: biotools:gffread
+
+input:
+  - - gtf:
+        type: file
+        description: GTF annotation file
+        pattern: "*.{gtf}"
+        ontologies:
+          - edam: "http://edamontology.org/format_2306" # GTF
+
+output:
+  tx2gene:
+    - "*.tx2gene.tsv":
+        type: file
+        description: Tab-separated transcript-to-gene mapping table
+        pattern: "*.{tx2gene.tsv}"
+        ontologies:
+          - edam: "http://edamontology.org/format_3475" # TSV
+  versions_gffread:
+    - - "${task.process}":
+          type: string
+          description: The name of the process
+      - "gffread":
+          type: string
+          description: The name of the tool
+      - "gffread --version":
+          type: eval
+          description: The expression to obtain the version of the tool
+
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - gffread:
+          type: string
+          description: The name of the tool
+      - gffread --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+authors:
+  - "@valentinoruggieri"
+  - "@piplus2"
+maintainers:
+  - "@piplus2"

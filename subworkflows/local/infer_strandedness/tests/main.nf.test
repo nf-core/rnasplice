@@ -1,0 +1,163 @@
+nextflow_workflow {
+
+    name "Test Subworkflow INFER_STRANDEDNESS"
+    script "../main.nf"
+    workflow "INFER_STRANDEDNESS"
+
+    tag "subworkflows"
+    tag "subworkflows_local"
+    tag "subworkflows/infer_strandedness"
+    tag "subworkflows/fastq_subsample_fq_salmon"
+    tag "fq/subsample"
+    tag "salmon/index"
+    tag "salmon/quant"
+
+    test("homo_sapiens - mixed strandedness") {
+
+        when {
+            workflow {
+                """
+                // Two 'auto' samples, one paired end and one single end, next to one whose
+                // strandedness is given. The Salmon index is built inside the subworkflow
+                input[0] = channel.of(
+                    [
+                        [ id:'auto_pe', single_end:false, strandedness:'auto' ],
+                        [
+                            file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/fastq/test_rnaseq_1.fastq.gz', checkIfExists: true),
+                            file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/fastq/test_rnaseq_2.fastq.gz', checkIfExists: true)
+                        ]
+                    ],
+                    [
+                        [ id:'auto_se', single_end:true, strandedness:'auto' ],
+                        [ file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/fastq/test_rnaseq_1.fastq.gz', checkIfExists: true) ]
+                    ],
+                    [
+                        [ id:'given_pe', single_end:false, strandedness:'reverse' ],
+                        [
+                            file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/fastq/test_rnaseq_1.fastq.gz', checkIfExists: true),
+                            file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/fastq/test_rnaseq_2.fastq.gz', checkIfExists: true)
+                        ]
+                    ]
+                )
+                input[1] = channel.value(file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta', checkIfExists: true))
+                input[2] = channel.value(file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/transcriptome.fasta', checkIfExists: true))
+                input[3] = channel.value(file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.gtf', checkIfExists: true))
+                input[4] = channel.empty()
+                input[5] = true
+                input[6] = 0.8
+                input[7] = 0.1
+                """
+            }
+        }
+
+        then {
+            def metas = workflow.out.reads.collectEntries { meta, _reads -> [ (meta.id): meta ] }
+            assertAll(
+                { assert workflow.success },
+                // Every sample comes out with a strandedness the downstream tools understand
+                { assert metas.values().every { meta -> meta.strandedness in ['forward', 'reverse', 'unstranded'] } },
+                // A given strandedness is passed through untouched, and only 'auto' samples go through Salmon
+                { assert metas.given_pe.strandedness == 'reverse' },
+                { assert !metas.given_pe.containsKey('salmon_strand_analysis') },
+                // The test reads are forward stranded, about 97.6% of the stranded fragments
+                { assert metas.auto_pe.strandedness == 'forward' },
+                { assert metas.auto_se.strandedness == 'forward' },
+                { assert metas.auto_pe.salmon_strand_analysis },
+                { assert metas.auto_se.salmon_strand_analysis },
+                { assert workflow.out.lib_format_counts.collect { meta, _json -> meta.id }.sort() == ['auto_pe', 'auto_se'] },
+                { assert snapshot(
+                    metas.sort(),
+                    workflow.out.lib_format_counts.sort { item -> item[0].id }
+                ).match() }
+            )
+        }
+
+    }
+
+    test("homo_sapiens - no auto sample") {
+
+        when {
+            workflow {
+                """
+                input[0] = channel.of(
+                    [
+                        [ id:'given_pe', single_end:false, strandedness:'forward' ],
+                        [
+                            file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/fastq/test_rnaseq_1.fastq.gz', checkIfExists: true),
+                            file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/fastq/test_rnaseq_2.fastq.gz', checkIfExists: true)
+                        ]
+                    ]
+                )
+                input[1] = channel.value(file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta', checkIfExists: true))
+                input[2] = channel.value(file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/transcriptome.fasta', checkIfExists: true))
+                input[3] = channel.value(file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.gtf', checkIfExists: true))
+                input[4] = channel.empty()
+                input[5] = true
+                input[6] = 0.8
+                input[7] = 0.1
+                """
+            }
+        }
+
+        then {
+            // Without an 'auto' sample nothing runs, not even the Salmon index
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.trace.tasks().size() == 0 },
+                { assert workflow.out.reads.size() == 1 },
+                { assert workflow.out.reads[0][0] == [ id:'given_pe', single_end:false, strandedness:'forward' ] }
+            )
+        }
+
+    }
+
+    test("homo_sapiens - mixed strandedness - stub") {
+
+        options "-stub"
+
+        when {
+            workflow {
+                """
+                input[0] = channel.of(
+                    [
+                        [ id:'auto_pe', single_end:false, strandedness:'auto' ],
+                        [
+                            file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/fastq/test_rnaseq_1.fastq.gz', checkIfExists: true),
+                            file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/fastq/test_rnaseq_2.fastq.gz', checkIfExists: true)
+                        ]
+                    ],
+                    [
+                        [ id:'given_pe', single_end:false, strandedness:'reverse' ],
+                        [
+                            file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/fastq/test_rnaseq_1.fastq.gz', checkIfExists: true),
+                            file(params.modules_testdata_base_path + 'genomics/homo_sapiens/illumina/fastq/test_rnaseq_2.fastq.gz', checkIfExists: true)
+                        ]
+                    ]
+                )
+                input[1] = channel.value(file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.fasta', checkIfExists: true))
+                input[2] = channel.value(file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/transcriptome.fasta', checkIfExists: true))
+                input[3] = channel.value(file(params.modules_testdata_base_path + 'genomics/homo_sapiens/genome/genome.gtf', checkIfExists: true))
+                input[4] = channel.empty()
+                input[5] = true
+                input[6] = 0.8
+                input[7] = 0.1
+                """
+            }
+        }
+
+        then {
+            // The stub lib_format_counts.json is empty, so the 'auto' sample is undetermined
+            // and leaves the subworkflow as 'unstranded', with its fractions kept
+            def metas = workflow.out.reads.collectEntries { meta, _reads -> [ (meta.id): meta ] }
+            assertAll(
+                { assert workflow.success },
+                { assert metas.auto_pe.strandedness == 'unstranded' },
+                { assert metas.auto_pe.salmon_strand_analysis.inferred_strandedness == 'undetermined' },
+                { assert metas.given_pe.strandedness == 'reverse' },
+                { assert workflow.out.lib_format_counts.collect { meta, _json -> meta.id } == ['auto_pe'] }
+            )
+        }
+
+    }
+
+}

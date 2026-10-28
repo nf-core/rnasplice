@@ -1,0 +1,69 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://raw.githubusercontent.com/nf-core/rnasplice/master/assets/schema_input_salmon_results.json",
+    "title": "nf-core/rnasplice pipeline - params.input schema (salmon_results source)",
+    "description": "Schema for the file provided with params.input when --source salmon_results",
+    "type": "array",
+    "uniqueEntries": ["sample"],
+    "items": {
+        "type": "object",
+        "properties": {
+            "sample": {
+                "type": "string",
+                "pattern": "^(?!\\.\\.\\d+)(?!\\.$)[a-zA-Z.]([a-zA-Z0-9._]*)?$",
+                "not": {
+                    "enum": [
+                        "if",
+                        "else",
+                        "repeat",
+                        "while",
+                        "function",
+                        "for",
+                        "in",
+                        "next",
+                        "break",
+                        "TRUE",
+                        "FALSE",
+                        "NULL",
+                        "Inf",
+                        "NaN",
+                        "NA",
+                        "NA_integer_",
+                        "NA_real_",
+                        "NA_complex_",
+                        "NA_character_",
+                        "...",
+                        "..1",
+                        "..2",
+                        "..3",
+                        "..4",
+                        "..5",
+                        "..6",
+                        "..7",
+                        "..8",
+                        "..9"
+                    ]
+                },
+                "errorMessage": {
+                    "pattern": "Sample name must be a valid R identifier: start with a letter or '.', contain only letters, digits, '.', or '_', and not start with '.' followed by a digit",
+                    "not": "Sample name must not be an R reserved keyword"
+                },
+                "meta": ["id"]
+            },
+            "condition": {
+                "type": "string",
+                "pattern": "^\\S+$",
+                "errorMessage": "Condition must be provided and contain syntactically valid names.",
+                "meta": ["condition"]
+            },
+            "salmon_results": {
+                "type": "string",
+                "pattern": "^\\S+\\.tar\\.gz$",
+                "format": "file-path",
+                "exists": true,
+                "errorMessage": "Salmon results path must be provided and cannot contain spaces"
+            }
+        },
+        "required": ["sample", "condition", "salmon_results"]
+    }
+}

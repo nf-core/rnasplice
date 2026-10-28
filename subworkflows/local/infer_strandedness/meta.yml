@@ -1,0 +1,76 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "infer_strandedness"
+description: Infer the strandedness of the samples set to 'auto' by sub-sampling their reads and pseudo-aligning them with Salmon, as nf-core/rnaseq does
+keywords:
+  - strandedness
+  - library type
+  - salmon
+  - subsample
+  - rnaseq
+components:
+  - fastq_subsample_fq_salmon
+input:
+  - ch_reads:
+      type: file
+      description: |
+        The input channel containing the trimmed reads. Samples whose `meta.strandedness` is
+        'auto' have it inferred, every other sample is passed through untouched
+        Structure: [ val(meta), [ path(reads) ] ]
+      pattern: "*.{fastq,fq}.gz"
+  - ch_fasta:
+      type: file
+      description: |
+        The genome FASTA, used as the decoy sequence of a Salmon index built here
+        Structure: path(fasta)
+      pattern: "*.{fa,fasta}"
+  - ch_transcript_fasta:
+      type: file
+      description: |
+        The transcript FASTA Salmon pseudo-aligns to
+        Structure: path(transcript_fasta)
+      pattern: "*.{fa,fasta}"
+  - ch_gtf:
+      type: file
+      description: |
+        The GTF annotation, given to Salmon as its gene map
+        Structure: path(gtf)
+      pattern: "*.gtf"
+  - ch_salmon_index:
+      type: directory
+      description: |
+        A Salmon index, used when `make_salmon_index` is false
+        Structure: path(index)
+  - make_salmon_index:
+      type: boolean
+      description: |
+        Build a Salmon index from the genome and transcript FASTA files. The index is only
+        built when there is an 'auto' sample
+  - stranded_threshold:
+      type: float
+      description: |
+        The fraction of stranded reads that must be assigned to a strand for the sample to
+        be called forward or reverse
+  - unstranded_threshold:
+      type: float
+      description: |
+        The difference between the forward and reverse fractions below which the sample is
+        called unstranded
+output:
+  - reads:
+      type: file
+      description: |
+        Channel containing the reads of every sample, with the strandedness inferred for the
+        'auto' samples, which also carry the Salmon fractions in `meta.salmon_strand_analysis`.
+        An undetermined sample is set to 'unstranded'
+        Structure: [ val(meta), [ path(reads) ] ]
+      pattern: "*.{fastq,fq}.gz"
+  - lib_format_counts:
+      type: file
+      description: |
+        Channel containing the Salmon library format counts of the 'auto' samples
+        Structure: [ val(meta), path(lib_format_counts.json) ]
+      pattern: "*lib_format_counts.json"
+authors:
+  - "@piplus2"
+maintainers:
+  - "@piplus2"

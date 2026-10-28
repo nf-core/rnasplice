@@ -24,14 +24,15 @@ include { UTILS_NEXTFLOW_PIPELINE   } from '../../nf-core/utils_nextflow_pipelin
 */
 
 workflow PIPELINE_INITIALISATION {
-
     take:
-    version           // boolean: Display version and exit
-    validate_params   // boolean: Boolean whether to validate parameters against the schema at runtime
-    monochrome_logs   // boolean: Do not use coloured log outputs
+    version // boolean: Display version and exit
+    validate_params // boolean: Boolean whether to validate parameters against the schema at runtime
+    monochrome_logs // boolean: Do not use coloured log outputs
     nextflow_cli_args //   array: List of positional nextflow CLI args
     outdir            //  string: The output directory where the results will be saved
     input             //  string: Path to input samplesheet
+    source            //  string: Type of input data [fastq, genome_bam, transcriptome_bam, salmon_results]
+    contrasts         //  string: Path to the contrasts sheet
     help              // boolean: Display help message and exit
     help_full         // boolean: Show the full help message
     show_hidden       // boolean: Show hidden parameters in the help message
@@ -43,17 +44,16 @@ workflow PIPELINE_INITIALISATION {
     //
     // Print version and exit if required and dump pipeline parameters to JSON file
     //
-    UTILS_NEXTFLOW_PIPELINE (
+    UTILS_NEXTFLOW_PIPELINE(
         version,
         true,
         outdir,
-        workflow.profile.tokenize(',').intersect(['conda', 'mamba']).size() >= 1
+        workflow.profile.tokenize(',').intersect(['conda', 'mamba']).size() >= 1,
     )
 
     //
     // Validate parameters and generate parameter summary to stdout
     //
-
     def before_text = ""
     def after_text = ""
     before_text = """
@@ -79,7 +79,7 @@ workflow PIPELINE_INITIALISATION {
 
     command = "nextflow run ${workflow.manifest.name} -profile <docker/singularity/.../institute> --input samplesheet.csv --outdir <OUTDIR>"
 
-    UTILS_NFSCHEMA_PLUGIN (
+    UTILS_NFSCHEMA_PLUGIN(
         workflow,
         validate_params,
         null,
@@ -95,7 +95,7 @@ workflow PIPELINE_INITIALISATION {
     //
     // Check config provided to the pipeline
     //
-    UTILS_NFCORE_PIPELINE (
+    UTILS_NFCORE_PIPELINE(
         nextflow_cli_args
     )
 
@@ -107,30 +107,92 @@ workflow PIPELINE_INITIALISATION {
     //
     // Create channel from input file provided through params.input
     //
+    // The samplesheet columns depend on --source, so it is validated against the schema
+    // matching the declared source, selected by `samplesheetSchema`, which errors on an
+    // unknown --source. This is the only place the pipeline itself reads the samplesheet:
+    // what is emitted here is a parsed channel for the consumers that need the values and
+    // the validated path for the processes that read the sheet themselves.
+    //
+
+    def samplesheet_rows = samplesheetToList(input, samplesheetSchema(source))
+
+    if (source == 'fastq') {
+        channel
+            .fromList(samplesheet_rows)
+            .map {
+                meta, fastq_1, fastq_2 ->
+                    if (!fastq_2) {
+                        return [ meta.id, meta + [ single_end:true ], [ fastq_1 ] ]
+                    } else {
+                        return [ meta.id, meta + [ single_end:false ], [ fastq_1, fastq_2 ] ]
+                    }
+            }
+            .groupTuple()
+            .map { samplesheet ->
+                validateInputSamplesheet(samplesheet)
+            }
+            .map {
+                meta, fastqs ->
+                    return [ meta, fastqs.flatten() ]
+            }
+            .set { ch_samplesheet }
+    } else if (source == 'transcriptome_bam') {
+        // The samplesheet carries both genome_bam and transcriptome_bam; only the
+        // transcriptome BAM is read from here. Strandedness and read type cannot be
+        // derived from a BAM file, so they come from the samplesheet, which defaults
+        // them to 'unstranded' and paired end when the columns are missing
+        channel
+            .fromList(samplesheet_rows)
+            .map {
+                meta, _genome_bam, transcriptome_bam ->
+                    return [ [ id: meta.id, condition: meta.condition, strandedness: meta.strandedness, single_end: meta.single_end ], [ transcriptome_bam ] ]
+            }
+            .set { ch_samplesheet }
+    } else if (source == 'genome_bam') {
+        channel
+            .fromList(samplesheet_rows)
+            .map {
+                meta, genome_bam ->
+                    return [ [ id: meta.id, condition: meta.condition, strandedness: meta.strandedness, single_end: meta.single_end ], [ genome_bam ] ]
+            }
+            .set { ch_samplesheet }
+    } else {
+        // salmon_results carries a single path column, and the quantification it holds
+        // has already been done, so no strandedness is needed
+        channel
+            .fromList(samplesheet_rows)
+            .map {
+                meta, input_file ->
+                    return [ [ id: meta.id, condition: meta.condition ], [ input_file ] ]
+            }
+            .set { ch_samplesheet }
+    }
+
+    //
+    // Create channel from the contrasts file provided through params.contrasts
+    //
+    // Validated here next to the samplesheet, so each sheet is read once and both are
+    // emitted the same way: the rows for the consumers that work from the values, the
+    // validated path for the processes that read the sheet themselves.
+    //
 
     channel
-        .fromList(samplesheetToList(input, "${projectDir}/assets/schema_input.json"))
-        .map {
-            meta, fastq_1, fastq_2 ->
-                if (!fastq_2) {
-                    return [ meta.id, meta + [ single_end:true ], [ fastq_1 ] ]
-                } else {
-                    return [ meta.id, meta + [ single_end:false ], [ fastq_1, fastq_2 ] ]
-                }
+        .fromList(samplesheetToList(contrasts, "${projectDir}/assets/schema_contrasts.json"))
+        .map { row ->
+            // Every column of the contrastsheet is a meta field, so a row comes back as a
+            // single element list holding the meta map, not as the map itself
+            def meta = row[0]
+            validateInputContrastsheet([[meta]])
+            return [ contrast: meta.contrast, treatment: meta.treatment, control: meta.control ]
         }
-        .groupTuple()
-        .map { samplesheet ->
-            validateInputSamplesheet(samplesheet)
-        }
-        .map {
-            meta, fastqs ->
-                return [ meta, fastqs.flatten() ]
-        }
-        .set { ch_samplesheet }
+        .set { ch_contrastsheet }
 
     emit:
-    samplesheet = ch_samplesheet
-    versions    = ch_versions
+    samplesheet        = ch_samplesheet                                      // channel: [ val(meta), [ files ] ]
+    samplesheet_file   = channel.value(file(input, checkIfExists: true))     // channel: path(samplesheet.csv)
+    contrastsheet      = ch_contrastsheet                                    // channel: [ contrast, treatment, control ]
+    contrastsheet_file = channel.value(file(contrasts, checkIfExists: true)) // channel: path(contrastsheet.csv)
+    versions           = ch_versions
 }
 
 /*
@@ -140,12 +202,11 @@ workflow PIPELINE_INITIALISATION {
 */
 
 workflow PIPELINE_COMPLETION {
-
     take:
-    email           //  string: email address
-    email_on_fail   //  string: email address sent on pipeline failure
+    email //  string: email address
+    email_on_fail //  string: email address sent on pipeline failure
     plaintext_email // boolean: Send plain-text email instead of HTML
-    outdir          //    path: Path to output directory where results will be published
+    outdir //    path: Path to output directory where results will be published
     monochrome_logs // boolean: Disable ANSI colour codes in log output
     multiqc_report  //  string: Path to MultiQC report
 
@@ -183,11 +244,107 @@ workflow PIPELINE_COMPLETION {
     FUNCTIONS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
+
 //
 // Check and validate pipeline parameters
 //
 def validateInputParameters() {
     genomeExistsError()
+
+    if (!params.fasta) {
+        error("Genome fasta file not specified with e.g. '--fasta genome.fa' or via a detectable config file.")
+    }
+
+    if (!params.gtf && !params.gff) {
+        error("No GTF or GFF3 annotation specified! The pipeline requires at least one of these files.")
+    }
+
+    if (params.gtf) {
+        if (params.gff) {
+            gtfGffWarn()
+        }
+        if (params.genome == 'GRCh38' && params.gtf.contains('Homo_sapiens/NCBI/GRCh38/Annotation/Genes/genes.gtf')) {
+            ncbiGenomeWarn()
+        }
+        if (params.gtf.contains('/UCSC/') && params.gtf.contains('Annotation/Genes/genes.gtf')) {
+            ucscGenomeWarn()
+        }
+    }
+
+    if (params.transcript_fasta) {
+        transcriptsFastaWarn()
+    }
+
+    def valid_params = [aligners: ['star', 'star_salmon'], pseudoaligners: ['salmon']]
+
+    if (!params.skip_alignment) {
+        if (!valid_params['aligners'].contains(params.aligner)) {
+            error("Invalid option: '${params.aligner}'. Valid options for '--aligner': '${valid_params['aligners'].join(', ')}'.")
+        }
+    }
+    else {
+        if (!params.pseudo_aligner) {
+            error("--skip_alignment specified without --pseudo_aligner...please specify e.g. --pseudo_aligner '${valid_params['pseudoaligners'][0]}'.")
+        }
+        skipAlignmentWarn()
+    }
+
+    if (params.pseudo_aligner) {
+        if (!valid_params['pseudoaligners'].contains(params.pseudo_aligner)) {
+            error("Invalid option: '${params.pseudo_aligner}'. Valid options for '--pseudo_aligner': '${valid_params['pseudoaligners'].join(', ')}'.")
+        }
+        else {
+            if (!(params.salmon_index || params.transcript_fasta || (params.fasta && (params.gtf || params.gff)))) {
+                error("To use `--pseudo_aligner 'salmon'`, you must provide either --salmon_index or --transcript_fasta or both --fasta and --gtf / --gff.")
+            }
+        }
+    }
+
+    if (params.clusterevents_local_event && !params.diffsplice_local_event) {
+        error("--clusterevents_local_event specified without --diffsplice_local_event... please specify e.g. --diffsplice_local_event=true")
+    }
+
+    if (params.clusterevents_isoform && !params.diffsplice_isoform) {
+        error("--clusterevents_isoform specified without diffsplice_isoform... please specify e.g. --diffsplice_isoform=true")
+    }
+
+    if (!params.skip_alignment) {
+        if (params.aligner == "star_salmon" && params.pseudo_aligner == "salmon") {
+            log.warn("Both --aligner=star_salmon and --pseudo_aligner=salmon specified. Downstream analyses will be performed on both salmon output files.")
+        }
+    }
+
+    if (!params.input) {
+        error("Please provide an input samplesheet to the pipeline e.g. '--input samplesheet.csv'")
+    }
+
+    // ASpli reads genome BAM files, which only the STAR alignment or a genome BAM
+    // samplesheet provide
+    if (params.aspli && !(params.source == 'genome_bam' || (params.source == 'fastq' && !params.skip_alignment))) {
+        error("--aspli needs genome BAM files: use '--source genome_bam', or '--source fastq' without '--skip_alignment'.")
+    }
+}
+
+//
+// Schema the input samplesheet is validated against, selected from --source
+//
+// Each source declares a different set of columns, so there is one schema per source.
+// Every place that reads the samplesheet goes through this function, so a samplesheet
+// can never be accepted by one consumer and rejected by another.
+//
+def samplesheetSchema(source) {
+    def source_schemas = [
+        fastq:             "${projectDir}/assets/schema_input.json",
+        genome_bam:        "${projectDir}/assets/schema_input_genome_bam.json",
+        transcriptome_bam: "${projectDir}/assets/schema_input_transcriptome_bam.json",
+        salmon_results:    "${projectDir}/assets/schema_input_salmon_results.json",
+    ]
+
+    if (!source_schemas.containsKey(source)) {
+        error("Invalid --source parameter: '${source}'. Must be one of: ${source_schemas.keySet().join(', ')}")
+    }
+
+    return source_schemas[source]
 }
 
 //
@@ -196,24 +353,33 @@ def validateInputParameters() {
 def validateInputSamplesheet(input) {
     def (metas, fastqs) = input[1..2]
 
+    // Check that multiple runs of the same sample are of the same strandedness
+    def strandedness_ok = metas.collect { meta -> meta.strandedness }.unique().size == 1
+    if (!strandedness_ok) {
+        error("Please check input samplesheet -> Multiple runs of a sample must have the same strandedness: ${metas[0].id}")
+    }
+
     // Check that multiple runs of the same sample are of the same datatype i.e. single-end / paired-end
-    def endedness_ok = metas.collect{ meta -> meta.single_end }.unique().size == 1
+    def endedness_ok = metas.collect { meta -> meta.single_end }.unique().size == 1
     if (!endedness_ok) {
         error("Please check input samplesheet -> Multiple runs of a sample must be of the same datatype i.e. single-end or paired-end: ${metas[0].id}")
     }
 
-    return [ metas[0], fastqs ]
+    return [metas[0], fastqs]
 }
+
 //
-// Get attribute from genome config file e.g. fasta
+// Validate channels from input contrastsheet
 //
-def getGenomeAttribute(attribute) {
-    if (params.genomes && params.genome && params.genomes.containsKey(params.genome)) {
-        if (params.genomes[ params.genome ].containsKey(attribute)) {
-            return params.genomes[ params.genome ][ attribute ]
-        }
+def validateInputContrastsheet(input) {
+    def metas = input[0]
+    def meta = metas[0]
+
+    if (meta.treatment == meta.control) {
+        error("Please check input contrastsheet -> Treatment and control conditions cannot be the same: ${meta.contrast} (${meta.treatment} vs ${meta.control})")
     }
-    return null
+
+    return meta
 }
 
 //
@@ -221,76 +387,304 @@ def getGenomeAttribute(attribute) {
 //
 def genomeExistsError() {
     if (params.genomes && params.genome && !params.genomes.containsKey(params.genome)) {
-        def error_string = "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" +
-            "  Genome '${params.genome}' not found in any config files provided to the pipeline.\n" +
-            "  Currently, the available genome keys are:\n" +
-            "  ${params.genomes.keySet().join(", ")}\n" +
-            "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+        def error_string = "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" + "  Genome '${params.genome}' not found in any config files provided to the pipeline.\n" + "  Currently, the available genome keys are:\n" + "  ${params.genomes.keySet().join(", ")}\n" + "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
         error(error_string)
     }
 }
+
 //
 // Generate methods description for MultiQC
 //
 def toolCitationText() {
-    // TODO nf-core: Optionally add in-text citation tools to this list.
-    // Can use ternary operators to dynamically construct based conditions, e.g. params["run_xyz"] ? "Tool (Foo et al. 2023)" : "",
-    // Uncomment function in methodsDescriptionText to render in MultiQC report
-    def citation_text = [
-            "Tools used in the workflow included:",
-            "FastQC (Andrews 2010),",
-            "MultiQC (Ewels et al. 2016)",
-            "."
-        ].join(' ').trim()
+    def citation_text = ["Tools used in the workflow included:", "FastQC (Andrews 2010),", "MultiQC (Ewels et al. 2016)", "."].join(' ').trim()
 
     return citation_text
 }
 
 def toolBibliographyText() {
-    // TODO nf-core: Optionally add bibliographic entries to this list.
-    // Can use ternary operators to dynamically construct based conditions, e.g. params["run_xyz"] ? "<li>Author (2023) Pub name, Journal, DOI</li>" : "",
-    // Uncomment function in methodsDescriptionText to render in MultiQC report
-    def reference_text = [
-            "<li>Andrews S, (2010) FastQC, URL: https://www.bioinformatics.babraham.ac.uk/projects/fastqc/).</li>",
-            "<li>Ewels, P., Magnusson, M., Lundin, S., & Käller, M. (2016). MultiQC: summarize analysis results for multiple tools and samples in a single report. Bioinformatics , 32(19), 3047–3048. doi: /10.1093/bioinformatics/btw354</li>"
-        ].join(' ').trim()
+    def reference_text = ["<li>Andrews S, (2010) FastQC, URL: https://www.bioinformatics.babraham.ac.uk/projects/fastqc/).</li>", "<li>Ewels, P., Magnusson, M., Lundin, S., & Käller, M. (2016). MultiQC: summarize analysis results for multiple tools and samples in a single report. Bioinformatics , 32(19), 3047–3048. doi: /10.1093/bioinformatics/btw354</li>"].join(' ').trim()
 
     return reference_text
 }
 
 def methodsDescriptionText(mqc_methods_yaml) {
-    // Convert  to a named map so can be used as with familiar NXF ${workflow} variable syntax in the MultiQC YML file
     def meta = [:]
     meta.workflow = workflow.toMap()
     meta["manifest_map"] = workflow.manifest.toMap()
 
-    // Pipeline DOI
     if (meta.manifest_map.doi) {
-        // Using a loop to handle multiple DOIs
-        // Removing `https://doi.org/` to handle pipelines using DOIs vs DOI resolvers
-        // Removing ` ` since the manifest.doi is a string and not a proper list
         def temp_doi_ref = ""
         def manifest_doi = meta.manifest_map.doi.tokenize(",")
         manifest_doi.each { doi_ref ->
             temp_doi_ref += "(doi: <a href=\'https://doi.org/${doi_ref.replace("https://doi.org/", "").replace(" ", "")}\'>${doi_ref.replace("https://doi.org/", "").replace(" ", "")}</a>), "
         }
         meta["doi_text"] = temp_doi_ref.substring(0, temp_doi_ref.length() - 2)
-    } else meta["doi_text"] = ""
+    }
+    else {
+        meta["doi_text"] = ""
+    }
     meta["nodoi_text"] = meta.manifest_map.doi ? "" : "<li>If available, make sure to update the text to include the Zenodo DOI of version of the pipeline used. </li>"
 
-    // Tool references
     meta["tool_citations"] = ""
     meta["tool_bibliography"] = ""
 
-    // TODO nf-core: Only uncomment below if logic in toolCitationText/toolBibliographyText has been filled!
-    // meta["tool_citations"] = toolCitationText().replaceAll(", \\.", ".").replaceAll("\\. \\.", ".").replaceAll(", \\.", ".")
-    // meta["tool_bibliography"] = toolBibliographyText()
-
-
     def methods_text = mqc_methods_yaml.text
-
-    def engine =  new groovy.text.SimpleTemplateEngine()
+    def engine = new groovy.text.SimpleTemplateEngine()
     def description_html = engine.createTemplate(methods_text).make(meta)
 
     return description_html.toString()
+}
+
+//
+// Function to check whether biotype field exists in GTF file
+//
+def biotypeInGtf(gtf_file, biotype) {
+    def hits = 0
+    gtf_file.eachLine { line ->
+        def attributes = line.split('\t')[-1].split()
+        if (attributes.contains(biotype)) {
+            hits += 1
+        }
+    }
+    if (hits) {
+        return true
+    }
+    else {
+        log.warn(
+            "=============================================================================\n" + "  Biotype attribute '${biotype}' not found in the last column of the GTF file!\n\n" + "  Biotype QC will be skipped to circumvent the issue below:\n" + "  https://github.com/nf-core/rnaseq/issues/460\n\n" + "  Amend '--featurecounts_group_type' to change this behaviour.\n" + "==================================================================================="
+        )
+        return false
+    }
+}
+
+//
+// Function to generate an error if contigs in genome fasta file > 512 Mbp
+//
+def checkMaxContigSize(fai_file) {
+    def max_size = 512000000
+    fai_file.eachLine { line ->
+        def lspl = line.split('\t')
+        def chrom = lspl[0]
+        def size = lspl[1]
+        if (size.toInteger() > max_size) {
+            error(
+                "=============================================================================\n" + "  Contig longer than ${max_size}bp found in reference genome!\n\n" + "  ${chrom}: ${size}\n\n" + "  Provide the '--bam_csi_index' parameter to use a CSI instead of BAI index.\n\n" + "  Please see:\n" + "  https://github.com/nf-core/rnaseq/issues/744\n" + "============================================================================="
+            )
+        }
+    }
+}
+
+//
+// Create MultiQC tsv custom content from a list of values
+//
+def multiqcTsvFromList(tsv_data, header) {
+    def tsv_string = ""
+    if (tsv_data.size() > 0) {
+        tsv_string += "${header.join('\t')}\n"
+        tsv_string += tsv_data.join('\n')
+    }
+    return tsv_string
+}
+
+//
+// Print a warning if using GRCh38 assembly from igenomes.config
+//
+def ncbiGenomeWarn() {
+    log.warn(
+        "=============================================================================\n" + "  When using '--genome GRCh38' the assembly is from the NCBI and NOT Ensembl.\n" + "  Biotype QC will be skipped to circumvent the issue below:\n" + "  https://github.com/nf-core/rnaseq/issues/460\n\n" + "  If you would like to use the soft-masked Ensembl assembly instead please see:\n" + "  https://github.com/nf-core/rnaseq/issues/159#issuecomment-501184312\n" + "==================================================================================="
+    )
+}
+
+//
+// Print a warning if using a UCSC assembly from igenomes.config
+//
+def ucscGenomeWarn() {
+    log.warn(
+        "=============================================================================\n" + "  When using UCSC assemblies the 'gene_biotype' field is absent from the GTF file.\n" + "  Biotype QC will be skipped to circumvent the issue below:\n" + "  https://github.com/nf-core/rnaseq/issues/460\n\n" + "  If you would like to use the soft-masked Ensembl assembly instead please see:\n" + "  https://github.com/nf-core/rnaseq/issues/159#issuecomment-501184312\n" + "==================================================================================="
+    )
+}
+
+//
+// Print a warning if both GTF and GFF have been provided
+//
+def gtfGffWarn() {
+    log.warn(
+        "=============================================================================\n" + "  Both '--gtf' and '--gff' parameters have been provided.\n" + "  Using GTF file as priority.\n" + "==================================================================================="
+    )
+}
+
+//
+// Print a warning if using '--transcript_fasta'
+//
+def transcriptsFastaWarn() {
+    log.warn(
+        "=============================================================================\n" + "  '--transcript_fasta' parameter has been provided.\n" + "  Make sure transcript names in this file match those in the GFF/GTF file.\n\n" + "  Please see:\n" + "  https://github.com/nf-core/rnaseq/issues/753\n" + "==================================================================================="
+    )
+}
+
+//
+// Print a warning if --skip_alignment has been provided
+//
+def skipAlignmentWarn() {
+    log.warn(
+        "=============================================================================\n" + "  '--skip_alignment' parameter has been provided.\n" + "  Skipping alignment, genome-based quantification and all downstream QC processes.\n" + "==================================================================================="
+    )
+}
+
+//
+// Exit pipeline if rMATS requested with mixed single and paired end samples
+//
+def rmatsReadError(samples) {
+    samples
+        .map { meta, _files -> meta.single_end }
+        .unique()
+        .collect()
+        .map {
+            if (it.size() > 1) {
+                error("Please check input samplesheet -> Cannot run rMats with mixed single and paired end samples.")
+            }
+        }
+}
+
+//
+// Exit pipeline if rMATS requested with mixed stranded samples
+//
+def rmatsStrandednessError(samples) {
+    samples
+        .map { meta, _files -> meta.strandedness }
+        .unique()
+        .collect()
+        .map {
+            if (it.size() > 1) {
+                error("Please check input samplesheet -> Cannot run rMats with mixed stranded samples.")
+            }
+        }
+}
+
+//
+// Exit pipeline if ASpli requested with mixed single and paired end samples
+//
+def aspliReadError(samples) {
+    samples
+        .map { meta, _files -> meta.single_end }
+        .unique()
+        .collect()
+        .map {
+            if (it.size() > 1) {
+                error("Please check input samplesheet -> Cannot run ASpli with mixed single and paired end samples.")
+            }
+        }
+}
+
+//
+// Call a library forward, reverse or unstranded from the reads assigned to each strand.
+// Copied from nf-core/rnaseq 3.22.2:
+// https://github.com/nf-core/rnaseq/blob/3.22.2/subworkflows/nf-core/fastq_qc_trim_filter_setstrandedness/main.nf
+//
+def calculateStrandedness(forwardFragments, reverseFragments, unstrandedFragments, stranded_threshold = 0.8, unstranded_threshold = 0.1) {
+    def totalFragments = forwardFragments + reverseFragments + unstrandedFragments
+    def totalStrandedFragments = forwardFragments + reverseFragments
+
+    def strandedness = 'undetermined'
+    if (totalStrandedFragments > 0) {
+        def forwardProportion = forwardFragments / (totalStrandedFragments as double)
+        def reverseProportion = reverseFragments / (totalStrandedFragments as double)
+        def proportionDifference = Math.abs(forwardProportion - reverseProportion)
+
+        if (forwardProportion >= stranded_threshold) {
+            strandedness = 'forward'
+        }
+        else if (reverseProportion >= stranded_threshold) {
+            strandedness = 'reverse'
+        }
+        else if (proportionDifference <= unstranded_threshold) {
+            strandedness = 'unstranded'
+        }
+    }
+
+    // Without any fragment, as from a stub run, the percentages are 0 rather than NaN,
+    // which cannot be written to JSON
+    def scale = totalFragments > 0 ? 100 / (totalFragments as double) : 0
+
+    return [
+        inferred_strandedness: strandedness,
+        forwardFragments: forwardFragments * scale,
+        reverseFragments: reverseFragments * scale,
+        unstrandedFragments: unstrandedFragments * scale,
+    ]
+}
+
+//
+// Parse the Salmon 'lib_format_counts.json' file to get the inferred strandedness.
+// Copied from nf-core/rnaseq 3.22.2:
+// https://github.com/nf-core/rnaseq/blob/3.22.2/subworkflows/nf-core/fastq_qc_trim_filter_setstrandedness/main.nf
+//
+def getSalmonInferredStrandedness(json_file, stranded_threshold = 0.8, unstranded_threshold = 0.1) {
+    // The Salmon stub writes an empty file, which is read as no counts at all
+    def json_text = json_file.text
+    def libCounts = json_text.trim() ? new groovy.json.JsonSlurper().parseText(json_text) : [:]
+
+    def forwardKeys = ['SF', 'ISF', 'MSF', 'OSF']
+    def reverseKeys = ['SR', 'ISR', 'MSR', 'OSR']
+
+    // Every fragment Salmon assigns has a strand, even in an unstranded library, so these
+    // counts are in practice always zero: https://groups.google.com/g/sailfish-users/c/yxzBDv6NB6I
+    def unstrandedKeys = ['IU', 'U', 'MU']
+
+    def forwardFragments = forwardKeys.collect { key -> libCounts[key] ?: 0 }.sum()
+    def reverseFragments = reverseKeys.collect { key -> libCounts[key] ?: 0 }.sum()
+    def unstrandedFragments = unstrandedKeys.collect { key -> libCounts[key] ?: 0 }.sum()
+
+    return calculateStrandedness(forwardFragments, reverseFragments, unstrandedFragments, stranded_threshold, unstranded_threshold)
+}
+
+//
+// Parse the RSeQC 'infer_experiment.py' report to get the inferred strandedness, for
+// both the single end and the paired end patterns. Copied from nf-core/rnaseq 3.22.2:
+// https://github.com/nf-core/rnaseq/blob/3.22.2/subworkflows/local/utils_nfcore_rnaseq_pipeline/main.nf
+//
+def getInferexperimentStrandedness(inferexperiment_file, stranded_threshold = 0.8, unstranded_threshold = 0.1) {
+    def forwardFragments = 0
+    def reverseFragments = 0
+    def unstrandedFragments = 0
+
+    inferexperiment_file.eachLine { line ->
+        def unstranded_matcher = line =~ /Fraction of reads failed to determine:\s([\d\.]+)/
+        def se_sense_matcher = line =~ /Fraction of reads explained by "\++,--":\s([\d\.]+)/
+        def se_antisense_matcher = line =~ /Fraction of reads explained by "\+-,-\+":\s([\d\.]+)/
+        def pe_sense_matcher = line =~ /Fraction of reads explained by "1\++,1--,2\+-,2-\+":\s([\d\.]+)/
+        def pe_antisense_matcher = line =~ /Fraction of reads explained by "1\+-,1-\+,2\+\+,2--":\s([\d\.]+)/
+
+        if (unstranded_matcher) unstrandedFragments = unstranded_matcher[0][1].toFloat() * 100
+        if (se_sense_matcher) forwardFragments = se_sense_matcher[0][1].toFloat() * 100
+        if (se_antisense_matcher) reverseFragments = se_antisense_matcher[0][1].toFloat() * 100
+        if (pe_sense_matcher) forwardFragments = pe_sense_matcher[0][1].toFloat() * 100
+        if (pe_antisense_matcher) reverseFragments = pe_antisense_matcher[0][1].toFloat() * 100
+    }
+
+    return calculateStrandedness(forwardFragments, reverseFragments, unstrandedFragments, stranded_threshold, unstranded_threshold)
+}
+
+//
+// Get the strandedness from the library type Salmon detected with '--libType A', as written
+// to its 'meta_info.json'. In alignment mode Salmon writes no 'lib_format_counts.json', so
+// the call is Salmon's own rather than one made with the thresholds above
+//
+def getSalmonLibraryTypeStrandedness(json_file) {
+    def json_text = json_file.text
+    def meta_info = json_text.trim() ? new groovy.json.JsonSlurper().parseText(json_text) : [:]
+    def library_type = meta_info.library_types ? meta_info.library_types[0] : ''
+
+    def strandedness = 'undetermined'
+    if (library_type in ['SF', 'ISF', 'MSF', 'OSF']) {
+        strandedness = 'forward'
+    }
+    else if (library_type in ['SR', 'ISR', 'MSR', 'OSR']) {
+        strandedness = 'reverse'
+    }
+    else if (library_type in ['U', 'IU', 'MU', 'OU']) {
+        strandedness = 'unstranded'
+    }
+
+    return [inferred_strandedness: strandedness, library_type: library_type]
 }
