@@ -11,7 +11,7 @@
                     "r-base": "4.4.2"
                 },
                 "FASTQC": {
-                    "fastqc": "0.12.1"
+                    "fastqc": "0.13.0"
                 },
                 "GTFGENEFILTER": {
                     "python": "3.14.6"
@@ -363,7 +363,7 @@
                 "ie2": "d44a37ce7692b6aae05fbbe08abbef90"
             }
         ],
-        "timestamp": "2026-10-27T16:19:20.804738209",
+        "timestamp": "2026-10-29T11:56:25.391664399",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.3"

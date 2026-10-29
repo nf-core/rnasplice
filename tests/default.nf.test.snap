@@ -33,7 +33,7 @@
                     "r-base": "4.1.1"
                 },
                 "FASTQC": {
-                    "fastqc": "0.12.1"
+                    "fastqc": "0.13.0"
                 },
                 "GFFREAD_GTF2GFF3": {
                     "gffread": "0.12.7"
@@ -1315,7 +1315,7 @@
                 "ERR204916_sorted.bam": "1f2abfcbb9697c56744ffb5fcfeb9f17"
             }
         ],
-        "timestamp": "2026-10-23T11:35:03.508260735",
+        "timestamp": "2026-10-29T11:57:35.852992604",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.3"

@@ -9,7 +9,7 @@
                     "sed": 4.9
                 },
                 "FASTQC": {
-                    "fastqc": "0.12.1"
+                    "fastqc": "0.13.0"
                 },
                 "GFFREAD_TX2GENE": {
                     "gffread": "0.12.7"
@@ -80,7 +80,7 @@
                 }
             }
         ],
-        "timestamp": "2026-10-21T10:28:01.885022184",
+        "timestamp": "2026-10-29T12:00:09.310153799",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.3"

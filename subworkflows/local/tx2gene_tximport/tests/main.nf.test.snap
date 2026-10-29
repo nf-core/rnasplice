@@ -38,28 +38,104 @@
                             "condition": "GBR",
                             "id": "ERR188383"
                         },
-                        "ERR188383"
+                        [
+                            [
+                                "ambig_info.tsv",
+                                "expected_bias.gz",
+                                "fld.gz",
+                                "meta_info.json",
+                                "observed_bias.gz",
+                                "observed_bias_3p.gz"
+                            ],
+                            "cmd_info.json",
+                            [
+                                "flenDist.txt"
+                            ],
+                            "lib_format_counts.json",
+                            [
+                                "salmon_quant.log"
+                            ],
+                            "quant.genes.sf",
+                            "quant.sf"
+                        ]
                     ],
                     [
                         {
                             "condition": "GBR",
                             "id": "ERR188428"
                         },
-                        "ERR188428"
+                        [
+                            [
+                                "ambig_info.tsv",
+                                "expected_bias.gz",
+                                "fld.gz",
+                                "meta_info.json",
+                                "observed_bias.gz",
+                                "observed_bias_3p.gz"
+                            ],
+                            "cmd_info.json",
+                            [
+                                "flenDist.txt"
+                            ],
+                            "lib_format_counts.json",
+                            [
+                                "salmon_quant.log"
+                            ],
+                            "quant.genes.sf",
+                            "quant.sf"
+                        ]
                     ],
                     [
                         {
                             "condition": "YRI",
                             "id": "ERR188454"
                         },
-                        "ERR188454"
+                        [
+                            [
+                                "ambig_info.tsv",
+                                "expected_bias.gz",
+                                "fld.gz",
+                                "meta_info.json",
+                                "observed_bias.gz",
+                                "observed_bias_3p.gz"
+                            ],
+                            "cmd_info.json",
+                            [
+                                "flenDist.txt"
+                            ],
+                            "lib_format_counts.json",
+                            [
+                                "salmon_quant.log"
+                            ],
+                            "quant.genes.sf",
+                            "quant.sf"
+                        ]
                     ],
                     [
                         {
                             "condition": "YRI",
                             "id": "ERR204916"
                         },
-                        "ERR204916"
+                        [
+                            [
+                                "ambig_info.tsv",
+                                "expected_bias.gz",
+                                "fld.gz",
+                                "meta_info.json",
+                                "observed_bias.gz",
+                                "observed_bias_3p.gz"
+                            ],
+                            "cmd_info.json",
+                            [
+                                "flenDist.txt"
+                            ],
+                            "lib_format_counts.json",
+                            [
+                                "salmon_quant.log"
+                            ],
+                            "quant.genes.sf",
+                            "quant.sf"
+                        ]
                     ]
                 ],
                 "suppa_tpm": [
@@ -106,7 +182,7 @@
                 ]
             }
         ],
-        "timestamp": "2026-10-23T11:32:03.893028845",
+        "timestamp": "2026-10-29T11:54:56.680752339",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.3"
@@ -151,28 +227,104 @@
                             "condition": "GBR",
                             "id": "ERR188383"
                         },
-                        "ERR188383"
+                        [
+                            [
+                                "ambig_info.tsv",
+                                "expected_bias.gz",
+                                "fld.gz",
+                                "meta_info.json",
+                                "observed_bias.gz",
+                                "observed_bias_3p.gz"
+                            ],
+                            "cmd_info.json",
+                            [
+                                "flenDist.txt"
+                            ],
+                            "lib_format_counts.json",
+                            [
+                                "salmon_quant.log"
+                            ],
+                            "quant.genes.sf",
+                            "quant.sf"
+                        ]
                     ],
                     [
                         {
                             "condition": "GBR",
                             "id": "ERR188428"
                         },
-                        "ERR188428"
+                        [
+                            [
+                                "ambig_info.tsv",
+                                "expected_bias.gz",
+                                "fld.gz",
+                                "meta_info.json",
+                                "observed_bias.gz",
+                                "observed_bias_3p.gz"
+                            ],
+                            "cmd_info.json",
+                            [
+                                "flenDist.txt"
+                            ],
+                            "lib_format_counts.json",
+                            [
+                                "salmon_quant.log"
+                            ],
+                            "quant.genes.sf",
+                            "quant.sf"
+                        ]
                     ],
                     [
                         {
                             "condition": "YRI",
                             "id": "ERR188454"
                         },
-                        "ERR188454"
+                        [
+                            [
+                                "ambig_info.tsv",
+                                "expected_bias.gz",
+                                "fld.gz",
+                                "meta_info.json",
+                                "observed_bias.gz",
+                                "observed_bias_3p.gz"
+                            ],
+                            "cmd_info.json",
+                            [
+                                "flenDist.txt"
+                            ],
+                            "lib_format_counts.json",
+                            [
+                                "salmon_quant.log"
+                            ],
+                            "quant.genes.sf",
+                            "quant.sf"
+                        ]
                     ],
                     [
                         {
                             "condition": "YRI",
                             "id": "ERR204916"
                         },
-                        "ERR204916"
+                        [
+                            [
+                                "ambig_info.tsv",
+                                "expected_bias.gz",
+                                "fld.gz",
+                                "meta_info.json",
+                                "observed_bias.gz",
+                                "observed_bias_3p.gz"
+                            ],
+                            "cmd_info.json",
+                            [
+                                "flenDist.txt"
+                            ],
+                            "lib_format_counts.json",
+                            [
+                                "salmon_quant.log"
+                            ],
+                            "quant.genes.sf",
+                            "quant.sf"
+                        ]
                     ]
                 ],
                 "suppa_tpm": [
@@ -219,7 +371,7 @@
                 ]
             }
         ],
-        "timestamp": "2026-10-23T11:31:57.063970599",
+        "timestamp": "2026-10-29T11:54:49.701113255",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.3"
@@ -264,14 +416,18 @@
                             "condition": "GBR",
                             "id": "ERR188383"
                         },
-                        "ERR188383"
+                        [
+                            
+                        ]
                     ],
                     [
                         {
                             "condition": "YRI",
                             "id": "ERR188454"
                         },
-                        "ERR188454"
+                        [
+                            
+                        ]
                     ]
                 ],
                 "suppa_tpm": [
@@ -318,10 +474,10 @@
                 ]
             }
         ],
-        "timestamp": "2026-10-09T13:12:39.961127224",
+        "timestamp": "2026-10-29T11:55:02.292133872",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.1"
+            "nextflow": "26.04.3"
         }
     }
 }
