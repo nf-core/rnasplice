@@ -45,8 +45,10 @@ nextflow_process {
             assert process.success
 
             assertAll(
+                // The MISO output directory holds logs named after the run time, so only
+                // its name is checked
                 { assert snapshot(
-                    sanitizeOutput(process.out, unstableKeys: ["miso"]),
+                    process.out.miso.collect { meta, dir -> [ meta, file(dir).name ] },
                     process.out.findAll { key, val -> key.startsWith('versions') }
                 ).match() }
             )
