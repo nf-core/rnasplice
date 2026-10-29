@@ -324,9 +324,9 @@
                 "from_gtf": [
                     [
                         {
+                            "control": "YRI",
                             "id": "GBR-YRI",
-                            "treatment": "GBR",
-                            "control": "YRI"
+                            "treatment": "GBR"
                         },
                         [
                             "fromGTF.A3SS.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
@@ -350,9 +350,9 @@
                 "mats": [
                     [
                         {
+                            "control": "YRI",
                             "id": "GBR-YRI",
-                            "treatment": "GBR",
-                            "control": "YRI"
+                            "treatment": "GBR"
                         },
                         [
                             "A3SS.MATS.JC.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
@@ -371,9 +371,9 @@
                 "post_log": [
                     [
                         {
+                            "control": "YRI",
                             "id": "GBR-YRI",
-                            "treatment": "GBR",
-                            "control": "YRI"
+                            "treatment": "GBR"
                         },
                         "GBR-YRI.log:md5,d41d8cd98f00b204e9800998ecf8427e"
                     ]
@@ -381,9 +381,9 @@
                 "raw_input": [
                     [
                         {
+                            "control": "YRI",
                             "id": "GBR-YRI",
-                            "treatment": "GBR",
-                            "control": "YRI"
+                            "treatment": "GBR"
                         },
                         [
                             "JC.raw.input.A3SS.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
@@ -402,8 +402,8 @@
                 "read_outcomes": [
                     [
                         {
-                            "id": "ERR188383",
                             "condition": "GBR",
+                            "id": "ERR188383",
                             "single_end": false,
                             "strandedness": "unstranded"
                         },
@@ -411,8 +411,8 @@
                     ],
                     [
                         {
-                            "id": "ERR188428",
                             "condition": "GBR",
+                            "id": "ERR188428",
                             "single_end": false,
                             "strandedness": "unstranded"
                         },
@@ -420,8 +420,8 @@
                     ],
                     [
                         {
-                            "id": "ERR188454",
                             "condition": "YRI",
+                            "id": "ERR188454",
                             "single_end": false,
                             "strandedness": "unstranded"
                         },
@@ -429,8 +429,8 @@
                     ],
                     [
                         {
-                            "id": "ERR204916",
                             "condition": "YRI",
+                            "id": "ERR204916",
                             "single_end": false,
                             "strandedness": "unstranded"
                         },
@@ -440,8 +440,8 @@
                 "rmats": [
                     [
                         {
-                            "id": "ERR188383",
                             "condition": "GBR",
+                            "id": "ERR188383",
                             "single_end": false,
                             "strandedness": "unstranded"
                         },
@@ -449,8 +449,8 @@
                     ],
                     [
                         {
-                            "id": "ERR188428",
                             "condition": "GBR",
+                            "id": "ERR188428",
                             "single_end": false,
                             "strandedness": "unstranded"
                         },
@@ -458,8 +458,8 @@
                     ],
                     [
                         {
-                            "id": "ERR188454",
                             "condition": "YRI",
+                            "id": "ERR188454",
                             "single_end": false,
                             "strandedness": "unstranded"
                         },
@@ -467,8 +467,8 @@
                     ],
                     [
                         {
-                            "id": "ERR204916",
                             "condition": "YRI",
+                            "id": "ERR204916",
                             "single_end": false,
                             "strandedness": "unstranded"
                         },
@@ -478,19 +478,19 @@
                 "summary": [
                     [
                         {
+                            "control": "YRI",
                             "id": "GBR-YRI",
-                            "treatment": "GBR",
-                            "control": "YRI"
+                            "treatment": "GBR"
                         },
                         "summary.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
                     ]
                 ]
             }
         ],
-        "timestamp": "2026-10-07T13:30:12.793750102",
+        "timestamp": "2026-10-29T11:54:41.912242217",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.1"
+            "nextflow": "26.04.3"
         }
     },
     "homo_sapiens - two contrasts - unpaired": {

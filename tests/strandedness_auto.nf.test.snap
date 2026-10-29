@@ -25,7 +25,7 @@
                     "r-base": "4.1.1"
                 },
                 "FASTQC": {
-                    "fastqc": "0.12.1"
+                    "fastqc": "0.13.0"
                 },
                 "FQ_SUBSAMPLE": {
                     "fq": "0.12.0"
@@ -821,7 +821,7 @@
                 "ERR204916_sorted.bam": "484dbb84bd68ceb9ed24ecdb8f7a613a"
             }
         ],
-        "timestamp": "2026-10-23T11:38:51.694849682",
+        "timestamp": "2026-10-29T12:01:42.94366954",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.3"
