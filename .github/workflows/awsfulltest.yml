@@ -41,7 +41,6 @@ jobs:
           # A plugins block here replaces the one in nextflow.config, so nf-schema is pinned again
           nextflow_config: |
             plugins {
-              id 'nf-schema@2.7.2'
               id 'nf-slack@0.5.0'
               id 'nf-schema@2.7.2'
             }
