@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - #341 - The test profiles and nf-tests use `chrX_subset/` from nf-core/test-datasets, a 3.4 Mb part of chrX with 82 genes and 10,000 read pairs per sample, instead of all of chrX. The STAR index of the tests drops from 1.7 GB to 42 MB, the Salmon index from 0.9 GB to 23 MB and STAR alignment from 4.9 GB to under 1 GB of memory. The LeafCutter reverse stranded subworkflow test runs on reverse stranded alignments (by @piplus2)
 - #348 - Template update to nf-core/tools 4.2.1, with FastQC 0.13.0 and nft-utils 1.2.1. nf-schema stays at 2.7.2, as later versions fail when a parameter is `null` ([nextflow-io/nf-schema#240](https://github.com/nextflow-io/nf-schema/issues/240)) (by @piplus2)
+- #349 - Set `manifest.diagram` to the metro map, which the 4.2.1 template update left out. Nextflow 26.04 warns that the option is unrecognised; Nextflow 26.10 and later accept it (by @piplus2)
 
 ## v2.0.0 - Fenix Reborn - [2026-10-20]
 
