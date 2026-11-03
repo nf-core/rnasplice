@@ -175,23 +175,47 @@ workflow PIPELINE_INITIALISATION {
     // emitted the same way: the rows for the consumers that work from the values, the
     // validated path for the processes that read the sheet themselves.
     //
+    // Both the id, variable, reference, target[, blocking] columns and the deprecated
+    // contrast, treatment, control columns are accepted. Rows are normalised to the
+    // latter, which the downstream code and the modules reading the sheet use.
+    //
 
-    channel
-        .fromList(samplesheetToList(contrasts, "${projectDir}/assets/schema_contrasts.json"))
-        .map { row ->
-            // Every column of the contrastsheet is a meta field, so a row comes back as a
-            // single element list holding the meta map, not as the map itself
-            def meta = row[0]
-            validateInputContrastsheet([[meta]])
-            return [ contrast: meta.contrast, treatment: meta.treatment, control: meta.control ]
+    // Fails early with a clear error when the contrasts file does not exist
+    file(contrasts, checkIfExists: true)
+
+    // Every column of the contrastsheet is a meta field, so a row comes back as a
+    // single element list holding the meta map, not as the map itself
+    def contrast_metas = samplesheetToList(contrasts, "${projectDir}/assets/schema_contrasts.json").collect { row -> row[0] }
+
+    if (contrast_metas.any { meta -> isLegacyContrastRow(meta) }) {
+        log.warn("The contrastsheet columns 'contrast', 'treatment' and 'control' are deprecated and will be removed in a future release. Please use 'id', 'target' and 'reference' instead, together with a 'variable' column set to 'condition'. The columns map as contrast -> id, treatment -> target and control -> reference")
+    }
+    if (contrast_metas.any { meta -> meta.blocking }) {
+        log.warn("The contrastsheet 'blocking' column is ignored, blocking factors are not supported")
+    }
+
+    def contrast_rows = contrast_metas.collect { meta ->
+        def contrast_row = normaliseContrastRow(meta)
+        validateInputContrastsheet([[contrast_row]])
+        return contrast_row
+    }
+
+    ch_contrastsheet = channel.fromList(contrast_rows)
+
+    // The modules that read the sheet themselves expect the legacy header, so they get
+    // a canonical copy of the normalised rows
+    ch_contrastsheet_file = channel
+        .fromList(contrast_rows)
+        .collectFile(name: 'contrastsheet.csv', seed: 'contrast,treatment,control', sort: 'index', newLine: true) { row ->
+            "${row.contrast},${row.treatment},${row.control}"
         }
-        .set { ch_contrastsheet }
+        .first()
 
     emit:
     samplesheet        = ch_samplesheet                                      // channel: [ val(meta), [ files ] ]
     samplesheet_file   = channel.value(file(input, checkIfExists: true))     // channel: path(samplesheet.csv)
     contrastsheet      = ch_contrastsheet                                    // channel: [ contrast, treatment, control ]
-    contrastsheet_file = channel.value(file(contrasts, checkIfExists: true)) // channel: path(contrastsheet.csv)
+    contrastsheet_file = ch_contrastsheet_file                               // channel: path(contrastsheet.csv), with the contrast, treatment, control header
     versions           = ch_versions
 }
 
@@ -366,6 +390,44 @@ def validateInputSamplesheet(input) {
     }
 
     return [metas[0], fastqs]
+}
+
+//
+// Whether a contrastsheet row uses the deprecated contrast, treatment, control columns
+//
+def isLegacyContrastRow(meta) {
+    return ['contrast', 'treatment', 'control'].any { key -> meta[key] }
+}
+
+//
+// Normalise a contrastsheet row to [contrast, treatment, control]. The columns map as
+// id -> contrast, target -> treatment and reference -> control, so the log fold change
+// is target over reference
+//
+def normaliseContrastRow(meta) {
+    def legacy = isLegacyContrastRow(meta)
+    def modern = ['id', 'target', 'reference', 'variable'].any { key -> meta[key] }
+
+    if (legacy && modern) {
+        error("Please check input contrastsheet -> The deprecated columns (contrast, treatment, control) cannot be mixed with the new ones (id, variable, reference, target, blocking): ${meta.keySet().join(', ')}")
+    }
+
+    if (legacy) {
+        def missing = ['contrast', 'treatment', 'control'].findAll { key -> !meta[key] }
+        if (missing) {
+            error("Please check input contrastsheet -> Missing value for ${missing.join(', ')}: ${meta}")
+        }
+        return [ contrast: meta.contrast, treatment: meta.treatment, control: meta.control ]
+    }
+
+    def missing = ['id', 'variable', 'reference', 'target'].findAll { key -> !meta[key] }
+    if (missing) {
+        error("Please check input contrastsheet -> Missing value for ${missing.join(', ')}: ${meta}")
+    }
+    if (meta.variable != 'condition') {
+        error("Please check input contrastsheet -> Unsupported variable '${meta.variable}' for contrast ${meta.id}, only 'condition' is supported")
+    }
+    return [ contrast: meta.id, treatment: meta.target, control: meta.reference ]
 }
 
 //

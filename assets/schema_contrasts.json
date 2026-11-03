@@ -2,7 +2,7 @@
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://raw.githubusercontent.com/nf-core/rnasplice/master/assets/schema_contrasts.json",
     "title": "nf-core/rnasplice pipeline - params.contrasts schema",
-    "description": "Schema for the file provided with params.contrasts",
+    "description": "Schema for the file provided with params.contrasts. Either the id, variable, reference, target[, blocking] columns or the deprecated contrast, treatment, control columns, never both; the pipeline checks which are present and that the required values are set",
     "type": "array",
     "items": {
         "type": "object",
@@ -10,22 +10,49 @@
             "contrast": {
                 "type": "string",
                 "pattern": "^\\S+$",
-                "errorMessage": "Contrast name must be provided and cannot contain spaces",
+                "errorMessage": "Contrast name cannot contain spaces",
                 "meta": ["contrast"]
+            },
+            "id": {
+                "type": "string",
+                "pattern": "^\\S+$",
+                "errorMessage": "Contrast name cannot contain spaces",
+                "meta": ["id"]
             },
             "treatment": {
                 "type": "string",
                 "pattern": "^(([A-Za-z]|[.][._A-Za-z])[._A-Za-z0-9]*)|[.]$",
-                "errorMessage": "Treatment must be provided and contain a syntactically valid name (letters, numbers, dots, underscores; must start with a letter or dot not followed by a number)",
+                "errorMessage": "Treatment must contain a syntactically valid name (letters, numbers, dots, underscores; must start with a letter or dot not followed by a number)",
                 "meta": ["treatment"]
             },
             "control": {
                 "type": "string",
                 "pattern": "^(([A-Za-z]|[.][._A-Za-z])[._A-Za-z0-9]*)|[.]$",
-                "errorMessage": "Control must be provided and contain a syntactically valid name (letters, numbers, dots, underscores; must start with a letter or dot not followed by a number)",
+                "errorMessage": "Control must contain a syntactically valid name (letters, numbers, dots, underscores; must start with a letter or dot not followed by a number)",
                 "meta": ["control"]
+            },
+            "target": {
+                "type": "string",
+                "pattern": "^(([A-Za-z]|[.][._A-Za-z])[._A-Za-z0-9]*)|[.]$",
+                "errorMessage": "Target must contain a syntactically valid name (letters, numbers, dots, underscores; must start with a letter or dot not followed by a number)",
+                "meta": ["target"]
+            },
+            "reference": {
+                "type": "string",
+                "pattern": "^(([A-Za-z]|[.][._A-Za-z])[._A-Za-z0-9]*)|[.]$",
+                "errorMessage": "Reference must contain a syntactically valid name (letters, numbers, dots, underscores; must start with a letter or dot not followed by a number)",
+                "meta": ["reference"]
+            },
+            "variable": {
+                "type": "string",
+                "errorMessage": "Variable must be a string",
+                "meta": ["variable"]
+            },
+            "blocking": {
+                "type": "string",
+                "errorMessage": "Blocking must be a string",
+                "meta": ["blocking"]
             }
-        },
-        "required": ["contrast", "treatment", "control"]
+        }
     }
 }
