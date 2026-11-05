@@ -2,7 +2,7 @@
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://raw.githubusercontent.com/nf-core/rnasplice/master/assets/schema_contrasts.json",
     "title": "nf-core/rnasplice pipeline - params.contrasts schema",
-    "description": "Schema for the file provided with params.contrasts. Either the id, variable, reference, target[, blocking] columns or the deprecated contrast, treatment, control columns, never both; the pipeline checks which are present and that the required values are set",
+    "description": "Schema for the file provided with params.contrasts. Either the id, variable, reference, target[, blocking] columns or the deprecated contrast, treatment, control columns, never both",
     "type": "array",
     "items": {
         "type": "object",
@@ -45,7 +45,8 @@
             },
             "variable": {
                 "type": "string",
-                "errorMessage": "Variable must be a string",
+                "enum": ["condition"],
+                "errorMessage": "Variable must be 'condition', the only supported column",
                 "meta": ["variable"]
             },
             "blocking": {
@@ -53,6 +54,47 @@
                 "errorMessage": "Blocking must be a string",
                 "meta": ["blocking"]
             }
-        }
+        },
+        "oneOf": [
+            {
+                "required": ["contrast", "treatment", "control"],
+                "not": {
+                    "anyOf": [
+                        {
+                            "required": ["id"]
+                        },
+                        {
+                            "required": ["variable"]
+                        },
+                        {
+                            "required": ["reference"]
+                        },
+                        {
+                            "required": ["target"]
+                        },
+                        {
+                            "required": ["blocking"]
+                        }
+                    ]
+                }
+            },
+            {
+                "required": ["id", "variable", "reference", "target"],
+                "not": {
+                    "anyOf": [
+                        {
+                            "required": ["contrast"]
+                        },
+                        {
+                            "required": ["treatment"]
+                        },
+                        {
+                            "required": ["control"]
+                        }
+                    ]
+                }
+            }
+        ],
+        "errorMessage": "Each contrast needs either all of id, variable, reference and target (blocking is optional), or all of the deprecated contrast, treatment and control, and the two sets of columns cannot be mixed"
     }
 }

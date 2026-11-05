@@ -402,30 +402,12 @@ def isLegacyContrastRow(meta) {
 //
 // Normalise a contrastsheet row to [contrast, treatment, control]. The columns map as
 // id -> contrast, target -> treatment and reference -> control, so the log fold change
-// is target over reference
+// is target over reference. The schema has already checked that a row uses one complete
+// set of columns, so the values are present and the sets are not mixed
 //
 def normaliseContrastRow(meta) {
-    def legacy = isLegacyContrastRow(meta)
-    def modern = ['id', 'target', 'reference', 'variable'].any { key -> meta[key] }
-
-    if (legacy && modern) {
-        error("Please check input contrastsheet -> The deprecated columns (contrast, treatment, control) cannot be mixed with the new ones (id, variable, reference, target, blocking): ${meta.keySet().join(', ')}")
-    }
-
-    if (legacy) {
-        def missing = ['contrast', 'treatment', 'control'].findAll { key -> !meta[key] }
-        if (missing) {
-            error("Please check input contrastsheet -> Missing value for ${missing.join(', ')}: ${meta}")
-        }
+    if (isLegacyContrastRow(meta)) {
         return [ contrast: meta.contrast, treatment: meta.treatment, control: meta.control ]
-    }
-
-    def missing = ['id', 'variable', 'reference', 'target'].findAll { key -> !meta[key] }
-    if (missing) {
-        error("Please check input contrastsheet -> Missing value for ${missing.join(', ')}: ${meta}")
-    }
-    if (meta.variable != 'condition') {
-        error("Please check input contrastsheet -> Unsupported variable '${meta.variable}' for contrast ${meta.id}, only 'condition' is supported")
     }
     return [ contrast: meta.id, treatment: meta.target, control: meta.reference ]
 }

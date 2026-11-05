@@ -232,6 +232,7 @@ nextflow_workflow {
 
     }
 
+    // The schema rejects these sheets, with the details in the Nextflow log
     test("contrastsheet - mixed headers fail") {
 
         when {
@@ -255,7 +256,7 @@ nextflow_workflow {
         then {
             assertAll(
                 { assert workflow.failed },
-                { assert workflow.stdout.any { it.contains("cannot be mixed") } }
+                { assert workflow.stdout.any { it.contains("Validation of samplesheet failed") } }
             )
         }
 
@@ -284,7 +285,7 @@ nextflow_workflow {
         then {
             assertAll(
                 { assert workflow.failed },
-                { assert workflow.stdout.any { it.contains("only 'condition' is supported") } }
+                { assert workflow.stdout.any { it.contains("Validation of samplesheet failed") } }
             )
         }
 
@@ -313,7 +314,7 @@ nextflow_workflow {
         then {
             assertAll(
                 { assert workflow.failed },
-                { assert workflow.stdout.any { it.contains("Missing value for target") } }
+                { assert workflow.stdout.any { it.contains("Validation of samplesheet failed") } }
             )
         }
 
