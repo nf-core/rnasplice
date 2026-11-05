@@ -198,7 +198,7 @@ TREATMENT_CONTROL,TREATMENT,CONTROL
 
 The two sets of column names cannot be mixed in one contrastsheet.
 
-An [example contrastsheet](../assets/contrastsheet.csv) has been provided with the pipeline.
+An [example contrastsheet](https://raw.githubusercontent.com/nf-core/test-datasets/rnasplice/chrX_subset/samplesheet/contrastsheet_differentialabundance.csv) is available in the test datasets.
 
 ## Alignment options
 
