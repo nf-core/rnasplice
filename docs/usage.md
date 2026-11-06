@@ -164,22 +164,41 @@ You will also need to create a contrastsheet with information about the contrast
 --contrasts '[path to contrastsheet file]'
 ```
 
-The contrastsheet has to be a comma-separated file with 3 columns, and a header row as shown in the examples below.
+The contrastsheet has to be a comma-separated file with a header row, using the same column names as [nf-core/differentialabundance](https://nf-co.re/differentialabundance):
+
+```csv
+id,variable,reference,target
+TREATMENT_CONTROL,condition,CONTROL,TREATMENT
+```
+
+| Column      | Description                                                                                                       |
+| ----------- | ----------------------------------------------------------------------------------------------------------------- |
+| `id`        | An arbitrary identifier, will be used to name contrast-wise output files.                                         |
+| `variable`  | The samplesheet column to compare. Only `condition` is supported.                                                 |
+| `reference` | The reference (base) level of the comparison, a `condition` of the samplesheet.                                   |
+| `target`    | The target level of the comparison, a `condition` of the samplesheet. Log fold changes are target over reference. |
+| `blocking`  | Optional. Accepted for compatibility with nf-core/differentialabundance, but ignored with a warning.              |
+
+The contrastsheet can have more columns, which are ignored.
+
+### Deprecated column names
+
+The previous column names `contrast`, `treatment` and `control` are still accepted, but are deprecated and the pipeline prints a warning when it reads them. They map to the new columns as follows:
+
+| Deprecated column | New column  |
+| ----------------- | ----------- |
+| `contrast`        | `id`        |
+| `treatment`       | `target`    |
+| `control`         | `reference` |
 
 ```csv
 contrast,treatment,control
 TREATMENT_CONTROL,TREATMENT,CONTROL
 ```
 
-The contrastsheet can have as many columns as you desire, however, there is a strict requirement for the first 3 columns to match those defined in the table below.
+The two sets of column names cannot be mixed in one contrastsheet.
 
-| Column      | Description                                                               |
-| ----------- | ------------------------------------------------------------------------- |
-| `contrast`  | An arbitrary identifier, will be used to name contrast-wise output files. |
-| `treatment` | The treatment/target level for the comparison.                            |
-| `control`   | The control/base level for the comparison.                                |
-
-An [example contrastsheet](../assets/contrastsheet.csv) has been provided with the pipeline.
+An [example contrastsheet](https://raw.githubusercontent.com/nf-core/test-datasets/rnasplice/chrX_subset/samplesheet/contrastsheet_differentialabundance.csv) is available in the test datasets.
 
 ## Alignment options
 

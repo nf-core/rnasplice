@@ -31,6 +31,16 @@ nextflow_workflow {
         transcriptome_bam.text = "sample,condition,strandedness,single_end,genome_bam,transcriptome_bam\n" + samples.collect { sample, condition ->
             "${sample},${condition},forward,true,${testdata}${sample}.Aligned.out.bam,${testdata}${sample}.Aligned.toTranscriptome.out.bam\n"
         }.join()
+
+        def contrasts = [
+            'contrastsheet_legacy.csv'         : "contrast,treatment,control\nGBR-YRI,GBR,YRI\n",
+            'contrastsheet_new.csv'            : "id,variable,reference,target\nGBR-YRI,condition,YRI,GBR\n",
+            'contrastsheet_new_blocking.csv'   : "id,variable,reference,target,blocking\nGBR-YRI,condition,YRI,GBR,batch\n",
+            'contrastsheet_mixed.csv'          : "id,variable,reference,treatment\nGBR-YRI,condition,YRI,GBR\n",
+            'contrastsheet_variable.csv'       : "id,variable,reference,target\nGBR-YRI,batch,YRI,GBR\n",
+            'contrastsheet_missing_target.csv' : "id,variable,reference,target\nGBR-YRI,condition,YRI,\n",
+        ]
+        contrasts.each { name, content -> new File("${launchDir}/${name}").text = content }
     }
 
     test("genome_bam - strandedness and read type") {
@@ -123,6 +133,188 @@ nextflow_workflow {
                 { assert workflow.out.samplesheet.every { meta, _bam -> meta.single_end } },
                 // Only the transcriptome BAM is taken from a transcriptome_bam samplesheet
                 { assert workflow.out.samplesheet.every { _meta, bam -> bam[0].endsWith('.Aligned.toTranscriptome.out.bam') } }
+            )
+        }
+
+    }
+
+    test("contrastsheet - legacy header") {
+
+        when {
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = "${outputDir}"
+                input[5] = "${launchDir}/samplesheet_genome_bam.csv"
+                input[6] = 'genome_bam'
+                input[7] = "${launchDir}/contrastsheet_legacy.csv"
+                input[8] = false
+                input[9] = false
+                input[10] = false
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.contrastsheet.size() == 1 },
+                { assert workflow.out.contrastsheet[0] == [ contrast: 'GBR-YRI', treatment: 'GBR', control: 'YRI' ] },
+                { assert new File(workflow.out.contrastsheet_file[0].toString()).readLines() == [ 'contrast,treatment,control', 'GBR-YRI,GBR,YRI' ] }
+            )
+        }
+
+    }
+
+    test("contrastsheet - new header") {
+
+        when {
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = "${outputDir}"
+                input[5] = "${launchDir}/samplesheet_genome_bam.csv"
+                input[6] = 'genome_bam'
+                input[7] = "${launchDir}/contrastsheet_new.csv"
+                input[8] = false
+                input[9] = false
+                input[10] = false
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.contrastsheet.size() == 1 },
+                // reference is the control and target the treatment, so the contrast is GBR over YRI
+                { assert workflow.out.contrastsheet[0] == [ contrast: 'GBR-YRI', treatment: 'GBR', control: 'YRI' ] },
+                // The modules reading the sheet get the legacy header
+                { assert new File(workflow.out.contrastsheet_file[0].toString()).readLines() == [ 'contrast,treatment,control', 'GBR-YRI,GBR,YRI' ] }
+            )
+        }
+
+    }
+
+    test("contrastsheet - blocking is ignored") {
+
+        when {
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = "${outputDir}"
+                input[5] = "${launchDir}/samplesheet_genome_bam.csv"
+                input[6] = 'genome_bam'
+                input[7] = "${launchDir}/contrastsheet_new_blocking.csv"
+                input[8] = false
+                input[9] = false
+                input[10] = false
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                // The blocking column is ignored, with a warning in the Nextflow log
+                { assert workflow.out.contrastsheet[0] == [ contrast: 'GBR-YRI', treatment: 'GBR', control: 'YRI' ] }
+            )
+        }
+
+    }
+
+    // The schema rejects these sheets, with the details in the Nextflow log
+    test("contrastsheet - mixed headers fail") {
+
+        when {
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = "${outputDir}"
+                input[5] = "${launchDir}/samplesheet_genome_bam.csv"
+                input[6] = 'genome_bam'
+                input[7] = "${launchDir}/contrastsheet_mixed.csv"
+                input[8] = false
+                input[9] = false
+                input[10] = false
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.failed },
+                { assert workflow.stdout.any { it.contains("Validation of samplesheet failed") } }
+            )
+        }
+
+    }
+
+    test("contrastsheet - unsupported variable fails") {
+
+        when {
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = "${outputDir}"
+                input[5] = "${launchDir}/samplesheet_genome_bam.csv"
+                input[6] = 'genome_bam'
+                input[7] = "${launchDir}/contrastsheet_variable.csv"
+                input[8] = false
+                input[9] = false
+                input[10] = false
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.failed },
+                { assert workflow.stdout.any { it.contains("Validation of samplesheet failed") } }
+            )
+        }
+
+    }
+
+    test("contrastsheet - missing value fails") {
+
+        when {
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = "${outputDir}"
+                input[5] = "${launchDir}/samplesheet_genome_bam.csv"
+                input[6] = 'genome_bam'
+                input[7] = "${launchDir}/contrastsheet_missing_target.csv"
+                input[8] = false
+                input[9] = false
+                input[10] = false
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.failed },
+                { assert workflow.stdout.any { it.contains("Validation of samplesheet failed") } }
             )
         }
 
