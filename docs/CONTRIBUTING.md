@@ -182,4 +182,4 @@ If you update images or graphics, follow the nf-core [style guidelines](https://
 
 ## Pipeline specific contribution guidelines
 
-<!-- TODO nf-core: Add any pipeline specific contribution guidelines here, such as coding styles, procedures, checklists etc. -->
+Before opening a pull request, please run `nf-core pipelines lint` and the relevant `nf-test` tests, and add a line to `CHANGELOG.md`.

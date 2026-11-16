@@ -18,6 +18,7 @@ components:
   - salmon/index
   - rsem/preparereference
   - gtfgenefilter
+  - preprocess/transcripts/fasta/gencode
   - preprocess_transcripts_fasta_gencode
   - genomeparamsupgrade
 input:

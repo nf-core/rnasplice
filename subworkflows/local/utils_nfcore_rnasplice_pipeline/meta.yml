@@ -1,0 +1,27 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "pipeline_initialisation"
+description: Pipeline-specific initialisation and completion subworkflows, plus helper functions for nf-core/rnasplice
+keywords:
+  - utility
+  - pipeline
+  - initialise
+  - completion
+components:
+  - utils_nextflow_pipeline
+  - utils_nfcore_pipeline
+  - utils_nfschema_plugin
+  - completionemail
+  - completionsummary
+input:
+  - version:
+      type: boolean
+      description: Display the version and exit
+output:
+  - versions:
+      type: file
+      description: File containing software versions
+      pattern: "versions.yml"
+authors:
+  - "@piplus2"
+maintainers:
+  - "@piplus2"

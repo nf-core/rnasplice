@@ -9,6 +9,7 @@ keywords:
   - rnaseq
 components:
   - fastq_subsample_fq_salmon
+  - getsalmoninferredstrandedness
 input:
   - ch_reads:
       type: file

@@ -42,8 +42,6 @@ nextflow_process {
         when {
             process {
                 """
-                // TODO nf-core: define inputs of the process here. Example:
-
                 input[0] = [
                     [ id:'human_chrX' ],
                     file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true),
