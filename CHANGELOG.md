@@ -3,29 +3,24 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## v2.1.0dev
-
-### Added
-
-- #350 - Accept the contrastsheet columns `id`, `variable`, `reference`, `target` and an ignored `blocking`, as in nf-core/differentialabundance. `variable` has to be `condition`. Closes #106 (requested by @adomingues, done by @piplus2)
-
-### Deprecated
-
-- #350 - The contrastsheet columns `contrast`, `treatment` and `control` still work but print a warning. Use `id`, `target` and `reference` instead (requested by @adomingues, done by @piplus2)
-
-## 2.0.1dev - 2026-10-21
+## v2.0.1dev - [unreleased<!-- TODO nf-core: replace with date on release -->]
 
 ### Added
 
 - #336 - Accept `auto` as a samplesheet `strandedness` value and infer it with Salmon, as in nf-core/rnaseq, and check it against RSeQC infer_experiment.py with `--strand_check`. Genome BAM samples are inferred with RSeQC, and transcriptome BAM samples are quantified by Salmon with `--libType A` (by @piplus2)
 - #339 - Add a pipeline level nf-test for strandedness `auto` on reverse stranded reads, checking that the inferred strandedness reaches Salmon, featureCounts, DEXSeq, rMATS and LeafCutter (requested by @erikrikarddaniel, done by @piplus2)
 - #344 - Add ASpli (`--aspli`, off by default) for differential bin and junction usage on the genome BAM files, with the bin and junction signals of each contrast integrated into one report. Uses ASpli 2.16.0, the latest version with a Singularity image, and a 50,000 base maximum intron size as in the ASpli vignette. ASpli is on the DEU line of the metro map. Closes #343 (by @piplus2)
+- #350 - Accept the contrastsheet columns `id`, `variable`, `reference`, `target` and an ignored `blocking`, as in nf-core/differentialabundance. `variable` has to be `condition`. Closes #106 (requested by @adomingues, done by @piplus2)
 
 ### Changed
 
 - #341 - The test profiles and nf-tests use `chrX_subset/` from nf-core/test-datasets, a 3.4 Mb part of chrX with 82 genes and 10,000 read pairs per sample, instead of all of chrX. The STAR index of the tests drops from 1.7 GB to 42 MB, the Salmon index from 0.9 GB to 23 MB and STAR alignment from 4.9 GB to under 1 GB of memory. The LeafCutter reverse stranded subworkflow test runs on reverse stranded alignments (by @piplus2)
 - #348 - Template update to nf-core/tools 4.2.1, with FastQC 0.13.0 and nft-utils 1.2.1. nf-schema stays at 2.7.2, as later versions fail when a parameter is `null` ([nextflow-io/nf-schema#240](https://github.com/nextflow-io/nf-schema/issues/240)) (by @piplus2)
 - #349 - Set `manifest.diagram` to the metro map, which the 4.2.1 template update left out. Nextflow 26.04 warns that the option is unrecognised; Nextflow 26.10 and later accept it (by @piplus2)
+
+### Deprecated
+
+- #350 - The contrastsheet columns `contrast`, `treatment` and `control` still work but print a warning. Use `id`, `target` and `reference` instead (requested by @adomingues, done by @piplus2)
 
 ## v2.0.0 - Fenix Reborn - [2026-10-20]
 

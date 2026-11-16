@@ -414,7 +414,7 @@
                     "type": "string",
                     "default": "salmon",
                     "description": "Specifies the pseudo aligner to use. Runs in addition to `--aligner`.",
-                    "enum": ["salmon"],
+                    "enum": ["salmon", ""],
                     "fa_icon": "fas fa-hamburger"
                 },
                 "bam_csi_index": {
