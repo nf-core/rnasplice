@@ -256,7 +256,7 @@ nextflow_workflow {
         then {
             assertAll(
                 { assert workflow.failed },
-                { assert workflow.stdout.any { it.contains("Validation of samplesheet failed") } }
+                { assert (workflow.stdout + workflow.stderr).any { it.contains("Validation of samplesheet failed") } }
             )
         }
 
@@ -285,7 +285,7 @@ nextflow_workflow {
         then {
             assertAll(
                 { assert workflow.failed },
-                { assert workflow.stdout.any { it.contains("Validation of samplesheet failed") } }
+                { assert (workflow.stdout + workflow.stderr).any { it.contains("Validation of samplesheet failed") } }
             )
         }
 
@@ -314,7 +314,7 @@ nextflow_workflow {
         then {
             assertAll(
                 { assert workflow.failed },
-                { assert workflow.stdout.any { it.contains("Validation of samplesheet failed") } }
+                { assert (workflow.stdout + workflow.stderr).any { it.contains("Validation of samplesheet failed") } }
             )
         }
 
