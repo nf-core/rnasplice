@@ -1,0 +1,117 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "pipeline_initialisation"
+description: |
+  Pipeline-specific utilities for nf-core/rnasplice. PIPELINE_INITIALISATION validates the
+  parameters and reads the samplesheet and the contrasts sheet. PIPELINE_COMPLETION sends
+  the completion email and summary. The file also holds helper functions used across the
+  pipeline, such as the strandedness inference helpers
+keywords:
+  - utility
+  - pipeline
+  - initialise
+  - completion
+components:
+  - utils_nextflow_pipeline
+  - utils_nfcore_pipeline
+  - utils_nfschema_plugin
+  - completionemail
+  - completionsummary
+input:
+  - version:
+      type: boolean
+      description: |
+        PIPELINE_INITIALISATION: display the version and exit
+  - validate_params:
+      type: boolean
+      description: |
+        PIPELINE_INITIALISATION: validate the parameters against the schema at runtime
+  - monochrome_logs:
+      type: boolean
+      description: |
+        Do not use coloured log outputs
+  - nextflow_cli_args:
+      type: list
+      description: |
+        PIPELINE_INITIALISATION: positional Nextflow CLI arguments
+  - outdir:
+      type: directory
+      description: |
+        The output directory where the results are saved
+  - input:
+      type: file
+      description: |
+        PIPELINE_INITIALISATION: path to the samplesheet
+      pattern: "*.{csv,tsv}"
+  - source:
+      type: string
+      description: |
+        PIPELINE_INITIALISATION: type of input data, one of fastq, genome_bam,
+        transcriptome_bam or salmon_results
+  - contrasts:
+      type: file
+      description: |
+        PIPELINE_INITIALISATION: path to the contrasts sheet
+      pattern: "*.{csv,tsv}"
+  - help:
+      type: boolean
+      description: |
+        PIPELINE_INITIALISATION: display the help message and exit
+  - help_full:
+      type: boolean
+      description: |
+        PIPELINE_INITIALISATION: show the full help message
+  - show_hidden:
+      type: boolean
+      description: |
+        PIPELINE_INITIALISATION: show hidden parameters in the help message
+  - email:
+      type: string
+      description: |
+        PIPELINE_COMPLETION: email address to send the completion summary to
+  - email_on_fail:
+      type: string
+      description: |
+        PIPELINE_COMPLETION: email address to send the summary to when the pipeline fails
+  - plaintext_email:
+      type: boolean
+      description: |
+        PIPELINE_COMPLETION: send a plain-text email instead of HTML
+  - multiqc_report:
+      type: file
+      description: |
+        PIPELINE_COMPLETION: the MultiQC report, attached to the completion email
+      pattern: "*.html"
+output:
+  - samplesheet:
+      type: file
+      description: |
+        PIPELINE_INITIALISATION: channel with the validated samplesheet rows
+        Structure: [ val(meta), [ files ] ]
+  - samplesheet_file:
+      type: file
+      description: |
+        PIPELINE_INITIALISATION: value channel with the samplesheet path
+        Structure: path(samplesheet.csv)
+      pattern: "*.{csv,tsv}"
+  - contrastsheet:
+      type: list
+      description: |
+        PIPELINE_INITIALISATION: channel with the contrasts, normalised to the contrast,
+        treatment and control columns
+        Structure: [ contrast, treatment, control ]
+  - contrastsheet_file:
+      type: file
+      description: |
+        PIPELINE_INITIALISATION: value channel with the contrasts sheet, written with the
+        contrast, treatment and control header
+        Structure: path(contrastsheet.csv)
+      pattern: "*.csv"
+  - versions:
+      type: file
+      description: |
+        PIPELINE_INITIALISATION: channel of software versions
+      pattern: "versions.yml"
+authors:
+  - "@piplus2"
+maintainers:
+  - "@piplus2"
