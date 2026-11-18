@@ -18,7 +18,6 @@ components:
   - salmon/index
   - rsem/preparereference
   - gtfgenefilter
-  # Lint expects the include path of the local module as a slash path
   - preprocess/transcripts/fasta/gencode
   - genomeparamsupgrade
 input:

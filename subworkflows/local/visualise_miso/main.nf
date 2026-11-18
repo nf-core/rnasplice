@@ -6,7 +6,7 @@ include { GFFREAD_GTF2GFF3   } from '../../../modules/local/gffread/gtf2gff3/mai
 include { MISOPY_INDEX       } from '../../../modules/nf-core/misopy/index/main'
 include { MISOPY_RUN         } from '../../../modules/local/misopy/run/main'
 include { MISOPY_SASHIMIPLOT } from '../../../modules/local/misopy/sashimiplot/main'
-include { MISOPY_SETTINGS    } from '../../../modules/local/misopysettings/main'
+include { MISOPY_SETTINGS    } from '../../../modules/local/misopy/settings/main'
 
 workflow VISUALISE_MISO {
 

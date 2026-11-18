@@ -1,4 +1,4 @@
-// nf-core modules test misopysettings
+// nf-core modules test misopy/settings
 nextflow_process {
 
     name "Test Process MISOPY_SETTINGS"
@@ -8,7 +8,7 @@ nextflow_process {
 
     tag "modules"
     tag "modules_local"
-    tag "misopysettings"
+    tag "misopy/settings"
     tag "misopy"
     tag "misopy/run"
     tag "misopy/index"
@@ -17,7 +17,7 @@ nextflow_process {
 
     setup {
         run("GFFREAD_GTF2GFF3") {
-            script "../../gffread/gtf2gff3/main.nf"
+            script "../../../gffread/gtf2gff3/main.nf"
             process {
                 """
                 input[0] = [
@@ -29,7 +29,7 @@ nextflow_process {
         }
 
         run("MISOPY_INDEX") {
-            script "../../../nf-core/misopy/index/main.nf"
+            script "../../../../nf-core/misopy/index/main.nf"
             process {
                 """
                 input[0] = GFFREAD_GTF2GFF3.out.gff3
@@ -38,7 +38,7 @@ nextflow_process {
         }
 
         run("MISOPY_RUN") {
-            script "../../misopy/run/main.nf"
+            script "../../run/main.nf"
             process {
                 """
                 input[0] = [

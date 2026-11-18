@@ -1,5 +1,5 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
-name: misopysettings
+name: misopy_settings
 description: Generate the MISO settings file for sashimi plot visualisation
 keywords:
   - miso

@@ -9,8 +9,6 @@ keywords:
   - rnaseq
 components:
   - fastq_subsample_fq_salmon
-  # Groovy function, listed only because lint derives components from include lines
-  - getsalmoninferredstrandedness
 input:
   - ch_reads:
       type: file

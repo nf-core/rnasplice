@@ -19,7 +19,7 @@ nextflow_workflow {
     tag "rsem"
     tag "rsem/preparereference"
     tag "gtfgenefilter"
-    tag "preprocess_transcripts_fasta_gencode"
+    tag "preprocess/transcripts/fasta/gencode"
     tag "genomeparamsupgrade"
 
     test("homo_sapiens - fasta and gtf - build indices") {

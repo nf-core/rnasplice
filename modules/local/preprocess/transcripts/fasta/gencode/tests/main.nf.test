@@ -1,4 +1,4 @@
-// nf-core modules test preprocess_transcripts_fasta_gencode
+// nf-core modules test preprocess/transcripts/fasta/gencode
 nextflow_process {
 
     name "Test Process PREPROCESS_TRANSCRIPTS_FASTA_GENCODE"
@@ -7,7 +7,7 @@ nextflow_process {
 
     tag "modules"
     tag "modules_local"
-    tag "preprocess_transcripts_fasta_gencode"
+    tag "preprocess/transcripts/fasta/gencode"
 
     // Two records with GENCODE headers, whose `|` separated fields the module cuts
     // down to the first one, written plain and gzipped

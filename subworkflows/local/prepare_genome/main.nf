@@ -19,7 +19,7 @@ include { SALMON_INDEX } from '../../../modules/nf-core/salmon/index'
 include { RSEM_PREPAREREFERENCE as MAKE_TRANSCRIPTS_FASTA } from '../../../modules/nf-core/rsem/preparereference'
 
 include { GTFGENEFILTER } from '../../../modules/local/gtfgenefilter'
-include { PREPROCESS_TRANSCRIPTS_FASTA_GENCODE } from '../../../modules/local/preprocess_transcripts_fasta_gencode'
+include { PREPROCESS_TRANSCRIPTS_FASTA_GENCODE } from '../../../modules/local/preprocess/transcripts/fasta/gencode/main'
 include { GENOMEPARAMSUPGRADE } from '../../../modules/local/genomeparamsupgrade'
 
 workflow PREPARE_GENOME {
