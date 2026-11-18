@@ -12,6 +12,7 @@ components:
   - misopy/index
   - misopy/run
   - misopy/sashimiplot
+  # Lint expects the include path as a slash path (the module directory is misopysettings)
   - misopy/settings
 input:
   - gtf:

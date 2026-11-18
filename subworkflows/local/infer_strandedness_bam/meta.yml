@@ -9,6 +9,7 @@ keywords:
   - rnaseq
 components:
   - rseqc/inferexperiment
+  # Groovy function, listed only because lint derives components from include lines
   - getinferexperimentstrandedness
 input:
   - ch_bam_bai:
