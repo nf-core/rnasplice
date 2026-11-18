@@ -11,7 +11,7 @@ nextflow_process {
     tag "misopy"
     tag "misopy/sashimiplot"
     tag "misopy/run"
-    tag "misopy/settings"
+    tag "misopysettings"
     tag "misopy/index"
     tag "gffread"
     tag "gffread/gtf2gff3"
@@ -54,7 +54,7 @@ nextflow_process {
         }
 
         run("MISOPY_SETTINGS") {
-            script "../../settings/main.nf"
+            script "../../../misopysettings/main.nf"
             process {
                 """
                 input[0] = MISOPY_RUN.out.miso.map { _meta, miso -> [

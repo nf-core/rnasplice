@@ -15,7 +15,7 @@ nextflow_workflow {
     tag "misopy/index"
     tag "misopy/run"
     tag "misopy/sashimiplot"
-    tag "misopy/settings"
+    tag "misopysettings"
 
     test("human chrX") {
 

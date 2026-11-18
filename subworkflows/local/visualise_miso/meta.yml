@@ -12,7 +12,7 @@ components:
   - misopy/index
   - misopy/run
   - misopy/sashimiplot
-  - misopy/settings
+  - misopysettings
 input:
   - gtf:
       type: file
