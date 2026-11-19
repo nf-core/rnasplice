@@ -25,7 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- #361 - rMATS takes its read length from the data: when `--rmats_read_len` is not set, it is the median length of the reads of all the samples, from the samtools stats of the genome BAM files, instead of a default of 40. The read length sets the effective event lengths that the inclusion levels and the test depend on, so the test profile, with 75 bp reads, gets different rMATS results. Closes #358 (by @pinin4fjords)
+- #361 - When `--rmats_read_len` is not set, rMATS uses the median read length from the samtools stats of the genome BAM files instead of a default of 40. This changes the rMATS results of the test profile, which has 75 bp reads. Closes #358 (by @pinin4fjords)
+- #367 - Pass the workflow summary and methods description to MultiQC once instead of twice (by @pinin4fjords)
 
 ## v2.0.0 - Fenix Reborn - [2026-10-20]
 
