@@ -173,7 +173,7 @@ TREATMENT_CONTROL,condition,CONTROL,TREATMENT
 
 | Column      | Description                                                                                                       |
 | ----------- | ----------------------------------------------------------------------------------------------------------------- |
-| `id`        | An arbitrary identifier, will be used to name contrast-wise output files.                                         |
+| `id`        | An arbitrary identifier, unique within the contrastsheet, used to name contrast-wise output files.                |
 | `variable`  | The samplesheet column to compare. Only `condition` is supported.                                                 |
 | `reference` | The reference (base) level of the comparison, a `condition` of the samplesheet.                                   |
 | `target`    | The target level of the comparison, a `condition` of the samplesheet. Log fold changes are target over reference. |
@@ -310,6 +310,8 @@ Using `dpsi` file and `psivec` file, events are clustered according to `PSI` val
 ### LeafCutter
 
 [LeafCutter](https://davidaknowles.github.io/leafcutter/) quantifies splicing by clustering the introns that spliced reads span. It runs when `--leafcutter` is set, with `--aligner star` or `--aligner star_salmon`, and with `--source genome_bam`.
+
+Junction extraction (regtools `-M`) and clustering keep introns up to `--leafcutter_max_intron_len` bases long (default 500,000). The clustering keeps clusters supported by at least `--leafcutter_min_cluster_reads` reads (default 10), and drops junctions that carry less than `--leafcutter_min_cluster_ratio` of their cluster's reads (default 0.001). These are `leafcutter-cluster`'s `-l`, `-m` and `-p`, whose own defaults are 100,000, 30 and 0.001.
 
 Every junction LeafCutter clusters needs a strand, and one that has none is discarded. Where the strand comes from depends on the samplesheet `strandedness`:
 
