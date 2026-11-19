@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - #350 - The contrastsheet columns `contrast`, `treatment` and `control` still work but print a warning. Use `id`, `target` and `reference` instead (requested by @adomingues, done by @piplus2)
 
+### Fixed
+
+- #XXX - Fail at startup when the contrastsheet repeats an `id` (or deprecated `contrast`). Rows with the same id were merged into one rMATS run, which failed with "given 2 times in input", or overwrote each other's DEXSeq results without an error (by @pinin4fjords)
+
 ## v2.0.0 - Fenix Reborn - [2026-10-20]
 
 The first release since 1.0.4 in April 2024 brings the pipeline up to the nf-core template 4.1.0, Nextflow 26.04 and nf-schema.

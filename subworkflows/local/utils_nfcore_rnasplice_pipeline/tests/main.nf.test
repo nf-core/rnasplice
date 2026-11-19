@@ -39,6 +39,8 @@ nextflow_workflow {
             'contrastsheet_mixed.csv'          : "id,variable,reference,treatment\nGBR-YRI,condition,YRI,GBR\n",
             'contrastsheet_variable.csv'       : "id,variable,reference,target\nGBR-YRI,batch,YRI,GBR\n",
             'contrastsheet_missing_target.csv' : "id,variable,reference,target\nGBR-YRI,condition,YRI,\n",
+            'contrastsheet_dup_id.csv'         : "id,variable,reference,target\nGBR-YRI,condition,YRI,GBR\nGBR-YRI,condition,GBR,YRI\n",
+            'contrastsheet_dup_legacy.csv'     : "contrast,treatment,control\nGBR-YRI,GBR,YRI\nGBR-YRI,YRI,GBR\n",
         ]
         contrasts.each { name, content -> new File("${launchDir}/${name}").text = content }
     }
@@ -315,6 +317,66 @@ nextflow_workflow {
             assertAll(
                 { assert workflow.failed },
                 { assert (workflow.stdout + workflow.stderr).any { it.contains("Validation of samplesheet failed") } }
+            )
+        }
+
+    }
+
+    test("contrastsheet - duplicate id fails") {
+
+        when {
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = "${outputDir}"
+                input[5] = "${launchDir}/samplesheet_genome_bam.csv"
+                input[6] = 'genome_bam'
+                input[7] = "${launchDir}/contrastsheet_dup_id.csv"
+                input[8] = false
+                input[9] = false
+                input[10] = false
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.failed },
+                { assert (workflow.stdout + workflow.stderr).any { it.contains("Validation of samplesheet failed") } },
+                { assert (workflow.stdout + workflow.stderr).any { it.contains("Detected duplicate entries: [id:GBR-YRI]") } }
+            )
+        }
+
+    }
+
+    test("contrastsheet - duplicate legacy contrast fails") {
+
+        when {
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = "${outputDir}"
+                input[5] = "${launchDir}/samplesheet_genome_bam.csv"
+                input[6] = 'genome_bam'
+                input[7] = "${launchDir}/contrastsheet_dup_legacy.csv"
+                input[8] = false
+                input[9] = false
+                input[10] = false
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.failed },
+                { assert (workflow.stdout + workflow.stderr).any { it.contains("Validation of samplesheet failed") } },
+                { assert (workflow.stdout + workflow.stderr).any { it.contains("Detected duplicate entries: [contrast:GBR-YRI]") } }
             )
         }
 

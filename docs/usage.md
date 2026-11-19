@@ -173,7 +173,7 @@ TREATMENT_CONTROL,condition,CONTROL,TREATMENT
 
 | Column      | Description                                                                                                       |
 | ----------- | ----------------------------------------------------------------------------------------------------------------- |
-| `id`        | An arbitrary identifier, will be used to name contrast-wise output files.                                         |
+| `id`        | An arbitrary identifier, unique within the contrastsheet, used to name contrast-wise output files.                |
 | `variable`  | The samplesheet column to compare. Only `condition` is supported.                                                 |
 | `reference` | The reference (base) level of the comparison, a `condition` of the samplesheet.                                   |
 | `target`    | The target level of the comparison, a `condition` of the samplesheet. Log fold changes are target over reference. |
