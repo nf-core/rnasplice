@@ -25,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- #XXX - Pass the workflow summary and methods description to MultiQC once instead of twice (by @pinin4fjords)
+- #367 - Pass the workflow summary and methods description to MultiQC once instead of twice (by @pinin4fjords)
 
 ## v2.0.0 - Fenix Reborn - [2026-10-20]
 
