@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #339 - Add a pipeline level nf-test for strandedness `auto` on reverse stranded reads, checking that the inferred strandedness reaches Salmon, featureCounts, DEXSeq, rMATS and LeafCutter (requested by @erikrikarddaniel, done by @piplus2)
 - #344 - Add ASpli (`--aspli`, off by default) for differential bin and junction usage on the genome BAM files, with the bin and junction signals of each contrast integrated into one report. Uses ASpli 2.16.0, the latest version with a Singularity image, and a 50,000 base maximum intron size as in the ASpli vignette. ASpli is on the DEU line of the metro map. Closes #343 (by @piplus2)
 - #350 - Accept the contrastsheet columns `id`, `variable`, `reference`, `target` and an ignored `blocking`, as in nf-core/differentialabundance. `variable` has to be `condition`. Closes #106 (requested by @adomingues, done by @piplus2)
-- #PRNUM - Add `--leafcutter_max_intron_len`, `--leafcutter_min_cluster_reads` and `--leafcutter_min_cluster_ratio` for LeafCutter clustering, which `conf/modules.config` fixed at `-l 500000 -m 10`. The defaults keep those values (by @pinin4fjords)
+- #359 - Add `--leafcutter_max_intron_len`, `--leafcutter_min_cluster_reads` and `--leafcutter_min_cluster_ratio` for LeafCutter clustering, which `conf/modules.config` fixed at `-l 500000 -m 10`. The defaults keep those values (by @pinin4fjords)
 
 ### Changed
 
