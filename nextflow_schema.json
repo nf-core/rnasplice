@@ -754,7 +754,8 @@
                     "type": "string",
                     "default": "ENSG00000004961, ENSG00000005302, ENSG00000147403",
                     "description": "List containing identifiers of genes to plot.",
-                    "pattern": "^[\\w-]+(,\\s+[\\w-]+)*$",
+                    "help_text": "Genes that are not in the GTF are skipped with a warning. IDs match with or without a version suffix, so `ENSG00000004961` matches `ENSG00000004961.15`. If you give a version and the GTF has the gene under a different version, that gene is plotted with a warning.",
+                    "pattern": "^[\\w.-]+(,\\s*[\\w.-]+)*$",
                     "fa_icon": "fas fa-list"
                 },
                 "miso_genes_file": {

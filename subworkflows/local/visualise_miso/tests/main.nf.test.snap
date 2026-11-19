@@ -32,6 +32,23 @@
             "nextflow": "26.04.3"
         }
     },
+    "human chrX - unversioned gene, versioned GTF": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "miso"
+                    },
+                    "ENSG00000147403.17.pdf"
+                ]
+            ]
+        ],
+        "timestamp": "2026-11-19T18:08:15.441910084",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
+        }
+    },
     "human chrX - stub": {
         "content": [
             {
@@ -66,12 +83,7 @@
                     ]
                 ],
                 "miso_sashimi": [
-                    [
-                        {
-                            "id": "miso"
-                        },
-                        "ENSG00000147403.pdf:md5,d41d8cd98f00b204e9800998ecf8427e"
-                    ]
+                    
                 ],
                 "miso_settings": [
                     [
@@ -83,10 +95,44 @@
                 ]
             }
         ],
-        "timestamp": "2026-08-27T08:06:20.941089793",
+        "timestamp": "2026-11-19T17:29:00.501584785",
         "meta": {
-            "nf-test": "0.9.5",
-            "nextflow": "26.04.3"
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
+        }
+    },
+    "human chrX - genes file with a missing gene": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "miso"
+                    },
+                    "ENSG00000147403.pdf"
+                ]
+            ]
+        ],
+        "timestamp": "2026-11-19T22:53:51.902087464",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
+        }
+    },
+    "human chrX - versioned and missing genes": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "miso"
+                    },
+                    "ENSG00000147403.pdf"
+                ]
+            ]
+        ],
+        "timestamp": "2026-11-19T17:28:45.020078117",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
         }
     }
 }
