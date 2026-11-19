@@ -77,6 +77,45 @@ nextflow_workflow {
         then {
             assert workflow.success
             assertAll(
+                { assert file("${outputDir}/../meta/nextflow.log").text.contains("Plotting 'ENSG00000147403' for 'ENSG00000147403.17'") },
+                { assert snapshot(
+                    workflow.out.miso_sashimi.collect { meta, plots -> [ meta, file(plots).name ] }
+                ).match() }
+            )
+        }
+
+    }
+
+    test("human chrX - unversioned gene, versioned GTF") {
+
+        when {
+            workflow {
+                """
+                input[0] = channel.fromPath(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
+                    .splitText()
+                    .filter { line -> line.contains('gene_id "ENSG00000147403"') }
+                    .map { line -> line.replace('gene_id "ENSG00000147403"', 'gene_id "ENSG00000147403.17"') }
+                    .collectFile(name: 'genes_chrX_versioned.gtf')
+                input[1] = channel.of([
+                    [ id:'ERR188383' ],
+                    file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true),
+                ])
+                input[2] = channel.of([
+                    [ id:'ERR188383' ],
+                    file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam.bai', checkIfExists: true),
+                ])
+                input[3] = 7
+                input[4] = 7
+                input[5] = 'ENSG00000147403'
+                input[6] = false
+                """
+            }
+        }
+
+        then {
+            assert workflow.success
+            assertAll(
+                { assert !file("${outputDir}/../meta/nextflow.log").text.contains('Plotting') },
                 { assert snapshot(
                     workflow.out.miso_sashimi.collect { meta, plots -> [ meta, file(plots).name ] }
                 ).match() }

@@ -32,6 +32,23 @@
             "nextflow": "26.04.3"
         }
     },
+    "human chrX - unversioned gene, versioned GTF": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "miso"
+                    },
+                    "ENSG00000147403.17.pdf"
+                ]
+            ]
+        ],
+        "timestamp": "2026-11-19T18:08:15.441910084",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
+        }
+    },
     "human chrX - stub": {
         "content": [
             {

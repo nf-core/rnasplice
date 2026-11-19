@@ -98,6 +98,9 @@ workflow VISUALISE_MISO {
                 if (!event) {
                     log.warn("No sashimi plot for '${gene}': the GTF has no gene with that ID, with or without a version suffix.")
                 }
+                else if (event != gene && gene != unversioned) {
+                    log.warn("Plotting '${event}' for '${gene}': the GTF has that gene under a different version.")
+                }
                 return event
             }.findAll { event -> event }.unique()
         }
