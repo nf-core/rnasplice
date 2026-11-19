@@ -483,6 +483,28 @@
                     "type": "boolean",
                     "description": "Run the LeafCutter workflow.",
                     "fa_icon": "fas fa-leaf"
+                },
+                "leafcutter_max_intron_len": {
+                    "type": "integer",
+                    "default": 500000,
+                    "description": "Maximum intron length in bases for LeafCutter clustering (leafcutter-cluster `-l`).",
+                    "minimum": 1,
+                    "fa_icon": "fas fa-ruler-horizontal"
+                },
+                "leafcutter_min_cluster_reads": {
+                    "type": "integer",
+                    "default": 10,
+                    "description": "Minimum number of reads in a LeafCutter cluster (leafcutter-cluster `-m`).",
+                    "minimum": 0,
+                    "fa_icon": "fas fa-filter"
+                },
+                "leafcutter_min_cluster_ratio": {
+                    "type": "number",
+                    "default": 0.001,
+                    "description": "Minimum fraction of a cluster's reads that must support a junction for it to be kept (leafcutter-cluster `-p`).",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "fa_icon": "fas fa-filter"
                 }
             },
             "fa_icon": "fas fa-leaf"
