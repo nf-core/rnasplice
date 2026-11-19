@@ -271,7 +271,7 @@ At current, however, there are some restrictions to running an rMATS analysis:
 
 - The `--rmats_paired_stats` can be set to `true` only if there are two conditions. Samples in samplesheet must follow the paired design order (see [Samplesheet input section](#samplesheet-input) above).
 
-Furthermore, `--rmats_read_len` has to be set by the user and if the read length is variable, an average or median read length has to be specified.
+rMATS uses the read length to compute the effective length of each event, which the inclusion levels and the test depend on. When `--rmats_read_len` is not set, it is the median length of the reads of all the samples, taken from the samtools stats of the genome BAM files, as rMATS recommends the median for reads of varying length. Reads of other lengths are still counted. The value used is printed in the pipeline log. Set `--rmats_read_len` to use a different value, for example the length before trimming.
 
 ### SUPPA2
 

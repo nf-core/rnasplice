@@ -536,8 +536,8 @@
                 },
                 "rmats_read_len": {
                     "type": "integer",
-                    "default": 40,
-                    "description": "The length of each read.",
+                    "description": "Read length given to rMATS. Inferred from the genome BAM files when not set.",
+                    "help_text": "rMATS uses the read length to compute the effective lengths of the inclusion and skipping forms of each event, which the inclusion levels and the test depend on, so it should match the reads. Reads of other lengths are still counted. When it is not set, it is the median length of the reads of all the samples, taken from the samtools stats of the genome BAM files, as rMATS recommends the median for reads of varying length.",
                     "minimum": 1,
                     "fa_icon": "fas fa-ruler-horizontal"
                 },

@@ -1,0 +1,82 @@
+nextflow_function {
+
+    name "Test Function getSamtoolsStatsMedianReadLength"
+    script "../main.nf"
+    function "getSamtoolsStatsMedianReadLength"
+
+    tag "subworkflows"
+    tag "subworkflows/utils_nfcore_rnasplice_pipeline"
+
+    // Small samtools stats files, written by each test, holding only the summary line and
+    // the read length histogram that the function reads
+    test("one sample - trimmed reads") {
+
+        when {
+            function {
+                """
+                def stats = file('${outputDir}/trimmed.stats')
+                stats.text = [
+                    'SN\\tsequences:\\t1000',
+                    'RL\\t36\\t100',
+                    'RL\\t60\\t200',
+                    'RL\\t75\\t700',
+                ].join('\\n')
+                input[0] = [ stats ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result == 75 }
+            )
+        }
+
+    }
+
+    test("two samples - different read lengths") {
+
+        when {
+            function {
+                """
+                def stats_75 = file('${outputDir}/sample_75.stats')
+                stats_75.text = 'RL\\t75\\t400\\n'
+                def stats_100 = file('${outputDir}/sample_100.stats')
+                stats_100.text = 'RL\\t100\\t600\\n'
+                input[0] = [ stats_75, stats_100 ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result == 100 }
+            )
+        }
+
+    }
+
+    test("stub - empty file") {
+
+        when {
+            function {
+                """
+                def stats = file('${outputDir}/empty.stats')
+                stats.text = ''
+                input[0] = [ stats ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result == null }
+            )
+        }
+
+    }
+
+}
