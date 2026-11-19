@@ -39,7 +39,8 @@ input:
   - rmats_read_len:
       type: integer
       description: |
-        Read length given to `--readLength` in both rMATS steps
+        Value channel or integer with the read length given to `--readLength` in both rMATS
+        steps
   - rmats_paired_stats:
       type: boolean
       description: |
