@@ -101,6 +101,23 @@
             "nextflow": "26.10.6"
         }
     },
+    "human chrX - genes file with a missing gene": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "miso"
+                    },
+                    "ENSG00000147403.pdf"
+                ]
+            ]
+        ],
+        "timestamp": "2026-11-19T22:53:51.902087464",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
+        }
+    },
     "human chrX - versioned and missing genes": {
         "content": [
             [
