@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #339 - Add a pipeline level nf-test for strandedness `auto` on reverse stranded reads, checking that the inferred strandedness reaches Salmon, featureCounts, DEXSeq, rMATS and LeafCutter (requested by @erikrikarddaniel, done by @piplus2)
 - #344 - Add ASpli (`--aspli`, off by default) for differential bin and junction usage on the genome BAM files, with the bin and junction signals of each contrast integrated into one report. Uses ASpli 2.16.0, the latest version with a Singularity image, and a 50,000 base maximum intron size as in the ASpli vignette. ASpli is on the DEU line of the metro map. Closes #343 (by @piplus2)
 - #350 - Accept the contrastsheet columns `id`, `variable`, `reference`, `target` and an ignored `blocking`, as in nf-core/differentialabundance. `variable` has to be `condition`. Closes #106 (requested by @adomingues, done by @piplus2)
+- #359 - Add `--leafcutter_max_intron_len`, `--leafcutter_min_cluster_reads` and `--leafcutter_min_cluster_ratio` for the LeafCutter clustering settings, with defaults unchanged (by @pinin4fjords)
 
 ### Changed
 
@@ -27,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - #360 - Skip the sashimi plot of a requested gene that is not in the GTF, with a warning, instead of failing the run. Gene IDs match with or without a version suffix. Closes #357 (by @pinin4fjords)
 - #367 - Pass the workflow summary and methods description to MultiQC once instead of twice (by @pinin4fjords)
+- #368 - Fail at startup when the contrastsheet repeats an `id` (or deprecated `contrast`). Rows with the same id were merged into one rMATS run, which failed with "given 2 times in input", or overwrote each other's DEXSeq results without an error (by @pinin4fjords)
 
 ## v2.0.0 - Fenix Reborn - [2026-10-20]
 
