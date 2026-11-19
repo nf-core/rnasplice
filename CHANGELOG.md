@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- #XXX - rMATS takes its read length from the data: when `--rmats_read_len` is not set, it is the median length of the reads of all the samples, from the samtools stats of the genome BAM files, instead of a default of 40. The read length sets the effective event lengths that the inclusion levels and the test depend on, so the test profile, with 75 bp reads, gets different rMATS results. Closes #358 (by @pinin4fjords)
+- #361 - rMATS takes its read length from the data: when `--rmats_read_len` is not set, it is the median length of the reads of all the samples, from the samtools stats of the genome BAM files, instead of a default of 40. The read length sets the effective event lengths that the inclusion levels and the test depend on, so the test profile, with 75 bp reads, gets different rMATS results. Closes #358 (by @pinin4fjords)
 
 ### Deprecated
 
