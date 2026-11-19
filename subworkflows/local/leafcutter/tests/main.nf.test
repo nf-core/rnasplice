@@ -139,6 +139,48 @@ nextflow_workflow {
 
     }
 
+    test("human chrX - leafcutter_max_intron_len") {
+
+        when {
+            params {
+                leafcutter_max_intron_len = 100000
+            }
+            workflow {
+                """
+                input[0] = channel.of(
+                    [ [ id:'ERR188383', strandedness:'reverse' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383_reverse.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188428', strandedness:'reverse' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428_reverse.Aligned.out.bam', checkIfExists: true) ],
+                )
+                input[1] = channel.of(
+                    [ [ id:'ERR188383', strandedness:'reverse' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383_reverse.Aligned.out.bam.bai', checkIfExists: true) ],
+                    [ [ id:'ERR188428', strandedness:'reverse' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428_reverse.Aligned.out.bam.bai', checkIfExists: true) ],
+                )
+                input[2] = channel.value([ [ id:'genome' ], [], [] ])
+                input[3] = channel.value([ [ id:'genome' ], [] ])
+                """
+            }
+        }
+
+        then {
+            def scripts = []
+            new File(workDir.toString()).eachFileRecurse { file ->
+                if (file.name == '.command.sh') {
+                    scripts << file.text
+                }
+            }
+            def regtools = scripts.findAll { script -> script.contains('regtools junctions extract') }
+            def cluster = scripts.findAll { script -> script.contains('leafcutter-cluster') }
+            assertAll(
+                { assert workflow.success },
+                { assert regtools.size() == 2 },
+                { assert regtools.every { script -> script.contains('-a 8 -m 50 -M 100000') } },
+                { assert cluster.size() == 1 },
+                { assert cluster[0].contains('-l 100000 -m 10 -p 0.001') }
+            )
+        }
+
+    }
+
     test("human chrX - stub") {
 
         options "-stub"
