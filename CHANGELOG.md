@@ -25,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- #360 - Skip the sashimi plot of a `--miso_genes` or `--miso_genes_file` gene that is not in the GTF, with a warning, instead of failing the run. Gene IDs match with or without a version suffix, so unversioned IDs such as the defaults also match the versioned IDs of a GENCODE GTF, and a different version is plotted with a warning. `--miso_genes` accepts versioned IDs and commas without a space. Closes #357 (by @pinin4fjords)
+- #360 - Skip the sashimi plot of a requested gene that is not in the GTF, with a warning, instead of failing the run. Gene IDs match with or without a version suffix. Closes #357 (by @pinin4fjords)
 
 ## v2.0.0 - Fenix Reborn - [2026-10-20]
 
