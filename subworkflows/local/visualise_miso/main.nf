@@ -68,7 +68,7 @@ workflow VISUALISE_MISO {
     // MODULE: MISOPY_SASHIMIPLOT
     //
 
-    def miso_genes_list = miso_genes ? miso_genes.split(',').collect { it -> it.trim() } : [""]
+    def miso_genes_list = miso_genes ? miso_genes.split(',').collect { it -> it.trim() } : []
     ch_miso_genes_list = channel.fromList(miso_genes_list)
 
     if (miso_genes_file && miso_genes) {
@@ -84,6 +84,24 @@ workflow VISUALISE_MISO {
         ch_miso_genes = ch_miso_genes_list
     }
 
+    // sashimi_plot fails on a gene the index does not have, so requested genes are matched to
+    // the index file names, which MISO takes from the GFF3 gene IDs, ignoring version suffixes
+    ch_miso_events = ch_miso_index
+        .combine(ch_miso_genes.collect().map { genes -> [genes] })
+        .flatMap { _meta, index, genes ->
+            def index_genes = index.listFiles()
+                .findAll { chrom -> chrom.isDirectory() }
+                .collectMany { chrom -> chrom.listFiles().findAll { gene -> gene.extension == 'pickle' }.collect { gene -> gene.baseName } }
+            genes.collect { gene ->
+                def unversioned = gene.replaceFirst(/\.\d+$/, '')
+                def event = index_genes.find { id -> id == gene } ?: index_genes.find { id -> id.replaceFirst(/\.\d+$/, '') == unversioned }
+                if (!event) {
+                    log.warn("No sashimi plot for '${gene}': the GTF has no gene with that ID, with or without a version suffix.")
+                }
+                return event
+            }.findAll { event -> event }.unique()
+        }
+
     ch_bams = ch_genome_bam
         .collect { _meta, bam -> bam }
         .map { bams -> [[id: 'miso'], bams] }
@@ -96,7 +114,7 @@ workflow VISUALISE_MISO {
         .join(ch_bais)
         .join(ch_miso_data, by: 0)
         .join(ch_miso_settings, by: 0)
-        .combine(ch_miso_genes)
+        .combine(ch_miso_events)
 
     MISOPY_SASHIMIPLOT(
         ch_sashimiplot_input,

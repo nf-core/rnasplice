@@ -52,6 +52,39 @@ nextflow_workflow {
 
     }
 
+    test("human chrX - versioned and missing genes") {
+
+        when {
+            workflow {
+                """
+                input[0] = channel.value(file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true))
+                input[1] = channel.of([
+                    [ id:'ERR188383' ],
+                    file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true),
+                ])
+                input[2] = channel.of([
+                    [ id:'ERR188383' ],
+                    file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam.bai', checkIfExists: true),
+                ])
+                input[3] = 7
+                input[4] = 7
+                input[5] = 'ENSG00000147403.17, ENSMUSG00000000001'
+                input[6] = false
+                """
+            }
+        }
+
+        then {
+            assert workflow.success
+            assertAll(
+                { assert snapshot(
+                    workflow.out.miso_sashimi.collect { meta, plots -> [ meta, file(plots).name ] }
+                ).match() }
+            )
+        }
+
+    }
+
     test("human chrX - stub") {
 
         options "-stub"

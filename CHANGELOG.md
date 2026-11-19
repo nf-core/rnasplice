@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - #350 - The contrastsheet columns `contrast`, `treatment` and `control` still work but print a warning. Use `id`, `target` and `reference` instead (requested by @adomingues, done by @piplus2)
 
+### Fixed
+
+- #XXX - Skip the sashimi plot of a `--miso_genes` or `--miso_genes_file` gene that is not in the GTF, with a warning, instead of failing the run. Gene IDs match with or without a version suffix, so unversioned IDs such as the defaults also match the versioned IDs of a GENCODE GTF. Closes #357 (by @pinin4fjords)
+
 ## v2.0.0 - Fenix Reborn - [2026-10-20]
 
 The first release since 1.0.4 in April 2024 brings the pipeline up to the nf-core template 4.1.0, Nextflow 26.04 and nf-schema.
