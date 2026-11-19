@@ -25,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- #XXX - Fail at startup when the contrastsheet repeats an `id` (or deprecated `contrast`). Rows with the same id were merged into one rMATS run, which failed with "given 2 times in input", or overwrote each other's DEXSeq results without an error (by @pinin4fjords)
+- #368 - Fail at startup when the contrastsheet repeats an `id` (or deprecated `contrast`). Rows with the same id were merged into one rMATS run, which failed with "given 2 times in input", or overwrote each other's DEXSeq results without an error (by @pinin4fjords)
 
 ## v2.0.0 - Fenix Reborn - [2026-10-20]
 
