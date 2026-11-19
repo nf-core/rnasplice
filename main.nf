@@ -97,6 +97,9 @@ params {
 
     // Leafcutter
     leafcutter: Boolean
+    leafcutter_max_intron_len: Integer = 500000
+    leafcutter_min_cluster_reads: Integer = 10
+    leafcutter_min_cluster_ratio: Float = 0.001
 
     // DRIMSeq Filtering
     min_samps_feature_expr: Integer = 2
