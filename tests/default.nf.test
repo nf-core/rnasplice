@@ -35,18 +35,11 @@ nextflow_pipeline {
                 .sort { table -> table.name }
                 .collectEntries { table -> [ table.name, RoundedCsv.md5(table) ] }
 
-            // Read lengths rMATS ran with, inferred from the 75 bp test reads. rMATS does not
-            // record them in its outputs, so they are read from the scripts of the tasks
-            def scripts = []
-            new File("${launchDir}/work").eachFileRecurse { script -> if (script.name == '.command.sh') { scripts << script.text } }
-            def rmats_read_len = scripts.findAll { script -> script.contains('rmats.py') && script.contains('--readLength') }
-                .collect { script -> (script =~ /--readLength (\S+)/)[0][1] }
-
             assert workflow.success
 
             assertAll(
-                { assert rmats_read_len.size() == 6 },
-                { assert rmats_read_len.unique() == ['75'] },
+                // Inferred from the 75 bp test reads
+                { assert RmatsReadLength.fromWorkDir("${launchDir}/work") == [ prep: [ '75' ], post: [ '75' ] ] },
                 { assert snapshot(
                     // Remove Nextflow version to prevent cross-version testing failures
                     removeNextflowVersion("$outputDir/pipeline_info/nf_core_rnasplice_software_mqc_versions.yml"),

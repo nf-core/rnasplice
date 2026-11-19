@@ -373,15 +373,20 @@ workflow RNASPLICE {
             def ch_rmats_read_len = params.rmats_read_len
                 ? channel.value(params.rmats_read_len)
                 : ch_samtools_stats
-                    .map { _meta, stats -> stats }
-                    .collect()
-                    .map { stats ->
-                        def read_len = getSamtoolsStatsMedianReadLength(stats)
-                        if (read_len == null && !workflow.stubRun) {
-                            error("Cannot infer the rMATS read length: the genome BAM files have no reads. Set it with --rmats_read_len.")
+                    .toList()
+                    .map { samples_stats ->
+                        def read_lengths = getSamtoolsStatsMedianReadLength(samples_stats)
+                        if (read_lengths.median != null) {
+                            log.info("rMATS read length: ${read_lengths.median}, the median read length of the genome BAM files")
+                            return read_lengths.median
                         }
-                        log.info("rMATS read length: ${read_len}, the median read length of the genome BAM files")
-                        return read_len
+                        if (!workflow.stubRun) {
+                            error("Cannot infer the rMATS read length: the genome BAM files of ${read_lengths.samples_without_reads.join(', ')} have no reads. Set it with --rmats_read_len.")
+                        }
+                        // The stub samtools stats files are empty, and a null would never
+                        // reach rMATS, as a channel does not emit null
+                        log.info("rMATS read length: 1, a placeholder for the stub run")
+                        return 1
                     }
 
             // rMATS pairs treatment and control samples by their position within a

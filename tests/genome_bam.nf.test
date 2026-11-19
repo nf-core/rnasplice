@@ -35,18 +35,11 @@ nextflow_pipeline {
                 .sort { table -> table.name }
                 .collectEntries { table -> [ table.name, RoundedCsv.md5(table) ] }
 
-            // Read lengths rMATS ran with, inferred from the 75 bp test reads. rMATS does not
-            // record them in its outputs, so they are read from the scripts of the tasks
-            def scripts = []
-            new File("${launchDir}/work").eachFileRecurse { script -> if (script.name == '.command.sh') { scripts << script.text } }
-            def rmats_read_len = scripts.findAll { script -> script.contains('rmats.py') && script.contains('--readLength') }
-                .collect { script -> (script =~ /--readLength (\S+)/)[0][1] }
-
             assert workflow.success
 
             assertAll(
-                { assert rmats_read_len.size() == 6 },
-                { assert rmats_read_len.unique() == ['75'] },
+                // Inferred from the 75 bp test reads
+                { assert RmatsReadLength.fromWorkDir("${launchDir}/work") == [ prep: [ '75' ], post: [ '75' ] ] },
                 { assert snapshot(
                     // Remove Nextflow version to prevent cross-version testing failures
                     removeNextflowVersion("$outputDir/pipeline_info/nf_core_rnasplice_software_mqc_versions.yml"),
@@ -69,6 +62,42 @@ nextflow_pipeline {
         cleanup {
             // Only prune/delete on CI - keeping local VM state intact prevents
             // cross-test launchDir wipes that break nf-test snapshot walks.
+            if (System.getenv("CI") == "true") {
+                if (System.getenv("NFT_PROFILE")?.contains("docker")) {
+                    "docker system prune -a -f --volumes".execute()
+                }
+                new File("${launchDir}").deleteDir()
+            }
+        }
+    }
+
+    test("-profile test_genome_bam - rmats_read_len") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+                rmats_read_len = 50
+
+                // Only rMATS reads the read length
+                strand_check          = false
+                dexseq_exon           = false
+                edger_exon            = false
+                dexseq_dtu            = false
+                suppa                 = false
+                isoformswitchanalyzer = false
+                sashimi_plot          = false
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert RmatsReadLength.fromWorkDir("${launchDir}/work") == [ prep: [ '50' ], post: [ '50' ] ] },
+                { assert !workflow.stdout.any { line -> line.contains('rMATS read length:') } }
+            )
+        }
+
+        cleanup {
             if (System.getenv("CI") == "true") {
                 if (System.getenv("NFT_PROFILE")?.contains("docker")) {
                     "docker system prune -a -f --volumes".execute()

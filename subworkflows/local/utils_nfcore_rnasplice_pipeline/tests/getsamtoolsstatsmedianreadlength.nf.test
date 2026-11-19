@@ -21,7 +21,7 @@ nextflow_function {
                     'RL\\t60\\t200',
                     'RL\\t75\\t700',
                 ].join('\\n')
-                input[0] = [ stats ]
+                input[0] = [ [ [ id: 'trimmed' ], stats ] ]
                 """
             }
         }
@@ -29,7 +29,7 @@ nextflow_function {
         then {
             assertAll(
                 { assert function.success },
-                { assert function.result == 75 }
+                { assert function.result == [ median: 75, samples_without_reads: [] ] }
             )
         }
 
@@ -44,7 +44,7 @@ nextflow_function {
                 stats_75.text = 'RL\\t75\\t400\\n'
                 def stats_100 = file('${outputDir}/sample_100.stats')
                 stats_100.text = 'RL\\t100\\t600\\n'
-                input[0] = [ stats_75, stats_100 ]
+                input[0] = [ [ [ id: 'sample_75' ], stats_75 ], [ [ id: 'sample_100' ], stats_100 ] ]
                 """
             }
         }
@@ -52,20 +52,22 @@ nextflow_function {
         then {
             assertAll(
                 { assert function.success },
-                { assert function.result == 100 }
+                { assert function.result == [ median: 100, samples_without_reads: [] ] }
             )
         }
 
     }
 
-    test("stub - empty file") {
+    test("two samples - one with no reads") {
 
         when {
             function {
                 """
-                def stats = file('${outputDir}/empty.stats')
-                stats.text = ''
-                input[0] = [ stats ]
+                def stats_75 = file('${outputDir}/sample_75.stats')
+                stats_75.text = 'SN\\tsequences:\\t400\\nRL\\t75\\t400\\n'
+                def stats_empty = file('${outputDir}/sample_empty.stats')
+                stats_empty.text = 'SN\\tsequences:\\t0\\n'
+                input[0] = [ [ [ id: 'sample_empty' ], stats_empty ], [ [ id: 'sample_75' ], stats_75 ] ]
                 """
             }
         }
@@ -73,7 +75,30 @@ nextflow_function {
         then {
             assertAll(
                 { assert function.success },
-                { assert function.result == null }
+                { assert function.result == [ median: 75, samples_without_reads: [ 'sample_empty' ] ] }
+            )
+        }
+
+    }
+
+    test("stub - empty files") {
+
+        when {
+            function {
+                """
+                def stats_b = file('${outputDir}/sample_b.stats')
+                stats_b.text = ''
+                def stats_a = file('${outputDir}/sample_a.stats')
+                stats_a.text = ''
+                input[0] = [ [ [ id: 'sample_b' ], stats_b ], [ [ id: 'sample_a' ], stats_a ] ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result == [ median: null, samples_without_reads: [ 'sample_a', 'sample_b' ] ] }
             )
         }
 

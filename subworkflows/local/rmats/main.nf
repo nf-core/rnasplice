@@ -13,7 +13,7 @@ workflow RMATS {
     ch_contrastsheet // channel: [ contrast:, treatment:, control: ]
     ch_bam // channel: [ val(meta), path(bam) ], meta.condition is required
     ch_gtf // channel: [ val(meta), path(gtf) ]
-    rmats_read_len // value channel or integer: --readLength of both rMATS steps
+    rmats_read_len // value channel: val(read_length), --readLength of both rMATS steps
     rmats_paired_stats // boolean: pair the treatment and control samples
 
     main:
