@@ -50,6 +50,13 @@ output:
         that could be given one
         Structure: [ val(meta), path(junc) ]
       pattern: "*.junc"
+  - strand_summary:
+      type: file
+      description: |
+        Channel containing, for each unstranded sample, the number of junctions and of reads
+        given a strand by the XS tag, the splice motif or the annotation, or left strandless
+        Structure: [ val(meta), path(tsv) ]
+      pattern: "*.strand_summary.tsv"
   - counts:
       type: file
       description: |

@@ -37,11 +37,14 @@ nextflow_process {
                 if (pos + 1 <= length) bases.replace(pos - 1, pos + 1, motif)
             }
             // The BED12 regtools writes: a 10 base anchor on each side of the intron, or
-            // what is left of the contig there, and no strand
+            // what is left of the contig there, and no strand. The score is the number of
+            // reads that span the junction: 1, but 10 for JUNC9, so that the summary
+            // weighted by reads differs from the one by junctions
             def anchors = [ start - 1, length - end ].collect { room -> Math.max(0, Math.min(10, room)) }
             def chromStart = start - 1 - anchors[0]
             def chromEnd = end + anchors[1]
-            [ 'chr1', chromStart, chromEnd, name, 1, '?', chromStart, chromEnd, '255,0,0', 2, anchors.join(','), "0,${chromEnd - chromStart - anchors[1]}" ].join("\t")
+            def reads = name == 'JUNC9' ? 10 : 1
+            [ 'chr1', chromStart, chromEnd, name, reads, '?', chromStart, chromEnd, '255,0,0', 2, anchors.join(','), "0,${chromEnd - chromStart - anchors[1]}" ].join("\t")
         }
         file("${outputDir}/test.junc").text = records.join("\n") + "\n"
 
@@ -99,8 +102,17 @@ nextflow_process {
                 // one past its end is not
                 { assert strands[9] == '+' },
                 { assert strands[10] == '?' },
+                // Seven junctions from the motif, one from the annotation and three left
+                // strandless, which hold 12 of the 20 reads
+                { assert path(process.out.summary[0][1]).readLines() == [
+                    [ 'Sample',
+                      'Junctions', 'Junctions already stranded (XS)', 'Junctions stranded by motif', 'Junctions stranded by annotation', 'Junctions strandless', 'Junctions strandless (%)',
+                      'Reads', 'Reads already stranded (XS)', 'Reads stranded by motif', 'Reads stranded by annotation', 'Reads strandless', 'Reads strandless (%)' ].join('\t'),
+                    [ 'test', 11, 0, 7, 1, 3, '27.27', 20, 0, 7, 1, 12, '60.00' ].join('\t'),
+                ] },
                 { assert snapshot(
                     process.out.junc,
+                    process.out.summary,
                     process.out.findAll { key, _val -> key.startsWith('versions') }
                 ).match() }
             )
@@ -127,6 +139,7 @@ nextflow_process {
                 { assert process.success },
                 { assert snapshot(
                     process.out.junc,
+                    process.out.summary,
                     process.out.findAll { key, _val -> key.startsWith('versions') }
                 ).match() }
             )

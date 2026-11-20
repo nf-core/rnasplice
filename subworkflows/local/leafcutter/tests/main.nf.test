@@ -93,6 +93,7 @@ nextflow_workflow {
                 { assert path(workflow.out.refined[0][1]).size() > 0 },
                 { assert snapshot(
                     workflow.out.juncs.sort { junc -> junc[0].id },
+                    workflow.out.strand_summary.sort { summary -> summary[0].id },
                     workflow.out.counts,
                     workflow.out.numers,
                     workflow.out.pooled,
@@ -157,8 +158,11 @@ nextflow_workflow {
                 { assert workflow.success },
                 { assert path(workflow.out.pooled[0][1]).size() > 0 },
                 { assert path(workflow.out.refined[0][1]).size() > 0 },
+                // Stranded samples take the strand from the read orientation, so there is nothing to summarise
+                { assert workflow.out.strand_summary.isEmpty() },
                 { assert snapshot(
                     workflow.out.juncs.sort { junc -> junc[0].id },
+                    workflow.out.strand_summary.sort { summary -> summary[0].id },
                     workflow.out.counts,
                     workflow.out.numers,
                     workflow.out.pooled,
@@ -259,6 +263,7 @@ nextflow_workflow {
                 { assert workflow.success },
                 { assert snapshot(
                     workflow.out.juncs.sort { junc -> junc[0].id },
+                    workflow.out.strand_summary.sort { summary -> summary[0].id },
                     workflow.out.counts,
                     workflow.out.numers,
                     workflow.out.pooled,

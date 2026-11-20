@@ -8,6 +8,9 @@ The strand of a junction is however written in the genome itself: an intron whos
 first and last two bases spell one of the canonical splice motifs can only be read in
 one direction. Junctions with a non-canonical motif are looked up in the annotation,
 and the ones that are in neither are left as they are, for the clustering to discard.
+
+How many junctions, and how many reads, each of these routes gave a strand to is written
+to a small table for MultiQC, so that what the clustering drops can be seen per sample.
 """
 
 import os
@@ -27,6 +30,14 @@ CANONICAL_MOTIFS = {
 }
 
 TRANSCRIPT_ID = re.compile(r'transcript_id "([^"]+)"')
+
+# Where the strand of each junction came from, and how the summary table names it
+ORIGINS = {
+    "already stranded": "already stranded (XS)",
+    "motif": "stranded by motif",
+    "annotation": "stranded by annotation",
+    "strandless": "strandless",
+}
 
 
 class IndexedFasta:
@@ -101,55 +112,77 @@ def intron_bounds(fields):
     return (int(fields[1]) + sizes[0] + 1, int(fields[2]) - sizes[1])
 
 
-def main(junc, fasta, fai, gtf, output):
+def strand_junction(fields, genome, introns):
+    """Give a strand to one junction record, and return where the strand came from."""
+    if fields[5] != "?":
+        return "already stranded"
+
+    bounds = intron_bounds(fields)
+    if bounds is None:
+        return "strandless"
+
+    start, end = bounds
+    motif = (genome.fetch(fields[0], start, start + 1), genome.fetch(fields[0], end - 1, end))
+    strand = CANONICAL_MOTIFS.get(motif)
+    if strand:
+        origin = "motif"
+    else:
+        strand = introns.get((fields[0], start, end))
+        origin = "annotation"
+    if not strand:
+        return "strandless"
+
+    fields[5] = strand
+    return origin
+
+
+def percent(part, total):
+    return f"{100 * part / total:.2f}" if total else "NA"
+
+
+def write_summary(sample, junctions, reads, output):
+    """Write the number of junctions and of reads per origin of their strand, for MultiQC.
+
+    The reads are the score column of the regtools records, which is the number of reads
+    that span the junction, so a junction seen in many reads weighs more than a rare one.
+    """
+    header = ["Sample"]
+    row = [sample]
+    for unit, counts in (("Junctions", junctions), ("Reads", reads)):
+        total = sum(counts.values())
+        header += [unit] + [f"{unit} {label}" for label in ORIGINS.values()] + [f"{unit} strandless (%)"]
+        row += [total] + [counts[origin] for origin in ORIGINS] + [percent(counts["strandless"], total)]
+
+    with open(output, "w") as handle:
+        handle.write("\\t".join(header) + "\\n")
+        handle.write("\\t".join(str(value) for value in row) + "\\n")
+
+
+def main(sample, junc, fasta, fai, gtf, output, summary):
     genome = IndexedFasta(fasta, fai)
     introns = annotated_introns(gtf)
-    counts = {"total": 0, "already stranded": 0, "from the motif": 0, "from the annotation": 0, "left strandless": 0}
+    junctions = dict.fromkeys(ORIGINS, 0)
+    reads = dict.fromkeys(ORIGINS, 0)
 
     with open(junc) as handle, open(output, "w") as out:
         for line in handle:
             fields = line.rstrip("\\n").split("\\t")
             if len(fields) < 12:
                 continue
-            counts["total"] += 1
 
-            if fields[5] != "?":
-                counts["already stranded"] += 1
-                out.write(line)
-                continue
-
-            bounds = intron_bounds(fields)
-            if bounds is None:
-                counts["left strandless"] += 1
-                out.write(line)
-                continue
-
-            start, end = bounds
-            motif = (genome.fetch(fields[0], start, start + 1), genome.fetch(fields[0], end - 1, end))
-            strand = CANONICAL_MOTIFS.get(motif)
-            if strand:
-                counts["from the motif"] += 1
-            else:
-                strand = introns.get((fields[0], start, end))
-                if strand:
-                    counts["from the annotation"] += 1
-                else:
-                    counts["left strandless"] += 1
-                    out.write(line)
-                    continue
-
-            fields[5] = strand
+            origin = strand_junction(fields, genome, introns)
+            junctions[origin] += 1
+            reads[origin] += int(fields[4])
             out.write("\\t".join(fields) + "\\n")
 
-    for name, count in counts.items():
-        print(f"{name}: {count}")
+    write_summary(sample, junctions, reads, summary)
 
 
 if __name__ == "__main__":
     prefix = "${task.ext.prefix}" if "${task.ext.prefix}" not in ["null", ""] else "${meta.id}"
 
     os.makedirs("stranded", exist_ok=True)
-    main("${junc}", "${fasta}", "${fai}", "${gtf}", f"stranded/{prefix}.junc")
+    main("${meta.id}", "${junc}", "${fasta}", "${fai}", "${gtf}", f"stranded/{prefix}.junc", f"{prefix}.strand_summary.tsv")
 
     versions = {"${task.process}": {"python": platform.python_version()}}
     with open("versions.yml", "w") as handle:
