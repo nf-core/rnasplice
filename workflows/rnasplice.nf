@@ -27,6 +27,7 @@ include { INFER_STRANDEDNESS_BAM                                          } from
 
 include { rmatsReadError                                                  } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
 include { rmatsStrandednessError                                          } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
+include { getSamtoolsStatsMedianReadLength                                } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
 include { aspliReadError                                                  } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
 include { multiqcTsvFromList                                              } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
 include { paramsSummaryMultiqc                                            } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -369,6 +370,25 @@ workflow RNASPLICE {
         if (params.rmats) {
             rmatsStrandednessError(ch_genome_bam)
 
+            def ch_rmats_read_len = params.rmats_read_len
+                ? channel.value(params.rmats_read_len)
+                : ch_samtools_stats
+                    .toList()
+                    .map { samples_stats ->
+                        def read_lengths = getSamtoolsStatsMedianReadLength(samples_stats)
+                        if (read_lengths.median != null) {
+                            log.info("rMATS read length: ${read_lengths.median}, the median read length of the genome BAM files")
+                            return read_lengths.median
+                        }
+                        if (!workflow.stubRun) {
+                            error("Cannot infer the rMATS read length: the genome BAM files of ${read_lengths.samples_without_reads.join(', ')} have no reads. Set it with --rmats_read_len.")
+                        }
+                        // The stub samtools stats files are empty, and a null would never
+                        // reach rMATS, as a channel does not emit null
+                        log.info("rMATS read length: 1, a placeholder for the stub run")
+                        return 1
+                    }
+
             // rMATS pairs treatment and control samples by their position within a
             // condition, so the samplesheet order of `ch_samples` is what it works from
             RMATS(
@@ -376,7 +396,7 @@ workflow RNASPLICE {
                 ch_contrastsheet,
                 ch_genome_bam,
                 ch_gtf.map { gtf -> [[:], gtf] },
-                params.rmats_read_len,
+                ch_rmats_read_len,
                 params.rmats_paired_stats,
             )
         }

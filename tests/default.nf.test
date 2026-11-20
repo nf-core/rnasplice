@@ -38,6 +38,8 @@ nextflow_pipeline {
             assert workflow.success
 
             assertAll(
+                // Inferred from the 75 bp test reads
+                { assert RmatsReadLength.fromWorkDir("${launchDir}/work") == [ prep: [ '75' ], post: [ '75' ] ] },
                 { assert snapshot(
                     // Remove Nextflow version to prevent cross-version testing failures
                     removeNextflowVersion("$outputDir/pipeline_info/nf_core_rnasplice_software_mqc_versions.yml"),
