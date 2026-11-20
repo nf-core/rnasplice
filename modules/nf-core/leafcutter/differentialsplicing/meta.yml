@@ -39,9 +39,9 @@ input:
     - exons:
         type: file
         description: |
-          Optional exon table (columns chr, start, end, strand, gene_name), as written by
-          leafcutter-gtf-to-exons, used to annotate the clusters with genes. Pass `[]` to
-          leave the clusters unannotated.
+          Optional table of known exons, tab-delimited with a header and the columns
+          chr, start, end, strand and gene_name, as written by leafcutter-gtf-to-exons.
+          Used to label the clusters with genes. Pass `[]` to leave them unlabelled.
         pattern: "*.{txt,txt.gz}"
         optional: true
 

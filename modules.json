@@ -77,9 +77,8 @@
                     },
                     "leafcutter/differentialsplicing": {
                         "branch": "master",
-                        "git_sha": "7b3452a23773f687ededb4befd037920e5a51341",
-                        "installed_by": ["modules"],
-                        "patch": "modules/nf-core/leafcutter/differentialsplicing/leafcutter-differentialsplicing.diff"
+                        "git_sha": "ee1b36dc3db6d544e12a16ba287fbe4a599e5b7c",
+                        "installed_by": ["modules"]
                     },
                     "misopy/index": {
                         "branch": "master",

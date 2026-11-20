@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #348 - Template update to nf-core/tools 4.2.1, with FastQC 0.13.0 and nft-utils 1.2.1. nf-schema stays at 2.7.2, as later versions fail when a parameter is `null` ([nextflow-io/nf-schema#240](https://github.com/nextflow-io/nf-schema/issues/240)) (by @piplus2)
 - #349 - Set `manifest.diagram` to the metro map, which the 4.2.1 template update left out. Nextflow 26.04 warns that the option is unrecognised; Nextflow 26.10 and later accept it (by @piplus2)
 - #353 - Clean up lint warnings and ignored lint tests, and fix the `PIPELINE_INITIALISATION` failure tests on the latest Nextflow (by @piplus2)
+- #369 - Update the nf-core module `leafcutter/differentialsplicing`, which now takes the optional exon file upstream ([nf-core/modules#13847](https://github.com/nf-core/modules/pull/13847)), and drop the local patch that added it (by @piplus2)
 
 ### Deprecated
 
