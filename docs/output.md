@@ -332,6 +332,12 @@ As described by the [nf-core/rnaseq](https://github.com/nf-core/rnaseq) pipeline
   - `*junc`: all junctions found in each sample and their abundances. For an unstranded library the strand of each junction comes from the splice motif and the annotation rather than from an aligner `XS` tag, which makes the clusters differ slightly from LeafCutter's documented STAR route, see [usage](usage.md#leafcutter).
   - `*numers.counts.gz`: Each column corresponds to a different sample (original bam file) and each row to an intron, which are identified as chromosome:intron_start:intron_end:cluster_id. This is the file to use for downstream analysis.
   - `*counts.gz`: Same than before but with the ratio of that event.
+  - `{contrast}_cluster_significance.txt`: one row per cluster with the result of the differential splicing test between the two conditions of the contrast: `status` (`Success` or the reason the cluster was not tested), the log likelihood ratio, degrees of freedom, p-value, Benjamini-Hochberg adjusted p-value, and the genes whose exons the cluster overlaps.
+  - `{contrast}_effect_sizes.txt`: one row per intron with its effect size (`logef_{treatment}`), its estimated PSI in each condition, and `deltapsi_{treatment}`, the PSI of the treatment minus that of the control.
+
+</details>
+
+The differential splicing outputs are written for each contrast in which both conditions have enough samples, see [usage](usage.md#leafcutter).
 
 ## Differential Exon Usage (DEU)
 
