@@ -477,7 +477,7 @@
         "leafcutter_options": {
             "title": "Leafcutter options",
             "type": "object",
-            "description": "Options for the LeafCutter splicing quantification.",
+            "description": "Options for the LeafCutter splicing quantification and differential splicing.",
             "properties": {
                 "leafcutter": {
                     "type": "boolean",
@@ -504,6 +504,29 @@
                     "description": "Minimum fraction of a cluster's reads that must support a junction for it to be kept (leafcutter-cluster `-p`).",
                     "minimum": 0,
                     "maximum": 1,
+                    "fa_icon": "fas fa-filter"
+                },
+                "leafcutter_ds_min_samples_per_intron": {
+                    "type": "integer",
+                    "default": 5,
+                    "description": "Minimum number of samples an intron must be used in to be tested for differential splicing (leafcutter-ds `-i`).",
+                    "help_text": "leafcutter-ds also requires each condition of a contrast to have at least this many samples. A contrast with fewer is not tested, with a warning.",
+                    "minimum": 1,
+                    "fa_icon": "fas fa-filter"
+                },
+                "leafcutter_ds_min_samples_per_group": {
+                    "type": "integer",
+                    "default": 3,
+                    "description": "Minimum number of samples in each condition that must have `--leafcutter_ds_min_coverage` reads in a cluster for it to be tested (leafcutter-ds `-g`).",
+                    "help_text": "A contrast with a condition that has fewer samples than this is not tested, with a warning.",
+                    "minimum": 1,
+                    "fa_icon": "fas fa-filter"
+                },
+                "leafcutter_ds_min_coverage": {
+                    "type": "integer",
+                    "default": 20,
+                    "description": "Minimum number of reads in a cluster for it to be tested for differential splicing (leafcutter-ds `-c`).",
+                    "minimum": 0,
                     "fa_icon": "fas fa-filter"
                 }
             },

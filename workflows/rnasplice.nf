@@ -401,6 +401,8 @@ workflow RNASPLICE {
                 ch_genome_bam_index,
                 ch_fasta.combine(ch_fai).map { fasta, _meta, fai -> [[id: fasta.baseName], fasta, fai] }.first(),
                 ch_gtf.map { gtf -> [[id: gtf.baseName], gtf] }.first(),
+                ch_contrastsheet,
+                Math.max(params.leafcutter_ds_min_samples_per_intron, params.leafcutter_ds_min_samples_per_group),
             )
         }
 

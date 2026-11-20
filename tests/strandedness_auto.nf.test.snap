@@ -42,6 +42,9 @@
                 "LEAFCUTTER_CLUSTERREGTOOLS": {
                     "leafcutter": "2.0.3"
                 },
+                "LEAFCUTTER_GTFTOEXONS": {
+                    "leafcutter": "2.0.3"
+                },
                 "MAKE_TRANSCRIPTS_FASTA": {
                     "rsem": "1.3.1",
                     "star": "2.7.10a"
@@ -821,7 +824,7 @@
                 "ERR204916_sorted.bam": "484dbb84bd68ceb9ed24ecdb8f7a613a"
             }
         ],
-        "timestamp": "2026-10-29T12:01:42.94366954",
+        "timestamp": "2026-11-20T10:09:16.402291977",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.3"

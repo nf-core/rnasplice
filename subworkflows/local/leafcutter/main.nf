@@ -1,19 +1,23 @@
 //
-// LeafCutter intron clustering subworkflow
+// LeafCutter intron clustering and differential splicing subworkflow
 //
 
 include { REGTOOLS_JUNCTIONSEXTRACT as REGTOOLS_JUNCTIONSEXTRACT_FR } from '../../../modules/nf-core/regtools/junctionsextract/main'
 include { REGTOOLS_JUNCTIONSEXTRACT as REGTOOLS_JUNCTIONSEXTRACT_RF } from '../../../modules/nf-core/regtools/junctionsextract/main'
 include { REGTOOLS_JUNCTIONSEXTRACT as REGTOOLS_JUNCTIONSEXTRACT_XS } from '../../../modules/nf-core/regtools/junctionsextract/main'
 include { LEAFCUTTER_CLUSTERREGTOOLS } from '../../../modules/nf-core/leafcutter/clusterregtools/main'
+include { LEAFCUTTER_DIFFERENTIALSPLICING } from '../../../modules/nf-core/leafcutter/differentialsplicing/main'
+include { LEAFCUTTER_GTFTOEXONS } from '../../../modules/local/leafcutter/gtftoexons/main'
 include { STRANDJUNCTIONS } from '../../../modules/local/strandjunctions/main'
 
 workflow LEAFCUTTER {
     take:
-    ch_genome_bam // channel: [ val(meta), path(bam) ]
+    ch_genome_bam // channel: [ val(meta), path(bam) ], meta.condition is required
     ch_genome_bam_index // channel: [ val(meta), path(bai) ]
     ch_fasta // channel: [ val(meta), path(fasta), path(fai) ]
     ch_gtf // channel: [ val(meta), path(gtf) ]
+    ch_contrastsheet // channel: [ contrast:, treatment:, control: ]
+    min_samples_per_condition // integer: fewest samples each condition of a contrast needs for leafcutter-ds to test it
 
     main:
 
@@ -64,6 +68,66 @@ workflow LEAFCUTTER {
 
     LEAFCUTTER_CLUSTERREGTOOLS(ch_juncs)
 
+    //
+    // MODULE: LEAFCUTTER_GTFTOEXONS
+    //
+
+    // The exon table `leafcutter-ds` labels each cluster with the genes it overlaps from
+    LEAFCUTTER_GTFTOEXONS(ch_gtf)
+
+    //
+    // MODULE: LEAFCUTTER_DIFFERENTIALSPLICING
+    //
+
+    // The samples of each condition, by the name `leafcutter-cluster` gives their column in
+    // the counts table, which is the sample id the junction file is named after
+    ch_condition_samples = ch_genome_bam
+        .map { meta, _bam -> [meta.condition, meta.id] }
+        .groupTuple(sort: true)
+        .toList()
+        .map { conditions -> [conditions.collectEntries()] }
+
+    // `leafcutter-ds` stops with an error when either condition has fewer samples than
+    // it needs to test a cluster. That is common in small designs, which can still be
+    // clustered, so such a contrast is left out with a warning rather than failing the run
+    ch_ds_contrasts = ch_contrastsheet
+        .combine(ch_condition_samples)
+        .map { row, samples ->
+            [row.treatment, row.control].each { condition ->
+                if (!samples.containsKey(condition)) {
+                    error("LeafCutter contrast '${row.contrast}': condition '${condition}' has no sample in the samplesheet")
+                }
+            }
+            def meta = [id: row.contrast, treatment: row.treatment, control: row.control]
+            def groups = [row.treatment, row.control].collectEntries { condition -> [condition, samples[condition]] }
+            return [meta, groups]
+        }
+        .filter { meta, groups ->
+            def too_small = groups.findAll { _condition, ids -> ids.size() < min_samples_per_condition }
+            if (too_small) {
+                def counts = too_small.collect { condition, ids -> "'${condition}' has ${ids.size()}" }.join(', ')
+                log.warn("LeafCutter contrast '${meta.id}' is not tested for differential splicing: each condition needs at least ${min_samples_per_condition} samples, and ${counts}. Lower --leafcutter_ds_min_samples_per_intron and --leafcutter_ds_min_samples_per_group to test it.")
+            }
+            return !too_small
+        }
+
+    // The groups file of each contrast, one sample per line followed by its condition
+    ch_groups = ch_ds_contrasts
+        .collectFile { meta, groups ->
+            def lines = groups.collectMany { condition, ids -> ids.collect { id -> "${id}\t${condition}\n" } }
+            ["${meta.id}_groups.txt", lines.join('')]
+        }
+        .map { groups_file -> [groups_file.name.replaceFirst(/_groups\.txt$/, ''), groups_file] }
+
+    // `leafcutter-ds` reads the counts of each intron, which is the numerators table
+    ch_ds_input = ch_ds_contrasts
+        .map { meta, _groups -> [meta.id, meta] }
+        .join(ch_groups, failOnDuplicate: true, failOnMismatch: true)
+        .combine(LEAFCUTTER_CLUSTERREGTOOLS.out.numers)
+        .map { _id, meta, groups_file, _meta_lc, numers -> [meta, numers, groups_file] }
+
+    LEAFCUTTER_DIFFERENTIALSPLICING(ch_ds_input, LEAFCUTTER_GTFTOEXONS.out.exons)
+
     emit:
     juncs = ch_junc // channel: [ val(meta), path(junc) ]
     counts = LEAFCUTTER_CLUSTERREGTOOLS.out.counts // channel: [ val(meta), path(counts) ]
@@ -71,4 +135,7 @@ workflow LEAFCUTTER {
     pooled = LEAFCUTTER_CLUSTERREGTOOLS.out.pooled // channel: [ val(meta), path(pooled) ]
     refined = LEAFCUTTER_CLUSTERREGTOOLS.out.refined // channel: [ val(meta), path(refined) ]
     sortedlibs = LEAFCUTTER_CLUSTERREGTOOLS.out.sortedlibs // channel: [ val(meta), path(sortedlibs) ]
+    exons = LEAFCUTTER_GTFTOEXONS.out.exons // channel: [ val(meta), path(exons) ]
+    cluster_significance = LEAFCUTTER_DIFFERENTIALSPLICING.out.cluster_significance // channel: [ val(meta), path(txt) ]
+    effect_sizes = LEAFCUTTER_DIFFERENTIALSPLICING.out.effect_sizes // channel: [ val(meta), path(txt) ]
 }
