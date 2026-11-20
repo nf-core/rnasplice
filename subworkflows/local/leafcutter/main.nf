@@ -75,6 +75,9 @@ workflow LEAFCUTTER {
     // The exon table `leafcutter-ds` labels each cluster with the genes it overlaps from
     LEAFCUTTER_GTFTOEXONS(ch_gtf)
 
+    // A value channel, so that every contrast gets the exon table even if ch_gtf is a queue channel
+    ch_exons = LEAFCUTTER_GTFTOEXONS.out.exons.first()
+
     //
     // MODULE: LEAFCUTTER_DIFFERENTIALSPLICING
     //
@@ -126,7 +129,7 @@ workflow LEAFCUTTER {
         .combine(LEAFCUTTER_CLUSTERREGTOOLS.out.numers)
         .map { _id, meta, groups_file, _meta_lc, numers -> [meta, numers, groups_file] }
 
-    LEAFCUTTER_DIFFERENTIALSPLICING(ch_ds_input, LEAFCUTTER_GTFTOEXONS.out.exons)
+    LEAFCUTTER_DIFFERENTIALSPLICING(ch_ds_input, ch_exons)
 
     emit:
     juncs = ch_junc // channel: [ val(meta), path(junc) ]
