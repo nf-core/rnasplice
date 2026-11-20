@@ -100,6 +100,9 @@ params {
     leafcutter_max_intron_len: Integer = 500000
     leafcutter_min_cluster_reads: Integer = 10
     leafcutter_min_cluster_ratio: Float = 0.001
+    leafcutter_ds_min_samples_per_intron: Integer = 5
+    leafcutter_ds_min_samples_per_group: Integer = 3
+    leafcutter_ds_min_coverage: Integer = 20
 
     // DRIMSeq Filtering
     min_samps_feature_expr: Integer = 2

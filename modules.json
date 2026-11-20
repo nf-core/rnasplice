@@ -75,6 +75,11 @@
                         "git_sha": "5909fc046b4b2062e4b4173808aacd2424e0866a",
                         "installed_by": ["modules"]
                     },
+                    "leafcutter/differentialsplicing": {
+                        "branch": "master",
+                        "git_sha": "ee1b36dc3db6d544e12a16ba287fbe4a599e5b7c",
+                        "installed_by": ["modules"]
+                    },
                     "misopy/index": {
                         "branch": "master",
                         "git_sha": "9707facbacc9c5c02ecf0b192f0604a29351b00a",

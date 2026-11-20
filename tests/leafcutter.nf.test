@@ -33,6 +33,19 @@ nextflow_pipeline {
             // leafcutter-cluster and the pipeline still completes, with empty results
             def counts = path("${params.outdir}/star_salmon/leafcutter/lc_perind.counts.gz").linesGzip
 
+            // leafcutter-ds tables: left out of stable_content by the ignoreFile, as their
+            // statistics differ between machines, and snapshotted by their stable columns
+            def ds_dir = "${params.outdir}/star_salmon/leafcutter"
+            def ds_tables = new File(ds_dir).listFiles()
+                .findAll { table -> table.name ==~ /.*_(cluster_significance|effect_sizes)\.txt/ }
+                .sort { table -> table.name }
+                .collectEntries { table -> [ table.name, LeafcutterDsTable.stable(table) ] }
+
+            // The two contrasts are the same comparison with treatment and control swapped,
+            // so with the control as baseline every ΔPSI changes sign between them
+            def deltapsi_gbr = LeafcutterDsTable.deltapsi("${ds_dir}/GBR-YRI_effect_sizes.txt")
+            def deltapsi_yri = LeafcutterDsTable.deltapsi("${ds_dir}/YRI-GBR_effect_sizes.txt")
+
             assert workflow.success
 
             assertAll(
@@ -40,6 +53,12 @@ nextflow_pipeline {
                 { assert counts[0].startsWith('chrom ') },
                 { assert path("${params.outdir}/star_salmon/leafcutter/lc_pooled").size() > 0 },
                 { assert path("${params.outdir}/star_salmon/leafcutter/lc_refined").size() > 0 },
+                // Every contrast is tested, with control as the baseline
+                { assert ds_tables.keySet() == ['GBR-YRI_cluster_significance.txt', 'GBR-YRI_effect_sizes.txt', 'YRI-GBR_cluster_significance.txt', 'YRI-GBR_effect_sizes.txt'] as Set },
+                { assert path("${ds_dir}/GBR-YRI_effect_sizes.txt").readLines()[0].endsWith('deltapsi_GBR') },
+                { assert path("${ds_dir}/YRI-GBR_effect_sizes.txt").readLines()[0].endsWith('deltapsi_YRI') },
+                { assert deltapsi_gbr.keySet() == deltapsi_yri.keySet() },
+                { assert deltapsi_gbr.every { intron, dpsi -> dpsi.signum() == -deltapsi_yri[intron].signum() && dpsi.signum() != 0 } },
                 { assert snapshot(
                     // Remove Nextflow version to prevent cross-version testing failures
                     removeNextflowVersion("$outputDir/pipeline_info/nf_core_rnasplice_software_mqc_versions.yml"),
@@ -49,6 +68,9 @@ nextflow_pipeline {
 
                     // Snapshot the deterministic data file contents
                     stable_content,
+
+                    // Snapshot the stable columns of the leafcutter-ds tables
+                    ds_tables,
 
                     // Snapshot the sorted BAM files by the md5 of their alignments
                     sorted_bams

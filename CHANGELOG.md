@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #344 - Add ASpli (`--aspli`, off by default) for differential bin and junction usage on the genome BAM files, with the bin and junction signals of each contrast integrated into one report. Uses ASpli 2.16.0, the latest version with a Singularity image, and a 50,000 base maximum intron size as in the ASpli vignette. ASpli is on the DEU line of the metro map. Closes #343 (by @piplus2)
 - #350 - Accept the contrastsheet columns `id`, `variable`, `reference`, `target` and an ignored `blocking`, as in nf-core/differentialabundance. `variable` has to be `condition`. Closes #106 (requested by @adomingues, done by @piplus2)
 - #359 - Add `--leafcutter_max_intron_len`, `--leafcutter_min_cluster_reads` and `--leafcutter_min_cluster_ratio` for the LeafCutter clustering settings, with defaults unchanged (by @pinin4fjords)
+- #369 - Test the LeafCutter clusters for differential splicing with `leafcutter-ds`, once per contrast, with clusters labelled by gene from the GTF. Adds `--leafcutter_ds_min_samples_per_intron`, `--leafcutter_ds_min_samples_per_group` and `--leafcutter_ds_min_coverage`, defaulting to LeafCutter's own 5, 3 and 20. A contrast with fewer samples per condition than these is skipped with a warning. Closes #355 (requested by @pinin4fjords, done by @piplus2)
 
 ### Changed
 

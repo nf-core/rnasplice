@@ -313,6 +313,10 @@ Using `dpsi` file and `psivec` file, events are clustered according to `PSI` val
 
 Junction extraction (regtools `-M`) and clustering keep introns up to `--leafcutter_max_intron_len` bases long (default 500,000). The clustering keeps clusters supported by at least `--leafcutter_min_cluster_reads` reads (default 10), and drops junctions that carry less than `--leafcutter_min_cluster_ratio` of their cluster's reads (default 0.001). These are `leafcutter-cluster`'s `-l`, `-m` and `-p`, whose own defaults are 100,000, 30 and 0.001.
 
+The clusters are then tested for differential splicing with `leafcutter-ds`, once per contrast in the contrastsheet, with the `control` condition as the baseline so that ΔPSI is treatment minus control. Clusters are labelled with the genes whose exons they overlap in the GTF. The `--leafcutter_ds_*` parameters default to `leafcutter-ds`'s own settings.
+
+`leafcutter-ds` stops with an error if either condition of a contrast has fewer samples than `--leafcutter_ds_min_samples_per_intron` or `--leafcutter_ds_min_samples_per_group`. The pipeline leaves such a contrast out of the differential splicing with a warning, and still publishes the clusters. LeafCutter's authors have checked the calibration of its p-values down to four samples per condition, so be careful when lowering these settings.
+
 Every junction LeafCutter clusters needs a strand, and one that has none is discarded. Where the strand comes from depends on the samplesheet `strandedness`:
 
 - `forward` and `reverse`: from the orientation of the reads, which regtools reads off the BAM file itself. Nothing else is needed, so BAM files given with `--source genome_bam` work as they are.
