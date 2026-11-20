@@ -39,7 +39,9 @@ input:
   - rmats_read_len:
       type: integer
       description: |
-        Read length given to `--readLength` in both rMATS steps
+        Value channel containing the read length given to `--readLength` in both rMATS steps.
+        A plain integer works too, as Nextflow turns it into a value channel
+        Structure: val(read_length)
   - rmats_paired_stats:
       type: boolean
       description: |

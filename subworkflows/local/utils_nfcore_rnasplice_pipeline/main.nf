@@ -605,6 +605,38 @@ def rmatsStrandednessError(samples) {
 }
 
 //
+// Median read length of the reads of all the samples, from the read length histograms
+// ('RL' lines) of their samtools stats files, given as [ meta, stats ] pairs. rMATS takes
+// one read length per run and recommends the median when the reads vary in length.
+// Returns the median, which is null when no sample has reads (as in a stub run), and the
+// ids of the samples with no reads
+//
+def getSamtoolsStatsMedianReadLength(samples_stats) {
+    def counts = [:].withDefault { 0L }
+    def samples_without_reads = []
+    samples_stats.each { meta, stats_file ->
+        def sample_reads = 0L
+        stats_file.eachLine { line ->
+            def fields = line.split('\t')
+            if (fields[0] == 'RL') {
+                counts[fields[1].toInteger()] += fields[2].toLong()
+                sample_reads += fields[2].toLong()
+            }
+        }
+        if (sample_reads == 0L) {
+            samples_without_reads << meta.id
+        }
+    }
+    def total = counts.values().sum() ?: 0L
+    def seen = 0L
+    def median = counts.keySet().sort().find { length ->
+        seen += counts[length]
+        seen * 2 >= total
+    }
+    return [median: median, samples_without_reads: samples_without_reads.sort()]
+}
+
+//
 // Exit pipeline if ASpli requested with mixed single and paired end samples
 //
 def aspliReadError(samples) {
