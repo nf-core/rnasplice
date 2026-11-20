@@ -529,24 +529,24 @@
             ],
             {
                 "GBR-YRI_cluster_significance.txt": [
-                    "cluster\tstatus\tloglr\tdf\tp\tp.adjust\tgenes",
-                    "chrX:clu_1_-\tSuccess\t1.400\t2\t0.2466\t0.2466\tFLNA"
+                    "cluster\tstatus\tdf\tgenes",
+                    "chrX:clu_1_-\tSuccess\t2\tFLNA"
                 ],
                 "GBR-YRI_effect_sizes.txt": [
-                    "intron\tlogef_GBR\tpsi_YRI\tpsi_GBR\tdeltapsi_GBR",
-                    "X:3345845:3348024:clu_1_-\t-0.4451\t0.4001\t0.2782\t-0.1219",
-                    "X:3345845:3348207:clu_1_-\t0.8040\t0.1604\t0.3888\t0.2284",
-                    "X:3348047:3348207:clu_1_-\t-0.3590\t0.4395\t0.3331\t-0.1065"
+                    "intron",
+                    "X:3345845:3348024:clu_1_-",
+                    "X:3345845:3348207:clu_1_-",
+                    "X:3348047:3348207:clu_1_-"
                 ],
                 "YRI-GBR_cluster_significance.txt": [
-                    "cluster\tstatus\tloglr\tdf\tp\tp.adjust\tgenes",
-                    "chrX:clu_1_-\tSuccess\t1.399\t2\t0.2469\t0.2469\tFLNA"
+                    "cluster\tstatus\tdf\tgenes",
+                    "chrX:clu_1_-\tSuccess\t2\tFLNA"
                 ],
                 "YRI-GBR_effect_sizes.txt": [
-                    "intron\tlogef_YRI\tpsi_GBR\tpsi_YRI\tdeltapsi_YRI",
-                    "X:3345845:3348024:clu_1_-\t0.4589\t0.2750\t0.4014\t0.1263",
-                    "X:3345845:3348207:clu_1_-\t-0.8088\t0.3898\t0.1601\t-0.2297",
-                    "X:3348047:3348207:clu_1_-\t0.3499\t0.3351\t0.4385\t0.1034"
+                    "intron",
+                    "X:3345845:3348024:clu_1_-",
+                    "X:3345845:3348207:clu_1_-",
+                    "X:3348047:3348207:clu_1_-"
                 ]
             },
             {
@@ -556,7 +556,7 @@
                 "ERR204916_sorted.bam": "1f2abfcbb9697c56744ffb5fcfeb9f17"
             }
         ],
-        "timestamp": "2026-11-20T10:08:26.331618824",
+        "timestamp": "2026-11-20T10:35:31.163619777",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.3"

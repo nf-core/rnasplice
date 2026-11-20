@@ -94,8 +94,8 @@
                         "control": "YRI"
                     },
                     [
-                        "cluster\tstatus\tloglr\tdf\tp\tp.adjust\tgenes",
-                        "chrX:clu_1_-\tSuccess\t2.109\t2\t0.1214\t0.1214\tFLNA"
+                        "cluster\tstatus\tdf\tgenes",
+                        "chrX:clu_1_-\tSuccess\t2\tFLNA"
                     ]
                 ]
             ],
@@ -107,15 +107,15 @@
                         "control": "YRI"
                     },
                     [
-                        "intron\tlogef_GBR\tpsi_YRI\tpsi_GBR\tdeltapsi_GBR",
-                        "X:3345845:3348024:clu_1_-\t-0.5886\t0.4090\t0.2505\t-0.1585",
-                        "X:3345845:3348207:clu_1_-\t1.060\t0.1372\t0.4371\t0.2999",
-                        "X:3348047:3348207:clu_1_-\t-0.4716\t0.4538\t0.3124\t-0.1414"
+                        "intron",
+                        "X:3345845:3348024:clu_1_-",
+                        "X:3345845:3348207:clu_1_-",
+                        "X:3348047:3348207:clu_1_-"
                     ]
                 ]
             ]
         ],
-        "timestamp": "2026-11-20T10:05:53.574192504",
+        "timestamp": "2026-11-20T10:34:31.29614064",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.3"
@@ -216,8 +216,8 @@
                         "control": "YRI"
                     },
                     [
-                        "cluster\tstatus\tloglr\tdf\tp\tp.adjust\tgenes",
-                        "chrX:clu_1_-\tSuccess\t2.109\t2\t0.1214\t0.1214\tFLNA"
+                        "cluster\tstatus\tdf\tgenes",
+                        "chrX:clu_1_-\tSuccess\t2\tFLNA"
                     ]
                 ]
             ],
@@ -229,15 +229,15 @@
                         "control": "YRI"
                     },
                     [
-                        "intron\tlogef_GBR\tpsi_YRI\tpsi_GBR\tdeltapsi_GBR",
-                        "X:3345845:3348024:clu_1_-\t-0.5886\t0.4090\t0.2505\t-0.1585",
-                        "X:3345845:3348207:clu_1_-\t1.060\t0.1372\t0.4371\t0.2999",
-                        "X:3348047:3348207:clu_1_-\t-0.4716\t0.4538\t0.3124\t-0.1414"
+                        "intron",
+                        "X:3345845:3348024:clu_1_-",
+                        "X:3345845:3348207:clu_1_-",
+                        "X:3348047:3348207:clu_1_-"
                     ]
                 ]
             ]
         ],
-        "timestamp": "2026-11-20T10:06:02.593390366",
+        "timestamp": "2026-11-20T10:34:42.294713626",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.3"

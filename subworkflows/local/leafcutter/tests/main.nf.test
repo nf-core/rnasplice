@@ -99,10 +99,10 @@ nextflow_workflow {
                     workflow.out.refined,
                     workflow.out.sortedlibs,
                     workflow.out.exons,
-                    // The statistics of leafcutter-ds differ in the last digits between
-                    // builds of PyTorch, so they are snapshotted rounded
-                    workflow.out.cluster_significance.collect { meta, txt -> [ meta, RoundedCsv.read(txt, 4, '\t') ] },
-                    workflow.out.effect_sizes.collect { meta, txt -> [ meta, RoundedCsv.read(txt, 4, '\t') ] }
+                    // The statistics of leafcutter-ds differ between machines, so only the
+                    // ids, test status, degrees of freedom and genes are snapshotted
+                    workflow.out.cluster_significance.collect { meta, txt -> [ meta, LeafcutterDsTable.stable(txt) ] },
+                    workflow.out.effect_sizes.collect { meta, txt -> [ meta, LeafcutterDsTable.stable(txt) ] }
                 ).match() }
             )
         }
@@ -165,10 +165,10 @@ nextflow_workflow {
                     workflow.out.refined,
                     workflow.out.sortedlibs,
                     workflow.out.exons,
-                    // The statistics of leafcutter-ds differ in the last digits between
-                    // builds of PyTorch, so they are snapshotted rounded
-                    workflow.out.cluster_significance.collect { meta, txt -> [ meta, RoundedCsv.read(txt, 4, '\t') ] },
-                    workflow.out.effect_sizes.collect { meta, txt -> [ meta, RoundedCsv.read(txt, 4, '\t') ] }
+                    // The statistics of leafcutter-ds differ between machines, so only the
+                    // ids, test status, degrees of freedom and genes are snapshotted
+                    workflow.out.cluster_significance.collect { meta, txt -> [ meta, LeafcutterDsTable.stable(txt) ] },
+                    workflow.out.effect_sizes.collect { meta, txt -> [ meta, LeafcutterDsTable.stable(txt) ] }
                 ).match() }
             )
         }
