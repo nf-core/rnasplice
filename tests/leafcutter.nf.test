@@ -46,9 +46,26 @@ nextflow_pipeline {
             def deltapsi_gbr = LeafcutterDsTable.deltapsi("${ds_dir}/GBR-YRI_effect_sizes.txt")
             def deltapsi_yri = LeafcutterDsTable.deltapsi("${ds_dir}/YRI-GBR_effect_sizes.txt")
 
+            // Strand summaries: left out of stable_content by the ignoreFile, as every TSV
+            // is, so each is checked against the junctions published for its sample. The
+            // junctions left strandless still have `?` in the published file
+            def samples = ['ERR188383', 'ERR188428', 'ERR188454', 'ERR204916']
+            def strand_summaries = samples.collectEntries { sample ->
+                def lines = path("${ds_dir}/${sample}.strand_summary.tsv").readLines()
+                [ sample, [ lines[0].split('\t').toList(), lines[1].split('\t').toList() ].transpose().collectEntries() ]
+            }
+            def junc_strands = samples.collectEntries { sample ->
+                [ sample, path("${ds_dir}/${sample}.junc").readLines().collect { line -> line.split('\t')[5] } ]
+            }
+            def mqc_strand_samples = path("${params.outdir}/multiqc/multiqc_data/multiqc_leafcutter_junction_strands_table.txt")
+                .readLines().drop(1).collect { line -> line.split('\t')[0] }
+
             assert workflow.success
 
             assertAll(
+                { assert strand_summaries.every { sample, row -> row['Junctions'] as int == junc_strands[sample].size() } },
+                { assert strand_summaries.every { sample, row -> row['Junctions strandless'] as int == junc_strands[sample].count('?') } },
+                { assert mqc_strand_samples.sort() == samples },
                 { assert counts.size() > 1 },
                 { assert counts[0].startsWith('chrom ') },
                 { assert path("${params.outdir}/star_salmon/leafcutter/lc_pooled").size() > 0 },

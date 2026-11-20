@@ -133,6 +133,7 @@ workflow LEAFCUTTER {
 
     emit:
     juncs = ch_junc // channel: [ val(meta), path(junc) ]
+    strand_summary = STRANDJUNCTIONS.out.summary // channel: [ val(meta), path(tsv) ], unstranded samples only
     counts = LEAFCUTTER_CLUSTERREGTOOLS.out.counts // channel: [ val(meta), path(counts) ]
     numers = LEAFCUTTER_CLUSTERREGTOOLS.out.numers // channel: [ val(meta), path(numers) ]
     pooled = LEAFCUTTER_CLUSTERREGTOOLS.out.pooled // channel: [ val(meta), path(pooled) ]

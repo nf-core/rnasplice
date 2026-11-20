@@ -88,6 +88,7 @@ workflow RNASPLICE {
     def ch_multiqc_files = channel.empty()
     def pass_trimmed_reads = [:]
     def ch_rseqc_txt = channel.empty()
+    def ch_leafcutter_strand_summary = channel.empty()
 
     // Branch samplesheet channel based on source type
     if (params.source == 'fastq') {
@@ -424,6 +425,7 @@ workflow RNASPLICE {
                 ch_contrastsheet,
                 Math.max(params.leafcutter_ds_min_samples_per_intron, params.leafcutter_ds_min_samples_per_group),
             )
+            ch_leafcutter_strand_summary = LEAFCUTTER.out.strand_summary
         }
 
         if (params.aspli) {
@@ -710,6 +712,14 @@ workflow RNASPLICE {
         if (strand_check_genome_bam) {
             ch_multiqc_files = ch_multiqc_files.mix(ch_strand_check_multiqc.collectFile(name: 'fail_strand_check_mqc.tsv'))
         }
+
+        // One table row per unstranded sample, sorted by sample so the report does not
+        // depend on the order the tasks finished in
+        ch_multiqc_files = ch_multiqc_files.mix(
+            ch_leafcutter_strand_summary
+                .map { _meta, summary -> summary }
+                .collectFile(name: 'leafcutter_junction_strands_mqc.tsv', keepHeader: true, skip: 1, sort: { summary -> summary.name })
+        )
     }
 
     MULTIQC(

@@ -38,6 +38,40 @@
             [
                 [
                     {
+                        "id": "ERR188383",
+                        "strandedness": "unstranded",
+                        "condition": "GBR"
+                    },
+                    "ERR188383.strand_summary.tsv:md5,abe33803e7978be9bc8c6286822c6e5f"
+                ],
+                [
+                    {
+                        "id": "ERR188428",
+                        "strandedness": "unstranded",
+                        "condition": "GBR"
+                    },
+                    "ERR188428.strand_summary.tsv:md5,850d6013680171ea03b3ca872cd06a4e"
+                ],
+                [
+                    {
+                        "id": "ERR188454",
+                        "strandedness": "unstranded",
+                        "condition": "YRI"
+                    },
+                    "ERR188454.strand_summary.tsv:md5,e68739aa5ddafec0b6e1a3bf873be5fa"
+                ],
+                [
+                    {
+                        "id": "ERR204916",
+                        "strandedness": "unstranded",
+                        "condition": "YRI"
+                    },
+                    "ERR204916.strand_summary.tsv:md5,acc1bc34c9780d3e9c9dbbfd17ad6be2"
+                ]
+            ],
+            [
+                [
+                    {
                         "id": "lc"
                     },
                     [
@@ -115,7 +149,7 @@
                 ]
             ]
         ],
-        "timestamp": "2026-11-20T10:34:31.29614064",
+        "timestamp": "2026-11-20T16:26:12.928295931",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.3"
@@ -156,6 +190,9 @@
                     },
                     "ERR204916.junc:md5,cf150ab1efdfa1a4e2d6f869d7027403"
                 ]
+            ],
+            [
+                
             ],
             [
                 [
@@ -237,7 +274,7 @@
                 ]
             ]
         ],
-        "timestamp": "2026-11-20T10:34:42.294713626",
+        "timestamp": "2026-11-20T16:26:23.657475874",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.3"
@@ -261,6 +298,24 @@
                         "condition": "YRI"
                     },
                     "ERR188428.junc:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "ERR188383",
+                        "strandedness": "unstranded",
+                        "condition": "GBR"
+                    },
+                    "ERR188383.strand_summary.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "ERR188428",
+                        "strandedness": "unstranded",
+                        "condition": "YRI"
+                    },
+                    "ERR188428.strand_summary.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
                 ]
             ],
             [
@@ -335,7 +390,7 @@
                 ]
             ]
         ],
-        "timestamp": "2026-11-20T10:06:13.207801612",
+        "timestamp": "2026-11-20T16:26:34.538398944",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.3"

@@ -53,6 +53,20 @@ output:
             The same junction records, with a strand wherever the splice motif or the annotation
             gave one. A junction that is neither canonical nor annotated keeps its `?`
           pattern: "*.junc"
+  summary:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information, e.g. `[ id:'sample1' ]`
+      - "*.strand_summary.tsv":
+          type: file
+          description: |
+            One-row table of the number of junctions, and of the reads spanning them, that
+            were already stranded, were stranded from the splice motif or the annotation, or
+            were left strandless, with the percentage left strandless. Read by MultiQC
+          pattern: "*.strand_summary.tsv"
+          ontologies:
+            - edam: http://edamontology.org/format_3475 # TSV
   versions_python:
     - "versions.yml":
         type: file
