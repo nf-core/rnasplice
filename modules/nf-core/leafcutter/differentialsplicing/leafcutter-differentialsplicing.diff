@@ -1,0 +1,58 @@
+Changes in component 'nf-core/leafcutter/differentialsplicing'
+Changes in 'leafcutter/differentialsplicing/main.nf':
+--- modules/nf-core/leafcutter/differentialsplicing/main.nf
++++ modules/nf-core/leafcutter/differentialsplicing/main.nf
+@@ -12,6 +12,7 @@
+ 
+     input:
+     tuple val(meta), path(counts), path(groups)
++    tuple val(meta2), path(exons)
+ 
+     output:
+     tuple val(meta), path("*_cluster_significance.txt"), emit: cluster_significance
+@@ -25,6 +26,7 @@
+     script:
+     def args = task.ext.args ?: ''
+     def prefix = task.ext.prefix ?: "${meta.id}"
++    def exon_file = exons ? "--exon_file ${exons}" : ''
+     """
+     export USER="\${USER:-nobody}"
+     export PYTHONHASHSEED=0
+@@ -34,6 +36,7 @@
+         $groups \\
+         --output_prefix ${prefix} \\
+         --num_threads $task.cpus \\
++        $exon_file \\
+         $args
+     """
+ 
+
+'modules/nf-core/leafcutter/differentialsplicing/environment.yml' is unchanged
+Changes in 'leafcutter/differentialsplicing/meta.yml':
+--- modules/nf-core/leafcutter/differentialsplicing/meta.yml
++++ modules/nf-core/leafcutter/differentialsplicing/meta.yml
+@@ -31,6 +31,19 @@
+         type: file
+         description: Tab-delimited file with sample names in column 1 and sample group/phenotype assignments in column 2
+         pattern: "*.txt"
++  - - meta2:
++        type: map
++        description: |
++          Groovy Map containing reference information
++          e.g. `[ id:'genome' ]`
++    - exons:
++        type: file
++        description: |
++          Optional exon table (columns chr, start, end, strand, gene_name), as written by
++          leafcutter-gtf-to-exons, used to annotate the clusters with genes. Pass `[]` to
++          leave the clusters unannotated.
++        pattern: "*.{txt,txt.gz}"
++        optional: true
+ 
+ output:
+   cluster_significance:
+
+'modules/nf-core/leafcutter/differentialsplicing/tests/main.nf.test.snap' is unchanged
+'modules/nf-core/leafcutter/differentialsplicing/tests/main.nf.test' is unchanged
+'modules/nf-core/leafcutter/differentialsplicing/tests/nextflow.config' is unchanged
+************************************************************
