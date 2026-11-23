@@ -555,7 +555,7 @@ Most results tables identify genes by their ID only. The pipeline writes the gen
 
 A gene with no `gene_name` in the GTF is named by its gene ID, and the biotype is read from `gene_biotype` (Ensembl) or `gene_type` (GENCODE). The attributes the gene ID and name are read from follow `--gtf_group_features` and `--gtf_extra_attributes`. In the annotated copies:
 
-- Genes that DEXSeq aggregates (`ENSG00000147140+ENSG00000255591`) or SUPPA pools (`ENSG00000147140_and_ENSG00000255591`) get their names joined in the same way (`NONO+AL590762.1`).
+- Genes that DEXSeq aggregates (`ENSG00000147140+ENSG00000255591`) or SUPPA pools (`ENSG00000147140_and_ENSG00000255591`) get their names joined with the same separator (`NONO+AL590762.1`, `NONO_and_AL590762.1`).
 - A gene ID that only differs from the GTF in its version suffix (`ENSG00000004961.15`) still gets its name.
 - A gene that is not in the GTF gets `NA`, and every row of the table is kept.
 
