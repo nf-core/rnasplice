@@ -20,6 +20,15 @@ nextflow_workflow {
     // The test-datasets have no SUPPA TPM table, so it is built from the Salmon results
     // of two GBR and two YRI samples of the pipeline test data, as the pipeline does
     setup {
+        run("GENEANNOTATION_TABLES") {
+            script '../../../../modules/local/geneannotation/tables/main.nf'
+            process {
+            """
+            input[0] = [ [ id:'genes_chrX' ], file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true) ]
+            """
+            }
+        }
+
         run("TX2GENE_TXIMPORT") {
             script "../../tx2gene_tximport/main.nf"
             workflow {
@@ -81,6 +90,7 @@ nextflow_workflow {
                 input[29] = false           // clusterevents_sigthreshold
                 input[30] = false           // clusterevents_separation
                 input[31] = true            // suppa_per_isoform
+                input[32] = GENEANNOTATION_TABLES.out.gene.first()
                 """
             }
         }
@@ -111,6 +121,11 @@ nextflow_workflow {
                 // treatment minus control dPSI puts the control first
                 { assert path(workflow.out.dpsi_local.find { meta, _dpsi -> meta.id == 'local_GBR-YRI' }[1]).readLines()[0].startsWith('local_YRI-local_GBR_dPSI') },
                 { assert path(workflow.out.dpsi_isoform.find { meta, _dpsi -> meta.id == 'transcript_GBR-YRI' }[1]).readLines()[0].startsWith('transcript_YRI-transcript_GBR_dPSI') },
+                // Every event of the annotated copies, pooled genes included, has a gene name
+                // in the test annotation, and keeps its row
+                { assert workflow.out.dpsi_local_annotated.every { _meta, table -> path(table).readLines().drop(1).every { line -> line.split('\t')[1] != 'NA' } } },
+                { assert workflow.out.dpsi_isoform_annotated.every { _meta, table -> path(table).readLines().drop(1).every { line -> line.split('\t')[1] != 'NA' } } },
+                { assert sorted(workflow.out.dpsi_local_annotated).collect { _meta, tsv -> path(tsv).readLines().size() } == sorted(workflow.out.dpsi_local).collect { _meta, dpsi -> path(dpsi).readLines().size() } },
                 { assert snapshot(
                     names(workflow.out.ioe_events),
                     names(workflow.out.ioi_events),
@@ -125,7 +140,9 @@ nextflow_workflow {
                     names(workflow.out.psivec_isoform),
                     sorted(workflow.out.groups),
                     names(workflow.out.cluster_vec_local),
-                    names(workflow.out.cluster_vec_isoform)
+                    names(workflow.out.cluster_vec_isoform),
+                    sorted(workflow.out.dpsi_local_annotated).collect { meta, table -> [ meta, file(table).name, path(table).readLines()[0], path(table).readLines().size() ] },
+                    sorted(workflow.out.dpsi_isoform_annotated).collect { meta, table -> [ meta, file(table).name, path(table).readLines()[0], path(table).readLines().size() ] }
                 ).match() }
             )
         }
@@ -177,6 +194,7 @@ nextflow_workflow {
                 input[29] = false           // clusterevents_sigthreshold
                 input[30] = false           // clusterevents_separation
                 input[31] = false           // suppa_per_isoform
+                input[32] = GENEANNOTATION_TABLES.out.gene.first()
                 """
             }
         }
@@ -257,6 +275,7 @@ nextflow_workflow {
                 input[29] = false           // clusterevents_sigthreshold
                 input[30] = false           // clusterevents_separation
                 input[31] = true            // suppa_per_isoform
+                input[32] = GENEANNOTATION_TABLES.out.gene.first()
                 """
             }
         }
@@ -325,6 +344,7 @@ nextflow_workflow {
                 input[29] = false           // clusterevents_sigthreshold
                 input[30] = false           // clusterevents_separation
                 input[31] = true            // suppa_per_isoform
+                input[32] = GENEANNOTATION_TABLES.out.gene.first()
                 """
             }
         }
@@ -393,6 +413,7 @@ nextflow_workflow {
                 input[29] = false           // clusterevents_sigthreshold
                 input[30] = false           // clusterevents_separation
                 input[31] = true            // suppa_per_isoform
+                input[32] = GENEANNOTATION_TABLES.out.gene.first()
                 """
             }
         }
@@ -415,7 +436,9 @@ nextflow_workflow {
                     sorted(workflow.out.psivec_isoform),
                     sorted(workflow.out.groups),
                     sorted(workflow.out.cluster_vec_local),
-                    sorted(workflow.out.cluster_vec_isoform)
+                    sorted(workflow.out.cluster_vec_isoform),
+                    sorted(workflow.out.dpsi_local_annotated),
+                    sorted(workflow.out.dpsi_isoform_annotated)
                 ).match() }
             )
         }

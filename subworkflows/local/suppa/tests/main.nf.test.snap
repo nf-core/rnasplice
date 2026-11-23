@@ -248,9 +248,57 @@
                     },
                     "transcript_YRI-GBR.clustvec"
                 ]
+            ],
+            [
+                [
+                    {
+                        "id": "local_GBR-YRI",
+                        "level": "local",
+                        "treatment": "GBR",
+                        "control": "YRI"
+                    },
+                    "local_GBR-YRI.annotated.tsv",
+                    "event_id\tgene_name\tgene_biotype\tlocal_YRI-local_GBR_dPSI\tlocal_YRI-local_GBR_p-val",
+                    339
+                ],
+                [
+                    {
+                        "id": "local_YRI-GBR",
+                        "level": "local",
+                        "treatment": "YRI",
+                        "control": "GBR"
+                    },
+                    "local_YRI-GBR.annotated.tsv",
+                    "event_id\tgene_name\tgene_biotype\tlocal_GBR-local_YRI_dPSI\tlocal_GBR-local_YRI_p-val",
+                    339
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "transcript_GBR-YRI",
+                        "level": "transcript",
+                        "treatment": "GBR",
+                        "control": "YRI"
+                    },
+                    "transcript_GBR-YRI.annotated.tsv",
+                    "event_id\tgene_name\tgene_biotype\ttranscript_YRI-transcript_GBR_dPSI\ttranscript_YRI-transcript_GBR_p-val",
+                    274
+                ],
+                [
+                    {
+                        "id": "transcript_YRI-GBR",
+                        "level": "transcript",
+                        "treatment": "YRI",
+                        "control": "GBR"
+                    },
+                    "transcript_YRI-GBR.annotated.tsv",
+                    "event_id\tgene_name\tgene_biotype\ttranscript_GBR-transcript_YRI_dPSI\ttranscript_GBR-transcript_YRI_p-val",
+                    274
+                ]
             ]
         ],
-        "timestamp": "2026-10-23T11:31:04.10285308",
+        "timestamp": "2026-11-23T08:47:12.867990886",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.3"
@@ -570,9 +618,49 @@
                     },
                     "transcript_YRI-GBR.clustvec:md5,d41d8cd98f00b204e9800998ecf8427e"
                 ]
+            ],
+            [
+                [
+                    {
+                        "id": "local_GBR-YRI",
+                        "level": "local",
+                        "treatment": "GBR",
+                        "control": "YRI"
+                    },
+                    "local_GBR-YRI.annotated.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "local_YRI-GBR",
+                        "level": "local",
+                        "treatment": "YRI",
+                        "control": "GBR"
+                    },
+                    "local_YRI-GBR.annotated.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "transcript_GBR-YRI",
+                        "level": "transcript",
+                        "treatment": "GBR",
+                        "control": "YRI"
+                    },
+                    "transcript_GBR-YRI.annotated.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "transcript_YRI-GBR",
+                        "level": "transcript",
+                        "treatment": "YRI",
+                        "control": "GBR"
+                    },
+                    "transcript_YRI-GBR.annotated.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
             ]
         ],
-        "timestamp": "2026-10-08T13:52:55.696071038",
+        "timestamp": "2026-11-23T08:48:06.31187233",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.3"

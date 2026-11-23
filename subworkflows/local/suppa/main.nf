@@ -12,6 +12,7 @@ include { MERGEEVENTS } from '../../../modules/local/mergeevents'
 include { SPLITFILES as SPLITFILES_TPM } from '../../../modules/local/splitfiles'
 include { SPLITFILES as SPLITFILES_PSI } from '../../../modules/local/splitfiles'
 include { CLUSTERGROUPS } from '../../../modules/local/clustergroups'
+include { GENEANNOTATION_ANNOTATE } from '../../../modules/local/geneannotation/annotate'
 
 workflow SUPPA {
     take:
@@ -47,6 +48,7 @@ workflow SUPPA {
     clusterevents_sigthreshold // float: params.clusterevents_sigthreshold
     clusterevents_separation // float: params.clusterevents_separation
     suppa_per_isoform // boolean: params.suppa_per_isoform
+    ch_gene_annotation // channel: [ val(meta), path(tsv) ], the gene annotation table, as a value channel
 
     main:
 
@@ -197,6 +199,16 @@ workflow SUPPA {
         diffsplice_nan_threshold,
     )
 
+    //
+    // MODULE: Copies of the dPSI tables with the gene names
+    //
+    // The event and isoform IDs start with the gene ID, `gene;event`, see the module
+    GENEANNOTATION_ANNOTATE(
+        SUPPA_DIFFSPLICE.out.dpsi,
+        ch_gene_annotation,
+        'event_id',
+    )
+
     ch_cluster_psivec = SUPPA_DIFFSPLICE.out.psivec.filter { meta, _psivec -> meta.level == 'local' ? clusterevents_local_event : clusterevents_transcript_event }
 
     //
@@ -236,6 +248,8 @@ workflow SUPPA {
     psivec_local = SUPPA_DIFFSPLICE.out.psivec.filter { meta, _psivec -> meta.level == 'local' } // channel: [ val(meta), path(psivec) ]
     dpsi_isoform = SUPPA_DIFFSPLICE.out.dpsi.filter { meta, _dpsi -> meta.level == 'transcript' } // channel: [ val(meta), path(dpsi) ]
     psivec_isoform = SUPPA_DIFFSPLICE.out.psivec.filter { meta, _psivec -> meta.level == 'transcript' } // channel: [ val(meta), path(psivec) ]
+    dpsi_local_annotated = GENEANNOTATION_ANNOTATE.out.annotated.filter { meta, _tsv -> meta.level == 'local' } // channel: [ val(meta), path(tsv) ]
+    dpsi_isoform_annotated = GENEANNOTATION_ANNOTATE.out.annotated.filter { meta, _tsv -> meta.level == 'transcript' } // channel: [ val(meta), path(tsv) ]
     groups = CLUSTERGROUPS.out.groups // channel: [ val(meta), path(txt) ]
     cluster_vec_local = SUPPA_CLUSTEREVENTS.out.clustvec.filter { meta, _clustvec -> meta.level == 'local' } // channel: [ val(meta), path(clustvec) ]
     cluster_vec_isoform = SUPPA_CLUSTEREVENTS.out.clustvec.filter { meta, _clustvec -> meta.level == 'transcript' } // channel: [ val(meta), path(clustvec) ]

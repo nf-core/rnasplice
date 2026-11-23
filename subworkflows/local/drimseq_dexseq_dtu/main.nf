@@ -5,6 +5,8 @@
 include { DRIMSEQ_DMFILTER } from '../../../modules/local/drimseq/dmfilter'
 include { DEXSEQ_DTU } from '../../../modules/nf-core/dexseq/dtu'
 include { STAGER } from '../../../modules/local/stager'
+include { GENEANNOTATION_ANNOTATE as GENEANNOTATION_ANNOTATE_DEXSEQ } from '../../../modules/local/geneannotation/annotate'
+include { GENEANNOTATION_ANNOTATE as GENEANNOTATION_ANNOTATE_STAGER } from '../../../modules/local/geneannotation/annotate'
 
 workflow DRIMSEQ_DEXSEQ_DTU {
     take:
@@ -12,6 +14,7 @@ workflow DRIMSEQ_DEXSEQ_DTU {
     tximport_tx2gene // path: tximport.tx2gene.tsv
     samplesheet // path: /path/to/samplesheet.csv
     ch_contrastsheet // channel: [ contrast:, treatment:, control: ]
+    ch_gene_annotation // channel: [ val(meta), path(tsv) ], the gene annotation table, as a value channel
 
     main:
 
@@ -59,6 +62,22 @@ workflow DRIMSEQ_DEXSEQ_DTU {
         analysis_type,
     )
 
+    //
+    // MODULE: Copies of the DEXSeq and stageR tables with the gene names
+    //
+
+    GENEANNOTATION_ANNOTATE_DEXSEQ(
+        DEXSEQ_DTU.out.results.mix(DEXSEQ_DTU.out.gene_qvalues),
+        ch_gene_annotation,
+        'groupID',
+    )
+
+    GENEANNOTATION_ANNOTATE_STAGER(
+        STAGER.out.stager_padj_tsv,
+        ch_gene_annotation,
+        'geneID',
+    )
+
     emit:
     drimseq_dataset_rds = DRIMSEQ_DMFILTER.out.drimseq_dataset_rds
     drimseq_samples_tsv = DRIMSEQ_DMFILTER.out.drimseq_samples_tsv
@@ -71,4 +90,6 @@ workflow DRIMSEQ_DEXSEQ_DTU {
     stager_rds = STAGER.out.stager_rds
     stager_padj_rds = STAGER.out.stager_padj_rds
     stager_padj_tsv = STAGER.out.stager_padj_tsv
+    dexseq_annotated_tsv = GENEANNOTATION_ANNOTATE_DEXSEQ.out.annotated // channel: [ val(meta), path(tsv) ], the transcript results and gene q-values with the gene names
+    stager_padj_annotated_tsv = GENEANNOTATION_ANNOTATE_STAGER.out.annotated // channel: [ val(meta), path(tsv) ]
 }

@@ -1,0 +1,71 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "geneannotation_tables"
+description: Write the gene and transcript annotation tables of a GTF file, with the
+  name and biotype of each gene
+keywords:
+  - annotation
+  - gtf
+  - gene names
+  - genomics
+tools:
+  - "python":
+      description: "Python programming language. The module uses it to read the GTF file
+        and write the annotation tables."
+      homepage: "https://www.python.org/"
+      documentation: "https://docs.python.org/3/"
+      tool_dev_url: "https://github.com/python/cpython"
+      licence: ["PSF-2.0"]
+      identifier: ""
+
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing annotation information
+          e.g. `[ id:'genes' ]`
+    - gtf:
+        type: file
+        description: GTF annotation file, optionally gzipped
+        pattern: "*.{gtf,gtf.gz}"
+        ontologies:
+          - edam: "http://edamontology.org/format_2306" # GTF
+
+output:
+  gene:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing annotation information
+            e.g. `[ id:'genes' ]`
+      - "*.gene_annotation.tsv":
+          type: file
+          description: |
+            One row per gene, sorted by gene ID, with the columns `gene_id`, `gene_name`
+            and `gene_biotype`. A gene with no name in the GTF is named by its ID, and a
+            gene with no `gene_biotype` or `gene_type` has the biotype `NA`
+          pattern: "*.gene_annotation.tsv"
+          ontologies:
+            - edam: "http://edamontology.org/format_3475" # TSV
+  transcript:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing annotation information
+            e.g. `[ id:'genes' ]`
+      - "*.transcript_annotation.tsv":
+          type: file
+          description: |
+            One row per transcript, sorted by transcript ID, with the columns
+            `transcript_id`, `gene_id`, `gene_name` and `gene_biotype`
+          pattern: "*.transcript_annotation.tsv"
+          ontologies:
+            - edam: "http://edamontology.org/format_3475" # TSV
+  versions_python:
+    - "versions.yml":
+        type: file
+        description: File containing software versions
+        pattern: "versions.yml"
+authors:
+  - "@piplus2"
+maintainers:
+  - "@piplus2"

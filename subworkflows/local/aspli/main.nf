@@ -12,6 +12,7 @@ workflow ASPLI {
     ch_gtf // channel: [ val(meta), path(gtf) ]
     ch_contrastsheet // channel: [ contrast:, treatment:, control: ]
     read_length // integer: --minReadLength of ASpli, 0 to estimate it from the BAM files
+    ch_gene_annotation // channel: [ val(meta), path(tsv) ], the gene names of the symbol column
 
     main:
 
@@ -61,6 +62,7 @@ workflow ASPLI {
         ch_counts_input,
         ch_gtf,
         read_length,
+        ch_gene_annotation,
     )
 
     //

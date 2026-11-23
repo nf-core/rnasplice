@@ -7,6 +7,7 @@
 include { BEDTOOLS_GENOMECOV as BEDTOOLS_GENOMECOV_FORWARD                } from '../modules/nf-core/bedtools/genomecov'
 include { BEDTOOLS_GENOMECOV as BEDTOOLS_GENOMECOV_REVERSE                } from '../modules/nf-core/bedtools/genomecov'
 include { ISOFORMSWITCHANALYZER                                           } from '../modules/local/isoformswitchanalyzer'
+include { GENEANNOTATION_TABLES                                           } from '../modules/local/geneannotation/tables'
 include { ALIGN_STAR                                                      } from '../subworkflows/local/align_star'
 include { TX2GENE_TXIMPORT as TX2GENE_TXIMPORT_SALMON                     } from '../subworkflows/local/tx2gene_tximport'
 include { TX2GENE_TXIMPORT as TX2GENE_TXIMPORT_STAR_SALMON                } from '../subworkflows/local/tx2gene_tximport'
@@ -141,6 +142,14 @@ workflow RNASPLICE {
     if (params.aspli && ['fastq', 'genome_bam'].contains(params.source)) {
         aspliReadError(ch_samplesheet)
     }
+
+    //
+    // MODULE: Gene and transcript annotation tables of the GTF
+    //
+    // Made for every run, as a reference of the gene names, and used to write copies of
+    // the results tables with the gene name next to each gene ID
+    GENEANNOTATION_TABLES(ch_gtf.map { gtf -> [[id: gtf.baseName], gtf] })
+    ch_gene_annotation = GENEANNOTATION_TABLES.out.gene.first()
 
     //
     // MODULE: Concatenate FastQ technical replicates if required
@@ -356,6 +365,7 @@ workflow RNASPLICE {
                 params.gff_dexseq as boolean,
                 ch_samplesheet_file,
                 ch_contrastsheet,
+                ch_gene_annotation,
             )
         }
 
@@ -365,6 +375,7 @@ workflow RNASPLICE {
                 ch_genome_bam,
                 ch_samplesheet_file,
                 ch_contrastsheet_file,
+                ch_gene_annotation,
             )
         }
 
@@ -435,6 +446,7 @@ workflow RNASPLICE {
                 ch_gtf.map { gtf -> [[id: gtf.baseName], gtf] }.first(),
                 ch_contrastsheet,
                 params.aspli_read_len ?: 0,
+                ch_gene_annotation,
             )
         }
     }
@@ -503,6 +515,7 @@ workflow RNASPLICE {
                 ch_tximport_tx2gene,
                 ch_samplesheet_file,
                 ch_contrastsheet,
+                ch_gene_annotation,
             )
         }
 
@@ -541,6 +554,7 @@ workflow RNASPLICE {
                 params.clusterevents_sigthreshold ?: false,
                 params.clusterevents_separation ?: false,
                 params.suppa_per_isoform,
+                ch_gene_annotation,
             )
         }
     }
@@ -574,6 +588,7 @@ workflow RNASPLICE {
                 TX2GENE_TXIMPORT_SALMON.out.tximport_tx2gene,
                 ch_samplesheet_file,
                 ch_contrastsheet,
+                ch_gene_annotation,
             )
         }
 
@@ -612,6 +627,7 @@ workflow RNASPLICE {
                 params.clusterevents_sigthreshold ?: false,
                 params.clusterevents_separation ?: false,
                 params.suppa_per_isoform,
+                ch_gene_annotation,
             )
         }
     }

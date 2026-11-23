@@ -15,6 +15,7 @@ process ASPLI_COUNTS {
     tuple val(meta), path(targets), path(bams), path(bais) // targets: TSV with sample, condition, bam, single_end and strandedness columns
     tuple val(meta2), path(gtf)
     val read_length                                       // integer: --minReadLength of ASpli, 0 to estimate it from the BAM files
+    tuple val(meta3), path(gene_annotation)               // gene_annotation: TSV with gene_id and gene_name columns, as GENEANNOTATION_TABLES writes it
 
     output:
     tuple val(meta), path("*.features.rds")      , emit: features

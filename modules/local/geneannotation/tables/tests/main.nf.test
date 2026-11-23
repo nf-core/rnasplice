@@ -1,0 +1,104 @@
+// nf-core modules test geneannotation/tables
+nextflow_process {
+
+    name "Test Process GENEANNOTATION_TABLES"
+    script "../main.nf"
+    process "GENEANNOTATION_TABLES"
+
+    tag "modules"
+    tag "modules_local"
+    tag "geneannotation"
+    tag "geneannotation/tables"
+
+    setup {
+        // An Ensembl gene with a name, a GENCODE gene with `gene_type` and a versioned ID,
+        // and a gene with neither a name nor a biotype, given in exon lines only, as in a
+        // GTF with no gene or transcript lines. The genes are out of order, to be sorted
+        def exon = { String gene, String transcript, String attributes ->
+            "chr1\ttest\texon\t1\t100\t.\t+\t.\tgene_id \"${gene}\"; transcript_id \"${transcript}\"; ${attributes}"
+        }
+        file("${outputDir}/genes.gtf").text = [
+            '#!genome-build test',
+            exon('ENSG00000000003', 'ENST00000000002', 'gene_name "TSPAN6"; gene_biotype "protein_coding";'),
+            exon('ENSG00000000003', 'ENST00000000001', 'gene_name "TSPAN6"; gene_biotype "protein_coding";'),
+            exon('ENSG00000000005.6', 'ENST00000000003.2', 'gene_name "TNMD"; gene_type "protein_coding";'),
+            exon('ENSG00000000001', 'ENST00000000004', 'exon_number "1";'),
+        ].join('\n') + '\n'
+    }
+
+    test("gtf") {
+
+        when {
+            process {
+                """
+                input[0] = [ [ id:'genes' ], file("${outputDir}/genes.gtf", checkIfExists: true) ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert path(process.out.gene[0][1]).readLines() == [
+                    'gene_id\tgene_name\tgene_biotype',
+                    'ENSG00000000001\tENSG00000000001\tNA',
+                    'ENSG00000000003\tTSPAN6\tprotein_coding',
+                    'ENSG00000000005.6\tTNMD\tprotein_coding',
+                ] },
+                { assert path(process.out.transcript[0][1]).readLines() == [
+                    'transcript_id\tgene_id\tgene_name\tgene_biotype',
+                    'ENST00000000001\tENSG00000000003\tTSPAN6\tprotein_coding',
+                    'ENST00000000002\tENSG00000000003\tTSPAN6\tprotein_coding',
+                    'ENST00000000003.2\tENSG00000000005.6\tTNMD\tprotein_coding',
+                    'ENST00000000004\tENSG00000000001\tENSG00000000001\tNA',
+                ] },
+                { assert snapshot(process.out).match() }
+            )
+        }
+
+    }
+
+    test("human chrX - gtf") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id:'genes_chrX' ],
+                    file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true),
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(process.out).match() }
+            )
+        }
+
+    }
+
+    test("gtf - stub") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = [ [ id:'genes' ], file("${outputDir}/genes.gtf", checkIfExists: true) ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(process.out).match() }
+            )
+        }
+
+    }
+
+}

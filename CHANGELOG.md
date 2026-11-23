@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #359 - Add `--leafcutter_max_intron_len`, `--leafcutter_min_cluster_reads` and `--leafcutter_min_cluster_ratio` for the LeafCutter clustering settings, with defaults unchanged (by @pinin4fjords)
 - #369 - Test the LeafCutter clusters for differential splicing with `leafcutter-ds`, once per contrast, with clusters labelled by gene from the GTF. Adds `--leafcutter_ds_min_samples_per_intron`, `--leafcutter_ds_min_samples_per_group` and `--leafcutter_ds_min_coverage`, defaulting to LeafCutter's own 5, 3 and 20. A contrast with fewer samples per condition than these is skipped with a warning. Closes #355 (requested by @pinin4fjords, done by @piplus2)
 - #370 - Report, per unstranded sample, how many LeafCutter junctions and spanning reads were stranded by the `XS` tag, the splice motif or the annotation, and how many were left strandless and dropped by the clustering, in `<aligner>/leafcutter/<sample>.strand_summary.tsv` and a "LeafCutter Junction Strands" MultiQC table. Closes #364 (requested by @pinin4fjords, done by @piplus2)
+- #371 - Publish gene and transcript annotation tables of the GTF (`annotation/`) with every run, and write copies of the DEXSeq exon and DTU, stageR, edgeR and SUPPA dPSI tables with the gene name and biotype after the gene ID, as `*.annotated.tsv` (`*.annotated.csv` for edgeR). The existing tables are unchanged. Genes DEXSeq aggregates or SUPPA pools get their names joined the same way, and IDs that differ from the GTF only in their version suffix still match. Closes #365 (requested by @pinin4fjords, done by @piplus2)
 
 ### Changed
 
@@ -21,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #348 - Template update to nf-core/tools 4.2.1, with FastQC 0.13.0 and nft-utils 1.2.1. nf-schema stays at 2.7.2, as later versions fail when a parameter is `null` ([nextflow-io/nf-schema#240](https://github.com/nextflow-io/nf-schema/issues/240)) (by @piplus2)
 - #349 - Set `manifest.diagram` to the metro map, which the 4.2.1 template update left out. Nextflow 26.04 warns that the option is unrecognised; Nextflow 26.10 and later accept it (by @piplus2)
 - #353 - Clean up lint warnings and ignored lint tests, and fix the `PIPELINE_INITIALISATION` failure tests on the latest Nextflow (by @piplus2)
+- #371 - The `symbol` column of the ASpli tables holds the gene names of the gene annotation table, where it held the gene IDs, so it follows `--gtf_extra_attributes`. A gene with no name keeps its ID (requested by @pinin4fjords, done by @piplus2)
 
 ### Deprecated
 

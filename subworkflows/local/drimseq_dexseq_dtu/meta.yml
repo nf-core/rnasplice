@@ -5,6 +5,7 @@ keywords:
   - drimseq
   - dexseq
   - stager
+  - geneannotation/annotate
   - dtu
   - differential transcript usage
   - splicing
@@ -38,6 +39,13 @@ input:
         The input channel containing the parsed contrastsheet, one row per contrast.
         `DEXSEQ_DTU` runs once per contrast, with the contrast name as its id
         Structure: [ contrast: val(contrast), treatment: val(condition), control: val(condition) ]
+  - ch_gene_annotation:
+      type: file
+      description: |
+        The input channel containing the gene annotation table of `GENEANNOTATION_TABLES`,
+        as a value channel, that the annotated copies of the results tables are made from
+        Structure: [ val(meta), path(tsv) ]
+      pattern: "*.gene_annotation.tsv"
 output:
   - drimseq_dataset_rds:
       type: file
@@ -105,6 +113,20 @@ output:
         Channel containing the stage wise adjusted p-values as TSV, one per contrast
         Structure: [ val(meta), path(tsv) ]
       pattern: "getAdjustedPValues.*.tsv"
+  - dexseq_annotated_tsv:
+      type: file
+      description: |
+        Channel containing copies of the transcript level results and gene level q-values
+        with the gene name and biotype after `groupID`, two per contrast
+        Structure: [ val(meta), path(tsv) ]
+      pattern: "*.dexseq.{results,gene_qvalues}.annotated.tsv"
+  - stager_padj_annotated_tsv:
+      type: file
+      description: |
+        Channel containing a copy of the stageR adjusted p-values with the gene name and
+        biotype after `geneID`, one per contrast
+        Structure: [ val(meta), path(tsv) ]
+      pattern: "getAdjustedPValues.*.annotated.tsv"
 authors:
   - "@bensouthgate"
   - "@jma1991"
