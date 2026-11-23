@@ -16,6 +16,16 @@ nextflow_process {
     // are counted first
     setup {
 
+        // The gene annotation table the symbol column of the ASpli tables is named from
+        run("GENEANNOTATION_TABLES") {
+            script '../../../../../modules/local/geneannotation/tables/main.nf'
+            process {
+            """
+            input[0] = [ [ id:'genes_chrX' ], file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true) ]
+            """
+            }
+        }
+
         run("ASPLI_COUNTS") {
             script "../../counts/main.nf"
             process {
@@ -40,6 +50,7 @@ nextflow_process {
                 file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true),
             ]
             input[2] = 0
+            input[3] = GENEANNOTATION_TABLES.out.gene.first()
             """
             }
         }
