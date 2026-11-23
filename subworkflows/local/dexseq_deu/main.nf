@@ -5,6 +5,7 @@
 include { DEXSEQ_PREPAREANNOTATION } from '../../../modules/nf-core/dexseq/prepareannotation'
 include { DEXSEQ_COUNT } from '../../../modules/nf-core/dexseq/count'
 include { DEXSEQ_EXON } from '../../../modules/nf-core/dexseq/exon'
+include { GENEANNOTATION_ANNOTATE } from '../../../modules/local/geneannotation/annotate'
 
 workflow DEXSEQ_DEU {
     take:
@@ -14,6 +15,7 @@ workflow DEXSEQ_DEU {
     skip_annotation // boolean: true when a DEXSeq annotation is supplied in `ch_dexseq_gff`
     ch_samplesheet // channel.fromPath(params.input)
     ch_contrastsheet // channel: [ contrast:, treatment:, control: ]
+    ch_gene_annotation // channel: [ val(meta), path(tsv) ], the gene annotation table, as a value channel
 
     main:
 
@@ -79,6 +81,16 @@ workflow DEXSEQ_DEU {
         ch_dexseq_exon_input.gff,
     )
 
+    //
+    // MODULE: Copies of the DEXSeq tables with the gene names
+    //
+
+    GENEANNOTATION_ANNOTATE(
+        DEXSEQ_EXON.out.results.mix(DEXSEQ_EXON.out.gene_qvalues),
+        ch_gene_annotation,
+        'groupID',
+    )
+
     emit:
     dexseq_clean_txt = ch_dexseq_clean_txt
     dexseq_exon_dataset_rds = DEXSEQ_EXON.out.dataset_rds
@@ -87,4 +99,5 @@ workflow DEXSEQ_DEU {
     dexseq_exon_results_tsv = DEXSEQ_EXON.out.results
     dexseq_gene_results_tsv = DEXSEQ_EXON.out.gene_qvalues
     dexseq_plot_results_pdf = DEXSEQ_EXON.out.plots
+    dexseq_annotated_tsv = GENEANNOTATION_ANNOTATE.out.annotated // channel: [ val(meta), path(tsv) ], the exon results and gene q-values with the gene names
 }

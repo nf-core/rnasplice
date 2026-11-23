@@ -136,9 +136,75 @@
                         "DGELRT.usage.rds"
                     ]
                 ]
+            ],
+            [
+                [
+                    {
+                        "id": "edger_exon"
+                    },
+                    "contrast_GBR-YRI.exprs.annotated.csv",
+                    "Geneid,gene_name,gene_biotype,Chr,Start,End,Strand,Length,logFC,logCPM,F,PValue,FDR",
+                    272
+                ],
+                [
+                    {
+                        "id": "edger_exon"
+                    },
+                    "contrast_GBR-YRI.usage.exon.annotated.csv",
+                    "Geneid,gene_name,gene_biotype,Chr,Start,End,Strand,Length,logFC,exon.F,P.Value,FDR",
+                    268
+                ],
+                [
+                    {
+                        "id": "edger_exon"
+                    },
+                    "contrast_GBR-YRI.usage.gene.annotated.csv",
+                    "Geneid,gene_name,gene_biotype,Chr,Strand,NExons,gene.F,P.Value,FDR",
+                    25
+                ],
+                [
+                    {
+                        "id": "edger_exon"
+                    },
+                    "contrast_GBR-YRI.usage.simes.annotated.csv",
+                    "Geneid,gene_name,gene_biotype,Chr,Strand,NExons,P.Value,FDR",
+                    25
+                ],
+                [
+                    {
+                        "id": "edger_exon"
+                    },
+                    "contrast_YRI-GBR.exprs.annotated.csv",
+                    "Geneid,gene_name,gene_biotype,Chr,Start,End,Strand,Length,logFC,logCPM,F,PValue,FDR",
+                    272
+                ],
+                [
+                    {
+                        "id": "edger_exon"
+                    },
+                    "contrast_YRI-GBR.usage.exon.annotated.csv",
+                    "Geneid,gene_name,gene_biotype,Chr,Start,End,Strand,Length,logFC,exon.F,P.Value,FDR",
+                    268
+                ],
+                [
+                    {
+                        "id": "edger_exon"
+                    },
+                    "contrast_YRI-GBR.usage.gene.annotated.csv",
+                    "Geneid,gene_name,gene_biotype,Chr,Strand,NExons,gene.F,P.Value,FDR",
+                    25
+                ],
+                [
+                    {
+                        "id": "edger_exon"
+                    },
+                    "contrast_YRI-GBR.usage.simes.annotated.csv",
+                    "Geneid,gene_name,gene_biotype,Chr,Strand,NExons,P.Value,FDR",
+                    25
+                ]
             ]
         ],
-        "timestamp": "2026-10-23T12:04:42.563686208",
+        "timestamp": "2026-11-23T08:46:42.695230818",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.3"
@@ -240,9 +306,59 @@
                         "contrast_YRI-GBR.usage.simes.pdf:md5,d41d8cd98f00b204e9800998ecf8427e"
                     ]
                 ]
+            ],
+            [
+                [
+                    {
+                        "id": "edger_exon"
+                    },
+                    "contrast_GBR-YRI.exprs.annotated.csv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "edger_exon"
+                    },
+                    "contrast_GBR-YRI.usage.exon.annotated.csv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "edger_exon"
+                    },
+                    "contrast_GBR-YRI.usage.gene.annotated.csv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "edger_exon"
+                    },
+                    "contrast_GBR-YRI.usage.simes.annotated.csv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "edger_exon"
+                    },
+                    "contrast_YRI-GBR.exprs.annotated.csv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "edger_exon"
+                    },
+                    "contrast_YRI-GBR.usage.exon.annotated.csv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "edger_exon"
+                    },
+                    "contrast_YRI-GBR.usage.gene.annotated.csv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "edger_exon"
+                    },
+                    "contrast_YRI-GBR.usage.simes.annotated.csv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
             ]
         ],
-        "timestamp": "2026-09-10T11:28:26.873704515",
+        "timestamp": "2026-11-23T08:46:51.393947822",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.3"

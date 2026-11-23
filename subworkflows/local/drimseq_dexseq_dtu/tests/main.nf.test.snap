@@ -133,9 +133,61 @@
                     "geneID\ttxID\tgene\ttranscript",
                     34
                 ]
+            ],
+            [
+                [
+                    {
+                        "id": "GBR-YRI"
+                    },
+                    "GBR-YRI.dexseq.gene_qvalues.annotated.tsv",
+                    "groupID\tgene_name\tgene_biotype\tpadj",
+                    15
+                ],
+                [
+                    {
+                        "id": "GBR-YRI"
+                    },
+                    "GBR-YRI.dexseq.results.annotated.tsv",
+                    "groupID\tgene_name\tgene_biotype\tfeatureID\texonBaseMean\tdispersion\tstat\tpvalue\tpadj\tYRI\tGBR\tlog2fold_GBR_YRI\tcountData.1\tcountData.2\tcountData.3\tcountData.4",
+                    34
+                ],
+                [
+                    {
+                        "id": "YRI-GBR"
+                    },
+                    "YRI-GBR.dexseq.gene_qvalues.annotated.tsv",
+                    "groupID\tgene_name\tgene_biotype\tpadj",
+                    15
+                ],
+                [
+                    {
+                        "id": "YRI-GBR"
+                    },
+                    "YRI-GBR.dexseq.results.annotated.tsv",
+                    "groupID\tgene_name\tgene_biotype\tfeatureID\texonBaseMean\tdispersion\tstat\tpvalue\tpadj\tGBR\tYRI\tlog2fold_YRI_GBR\tcountData.1\tcountData.2\tcountData.3\tcountData.4",
+                    34
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "GBR-YRI"
+                    },
+                    "getAdjustedPValues.GBR-YRI.annotated.tsv",
+                    "geneID\tgene_name\tgene_biotype\ttxID\tgene\ttranscript",
+                    34
+                ],
+                [
+                    {
+                        "id": "YRI-GBR"
+                    },
+                    "getAdjustedPValues.YRI-GBR.annotated.tsv",
+                    "geneID\tgene_name\tgene_biotype\ttxID\tgene\ttranscript",
+                    34
+                ]
             ]
         ],
-        "timestamp": "2026-10-23T11:28:35.543364058",
+        "timestamp": "2026-11-23T08:46:21.712619749",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.3"
@@ -263,9 +315,49 @@
                     },
                     "getAdjustedPValues.YRI-GBR.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
                 ]
+            ],
+            [
+                [
+                    {
+                        "id": "GBR-YRI"
+                    },
+                    "GBR-YRI.dexseq.gene_qvalues.annotated.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "GBR-YRI"
+                    },
+                    "GBR-YRI.dexseq.results.annotated.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "YRI-GBR"
+                    },
+                    "YRI-GBR.dexseq.gene_qvalues.annotated.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "YRI-GBR"
+                    },
+                    "YRI-GBR.dexseq.results.annotated.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "GBR-YRI"
+                    },
+                    "getAdjustedPValues.GBR-YRI.annotated.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "YRI-GBR"
+                    },
+                    "getAdjustedPValues.YRI-GBR.annotated.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
             ]
         ],
-        "timestamp": "2026-10-13T16:18:06.545576913",
+        "timestamp": "2026-11-23T08:46:34.299024908",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.3"

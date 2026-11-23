@@ -87,6 +87,7 @@ trimgalore/*fastq.gz_trimming_report.txt
 
 # EdgeR
 {salmon,star_salmon}/edger/*.exprs.csv
+{salmon,star_salmon}/edger/*.exprs.annotated.csv
 
 # DEXSeq
 {salmon,star_salmon}/dexseq_exon/counts/*.count.txt

@@ -11,6 +11,7 @@ components:
   - dexseq/prepareannotation
   - dexseq/count
   - dexseq/exon
+  - geneannotation/annotate
 input:
   - gtf:
       type: file
@@ -50,6 +51,13 @@ input:
         The input channel containing the parsed contrastsheet, one row per contrast.
         `DEXSEQ_EXON` runs once per contrast, with the contrast name as its id
         Structure: [ contrast: val(contrast), treatment: val(condition), control: val(condition) ]
+  - ch_gene_annotation:
+      type: file
+      description: |
+        The input channel containing the gene annotation table of `GENEANNOTATION_TABLES`,
+        as a value channel, that the annotated copies of the results tables are made from
+        Structure: [ val(meta), path(tsv) ]
+      pattern: "*.gene_annotation.tsv"
 output:
   - dexseq_clean_txt:
       type: file
@@ -93,6 +101,13 @@ output:
         Channel containing the DEXSeq plots of the top significant genes, one PDF per contrast
         Structure: [ val(meta), path(pdf) ]
       pattern: "*.dexseq.plots.pdf"
+  - dexseq_annotated_tsv:
+      type: file
+      description: |
+        Channel containing copies of the exon level results and gene level q-values with
+        the gene name and biotype after `groupID`, two per contrast
+        Structure: [ val(meta), path(tsv) ]
+      pattern: "*.dexseq.{results,gene_qvalues}.annotated.tsv"
 authors:
   - "@bensouthgate"
   - "@jma1991"

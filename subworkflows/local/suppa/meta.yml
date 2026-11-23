@@ -16,6 +16,7 @@ components:
   - mergeevents
   - splitfiles
   - clustergroups
+  - geneannotation/annotate
 input:
   - ch_gtf:
       type: file
@@ -151,6 +152,13 @@ input:
       type: boolean
       description: |
         Whether to run the analysis per isoform
+  - ch_gene_annotation:
+      type: file
+      description: |
+        The input channel containing the gene annotation table of `GENEANNOTATION_TABLES`,
+        as a value channel, that the annotated copies of the results tables are made from
+        Structure: [ val(meta), path(tsv) ]
+      pattern: "*.gene_annotation.tsv"
 output:
   - ioe_events:
       type: file
@@ -236,6 +244,20 @@ output:
         Channel containing the cluster of each isoform, per contrast
         Structure: [ val(meta), path(clustvec) ]
       pattern: "transcript_*.clustvec"
+  - dpsi_local_annotated:
+      type: file
+      description: |
+        Channel containing a copy of the dPSI table of the local events with the event ID
+        named `event_id` and followed by the gene name and biotype, per contrast
+        Structure: [ val(meta), path(tsv) ]
+      pattern: "local_*.annotated.tsv"
+  - dpsi_isoform_annotated:
+      type: file
+      description: |
+        Channel containing a copy of the dPSI table of the isoforms with the isoform ID
+        named `event_id` and followed by the gene name and biotype, per contrast
+        Structure: [ val(meta), path(tsv) ]
+      pattern: "transcript_*.annotated.tsv"
 authors:
   - "@bensouthgate"
   - "@jma1991"

@@ -13,6 +13,18 @@
                     "bioconductor-drimseq": "1.18.0",
                     "r-base": "4.0.3"
                 },
+                "GENEANNOTATION_ANNOTATE": {
+                    "python": "3.14.6"
+                },
+                "GENEANNOTATION_ANNOTATE_DEXSEQ": {
+                    "python": "3.14.6"
+                },
+                "GENEANNOTATION_ANNOTATE_STAGER": {
+                    "python": "3.14.6"
+                },
+                "GENEANNOTATION_TABLES": {
+                    "python": "3.14.6"
+                },
                 "GFFREAD_TX2GENE": {
                     "gffread": "0.12.7"
                 },
@@ -81,6 +93,9 @@
                 }
             },
             [
+                "annotation",
+                "annotation/genes_chrX.gene_annotation.tsv",
+                "annotation/genes_chrX.transcript_annotation.tsv",
                 "genome",
                 "isoformswitchanalyzer",
                 "isoformswitchanalyzer/isoformswitchanalyzer_isoformfeatures.csv",
@@ -112,18 +127,24 @@
                 "salmon/dexseq_dtu/results",
                 "salmon/dexseq_dtu/results/dexseq",
                 "salmon/dexseq_dtu/results/dexseq/GBR-YRI.dexseq.dataset.rds",
+                "salmon/dexseq_dtu/results/dexseq/GBR-YRI.dexseq.gene_qvalues.annotated.tsv",
                 "salmon/dexseq_dtu/results/dexseq/GBR-YRI.dexseq.gene_qvalues.rds",
                 "salmon/dexseq_dtu/results/dexseq/GBR-YRI.dexseq.gene_qvalues.tsv",
+                "salmon/dexseq_dtu/results/dexseq/GBR-YRI.dexseq.results.annotated.tsv",
                 "salmon/dexseq_dtu/results/dexseq/GBR-YRI.dexseq.results.rds",
                 "salmon/dexseq_dtu/results/dexseq/GBR-YRI.dexseq.results.tsv",
                 "salmon/dexseq_dtu/results/dexseq/YRI-GBR.dexseq.dataset.rds",
+                "salmon/dexseq_dtu/results/dexseq/YRI-GBR.dexseq.gene_qvalues.annotated.tsv",
                 "salmon/dexseq_dtu/results/dexseq/YRI-GBR.dexseq.gene_qvalues.rds",
                 "salmon/dexseq_dtu/results/dexseq/YRI-GBR.dexseq.gene_qvalues.tsv",
+                "salmon/dexseq_dtu/results/dexseq/YRI-GBR.dexseq.results.annotated.tsv",
                 "salmon/dexseq_dtu/results/dexseq/YRI-GBR.dexseq.results.rds",
                 "salmon/dexseq_dtu/results/dexseq/YRI-GBR.dexseq.results.tsv",
                 "salmon/dexseq_dtu/results/stager",
+                "salmon/dexseq_dtu/results/stager/getAdjustedPValues.GBR-YRI.annotated.tsv",
                 "salmon/dexseq_dtu/results/stager/getAdjustedPValues.GBR-YRI.rds",
                 "salmon/dexseq_dtu/results/stager/getAdjustedPValues.GBR-YRI.tsv",
+                "salmon/dexseq_dtu/results/stager/getAdjustedPValues.YRI-GBR.annotated.tsv",
                 "salmon/dexseq_dtu/results/stager/getAdjustedPValues.YRI-GBR.rds",
                 "salmon/dexseq_dtu/results/stager/getAdjustedPValues.YRI-GBR.tsv",
                 "salmon/dexseq_dtu/results/stager/stageRTx.GBR-YRI.rds",
@@ -143,13 +164,17 @@
                 "salmon/suppa/clustergroups/transcript_YRI-GBR_groups.txt",
                 "salmon/suppa/diffsplice",
                 "salmon/suppa/diffsplice/per_isoform",
+                "salmon/suppa/diffsplice/per_isoform/transcript_GBR-YRI.annotated.tsv",
                 "salmon/suppa/diffsplice/per_isoform/transcript_GBR-YRI.dpsi",
                 "salmon/suppa/diffsplice/per_isoform/transcript_GBR-YRI.psivec",
+                "salmon/suppa/diffsplice/per_isoform/transcript_YRI-GBR.annotated.tsv",
                 "salmon/suppa/diffsplice/per_isoform/transcript_YRI-GBR.dpsi",
                 "salmon/suppa/diffsplice/per_isoform/transcript_YRI-GBR.psivec",
                 "salmon/suppa/diffsplice/per_local_event",
+                "salmon/suppa/diffsplice/per_local_event/local_GBR-YRI.annotated.tsv",
                 "salmon/suppa/diffsplice/per_local_event/local_GBR-YRI.dpsi",
                 "salmon/suppa/diffsplice/per_local_event/local_GBR-YRI.psivec",
+                "salmon/suppa/diffsplice/per_local_event/local_YRI-GBR.annotated.tsv",
                 "salmon/suppa/diffsplice/per_local_event/local_YRI-GBR.dpsi",
                 "salmon/suppa/diffsplice/per_local_event/local_YRI-GBR.psivec",
                 "salmon/suppa/generate_events",
@@ -284,7 +309,7 @@
                 "genes_chrX.ioi:md5,aa178a4526493cc55fbd9d6f59ed5c4f"
             ]
         ],
-        "timestamp": "2026-10-23T11:38:01.16889513",
+        "timestamp": "2026-11-23T09:01:48.818899162",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.3"

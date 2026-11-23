@@ -5,6 +5,9 @@
                 "FASTQC": {
                     "fastqc": "0.13.0"
                 },
+                "GENEANNOTATION_TABLES": {
+                    "python": "3.14.6"
+                },
                 "GFFREAD_TX2GENE": {
                     "gffread": "0.12.7"
                 },
@@ -79,6 +82,9 @@
                 }
             },
             [
+                "annotation",
+                "annotation/genes_chrX.gene_annotation.tsv",
+                "annotation/genes_chrX.transcript_annotation.tsv",
                 "fastqc",
                 "fastqc/ERR188383_1_fastqc.html",
                 "fastqc/ERR188383_1_fastqc.zip",
@@ -564,7 +570,7 @@
                 "ERR204916_sorted.bam": "1f2abfcbb9697c56744ffb5fcfeb9f17"
             }
         ],
-        "timestamp": "2026-11-20T16:24:12.910597662",
+        "timestamp": "2026-11-23T09:00:39.923005155",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.3"

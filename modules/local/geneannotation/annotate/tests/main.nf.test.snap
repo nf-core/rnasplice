@@ -1,0 +1,134 @@
+{
+    "dexseq - stub": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "GBR-YRI"
+                        },
+                        "GBR-YRI.dexseq.results.annotated.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "1": [
+                    "versions.yml:md5,7d381c82f121ddafc429471c0f0db5ea"
+                ],
+                "annotated": [
+                    [
+                        {
+                            "id": "GBR-YRI"
+                        },
+                        "GBR-YRI.dexseq.results.annotated.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "versions_python": [
+                    "versions.yml:md5,7d381c82f121ddafc429471c0f0db5ea"
+                ]
+            }
+        ],
+        "timestamp": "2026-11-23T08:37:57.092493885",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    },
+    "dexseq - aggregates and versions": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "GBR-YRI"
+                        },
+                        "GBR-YRI.dexseq.results.annotated.tsv:md5,428147e62fec8a3d86844d2b849b94d9"
+                    ]
+                ],
+                "1": [
+                    "versions.yml:md5,7d381c82f121ddafc429471c0f0db5ea"
+                ],
+                "annotated": [
+                    [
+                        {
+                            "id": "GBR-YRI"
+                        },
+                        "GBR-YRI.dexseq.results.annotated.tsv:md5,428147e62fec8a3d86844d2b849b94d9"
+                    ]
+                ],
+                "versions_python": [
+                    "versions.yml:md5,7d381c82f121ddafc429471c0f0db5ea"
+                ]
+            }
+        ],
+        "timestamp": "2026-11-23T08:37:41.61929416",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    },
+    "edger - csv": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "edger_exon"
+                        },
+                        "contrast_GBR-YRI.usage.exon.annotated.csv:md5,48fc6bec1b58660cda81fb9d372718da"
+                    ]
+                ],
+                "1": [
+                    "versions.yml:md5,7d381c82f121ddafc429471c0f0db5ea"
+                ],
+                "annotated": [
+                    [
+                        {
+                            "id": "edger_exon"
+                        },
+                        "contrast_GBR-YRI.usage.exon.annotated.csv:md5,48fc6bec1b58660cda81fb9d372718da"
+                    ]
+                ],
+                "versions_python": [
+                    "versions.yml:md5,7d381c82f121ddafc429471c0f0db5ea"
+                ]
+            }
+        ],
+        "timestamp": "2026-11-23T08:37:45.559263484",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    },
+    "suppa - event ids": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "local_GBR-YRI"
+                        },
+                        "local_GBR-YRI.annotated.tsv:md5,c89178ad573d4897ba314555284a42dc"
+                    ]
+                ],
+                "1": [
+                    "versions.yml:md5,7d381c82f121ddafc429471c0f0db5ea"
+                ],
+                "annotated": [
+                    [
+                        {
+                            "id": "local_GBR-YRI"
+                        },
+                        "local_GBR-YRI.annotated.tsv:md5,c89178ad573d4897ba314555284a42dc"
+                    ]
+                ],
+                "versions_python": [
+                    "versions.yml:md5,7d381c82f121ddafc429471c0f0db5ea"
+                ]
+            }
+        ],
+        "timestamp": "2026-11-23T08:37:49.428046751",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    }
+}

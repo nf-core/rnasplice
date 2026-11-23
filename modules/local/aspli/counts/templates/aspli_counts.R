@@ -253,7 +253,26 @@ suppressPackageStartupMessages(library(ASpli))
 
 txdb <- suppressWarnings(txdbmaker::makeTxDbFromGFF(gtf, format = "gtf"))
 
-features <- binGenome(txdb, logTo = paste0(prefix, ".binGenome.log"), cores = cores)
+# The gene names of the `symbol` column of the ASpli tables, which holds the gene IDs
+# when binGenome is given no names. A gene with no gene_name in the GTF keeps its ID
+
+gene_ids <- names(GenomicFeatures::transcriptsBy(txdb, by = "gene"))
+gene_symbols <- data.frame(symbol = gene_ids, row.names = gene_ids, stringsAsFactors = FALSE)
+
+gtf_attributes <- S4Vectors::mcols(rtracklayer::import(gtf, format = "gtf"))
+
+if ("gene_name" %in% colnames(gtf_attributes)) {
+
+    named <- !is.na(gtf_attributes[["gene_name"]]) & gtf_attributes[["gene_name"]] != ""
+    gene_names <- unique(as.data.frame(gtf_attributes[named, c("gene_id", "gene_name")]))
+    gene_names <- gene_names[!duplicated(gene_names[["gene_id"]]), ]
+
+    found <- gene_ids %in% gene_names[["gene_id"]]
+    gene_symbols[found, "symbol"] <- gene_names[["gene_name"]][match(gene_ids[found], gene_names[["gene_id"]])]
+
+}
+
+features <- binGenome(txdb, geneSymbols = gene_symbols, logTo = paste0(prefix, ".binGenome.log"), cores = cores)
 
 
 # Count reads over genes, bins and junctions. The order of the conditions is the order

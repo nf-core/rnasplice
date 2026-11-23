@@ -30,6 +30,12 @@
                 "FQ_SUBSAMPLE": {
                     "fq": "0.12.0"
                 },
+                "GENEANNOTATION_ANNOTATE": {
+                    "python": "3.14.6"
+                },
+                "GENEANNOTATION_TABLES": {
+                    "python": "3.14.6"
+                },
                 "GFFREAD_TX2GENE": {
                     "gffread": "0.12.7"
                 },
@@ -117,6 +123,9 @@
                 }
             },
             [
+                "annotation",
+                "annotation/genes_chrX.gene_annotation.tsv",
+                "annotation/genes_chrX.transcript_annotation.tsv",
                 "fastqc",
                 "fastqc/ERR188383_1_fastqc.html",
                 "fastqc/ERR188383_1_fastqc.zip",
@@ -405,15 +414,19 @@
                 "star_salmon/dexseq_exon/counts/ERR204916.clean.count.txt",
                 "star_salmon/dexseq_exon/results",
                 "star_salmon/dexseq_exon/results/GBR-YRI.dexseq.dataset.rds",
+                "star_salmon/dexseq_exon/results/GBR-YRI.dexseq.gene_qvalues.annotated.tsv",
                 "star_salmon/dexseq_exon/results/GBR-YRI.dexseq.gene_qvalues.rds",
                 "star_salmon/dexseq_exon/results/GBR-YRI.dexseq.gene_qvalues.tsv",
                 "star_salmon/dexseq_exon/results/GBR-YRI.dexseq.plots.pdf",
+                "star_salmon/dexseq_exon/results/GBR-YRI.dexseq.results.annotated.tsv",
                 "star_salmon/dexseq_exon/results/GBR-YRI.dexseq.results.rds",
                 "star_salmon/dexseq_exon/results/GBR-YRI.dexseq.results.tsv",
                 "star_salmon/dexseq_exon/results/YRI-GBR.dexseq.dataset.rds",
+                "star_salmon/dexseq_exon/results/YRI-GBR.dexseq.gene_qvalues.annotated.tsv",
                 "star_salmon/dexseq_exon/results/YRI-GBR.dexseq.gene_qvalues.rds",
                 "star_salmon/dexseq_exon/results/YRI-GBR.dexseq.gene_qvalues.tsv",
                 "star_salmon/dexseq_exon/results/YRI-GBR.dexseq.plots.pdf",
+                "star_salmon/dexseq_exon/results/YRI-GBR.dexseq.results.annotated.tsv",
                 "star_salmon/dexseq_exon/results/YRI-GBR.dexseq.results.rds",
                 "star_salmon/dexseq_exon/results/YRI-GBR.dexseq.results.tsv",
                 "star_salmon/edger",
@@ -421,18 +434,26 @@
                 "star_salmon/edger/DGELRT.exprs.rds",
                 "star_salmon/edger/DGELRT.usage.rds",
                 "star_salmon/edger/DGEList.rds",
+                "star_salmon/edger/contrast_GBR-YRI.exprs.annotated.csv",
                 "star_salmon/edger/contrast_GBR-YRI.exprs.csv",
+                "star_salmon/edger/contrast_GBR-YRI.usage.exon.annotated.csv",
                 "star_salmon/edger/contrast_GBR-YRI.usage.exon.csv",
                 "star_salmon/edger/contrast_GBR-YRI.usage.exon.pdf",
+                "star_salmon/edger/contrast_GBR-YRI.usage.gene.annotated.csv",
                 "star_salmon/edger/contrast_GBR-YRI.usage.gene.csv",
                 "star_salmon/edger/contrast_GBR-YRI.usage.gene.pdf",
+                "star_salmon/edger/contrast_GBR-YRI.usage.simes.annotated.csv",
                 "star_salmon/edger/contrast_GBR-YRI.usage.simes.csv",
                 "star_salmon/edger/contrast_GBR-YRI.usage.simes.pdf",
+                "star_salmon/edger/contrast_YRI-GBR.exprs.annotated.csv",
                 "star_salmon/edger/contrast_YRI-GBR.exprs.csv",
+                "star_salmon/edger/contrast_YRI-GBR.usage.exon.annotated.csv",
                 "star_salmon/edger/contrast_YRI-GBR.usage.exon.csv",
                 "star_salmon/edger/contrast_YRI-GBR.usage.exon.pdf",
+                "star_salmon/edger/contrast_YRI-GBR.usage.gene.annotated.csv",
                 "star_salmon/edger/contrast_YRI-GBR.usage.gene.csv",
                 "star_salmon/edger/contrast_YRI-GBR.usage.gene.pdf",
+                "star_salmon/edger/contrast_YRI-GBR.usage.simes.annotated.csv",
                 "star_salmon/edger/contrast_YRI-GBR.usage.simes.csv",
                 "star_salmon/edger/contrast_YRI-GBR.usage.simes.pdf",
                 "star_salmon/featurecounts",
@@ -810,11 +831,17 @@
                 "ERR204916.stats:md5,b62d88fdf4bf0d2809e9f1e602b7c704"
             ],
             {
+                "contrast_GBR-YRI.usage.exon.annotated.csv": "191679cebb5190cd932318f520ba74d2",
                 "contrast_GBR-YRI.usage.exon.csv": "9d69a4960a38075e14c1b208c82ebfb6",
+                "contrast_GBR-YRI.usage.gene.annotated.csv": "934049cead1a649bf269251965168f2d",
                 "contrast_GBR-YRI.usage.gene.csv": "0147b4b882301439740eae671ad80a6a",
+                "contrast_GBR-YRI.usage.simes.annotated.csv": "edd9a7b19b51abd660d7dabb8c0e88dd",
                 "contrast_GBR-YRI.usage.simes.csv": "661f1df2ae25951ee90717466b9b6505",
+                "contrast_YRI-GBR.usage.exon.annotated.csv": "6f22dd8fc7f1d203d466a8c556c1ccee",
                 "contrast_YRI-GBR.usage.exon.csv": "bf5dca26691d13c655e72b73e6c6329c",
+                "contrast_YRI-GBR.usage.gene.annotated.csv": "934049cead1a649bf269251965168f2d",
                 "contrast_YRI-GBR.usage.gene.csv": "0147b4b882301439740eae671ad80a6a",
+                "contrast_YRI-GBR.usage.simes.annotated.csv": "edd9a7b19b51abd660d7dabb8c0e88dd",
                 "contrast_YRI-GBR.usage.simes.csv": "661f1df2ae25951ee90717466b9b6505"
             },
             {
@@ -824,10 +851,10 @@
                 "ERR204916_sorted.bam": "484dbb84bd68ceb9ed24ecdb8f7a613a"
             }
         ],
-        "timestamp": "2026-11-19T17:40:14.397381057",
+        "timestamp": "2026-11-23T09:02:39.59209382",
         "meta": {
-            "nf-test": "0.9.4",
-            "nextflow": "26.10.6"
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
         }
     }
 }

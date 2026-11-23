@@ -45,6 +45,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
   - [rMats](#rmats) - Designed for detection of differential alternative splicing from replicate RNA-Seq data.
   - [SUPPA2](#suppa2) - Differential splicing analysis across multiple conditions at local event based and transcript isoform level following Salmon pseuodo-alignment and quantification.
 - Workflow reporting and genomes
+  - [Gene annotation](#gene-annotation) - Gene names and biotypes from the GTF, and copies of the results tables with them
   - [Reference genome files](#reference-genome-files) - Saving reference genome indices/files
   - [Pipeline information](#pipeline-information) - Report metrics generated during the workflow execution
 
@@ -354,6 +355,7 @@ The differential splicing outputs are written for each contrast in which both co
   - `{contrast}.dexseq.gene_qvalues.rds`: DEXSeq R Object following DEXSeq::perGeneQValue containing q-values per gene.
   - `{contrast}.dexseq.gene_qvalues.tsv`: TSV file of the q-values in `{contrast}.dexseq.gene_qvalues.rds`.
   - `{contrast}.dexseq.plots.pdf` : PDF file of top _N_ genes from DEXSeq results.
+  - `{contrast}.dexseq.{results,gene_qvalues}.annotated.tsv`: The same two tables with the gene name and biotype after `groupID`, see [Gene annotation](#gene-annotation).
 - `dexseq_exon/annotation/`
   - `DEXSeq.gff`: GFF file used for DEXSeq DEU analysis converted from GTF input.
 - `dexseq_exon/counts/`
@@ -381,6 +383,7 @@ Finally, as discussed above in the DEXSeq count section, users can inspect count
   - `{contrast}.usage.gene.csv`: CSV file output of differential exon usage results per pairwise condition for top spliced genes identified with F-tests.
   - `{contrast}.usage.simes.csv`: CSV file output of differential exon usage results per pairwise condition for top spliced genes identified with the Simes method.
   - `{contrast}.exprs.csv`: CSV file output of differential exon expression results per pairwise condition.
+  - `{contrast}.*.annotated.csv`: The same CSV files with the gene name and biotype after `Geneid`, see [Gene annotation](#gene-annotation).
 
 </details>
 
@@ -411,6 +414,8 @@ It was felt that users may wish to retrieve differential exon results at this po
   - `{contrast}.integrated_signals.tsv`: The regions where the bin, junction and anchor signals that pass the `integrateSignals` filters overlap.
   - `{contrast}_integrated_signals/integratedSignals.html`: Interactive HTML table of the integrated signals. Open it from inside its folder, as it loads its libraries from `integratedSignals_files/`.
   - `{contrast}.aspli_du.rds`: List of the `ASpliDU`, `ASpliJDU`, `ASpliSplicingReport` and `ASpliIntegratedSignals` R objects.
+
+The `symbol` column of the ASpli tables holds the `gene_name` of each gene in the GTF, or its gene ID if it has none.
 
 </details>
 
@@ -443,10 +448,12 @@ It was felt that users may wish to retrieve differential exon results at this po
     - `{contrast}.dexseq.results.tsv`: TSV results table of DEXSeq DTU analysis featuring log2foldchanges and p-values etc.
     - `{contrast}.dexseq.gene_qvalues.rds`: DEXSeq R Object following DEXSeq::perGeneQValue containing q-values per gene.
     - `{contrast}.dexseq.gene_qvalues.tsv`: TSV file of the q-values in `{contrast}.dexseq.gene_qvalues.rds`.
+    - `{contrast}.dexseq.{results,gene_qvalues}.annotated.tsv`: The same two tables with the gene name and biotype after `groupID`, see [Gene annotation](#gene-annotation).
   - `stager/`
     - `stageRTx.{contrast}.rds`: stageRTx R object.
     - `getAdjustedPValues.{contrast}.rds`: R object following stageR::getAdjustedPValues - transcript and gene level adjusted p-values.
     - `getAdjustedPValues.{contrast}.tsv`: TSV with transcript and gene level adjusted p-values.
+    - `getAdjustedPValues.{contrast}.annotated.tsv`: The same table with the gene name and biotype after `geneID`.
 
 </details>
 
@@ -520,6 +527,7 @@ If [IsoformSwitchAnalyzeR](https://www.bioconductor.org/packages/release/bioc/ht
   - `diffsplice/per_isoform/` or `diffsplice/per_local_event/`
     - `{contrast}_*_diffsplice.dpsi`: Contains the information about which events are significantly differentially spliced in each pairwise comparison. The dPSI is the PSI of the treatment minus that of the control. SUPPA names the column `{level}_{control}-{level}_{treatment}_dPSI`, after its first and second condition, where `{level}` is `local` or `transcript`.
     - `{contrast}_*_diffsplice.psivec`: Contains the PSI values for all samples, either per replicate or the average PSI value per condition, averaging over the replicates.
+    - `{local,transcript}_{contrast}.annotated.tsv`: The `*.dpsi` table with its first column named `event_id` and followed by the gene name and biotype, see [Gene annotation](#gene-annotation).
   - `clustergroups/`
     - `{local,transcript}_{contrast}_groups.txt`: The column ranges of the two conditions in the `*.psivec` file of each contrast, as given to the clustering.
   - `clusterevents/per_isoform/` or `clusterevents/per_local_event/`
@@ -531,6 +539,27 @@ If [IsoformSwitchAnalyzeR](https://www.bioconductor.org/packages/release/bioc/ht
 [SUPPA2](https://github.com/comprna/SUPPA) is a tool for studying splicing events at a local and transcript level. There are numerous outputs for SUPPA and these will be saved in the folder of the aligner or pseudo aligner setting used. If `--pseudo_aligner salmon` is used they will be saved in the `salmon/suppa/` folder and if `--aligner star_salmon` has been used they will be saved in the `star_salmon/suppa/` folder. The subsequent results are separated into folders depending on the stage and type of analysis. `events.*` output is saved within the `generate_events/` folder under `per_isoform/` or `per_local_event/` depending on the type of analysis (transcript level or local). PSI values `suppa_isoform.psi` and `suppa_local.psi` are saved within `psi_per_isoform/` and `psi_per_local_event/` respectively. For more details on PSI calculation please see the SUPPA [documentation](https://github.com/comprna/SUPPA#psi-calculation-for-transcripts-and-events). Split files used for differential splicing analysis (PSI and TPM files split by condition), can also be accessed as output in the following folders - `split_files/per_isoform/` or `split_files/per_local_event/` and `split_files/tpms/`. Output from differential splicing analysis at a transcript isoform and local level can also be accessed (`*.dpsi`, `*.psivec`) within `diffsplice/per_isoform/` and `diffsplice/per_local_event/` respectively. Finally, clustering analysis output (`*.clustvec`, `*.log`) can be accessed within `clusterevents/per_isoform/` or `clusterevents/per_local_event/` folders.
 
 ## Workflow reporting and genomes
+
+### Gene annotation
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `annotation/`
+  - `{gtf}.gene_annotation.tsv`: One row per gene of the GTF, with the columns `gene_id`, `gene_name` and `gene_biotype`.
+  - `{gtf}.transcript_annotation.tsv`: One row per transcript of the GTF, with the columns `transcript_id`, `gene_id`, `gene_name` and `gene_biotype`.
+
+</details>
+
+Most results tables identify genes by their ID only. The pipeline writes the gene name and biotype of every gene of the GTF to `annotation/` on every run, and writes a copy of the DEXSeq (DEU and DTU), stageR, edgeR and SUPPA dPSI tables with the gene name and biotype right after the gene ID column. These copies end in `.annotated.tsv`, or `.annotated.csv` for the edgeR tables, and sit next to the tables they are made from, which are left as they are. The count, TPM and PSI matrices are not annotated, so that they keep one ID column.
+
+A gene with no `gene_name` in the GTF is named by its gene ID, and the biotype is read from `gene_biotype` (Ensembl) or `gene_type` (GENCODE). The attributes the gene ID and name are read from follow `--gtf_group_features` and `--gtf_extra_attributes`. In the annotated copies:
+
+- Genes that DEXSeq aggregates (`ENSG00000147140+ENSG00000255591`) or SUPPA pools (`ENSG00000147140_and_ENSG00000255591`) get their names joined in the same way (`NONO+AL590762.1`).
+- A gene ID that only differs from the GTF in its version suffix (`ENSG00000004961.15`) still gets its name.
+- A gene that is not in the GTF gets `NA`, and every row of the table is kept.
+
+The rMATS, LeafCutter and IsoformSwitchAnalyzeR tables already have gene names, and the ASpli tables have them in their `symbol` column.
 
 ### Reference genome files
 

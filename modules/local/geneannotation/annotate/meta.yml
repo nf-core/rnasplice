@@ -1,0 +1,80 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "geneannotation_annotate"
+description: Write a copy of a results table with the gene name and biotype next to its
+  gene IDs
+keywords:
+  - annotation
+  - gene names
+  - differential splicing
+  - genomics
+tools:
+  - "python":
+      description: "Python programming language. The module uses it to join the gene annotation to the
+        results table."
+      homepage: "https://www.python.org/"
+      documentation: "https://docs.python.org/3/"
+      tool_dev_url: "https://github.com/python/cpython"
+      licence: ["PSF-2.0"]
+      identifier: ""
+
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing contrast information
+          e.g. `[ id:'GBR-YRI' ]`
+    - table:
+        type: file
+        description: |
+          Results table with a column of gene IDs, named with `--id_column` in
+          `task.ext.args`. A CSV file is read as a CSV, any other file as a TSV
+        pattern: "*.{tsv,csv,dpsi}"
+        ontologies:
+          - edam: "http://edamontology.org/format_3475" # TSV
+          - edam: "http://edamontology.org/format_3752" # CSV
+  - - meta2:
+        type: map
+        description: |
+          Groovy Map containing annotation information
+          e.g. `[ id:'genes' ]`
+    - gene_annotation:
+        type: file
+        description: |
+          Gene annotation table, with the gene ID in the first column and the annotation
+          to add in the others, as written by `GENEANNOTATION_TABLES`
+        pattern: "*.tsv"
+        ontologies:
+          - edam: "http://edamontology.org/format_3475" # TSV
+  - id_column:
+      type: string
+      description: |
+        Name of the column of gene IDs, e.g. \`groupID\`. An ID is cut at its first \`;\`,
+        so that a SUPPA event ID gives its gene. Overlapping genes DEXSeq or SUPPA group
+        together, \`A+B\` or \`A_and_B\`, are annotated gene by gene
+
+output:
+  annotated:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing contrast information
+            e.g. `[ id:'GBR-YRI' ]`
+      - "*.annotated.{tsv,csv}":
+          type: file
+          description: |
+            The rows of the results table, in the same order, with the annotation columns
+            right after the ID column. A gene that is not in the annotation has `NA`. A
+            CSV table gives a CSV, any other table a TSV
+          pattern: "*.annotated.{tsv,csv}"
+          ontologies:
+            - edam: "http://edamontology.org/format_3475" # TSV
+            - edam: "http://edamontology.org/format_3752" # CSV
+  versions_python:
+    - "versions.yml":
+        type: file
+        description: File containing software versions
+        pattern: "versions.yml"
+authors:
+  - "@piplus2"
+maintainers:
+  - "@piplus2"
