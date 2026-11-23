@@ -446,6 +446,7 @@ workflow RNASPLICE {
                 ch_gtf.map { gtf -> [[id: gtf.baseName], gtf] }.first(),
                 ch_contrastsheet,
                 params.aspli_read_len ?: 0,
+                ch_gene_annotation,
             )
         }
     }

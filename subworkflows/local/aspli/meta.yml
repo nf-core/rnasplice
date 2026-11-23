@@ -42,6 +42,13 @@ input:
       type: integer
       description: |
         Minimum read length of ASpli, 0 to estimate it from the BAM files
+  - ch_gene_annotation:
+      type: file
+      description: |
+        The gene annotation table of GENEANNOTATION_TABLES, which the `symbol` column of
+        the ASpli tables is named from
+        Structure: [ val(meta), path(tsv) ]
+      pattern: "*.gene_annotation.tsv"
 output:
   - features:
       type: file

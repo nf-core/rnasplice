@@ -10,6 +10,18 @@ nextflow_process {
     tag "aspli"
     tag "aspli/counts"
 
+    // The gene annotation table the symbol column of the ASpli tables is named from
+    setup {
+        run("GENEANNOTATION_TABLES") {
+            script '../../../../../modules/local/geneannotation/tables/main.nf'
+            process {
+            """
+            input[0] = [ [ id:'genes_chrX' ], file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true) ]
+            """
+            }
+        }
+    }
+
     // Two GBR and two YRI samples of the pipeline test data, unstranded paired end reads
     test("human chrX - bam") {
 
@@ -36,6 +48,7 @@ nextflow_process {
                     file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true),
                 ]
                 input[2] = 0
+                input[3] = GENEANNOTATION_TABLES.out.gene.first()
                 """
             }
         }
@@ -82,6 +95,7 @@ nextflow_process {
                     file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true),
                 ]
                 input[2] = 0
+                input[3] = GENEANNOTATION_TABLES.out.gene.first()
                 """
             }
         }

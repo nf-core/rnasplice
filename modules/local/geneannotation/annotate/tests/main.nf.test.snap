@@ -1,4 +1,37 @@
 {
+    "dexseq - ambiguous version": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "ambiguous"
+                        },
+                        "ambiguous.dexseq.results.annotated.tsv:md5,c2a5716058546db3ddb3cd11191169c3"
+                    ]
+                ],
+                "1": [
+                    "versions.yml:md5,7d381c82f121ddafc429471c0f0db5ea"
+                ],
+                "annotated": [
+                    [
+                        {
+                            "id": "ambiguous"
+                        },
+                        "ambiguous.dexseq.results.annotated.tsv:md5,c2a5716058546db3ddb3cd11191169c3"
+                    ]
+                ],
+                "versions_python": [
+                    "versions.yml:md5,7d381c82f121ddafc429471c0f0db5ea"
+                ]
+            }
+        ],
+        "timestamp": "2026-11-23T14:30:54.126163978",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    },
     "dexseq - stub": {
         "content": [
             {
@@ -27,6 +60,39 @@
             }
         ],
         "timestamp": "2026-11-23T08:37:57.092493885",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    },
+    "edger - quoted csv": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "edger_exon"
+                        },
+                        "quoted.usage.exon.annotated.csv:md5,8fa5d4aa21ea459b5df41f4351f242d0"
+                    ]
+                ],
+                "1": [
+                    "versions.yml:md5,7d381c82f121ddafc429471c0f0db5ea"
+                ],
+                "annotated": [
+                    [
+                        {
+                            "id": "edger_exon"
+                        },
+                        "quoted.usage.exon.annotated.csv:md5,8fa5d4aa21ea459b5df41f4351f242d0"
+                    ]
+                ],
+                "versions_python": [
+                    "versions.yml:md5,7d381c82f121ddafc429471c0f0db5ea"
+                ]
+            }
+        ],
+        "timestamp": "2026-11-23T14:30:50.209817317",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.3"

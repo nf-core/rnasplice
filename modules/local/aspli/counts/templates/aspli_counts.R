@@ -141,6 +141,8 @@ targets_file <- '$targets'
 
 gtf <- '$gtf'
 
+gene_annotation_file <- '$gene_annotation'
+
 read_length <- as.integer('$read_length')
 
 cores <- as.integer('$task.cpus')
@@ -254,23 +256,28 @@ suppressPackageStartupMessages(library(ASpli))
 txdb <- suppressWarnings(txdbmaker::makeTxDbFromGFF(gtf, format = "gtf"))
 
 # The gene names of the `symbol` column of the ASpli tables, which holds the gene IDs
-# when binGenome is given no names. A gene with no gene_name in the GTF keeps its ID
+# when binGenome is given no names. They are read from the gene annotation table of the
+# pipeline rather than from the GTF a second time, so that they follow the same GTF
+# attributes as the annotated copies of the other results tables. A gene that is not
+# in the table keeps its ID
 
 gene_ids <- names(GenomicFeatures::transcriptsBy(txdb, by = "gene"))
-gene_symbols <- data.frame(symbol = gene_ids, row.names = gene_ids, stringsAsFactors = FALSE)
 
-gtf_attributes <- S4Vectors::mcols(rtracklayer::import(gtf, format = "gtf"))
+gene_annotation <- read.delim(
+    gene_annotation_file, colClasses = "character", quote = "", comment.char = "", na.strings = character(0)
+)
 
-if ("gene_name" %in% colnames(gtf_attributes)) {
+found <- gene_ids %in% gene_annotation[["gene_id"]]
 
-    named <- !is.na(gtf_attributes[["gene_name"]]) & gtf_attributes[["gene_name"]] != ""
-    gene_names <- unique(as.data.frame(gtf_attributes[named, c("gene_id", "gene_name")]))
-    gene_names <- gene_names[!duplicated(gene_names[["gene_id"]]), ]
+if (!any(found)) {
 
-    found <- gene_ids %in% gene_names[["gene_id"]]
-    gene_symbols[found, "symbol"] <- gene_names[["gene_name"]][match(gene_ids[found], gene_names[["gene_id"]])]
+    message("No gene ID of the GTF is in the gene annotation table, so the symbol column of the ASpli tables holds the gene IDs.")
 
 }
+
+gene_symbols <- data.frame(symbol = gene_ids, row.names = gene_ids, stringsAsFactors = FALSE)
+
+gene_symbols[found, "symbol"] <- gene_annotation[["gene_name"]][match(gene_ids[found], gene_annotation[["gene_id"]])]
 
 features <- binGenome(txdb, geneSymbols = gene_symbols, logTo = paste0(prefix, ".binGenome.log"), cores = cores)
 

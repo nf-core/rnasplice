@@ -415,7 +415,7 @@ It was felt that users may wish to retrieve differential exon results at this po
   - `{contrast}_integrated_signals/integratedSignals.html`: Interactive HTML table of the integrated signals. Open it from inside its folder, as it loads its libraries from `integratedSignals_files/`.
   - `{contrast}.aspli_du.rds`: List of the `ASpliDU`, `ASpliJDU`, `ASpliSplicingReport` and `ASpliIntegratedSignals` R objects.
 
-The `symbol` column of the ASpli tables holds the `gene_name` of each gene in the GTF, or its gene ID if it has none.
+The `symbol` column of the ASpli tables holds the gene name of each gene, from the [gene annotation table](#gene-annotation), so it follows `--gtf_extra_attributes` as the annotated copies do. A gene with no name keeps its gene ID.
 
 </details>
 

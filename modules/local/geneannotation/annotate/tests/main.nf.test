@@ -19,6 +19,14 @@ nextflow_process {
             'ENSG00000000003.4\tGENE3\tmiRNA',
         ].join('\n') + '\n'
 
+        // A gene with two versions in the annotation, which a table ID with a third
+        // version cannot be matched to without guessing
+        file("${outputDir}/ambiguous.gene_annotation.tsv").text = [
+            'gene_id\tgene_name\tgene_biotype',
+            'ENSG00000000004.1\tGENE4A\tprotein_coding',
+            'ENSG00000000004.2\tGENE4B\tprotein_coding',
+        ].join('\n') + '\n'
+
         // DEXSeq results: a gene, an aggregate of two genes, an aggregate with a gene
         // that is not in the annotation, a gene that is not in it, and a gene whose
         // version the annotation has but the table does not
@@ -36,6 +44,21 @@ nextflow_process {
             'Geneid,Chr,Start,End,Strand,FDR',
             'ENSG00000000001.7,X,100,200,+,0.01',
             'ENSG00000000002.1,X,300,400,-,0.5',
+        ].join('\n') + '\n'
+
+        // A CSV as R's write.csv writes it: every field quoted, row names in a first
+        // column with an empty name, and a field holding a comma
+        file("${outputDir}/quoted.usage.exon.csv").text = [
+            '"","Geneid","Chr","Exons","FDR"',
+            '"1","ENSG00000000001","X","E001,E002",0.01',
+            '"2","ENSG00000000002","X","E003",0.5',
+        ].join('\n') + '\n'
+
+        // A table whose ID has a version that is in neither entry of the ambiguous gene
+        file("${outputDir}/ambiguous.dexseq.results.tsv").text = [
+            'groupID\tfeatureID\tpadj',
+            'ENSG00000000004.9\tE001\t0.01',
+            'ENSG00000000004.2\tE002\t0.5',
         ].join('\n') + '\n'
 
         // SUPPA dPSI: the header has no name for the event IDs, which start with the gene
@@ -95,6 +118,62 @@ nextflow_process {
                     'Geneid,gene_name,gene_biotype,Chr,Start,End,Strand,FDR',
                     'ENSG00000000001.7,GENE1,protein_coding,X,100,200,+,0.01',
                     'ENSG00000000002.1,GENE2,lncRNA,X,300,400,-,0.5',
+                ] },
+                { assert snapshot(process.out).match() }
+            )
+        }
+
+    }
+
+    test("edger - quoted csv") {
+
+        when {
+            process {
+                """
+                input[0] = [ [ id:'edger_exon' ], file("${outputDir}/quoted.usage.exon.csv", checkIfExists: true) ]
+                input[1] = [ [ id:'genes' ], file("${outputDir}/genes.gene_annotation.tsv", checkIfExists: true) ]
+                input[2] = 'Geneid'
+                """
+            }
+        }
+
+        then {
+            // The fields are read as CSV, so the comma inside a quoted field stays in its
+            // field. The copy only quotes the fields that need it
+            assertAll(
+                { assert process.success },
+                { assert path(process.out.annotated[0][1]).readLines() == [
+                    ',Geneid,gene_name,gene_biotype,Chr,Exons,FDR',
+                    '1,ENSG00000000001,GENE1,protein_coding,X,"E001,E002",0.01',
+                    '2,ENSG00000000002,GENE2,lncRNA,X,E003,0.5',
+                ] },
+                { assert snapshot(process.out).match() }
+            )
+        }
+
+    }
+
+    test("dexseq - ambiguous version") {
+
+        when {
+            process {
+                """
+                input[0] = [ [ id:'ambiguous' ], file("${outputDir}/ambiguous.dexseq.results.tsv", checkIfExists: true) ]
+                input[1] = [ [ id:'genes' ], file("${outputDir}/ambiguous.gene_annotation.tsv", checkIfExists: true) ]
+                input[2] = 'groupID'
+                """
+            }
+        }
+
+        then {
+            // An ID whose unversioned form is shared by two genes gets NA rather than one
+            // of them, while an exact match still gets its gene
+            assertAll(
+                { assert process.success },
+                { assert path(process.out.annotated[0][1]).readLines() == [
+                    'groupID\tgene_name\tgene_biotype\tfeatureID\tpadj',
+                    'ENSG00000000004.9\tNA\tNA\tE001\t0.01',
+                    'ENSG00000000004.2\tGENE4B\tprotein_coding\tE002\t0.5',
                 ] },
                 { assert snapshot(process.out).match() }
             )
