@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #349 - Set `manifest.diagram` to the metro map, which the 4.2.1 template update left out. Nextflow 26.04 warns that the option is unrecognised; Nextflow 26.10 and later accept it (by @piplus2)
 - #353 - Clean up lint warnings and ignored lint tests, and fix the `PIPELINE_INITIALISATION` failure tests on the latest Nextflow (by @piplus2)
 - #371 - The `symbol` column of the ASpli tables holds the gene names of the gene annotation table, where it held the gene IDs, so it follows `--gtf_extra_attributes`. A gene with no name keeps its ID (requested by @pinin4fjords, done by @piplus2)
+- #372 - The gene annotation tables are built from the gffread transcript table tximport uses, which now runs with every run and gains `gene_biotype` and `gene_type` columns (requested by @pinin4fjords, done by @piplus2)
 
 ### Deprecated
 

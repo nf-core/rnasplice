@@ -1,15 +1,14 @@
 //
-// Transcript to gene map and tximport of the Salmon results of all samples
+// tximport of the Salmon results of all samples
 //
 
-include { GFFREAD_TX2GENE } from '../../../modules/local/gffread/tx2gene'
 include { TXIMETA_TXIMPORT as TXIMPORT } from '../../../modules/local/tximeta/tximport'
 include { UNTAR } from '../../../modules/nf-core/untar'
 
 workflow TX2GENE_TXIMPORT {
     take:
     ch_salmon_results // channel: [ val(meta), path(results) ], a Salmon directory or a .tar.gz of one
-    ch_gtf // channel: path(gtf)
+    ch_tx2gene // channel: path(tx2gene.tsv), the transcript to gene table GFFREAD_TX2GENE writes
 
     main:
 
@@ -25,11 +24,6 @@ workflow TX2GENE_TXIMPORT {
 
     ch_extracted_results = ch_branched_results.dir.mix(UNTAR.out.untar)
 
-    //
-    // MODULE: Transcript to gene map of the annotation
-    //
-    GFFREAD_TX2GENE(ch_gtf)
-
     // The Salmon directories of all samples: [ meta, [ results ] ]
     ch_merged_results = ch_extracted_results
         .map { _meta, results -> results }
@@ -39,11 +33,10 @@ workflow TX2GENE_TXIMPORT {
     //
     // MODULE: Merge the quantification of all samples
     //
-    TXIMPORT(ch_merged_results, GFFREAD_TX2GENE.out.tx2gene)
+    TXIMPORT(ch_merged_results, ch_tx2gene)
 
     emit:
     salmon_results = ch_extracted_results // channel: [ val(meta), path(results) ], the Salmon directory of each sample
-    tx2gene = GFFREAD_TX2GENE.out.tx2gene // channel: path(tx2gene.tsv)
     txi = TXIMPORT.out.txi // channel: path(txi.rds)
     txi_s = TXIMPORT.out.txi_s // channel: path(txi.s.rds)
     txi_ls = TXIMPORT.out.txi_ls // channel: path(txi.ls.rds)

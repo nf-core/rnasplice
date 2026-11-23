@@ -16,6 +16,9 @@
                 "GENEANNOTATION_TABLES": {
                     "python": "3.14.6"
                 },
+                "GFFREAD_TX2GENE": {
+                    "gffread": "0.12.7"
+                },
                 "GTFGENEFILTER": {
                     "python": "3.14.6"
                 },
@@ -369,10 +372,10 @@
                 "ie2": "ff2117cda8354f3f04cd0a4be8c0dc7e"
             }
         ],
-        "timestamp": "2026-11-23T08:56:53.636973033",
+        "timestamp": "2026-11-23T17:06:22.284772242",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.3"
+            "nextflow": "26.04.4"
         }
     }
 }

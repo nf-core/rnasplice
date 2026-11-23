@@ -66,11 +66,9 @@ if (!file.exists(tx2gene)) {
   # Read in tx2gene file
   rowdata <- read.csv(tx2gene, sep = "\t", header = FALSE)
 
-  # Set tx2gene header
-  colnames(rowdata) <- c("tx", "gene_id", "gene_name")
-
-  # Take only first 2 cols
+  # Take only the transcript and gene IDs, as the table may have more columns
   tx2gene <- rowdata[, 1:2]
+  colnames(tx2gene) <- c("tx", "gene_id")
 }
 
 # If ignore_tx_version is TRUE, remove version numbers from tx ids in tx2gene
