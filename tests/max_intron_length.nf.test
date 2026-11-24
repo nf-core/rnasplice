@@ -76,4 +76,75 @@ nextflow_pipeline {
             }
         }
     }
+
+    // In the test above STAR already drops the introns over the limit, so the LeafCutter
+    // limits are tested here on their own: with `--source genome_bam` STAR does not run,
+    // and the BAM files of the test data have introns up to 1.6 Mb. As
+    // `--leafcutter_max_intron_len` is not set, this also tests that LeafCutter falls back
+    // to `--max_intron_length`
+    test("-profile test_aspli - max_intron_length - genome_bam") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+                input = 'https://raw.githubusercontent.com/nf-core/test-datasets/rnasplice/chrX_subset/samplesheet/samplesheet_bam.csv'
+                source = 'genome_bam'
+                max_intron_length = 5000
+                aspli = false
+                leafcutter = true
+                leafcutter_ds_min_samples_per_intron = 2
+                leafcutter_ds_min_samples_per_group = 2
+                leafcutter_ds_min_coverage = 1
+            }
+        }
+
+        then {
+            def samples = ['ERR188383', 'ERR188428', 'ERR188454', 'ERR204916']
+
+            // The intron of each LeafCutter junction, as in the test above. Only regtools `-M`
+            // keeps them within the limit
+            def intron_lengths = samples.collectMany { sample ->
+                path("${params.outdir}/star/leafcutter/${sample}.junc").readLines().collect { line ->
+                    def fields = line.split('\t')
+                    def anchors = fields[10].tokenize(',')*.toInteger()
+                    (fields[2] as int) - (fields[1] as int) - anchors.sum()
+                }
+            }
+
+            // The command leafcutter-cluster ran with, from its task script, as its `-l` limit
+            // can't be told apart from regtools `-M` in the results
+            def cluster_scripts = []
+            new File("${launchDir}/work").eachFileRecurse { script ->
+                if (script.name == '.command.sh' && script.text.contains('leafcutter-cluster')) { cluster_scripts << script.text }
+            }
+
+            assert workflow.success
+
+            assertAll(
+                { assert intron_lengths.size() > 0 },
+                { assert intron_lengths.every { length -> length <= 5000 } },
+                { assert !cluster_scripts.isEmpty() },
+                { assert cluster_scripts.every { script -> script =~ /-l 5000\b/ } },
+                { assert path("${params.outdir}/star/leafcutter/lc_perind.counts.gz").linesGzip.size() > 1 },
+                { assert snapshot(
+                    // Remove Nextflow version to prevent cross-version testing failures
+                    removeNextflowVersion("$outputDir/pipeline_info/nf_core_rnasplice_software_mqc_versions.yml"),
+
+                    // The number of LeafCutter junctions within the limit
+                    intron_lengths.size()
+                ).match() }
+            )
+        }
+
+        cleanup {
+            // Only prune/delete on CI - keeping local VM state intact prevents
+            // cross-test launchDir wipes that break nf-test snapshot walks.
+            if (System.getenv("CI") == "true") {
+                if (System.getenv("NFT_PROFILE")?.contains("docker")) {
+                    "docker system prune -a -f --volumes".execute()
+                }
+                new File("${launchDir}").deleteDir()
+            }
+        }
+    }
 }
