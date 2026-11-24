@@ -10,7 +10,7 @@
             "type": "object",
             "fa_icon": "fas fa-terminal",
             "description": "Define where the pipeline should find input data and save output data.",
-            "required": ["input", "source", "outdir", "contrasts"],
+            "required": ["input", "outdir", "contrasts"],
             "properties": {
                 "input": {
                     "type": "string",
@@ -19,7 +19,7 @@
                     "mimetype": "text/csv",
                     "pattern": "^\\S+\\.csv$",
                     "description": "Path to comma-separated file containing information about the samples in the experiment.",
-                    "help_text": "You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 4 columns, and a header row. See [usage docs](https://nf-co.re/rnasplice/usage#samplesheet-input). For paired differential splicing analyses, the samples in the design file should be ordered such that the same individuals are in the same order for both conditions. For example, if you have 3 case-control pairs, then the first 3 samples in the design file should be the case samples and the next 3 samples should be the corresponding control samples, in the same order as the case samples.",
+                    "help_text": "You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with a header row, and one of the `fastq_1`, `genome_bam`, `transcriptome_bam` or `salmon_results` columns filled for every sample. See [usage docs](https://nf-co.re/rnasplice/usage#samplesheet-input). For paired differential splicing analyses, the samples in the design file should be ordered such that the same individuals are in the same order for both conditions. For example, if you have 3 case-control pairs, then the first 3 samples in the design file should be the case samples and the next 3 samples should be the corresponding control samples, in the same order as the case samples.",
                     "fa_icon": "fas fa-file-csv"
                 },
                 "contrasts": {
@@ -29,10 +29,11 @@
                 },
                 "source": {
                     "type": "string",
-                    "default": "fastq",
                     "enum": ["fastq", "genome_bam", "transcriptome_bam", "salmon_results"],
-                    "description": "Source of input files.",
-                    "fa_icon": "fas fa-file-import"
+                    "description": "Deprecated and ignored: the input type is worked out from the samplesheet columns.",
+                    "fa_icon": "fas fa-file-import",
+                    "help_text": "The input type of each analysis is worked out from which of the `fastq_1`, `genome_bam`, `transcriptome_bam` and `salmon_results` samplesheet columns are filled, so this parameter is no longer needed. It will be removed in a future release.",
+                    "hidden": true
                 },
                 "outdir": {
                     "type": "string",
@@ -392,7 +393,7 @@
                     "type": "boolean",
                     "fa_icon": "fas fa-check-square",
                     "description": "Check the strandedness of each sample against the one RSeQC infer_experiment.py infers from the genome BAM.",
-                    "help_text": "Mismatches are reported as warnings and in a 'Strandedness Checks' table in the MultiQC report. Requires genome alignments, from `--aligner` or `--source genome_bam`."
+                    "help_text": "Mismatches are reported as warnings and in a 'Strandedness Checks' table in the MultiQC report. Requires genome alignments, from `--aligner` or a `genome_bam` samplesheet column."
                 }
             }
         },
@@ -540,7 +541,7 @@
                 "aspli": {
                     "type": "boolean",
                     "description": "Run the ASpli workflow.",
-                    "help_text": "Run [ASpli](https://bioconductor.org/packages/ASpli) on the genome BAM files, with `--aligner star` or `--aligner star_salmon`, or with `--source genome_bam`. ASpli bins the genome from the GTF, counts reads over genes, bins and junctions, tests each contrast of the contrastsheet for differential bin and junction usage, and integrates the bin and junction signals of each region into one report. The samples must be all single end or all paired end, and the samplesheet needs at least two conditions.",
+                    "help_text": "Run [ASpli](https://bioconductor.org/packages/ASpli) on the genome BAM files, with `--aligner star` or `--aligner star_salmon`, or from a `genome_bam` samplesheet column. ASpli bins the genome from the GTF, counts reads over genes, bins and junctions, tests each contrast of the contrastsheet for differential bin and junction usage, and integrates the bin and junction signals of each region into one report. The samples must be all single end or all paired end, and the samplesheet needs at least two conditions.",
                     "fa_icon": "fas fa-play"
                 },
                 "aspli_read_len": {
@@ -576,7 +577,7 @@
                     "type": "boolean",
                     "default": false,
                     "description": "Use paired statistical model. It requires that the same individuals are measured in both conditions.",
-                    "help_text": "Use the paired statistical model in rMATS. This is appropriate when the same individuals are measured in both conditions, for example in a case-control study design. If your study design is not paired, set this to `false` to use the unpaired model. The paired model requires that the samples in the samplesheet are ordered such that the same individuals are in the same order for both conditions. For example, if you have 3 case-control pairs, then the first 3 samples in the samplesheet should be the case samples and the next 3 samples should be the corresponding control samples, in the same order as the case samples:\n\n```csv\nsample,fastq_1,fastq_2,strandedness,condition\nTREATMENT_SAMPLE_A,TX_SAMPLE_A_R1_001.fastq.gz,TX_SAMPLE_A_R2_001.fastq.gz,forward,treatment\nTREATMENT_SAMPLE_B,TX_SAMPLE_B_R1_001.fastq.gz,TX_SAMPLE_B_R2_001.fastq.gz,forward,treatment\nTREATMENT_SAMPLE_C,TX_SAMPLE_C_R1_001.fastq.gz,TX_SAMPLE_C_R2_001.fastq.gz,forward,treatment\nCONTROL_SAMPLE_A,CTRL_SAMPLE_A_R1_001.fastq.gz,CTRL_SAMPLE_A_R2_001.fastq.gz,forward,control\nCONTROL_SAMPLE_B,CTRL_SAMPLE_B_R1_001.fastq.gz,CTRL_SAMPLE_B_R2_001.fastq.gz,forward,control\nCONTROL_SAMPLE_C,CTRL_SAMPLE_C_R1_001.fastq.gz,CTRL_SAMPLE_C_R2_001.fastq.gz,forward,control\n\n```\nSimilar order must be followed when `--source genome_bam` or `--source transcriptome_bam`.",
+                    "help_text": "Use the paired statistical model in rMATS. This is appropriate when the same individuals are measured in both conditions, for example in a case-control study design. If your study design is not paired, set this to `false` to use the unpaired model. The paired model requires that the samples in the samplesheet are ordered such that the same individuals are in the same order for both conditions. For example, if you have 3 case-control pairs, then the first 3 samples in the samplesheet should be the case samples and the next 3 samples should be the corresponding control samples, in the same order as the case samples:\n\n```csv\nsample,fastq_1,fastq_2,strandedness,condition\nTREATMENT_SAMPLE_A,TX_SAMPLE_A_R1_001.fastq.gz,TX_SAMPLE_A_R2_001.fastq.gz,forward,treatment\nTREATMENT_SAMPLE_B,TX_SAMPLE_B_R1_001.fastq.gz,TX_SAMPLE_B_R2_001.fastq.gz,forward,treatment\nTREATMENT_SAMPLE_C,TX_SAMPLE_C_R1_001.fastq.gz,TX_SAMPLE_C_R2_001.fastq.gz,forward,treatment\nCONTROL_SAMPLE_A,CTRL_SAMPLE_A_R1_001.fastq.gz,CTRL_SAMPLE_A_R2_001.fastq.gz,forward,control\nCONTROL_SAMPLE_B,CTRL_SAMPLE_B_R1_001.fastq.gz,CTRL_SAMPLE_B_R2_001.fastq.gz,forward,control\nCONTROL_SAMPLE_C,CTRL_SAMPLE_C_R1_001.fastq.gz,CTRL_SAMPLE_C_R2_001.fastq.gz,forward,control\n\n```\nThe same order applies to samplesheets with BAM columns.",
                     "fa_icon": "fas fa-link"
                 },
                 "rmats_read_len": {

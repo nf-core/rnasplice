@@ -7,10 +7,10 @@ nextflow_workflow {
     tag "subworkflows"
     tag "subworkflows/utils_nfcore_rnasplice_pipeline"
 
-    // The samplesheets of the BAM sources carry optional strandedness and single_end
-    // columns, which have to reach the meta map of every sample so that the tools that
-    // need the library type and the read type get them, and which default to unstranded
-    // and paired end, see https://github.com/nf-core/rnasplice/issues/184
+    // BAM samplesheets carry optional strandedness and single_end columns, which have to
+    // reach the meta map of every sample so that the tools that need the library type and
+    // the read type get them, and which default to unstranded and paired end, see
+    // https://github.com/nf-core/rnasplice/issues/184
 
     setup {
         def testdata = 'https://raw.githubusercontent.com/nf-core/test-datasets/rnasplice/chrX_subset/testdata/'
@@ -30,6 +30,31 @@ nextflow_workflow {
         def transcriptome_bam = new File("${launchDir}/samplesheet_transcriptome_bam_optional_columns.csv")
         transcriptome_bam.text = "sample,condition,strandedness,single_end,genome_bam,transcriptome_bam\n" + samples.collect { sample, condition ->
             "${sample},${condition},forward,true,${testdata}${sample}.Aligned.out.bam,${testdata}${sample}.Aligned.toTranscriptome.out.bam\n"
+        }.join()
+
+        // As written by nf-core/rnaseq with --save_align_intermeds, plus a condition column,
+        // with a second sequencing run for the first sample
+        def rnaseq_header = "sample,fastq_1,fastq_2,strandedness,seq_platform,seq_center,genome_bam,percent_mapped,transcriptome_bam,condition\n"
+        def rnaseq_row = { sample, condition, run ->
+            "${sample},${testdata}${sample}_chrX_1.fastq.gz,${testdata}${sample}_chrX_2.fastq.gz,reverse,ILLUMINA,${run},${testdata}${sample}.Aligned.out.bam,95.5,${testdata}${sample}.Aligned.toTranscriptome.out.bam,${condition}\n"
+        }
+        new File("${launchDir}/samplesheet_rnaseq_bams.csv").text = rnaseq_header +
+            rnaseq_row('ERR188383', 'GBR', 'RUN2') + samples.collect { sample, condition -> rnaseq_row(sample, condition, 'RUN1') }.join()
+
+        new File("${launchDir}/samplesheet_partial_genome_bam.csv").text = "sample,condition,genome_bam\n" + samples.collect { sample, condition ->
+            "${sample},${condition},${sample == 'ERR204916' ? '' : testdata + sample + '.Aligned.out.bam'}\n"
+        }.join()
+
+        new File("${launchDir}/samplesheet_transcriptome_bam_salmon_results.csv").text = "sample,condition,transcriptome_bam,salmon_results\n" + samples.collect { sample, condition ->
+            "${sample},${condition},${testdata}${sample}.Aligned.toTranscriptome.out.bam,${testdata}${sample}.tar.gz\n"
+        }.join()
+
+        new File("${launchDir}/samplesheet_conflicting_runs.csv").text = "sample,condition,genome_bam\n" + samples.collect { sample, condition ->
+            "${sample},${condition},${testdata}${sample}.Aligned.out.bam\n"
+        }.join() + "ERR188383,GBR,${testdata}ERR188428.Aligned.out.bam\n"
+
+        new File("${launchDir}/samplesheet_no_input.csv").text = "sample,condition,strandedness\n" + samples.collect { sample, condition ->
+            "${sample},${condition},unstranded\n"
         }.join()
 
         def contrasts = [
@@ -56,11 +81,10 @@ nextflow_workflow {
                 input[3] = []                                                                       // nextflow_cli_args
                 input[4] = "${outputDir}"                                                           // outdir
                 input[5] = "${launchDir}/samplesheet_genome_bam_optional_columns.csv"               // input
-                input[6] = 'genome_bam'                                                             // source
-                input[7] = params.pipelines_testdata_base_path + 'samplesheet/contrastsheet.csv'    // contrasts
-                input[8] = false                                                                    // help
-                input[9] = false                                                                    // help_full
-                input[10] = false                                                                   // show_hidden
+                input[6] = params.pipelines_testdata_base_path + 'samplesheet/contrastsheet.csv'    // contrasts
+                input[7] = false                                                                    // help
+                input[8] = false                                                                    // help_full
+                input[9] = false                                                                   // show_hidden
                 """
             }
         }
@@ -69,8 +93,9 @@ nextflow_workflow {
             assertAll(
                 { assert workflow.success },
                 { assert workflow.out.samplesheet.size() == 4 },
-                { assert workflow.out.samplesheet.every { meta, _bam -> meta.strandedness == 'reverse' } },
-                { assert workflow.out.samplesheet.every { meta, _bam -> meta.single_end } }
+                { assert workflow.out.samplesheet.every { row -> row[0].strandedness == 'reverse' } },
+                { assert workflow.out.samplesheet.every { row -> row[0].single_end } },
+                { assert workflow.out.samplesheet.every { row -> row[2].endsWith('.Aligned.out.bam') && row[3] == null } }
             )
         }
 
@@ -87,11 +112,10 @@ nextflow_workflow {
                 input[3] = []
                 input[4] = "${outputDir}"
                 input[5] = "${launchDir}/samplesheet_genome_bam.csv"
-                input[6] = 'genome_bam'
-                input[7] = params.pipelines_testdata_base_path + 'samplesheet/contrastsheet.csv'
+                input[6] = params.pipelines_testdata_base_path + 'samplesheet/contrastsheet.csv'
+                input[7] = false
                 input[8] = false
                 input[9] = false
-                input[10] = false
                 """
             }
         }
@@ -100,14 +124,16 @@ nextflow_workflow {
             assertAll(
                 { assert workflow.success },
                 { assert workflow.out.samplesheet.size() == 4 },
-                { assert workflow.out.samplesheet.every { meta, _bam -> meta.strandedness == 'unstranded' } },
-                { assert workflow.out.samplesheet.every { meta, _bam -> !meta.single_end } }
+                { assert workflow.out.samplesheet.every { row -> row[0].strandedness == 'unstranded' } },
+                { assert workflow.out.samplesheet.every { row -> !row[0].single_end } },
+                // The modules reading the sheet get the sample and condition only
+                { assert new File(workflow.out.samplesheet_file[0].toString()).readLines() == [ 'sample,condition', 'ERR188383,GBR', 'ERR188428,GBR', 'ERR188454,YRI', 'ERR204916,YRI' ] }
             )
         }
 
     }
 
-    test("transcriptome_bam - strandedness and read type") {
+    test("genome_bam and transcriptome_bam - strandedness and read type") {
 
         when {
             workflow {
@@ -118,11 +144,10 @@ nextflow_workflow {
                 input[3] = []
                 input[4] = "${outputDir}"
                 input[5] = "${launchDir}/samplesheet_transcriptome_bam_optional_columns.csv"
-                input[6] = 'transcriptome_bam'
-                input[7] = params.pipelines_testdata_base_path + 'samplesheet/contrastsheet.csv'
+                input[6] = params.pipelines_testdata_base_path + 'samplesheet/contrastsheet.csv'
+                input[7] = false
                 input[8] = false
                 input[9] = false
-                input[10] = false
                 """
             }
         }
@@ -131,10 +156,186 @@ nextflow_workflow {
             assertAll(
                 { assert workflow.success },
                 { assert workflow.out.samplesheet.size() == 4 },
-                { assert workflow.out.samplesheet.every { meta, _bam -> meta.strandedness == 'forward' } },
-                { assert workflow.out.samplesheet.every { meta, _bam -> meta.single_end } },
-                // Only the transcriptome BAM is taken from a transcriptome_bam samplesheet
-                { assert workflow.out.samplesheet.every { _meta, bam -> bam[0].endsWith('.Aligned.toTranscriptome.out.bam') } }
+                { assert workflow.out.samplesheet.every { row -> row[0].strandedness == 'forward' } },
+                { assert workflow.out.samplesheet.every { row -> row[0].single_end } },
+                { assert workflow.out.samplesheet.every { row -> row[2].endsWith('.Aligned.out.bam') && row[3].endsWith('.Aligned.toTranscriptome.out.bam') } }
+            )
+        }
+
+    }
+
+    test("rnaseq samplesheet_with_bams.csv - BAMs, FASTQ runs and extra columns") {
+
+        when {
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = "${outputDir}"
+                input[5] = "${launchDir}/samplesheet_rnaseq_bams.csv"
+                input[6] = params.pipelines_testdata_base_path + 'samplesheet/contrastsheet.csv'
+                input[7] = false
+                input[8] = false
+                input[9] = false
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.samplesheet.size() == 4 },
+                { assert workflow.out.samplesheet.every { row -> row[0].keySet() == [ 'id', 'condition', 'strandedness', 'single_end' ] as Set } },
+                { assert workflow.out.samplesheet.every { row -> row[0].strandedness == 'reverse' && !row[0].single_end } },
+                // Both runs of ERR188383 are kept for concatenation, its BAM files once
+                { assert workflow.out.samplesheet.find { row -> row[0].id == 'ERR188383' }[1].size() == 4 },
+                { assert workflow.out.samplesheet.every { row -> row[2].endsWith('.Aligned.out.bam') && row[3].endsWith('.Aligned.toTranscriptome.out.bam') && row[4] == null } },
+                { assert new File(workflow.out.samplesheet_file[0].toString()).readLines() == [ 'sample,condition', 'ERR188383,GBR', 'ERR188428,GBR', 'ERR188454,YRI', 'ERR204916,YRI' ] }
+            )
+        }
+
+    }
+
+    test("partly filled BAM column fails") {
+
+        when {
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = "${outputDir}"
+                input[5] = "${launchDir}/samplesheet_partial_genome_bam.csv"
+                input[6] = params.pipelines_testdata_base_path + 'samplesheet/contrastsheet.csv'
+                input[7] = false
+                input[8] = false
+                input[9] = false
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.failed },
+                { assert (workflow.stdout + workflow.stderr).any { line -> line.contains("The 'genome_bam' column must be filled for every sample or for none") } }
+            )
+        }
+
+    }
+
+    test("transcriptome_bam with salmon_results fails") {
+
+        when {
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = "${outputDir}"
+                input[5] = "${launchDir}/samplesheet_transcriptome_bam_salmon_results.csv"
+                input[6] = params.pipelines_testdata_base_path + 'samplesheet/contrastsheet.csv'
+                input[7] = false
+                input[8] = false
+                input[9] = false
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.failed },
+                { assert (workflow.stdout + workflow.stderr).any { line -> line.contains("The 'transcriptome_bam' and 'salmon_results' columns cannot both be given") } }
+            )
+        }
+
+    }
+
+    test("runs of a sample with different BAM files fail") {
+
+        when {
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = "${outputDir}"
+                input[5] = "${launchDir}/samplesheet_conflicting_runs.csv"
+                input[6] = params.pipelines_testdata_base_path + 'samplesheet/contrastsheet.csv'
+                input[7] = false
+                input[8] = false
+                input[9] = false
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.failed },
+                { assert (workflow.stdout + workflow.stderr).any { line -> line.contains("Multiple rows of a sample must give the same 'genome_bam': ERR188383") } }
+            )
+        }
+
+    }
+
+    test("sample without input fails") {
+
+        when {
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = "${outputDir}"
+                input[5] = "${launchDir}/samplesheet_no_input.csv"
+                input[6] = params.pipelines_testdata_base_path + 'samplesheet/contrastsheet.csv'
+                input[7] = false
+                input[8] = false
+                input[9] = false
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.failed },
+                { assert (workflow.stdout + workflow.stderr).any { line -> line.contains("Each sample needs at least one of") } }
+            )
+        }
+
+    }
+
+    test("--source is deprecated") {
+
+        when {
+            params {
+                source = 'genome_bam'
+            }
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = "${outputDir}"
+                input[5] = "${launchDir}/samplesheet_genome_bam.csv"
+                input[6] = params.pipelines_testdata_base_path + 'samplesheet/contrastsheet.csv'
+                input[7] = false
+                input[8] = false
+                input[9] = false
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert (workflow.stdout + workflow.stderr).any { line -> line.contains("The '--source' parameter is deprecated and ignored") } }
             )
         }
 
@@ -151,11 +352,10 @@ nextflow_workflow {
                 input[3] = []
                 input[4] = "${outputDir}"
                 input[5] = "${launchDir}/samplesheet_genome_bam.csv"
-                input[6] = 'genome_bam'
-                input[7] = "${launchDir}/contrastsheet_legacy.csv"
+                input[6] = "${launchDir}/contrastsheet_legacy.csv"
+                input[7] = false
                 input[8] = false
                 input[9] = false
-                input[10] = false
                 """
             }
         }
@@ -182,11 +382,10 @@ nextflow_workflow {
                 input[3] = []
                 input[4] = "${outputDir}"
                 input[5] = "${launchDir}/samplesheet_genome_bam.csv"
-                input[6] = 'genome_bam'
-                input[7] = "${launchDir}/contrastsheet_new.csv"
+                input[6] = "${launchDir}/contrastsheet_new.csv"
+                input[7] = false
                 input[8] = false
                 input[9] = false
-                input[10] = false
                 """
             }
         }
@@ -215,11 +414,10 @@ nextflow_workflow {
                 input[3] = []
                 input[4] = "${outputDir}"
                 input[5] = "${launchDir}/samplesheet_genome_bam.csv"
-                input[6] = 'genome_bam'
-                input[7] = "${launchDir}/contrastsheet_new_blocking.csv"
+                input[6] = "${launchDir}/contrastsheet_new_blocking.csv"
+                input[7] = false
                 input[8] = false
                 input[9] = false
-                input[10] = false
                 """
             }
         }
@@ -246,11 +444,10 @@ nextflow_workflow {
                 input[3] = []
                 input[4] = "${outputDir}"
                 input[5] = "${launchDir}/samplesheet_genome_bam.csv"
-                input[6] = 'genome_bam'
-                input[7] = "${launchDir}/contrastsheet_mixed.csv"
+                input[6] = "${launchDir}/contrastsheet_mixed.csv"
+                input[7] = false
                 input[8] = false
                 input[9] = false
-                input[10] = false
                 """
             }
         }
@@ -275,11 +472,10 @@ nextflow_workflow {
                 input[3] = []
                 input[4] = "${outputDir}"
                 input[5] = "${launchDir}/samplesheet_genome_bam.csv"
-                input[6] = 'genome_bam'
-                input[7] = "${launchDir}/contrastsheet_variable.csv"
+                input[6] = "${launchDir}/contrastsheet_variable.csv"
+                input[7] = false
                 input[8] = false
                 input[9] = false
-                input[10] = false
                 """
             }
         }
@@ -304,11 +500,10 @@ nextflow_workflow {
                 input[3] = []
                 input[4] = "${outputDir}"
                 input[5] = "${launchDir}/samplesheet_genome_bam.csv"
-                input[6] = 'genome_bam'
-                input[7] = "${launchDir}/contrastsheet_missing_target.csv"
+                input[6] = "${launchDir}/contrastsheet_missing_target.csv"
+                input[7] = false
                 input[8] = false
                 input[9] = false
-                input[10] = false
                 """
             }
         }
@@ -333,11 +528,10 @@ nextflow_workflow {
                 input[3] = []
                 input[4] = "${outputDir}"
                 input[5] = "${launchDir}/samplesheet_genome_bam.csv"
-                input[6] = 'genome_bam'
-                input[7] = "${launchDir}/contrastsheet_dup_id.csv"
+                input[6] = "${launchDir}/contrastsheet_dup_id.csv"
+                input[7] = false
                 input[8] = false
                 input[9] = false
-                input[10] = false
                 """
             }
         }
@@ -363,11 +557,10 @@ nextflow_workflow {
                 input[3] = []
                 input[4] = "${outputDir}"
                 input[5] = "${launchDir}/samplesheet_genome_bam.csv"
-                input[6] = 'genome_bam'
-                input[7] = "${launchDir}/contrastsheet_dup_legacy.csv"
+                input[6] = "${launchDir}/contrastsheet_dup_legacy.csv"
+                input[7] = false
                 input[8] = false
                 input[9] = false
-                input[10] = false
                 """
             }
         }

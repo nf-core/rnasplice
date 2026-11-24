@@ -25,19 +25,21 @@ CONTROL_REP2,AEG588A2_S2_L002_R1_001.fastq.gz,AEG588A2_S2_L002_R2_001.fastq.gz,f
 CONTROL_REP3,AEG588A3_S3_L002_R1_001.fastq.gz,AEG588A3_S3_L002_R2_001.fastq.gz,forward,control
 ```
 
-The samplesheet can have as many columns as you desire, however, there is a strict requirement for at least 3 columns to match those defined in the table below.
+The samplesheet needs the `sample` and `condition` columns, and at least one of the input columns `fastq_1`, `genome_bam`, `transcriptome_bam` or `salmon_results`. See [Input types](#input-types) for what each input column is used for.
 
-| Column              | Description                                                                                                                                                                                                                                                                    |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `sample`            | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`).                                                                                         |
-| `fastq_1`           | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                                                                                                                     |
-| `fastq_2`           | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                                                                                                                     |
-| `strandedness`      | Sample strand-specificity. Must be one of `unstranded`, `forward`, `reverse` or `auto` to infer it, see [Strandedness](#strandedness). Required with `--source fastq`, optional and defaulting to `unstranded` with `--source genome_bam` and `--source transcriptome_bam`.    |
-| `single_end`        | Read type of a BAM sample, `true` for single end and `false` for paired end. Only read with `--source genome_bam` and `--source transcriptome_bam`, where it is optional and defaults to `false`. With `--source fastq` the read type is taken from the presence of `fastq_2`. |
-| `condition`         | The name of the condition a sample belongs to (e.g. 'control', or 'treatment') - these labels will be used for downstream analysis.                                                                                                                                            |
-| `genome_bam`        | Full path to aligned BAM file, derived from splicing aware mapper (STAR, HiSat, etc). File has to be in ".bam" format.                                                                                                                                                         |
-| `transcriptome_bam` | Full path to aligned transcriptome file, derived from splicing aware mapper (STAR, HiSat, etc). File has to be in ".bam" format.                                                                                                                                               |
-| `salmon_results`    | Full path to the result folder produced by salmon quantification.                                                                                                                                                                                                              |
+| Column              | Description                                                                                                                                                                                                                     |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sample`            | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. It must be a valid R name: letters, digits, `.` and `_`, starting with a letter or `.`.                           |
+| `condition`         | The name of the condition a sample belongs to (e.g. 'control', or 'treatment') - these labels will be used for downstream analysis.                                                                                             |
+| `fastq_1`           | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                                                                      |
+| `fastq_2`           | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                                                                      |
+| `strandedness`      | Sample strand-specificity. Must be one of `unstranded`, `forward`, `reverse` or `auto` to infer it, see [Strandedness](#strandedness). Optional, defaults to `unstranded`.                                                      |
+| `single_end`        | Read type of a sample without FASTQ files, `true` for single end and `false` for paired end. Optional, defaults to `false`. When `fastq_1` is given, the read type is taken from the presence of `fastq_2` and this is ignored. |
+| `genome_bam`        | Full path to a coordinate-sorted genome BAM file from a splice aware aligner, such as the `*.sorted.bam` files of nf-core/rnaseq. File has to be in ".bam" format.                                                              |
+| `transcriptome_bam` | Full path to a transcriptome BAM file, such as the `*.Aligned.toTranscriptome.out.bam` files of nf-core/rnaseq. File has to be in ".bam" format.                                                                                |
+| `salmon_results`    | Full path to a `.tar.gz` archive of the result folder of a Salmon quantification.                                                                                                                                               |
+
+The `seq_platform`, `seq_center` and `percent_mapped` columns that nf-core/rnaseq writes are accepted and ignored, so its samplesheets can be used as they are, see [Starting from an nf-core/rnaseq run](#starting-from-an-nf-corernaseq-run).
 
 In the case of paired differential splicing analysis (e.g., with `rMATS`), the treatment and control samples order must match:
 
@@ -53,7 +55,7 @@ TREATMENT_REP3,AEG588A6_S6_L003_R1_001.fastq.gz,AEG588A6_S6_L003_R2_001.fastq.gz
 
 ### Strandedness
 
-The `strandedness` of a sample can be set to `auto` to have the pipeline infer it. With `--source fastq` this is done as in [nf-core/rnaseq](https://nf-co.re/rnaseq): the reads of each `auto` sample are sub-sampled to 1 million with [fq](https://github.com/stjude-rust-labs/fq) and pseudo-aligned with [Salmon](https://salmon.readthedocs.io/en/latest/library_type.html) in its library type detection mode, before alignment. The fraction of reads assigned to each strand then decides the strandedness:
+The `strandedness` of a sample can be set to `auto` to have the pipeline infer it. With FASTQ input this is done as in [nf-core/rnaseq](https://nf-co.re/rnaseq): the reads of each `auto` sample are sub-sampled to 1 million with [fq](https://github.com/stjude-rust-labs/fq) and pseudo-aligned with [Salmon](https://salmon.readthedocs.io/en/latest/library_type.html) in its library type detection mode, before alignment. The fraction of reads assigned to each strand then decides the strandedness:
 
 - `forward` or `reverse` when at least `--stranded_threshold` (default `0.8`) of the stranded reads are on that strand.
 - `unstranded` when the forward and reverse fractions differ by at most `--unstranded_threshold` (default `0.1`).
@@ -63,8 +65,8 @@ The inferred value is then used for every step that needs one: Salmon, featureCo
 
 BAM input has no reads to sub-sample, so `auto` is handled differently:
 
-- With `--source genome_bam`, [RSeQC infer_experiment.py](https://rseqc.sourceforge.net/#infer-experiment-py) is run on the BAM file of each `auto` sample, with a BED12 gene model made from the GTF, and its fractions are called with the same thresholds as above. The result is used by DEXSeq, featureCounts (edgeR), rMATS, LeafCutter, ASpli and the bigWig coverage tracks.
-- With `--source transcriptome_bam`, the only tool that uses the strandedness is Salmon, which quantifies an `auto` sample with `--libType A` and detects the library type itself. Salmon writes no fragment counts in alignment mode, so the thresholds above do not apply and the strandedness follows Salmon's own call. Setting `--salmon_quant_libtype` overrides this for every sample.
+- With genome BAM input, [RSeQC infer_experiment.py](https://rseqc.sourceforge.net/#infer-experiment-py) is run on the BAM file of each `auto` sample, with a BED12 gene model made from the GTF, and its fractions are called with the same thresholds as above. The result is used by DEXSeq, featureCounts (edgeR), rMATS, LeafCutter, ASpli and the bigWig coverage tracks.
+- With transcriptome BAM input, the only tool that uses the strandedness is Salmon, which quantifies an `auto` sample with `--libType A` and detects the library type itself. Salmon writes no fragment counts in alignment mode, so the thresholds above do not apply and the strandedness follows Salmon's own call. Setting `--salmon_quant_libtype` overrides this for every sample.
 
 ```csv title="samplesheet.csv"
 sample,fastq_1,fastq_2,strandedness,condition
@@ -72,80 +74,52 @@ CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz,a
 CONTROL_REP2,AEG588A2_S2_L002_R1_001.fastq.gz,AEG588A2_S2_L002_R2_001.fastq.gz,reverse,control
 ```
 
-The strandedness used can be checked against the alignments with `--strand_check`, which runs [RSeQC infer_experiment.py](https://rseqc.sourceforge.net/#infer-experiment-py) on the genome BAM files with the same thresholds. A sample whose RSeQC result does not match the strandedness it was analysed with is reported with a warning in the log and in the Strandedness Checks table of the MultiQC report. `--strand_check` needs genome alignments, so it works with `--aligner star` or `star_salmon`, and with `--source genome_bam`. A genome BAM sample set to `auto` already has its RSeQC result, so RSeQC is not run on it again, and the table only reports whether a strandedness could be called.
+The strandedness used can be checked against the alignments with `--strand_check`, which runs [RSeQC infer_experiment.py](https://rseqc.sourceforge.net/#infer-experiment-py) on the genome BAM files with the same thresholds. A sample whose RSeQC result does not match the strandedness it was analysed with is reported with a warning in the log and in the Strandedness Checks table of the MultiQC report. `--strand_check` needs genome alignments, so it works with `--aligner star` or `star_salmon`, and with genome BAM input. A genome BAM sample set to `auto` already has its RSeQC result, so RSeQC is not run on it again, and the table only reports whether a strandedness could be called.
 
 > [!NOTE]
 > rMATS needs every sample to have the same strandedness. With `auto` samples this is checked once their strandedness is inferred, and the pipeline stops if the samples differ.
 
-### Source configuration
+### Input types
 
-The pipeline can be started from four sources of input data. Use this parameter to specify the input source.
+Which input columns are filled decides how each analysis gets its input. An input column must be filled for every sample or for none, as the samples of a contrast are compared with each other, and the pipeline stops if it is filled for only some of them.
 
-```bash
---source '[source type]'
-```
+| Input               | Analyses                                                                                                     |
+| ------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `fastq_1`           | All, through STAR alignment and Salmon quantification, as configured with `--aligner` and `--pseudo_aligner` |
+| `genome_bam`        | DEXSeq exon usage, edgeR, rMATS, LeafCutter, ASpli, MISO sashimi plots and bigWig coverage tracks            |
+| `transcriptome_bam` | Salmon quantification in alignment mode, then DEXSeq DTU, SUPPA and IsoformSwitchAnalyzeR                    |
+| `salmon_results`    | DEXSeq DTU, SUPPA and IsoformSwitchAnalyzeR                                                                  |
 
-#### FASTQ files
+A BAM file or Salmon result given in the samplesheet is used instead of making it from the FASTQ files:
 
-The default configuration is `--source fastq` and takes compressed or uncompressed reads files as the input source. The samplesheet must have the 5 columns shown in the example below.
+- With `genome_bam`, STAR is not run, and the genome-based analyses use the given BAM files.
+- With `transcriptome_bam` or `salmon_results`, the FASTQ files are not pseudo-aligned with Salmon, and the transcript-based analyses use the given files.
+- The FASTQ files are only trimmed and quality checked when an analysis still needs them.
 
-```csv
-sample,fastq_1,fastq_2,strandedness,condition
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz,forward,control
-CONTROL_REP2,AEG588A2_S2_L002_R1_001.fastq.gz,AEG588A2_S2_L002_R2_001.fastq.gz,forward,control
-CONTROL_REP3,AEG588A3_S3_L002_R1_001.fastq.gz,AEG588A3_S3_L002_R2_001.fastq.gz,forward,control
-TREATMENT_REP1,AEG588A4_S4_L003_R1_001.fastq.gz,,reverse,treatment
-TREATMENT_REP2,AEG588A5_S5_L003_R1_001.fastq.gz,,reverse,treatment
-TREATMENT_REP3,AEG588A6_S6_L003_R1_001.fastq.gz,,reverse,treatment
-TREATMENT_REP3,AEG588A6_S6_L004_R1_001.fastq.gz,,reverse,treatment
-```
+`transcriptome_bam` and `salmon_results` cannot be given together, as either one is the input of the transcript-based analyses.
 
-This configuration allows the pipeline to run all downstream analysis methods.
+Several rows of the same sample are merged: their FASTQ files are concatenated, and their BAM files and Salmon results must be the same on every row.
 
-#### Genome BAM files
+The BAM files are checked against the references the pipeline uses: the reference sequences named in the header of each genome BAM file must be in `--fasta`, and those of each transcriptome BAM file in the transcript FASTA, with the same lengths. The pipeline stops with an error naming the sequences that do not match.
 
-The `--source genome_bam` configuration takes genome BAM files derived from a splice aware mapper (STAR, HiSat, etc). The samplesheet must have the `sample`, `condition` and `genome_bam` columns, and can carry the optional `strandedness` and `single_end` columns shown in the example below.
+For example, genome and transcriptome BAM files together:
 
 ```csv
-sample,condition,strandedness,single_end,genome_bam
-CONTROL_REP1,control,reverse,false,AEG588A1.Aligned.out.bam
-CONTROL_REP2,control,reverse,false,AEG588A2.Aligned.out.bam
-CONTROL_REP3,control,reverse,false,AEG588A3.Aligned.out.bam
-TREATMENT_REP1,treatment,reverse,false,AEG588A4.Aligned.out.bam
-TREATMENT_REP2,treatment,reverse,false,AEG588A5.Aligned.out.bam
-TREATMENT_REP3,treatment,reverse,false,AEG588A6.Aligned.out.bam
+sample,condition,strandedness,genome_bam,transcriptome_bam
+CONTROL_REP1,control,reverse,AEG588A1.sorted.bam,AEG588A1.Aligned.toTranscriptome.out.bam
+CONTROL_REP2,control,reverse,AEG588A2.sorted.bam,AEG588A2.Aligned.toTranscriptome.out.bam
+CONTROL_REP3,control,reverse,AEG588A3.sorted.bam,AEG588A3.Aligned.toTranscriptome.out.bam
+TREATMENT_REP1,treatment,reverse,AEG588A4.sorted.bam,AEG588A4.Aligned.toTranscriptome.out.bam
+TREATMENT_REP2,treatment,reverse,AEG588A5.sorted.bam,AEG588A5.Aligned.toTranscriptome.out.bam
+TREATMENT_REP3,treatment,reverse,AEG588A6.sorted.bam,AEG588A6.Aligned.toTranscriptome.out.bam
 ```
 
-The read type cannot be read from a BAM file, so it comes from the samplesheet along with the library type: `strandedness` defaults to `unstranded` and `single_end` to `false` (paired end), which keeps samplesheets without those columns valid. `strandedness` can also be set to `auto` to infer it with RSeQC, see [Strandedness](#strandedness). `strandedness` is passed on to DEXSeq, featureCounts (edgeR), rMATS, LeafCutter and ASpli, and `single_end` to all of them except LeafCutter. Note that DEXSeq used to count BAM input as forward stranded and now follows `strandedness`.
+A BAM file does not record the read type of the library, so without FASTQ files it comes from the `single_end` column, which defaults to paired end. Set it to `true` for single end libraries.
 
-Unlike the fastq source, the pipeline does not merge several rows of the same sample: the `sample` names must be unique for the BAM and Salmon sources, so merge the runs of a sample beforehand.
-
-This configuration allows the pipeline to run the "dexseq_exon", "edger_exon", "rmats", "leafcutter" and "aspli" analysis methods, and the "sashimi_plot" visualisation.
-
-#### Transcriptome BAM files
-
-The `--source transcriptome_bam` configuration takes transcriptome BAM files files derived from a splice aware mapper (STAR, HiSat, etc). The samplesheet must have the `sample`, `condition`, `genome_bam` and `transcriptome_bam` columns, and can carry the optional `strandedness` and `single_end` columns shown in the example below.
+Salmon results:
 
 ```csv
-sample,condition,strandedness,single_end,genome_bam,transcriptome_bam
-CONTROL_REP1,control,reverse,false,AEG588A1.Aligned.out.bam,AEG588A1.Aligned.toTranscriptome.out.bam
-CONTROL_REP2,control,reverse,false,AEG588A2.Aligned.out.bam,AEG588A2.Aligned.toTranscriptome.out.bam
-CONTROL_REP3,control,reverse,false,AEG588A3.Aligned.out.bam,AEG588A3.Aligned.toTranscriptome.out.bam
-TREATMENT_REP1,treatment,reverse,false,AEG588A4.Aligned.out.bam,AEG588A4.Aligned.toTranscriptome.out.bam
-TREATMENT_REP2,treatment,reverse,false,AEG588A5.Aligned.out.bam,AEG588A5.Aligned.toTranscriptome.out.bam
-TREATMENT_REP3,treatment,reverse,false,AEG588A6.Aligned.out.bam,AEG588A6.Aligned.toTranscriptome.out.bam
-```
-
-The read type cannot be read from a BAM file, so it comes from the samplesheet along with the library type: `strandedness` defaults to `unstranded` and `single_end` to `false` (paired end), which keeps samplesheets without those columns valid. `strandedness` can also be set to `auto` to let Salmon detect it, see [Strandedness](#strandedness). Both are passed on to Salmon, which quantifies the transcriptome BAM files.
-
-This configuration allows the pipeline to run the "dexseq_dtu" and "suppa" analysis methods.
-
-#### Salmon quantification files
-
-The `--source salmon_results` configuration takes the output quantification directories produced by Salmon. The samplesheet must have the 3 columns shown in the example below.
-
-```csv
-sample,condition,salmon
+sample,condition,salmon_results
 CONTROL_REP1,control,AEG588A1.tar.gz
 CONTROL_REP2,control,AEG588A2.tar.gz
 CONTROL_REP3,control,AEG588A3.tar.gz
@@ -154,7 +128,39 @@ TREATMENT_REP2,treatment,AEG588A5.tar.gz
 TREATMENT_REP3,treatment,AEG588A6.tar.gz
 ```
 
-This configuration allows the pipeline to run the "dexseq_dtu" and "suppa" analysis methods.
+> [!NOTE]
+> The `--source` parameter is deprecated and ignored, as the input type is worked out from the samplesheet columns. It will be removed in a future release.
+
+### Starting from an nf-core/rnaseq run
+
+nf-core/rnaseq writes a samplesheet listing the BAM files of each sample when it is run with `--save_align_intermeds` and the `star_salmon` aligner:
+
+```bash
+nextflow run nf-core/rnaseq \
+    --input samplesheet.csv \
+    --outdir rnaseq_results \
+    --aligner star_salmon \
+    --save_align_intermeds \
+    --save_reference \
+    -profile docker
+```
+
+Add a `condition` column to `rnaseq_results/samplesheets/samplesheet_with_bams.csv` and give it to rnasplice with the references of the rnaseq run:
+
+```bash
+nextflow run nf-core/rnasplice \
+    --input samplesheet_with_bams.csv \
+    --contrasts contrastsheet.csv \
+    --fasta genome.fa \
+    --gtf genes.gtf \
+    --transcript_fasta rnaseq_results/genome/genome.transcripts.fa \
+    --outdir rnasplice_results \
+    -profile docker
+```
+
+The genome BAM files then go to the genome-based analyses and the transcriptome BAM files through Salmon to the transcript-based ones, in one run, with no second alignment. The strandedness in the samplesheet is the one nf-core/rnaseq inferred.
+
+The transcriptome BAM files are only valid against the exact transcript FASTA nf-core/rnaseq aligned them to, which `--save_reference` writes to `rnaseq_results/genome/`. Without `--transcript_fasta`, rnasplice builds its own from the genome and the GTF, which can differ, for example when nf-core/rnaseq filtered the GTF. The pipeline then stops at the BAM check above rather than quantify against the wrong transcripts. Use the same genome FASTA and GTF as the rnaseq run too.
 
 ## Contrastsheet input
 
@@ -254,7 +260,7 @@ Prior to DEXSeq DTU analysis, filtering of genes and features with low expressio
 
 ### IsoformSwitchAnalyzeR
 
-IsoformSwitchAnalyzeR as described by [Vitting-Seerup et al., 2019](https://doi.org/10.1093/bioinformatics/btz247) performs a genome-wide analysis of splicing patterns and identifies isoform switches. It takes a salmon results directory as input so either `--source fastq` or `--source salmon_results` must be given. Two parameters can be set:
+IsoformSwitchAnalyzeR as described by [Vitting-Seerup et al., 2019](https://doi.org/10.1093/bioinformatics/btz247) performs a genome-wide analysis of splicing patterns and identifies isoform switches. It reads Salmon quantifications, so it runs with FASTQ input quantified with Salmon, with transcriptome BAM input, or with Salmon results input. Two parameters can be set:
 `--isoformswitchanalyzer_alpha` sets the significance threshold and `--isoformswitchanalyzer_dIF` sets the minimum absolute difference in isoform usage.
 
 ## Event based approaches
@@ -309,7 +315,7 @@ Using `dpsi` file and `psivec` file, events are clustered according to `PSI` val
 
 ### LeafCutter
 
-[LeafCutter](https://davidaknowles.github.io/leafcutter/) quantifies splicing by clustering the introns that spliced reads span. It runs when `--leafcutter` is set, with `--aligner star` or `--aligner star_salmon`, and with `--source genome_bam`.
+[LeafCutter](https://davidaknowles.github.io/leafcutter/) quantifies splicing by clustering the introns that spliced reads span. It runs when `--leafcutter` is set, with `--aligner star` or `--aligner star_salmon`, and with genome BAM input.
 
 Junction extraction (regtools `-M`) and clustering keep introns up to `--leafcutter_max_intron_len` bases long (default 500,000). The clustering keeps clusters supported by at least `--leafcutter_min_cluster_reads` reads (default 10), and drops junctions that carry less than `--leafcutter_min_cluster_ratio` of their cluster's reads (default 0.001). These are `leafcutter-cluster`'s `-l`, `-m` and `-p`, whose own defaults are 100,000, 30 and 0.001.
 
@@ -319,7 +325,7 @@ The clusters are then tested for differential splicing with `leafcutter-ds`, onc
 
 Every junction LeafCutter clusters needs a strand, and one that has none is discarded. Where the strand comes from depends on the samplesheet `strandedness`:
 
-- `forward` and `reverse`: from the orientation of the reads, which regtools reads off the BAM file itself. Nothing else is needed, so BAM files given with `--source genome_bam` work as they are.
+- `forward` and `reverse`: from the orientation of the reads, which regtools reads off the BAM file itself. Nothing else is needed, so BAM files given in the `genome_bam` column work as they are.
 
 - `unstranded`: from the splice motif. The two bases at each end of every strandless intron are read out of the genome, and the intron takes `+` for GT-AG, GC-AG and AT-AC and `-` for their reverse complements. An intron whose motif is non-canonical is looked up in the GTF and takes the strand of the transcript it belongs to. An intron that is in neither keeps no strand, and the clustering drops it.
 
@@ -352,13 +358,13 @@ Every junction LeafCutter clusters needs a strand, and one that has none is disc
 > }
 > ```
 
-A BAM file given with `--source genome_bam` that already carries `XS` tags is stranded from those tags first, and only the junctions left over go through the motif and the annotation.
+A BAM file given in the `genome_bam` column that already carries `XS` tags is stranded from those tags first, and only the junctions left over go through the motif and the annotation.
 
 ## Differential Bin and Junction Usage
 
 ### ASpli
 
-[ASpli](https://bioconductor.org/packages/ASpli) runs when `--aspli` is set, with `--aligner star` or `--aligner star_salmon`, or with `--source genome_bam`. It is off by default. The pipeline stops at the start if `--aspli` is set without a route that produces genome BAM files.
+[ASpli](https://bioconductor.org/packages/ASpli) runs when `--aspli` is set, with `--aligner star` or `--aligner star_salmon`, or with genome BAM input. It is off by default. The pipeline stops at the start if `--aspli` is set without a route that produces genome BAM files.
 
 ASpli splits each gene of the GTF into bins: exonic and intronic pieces bounded by every annotated exon boundary. It counts reads over genes, bins and junctions in one pass over all the samples, then tests each contrast of the contrastsheet. The differences from the other analyses are:
 

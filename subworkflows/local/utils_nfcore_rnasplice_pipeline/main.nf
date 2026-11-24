@@ -30,7 +30,6 @@ workflow PIPELINE_INITIALISATION {
     nextflow_cli_args //   array: List of positional nextflow CLI args
     outdir            //  string: The output directory where the results will be saved
     input             //  string: Path to input samplesheet
-    source            //  string: Type of input data [fastq, genome_bam, transcriptome_bam, salmon_results]
     contrasts         //  string: Path to the contrasts sheet
     help              // boolean: Display help message and exit
     help_full         // boolean: Show the full help message
@@ -106,66 +105,42 @@ workflow PIPELINE_INITIALISATION {
     //
     // Create channel from input file provided through params.input
     //
-    // The samplesheet columns depend on --source, so it is validated against the schema
-    // matching the declared source, selected by `samplesheetSchema`, which errors on an
-    // unknown --source. This is the only place the pipeline itself reads the samplesheet:
-    // what is emitted here is a parsed channel for the consumers that need the values and
-    // the validated path for the processes that read the sheet themselves.
+    // Every input type is an optional column, and which ones are filled decides how each
+    // method gets its input, see `getInputRoutes`. This is where the samplesheet is
+    // validated: what is emitted is a parsed channel for the consumers that need the values
+    // and a sample sheet for the processes that read one themselves.
     //
 
-    def samplesheet_rows = samplesheetToList(input, samplesheetSchema(source))
+    def samplesheet_rows = samplesheetToList(input, "${projectDir}/assets/schema_input.json")
+    validateInputRoutes(getInputRoutes(getSamplesheetInputTypes(samplesheet_rows)))
 
-    if (source == 'fastq') {
-        channel
-            .fromList(samplesheet_rows)
-            .map {
-                meta, fastq_1, fastq_2 ->
-                    if (!fastq_2) {
-                        return [ meta.id, meta + [ single_end:true ], [ fastq_1 ] ]
-                    } else {
-                        return [ meta.id, meta + [ single_end:false ], [ fastq_1, fastq_2 ] ]
-                    }
-            }
-            .groupTuple()
-            .map { samplesheet ->
-                validateInputSamplesheet(samplesheet)
-            }
-            .map {
-                meta, fastqs ->
-                    return [ meta, fastqs.flatten() ]
-            }
-            .set { ch_samplesheet }
-    } else if (source == 'transcriptome_bam') {
-        // The samplesheet carries both genome_bam and transcriptome_bam; only the
-        // transcriptome BAM is read from here. Strandedness and read type cannot be
-        // derived from a BAM file, so they come from the samplesheet, which defaults
-        // them to 'unstranded' and paired end when the columns are missing
-        channel
-            .fromList(samplesheet_rows)
-            .map {
-                meta, _genome_bam, transcriptome_bam ->
-                    return [ [ id: meta.id, condition: meta.condition, strandedness: meta.strandedness, single_end: meta.single_end ], [ transcriptome_bam ] ]
-            }
-            .set { ch_samplesheet }
-    } else if (source == 'genome_bam') {
-        channel
-            .fromList(samplesheet_rows)
-            .map {
-                meta, genome_bam ->
-                    return [ [ id: meta.id, condition: meta.condition, strandedness: meta.strandedness, single_end: meta.single_end ], [ genome_bam ] ]
-            }
-            .set { ch_samplesheet }
-    } else {
-        // salmon_results carries a single path column, and the quantification it holds
-        // has already been done, so no strandedness is needed
-        channel
-            .fromList(samplesheet_rows)
-            .map {
-                meta, input_file ->
-                    return [ [ id: meta.id, condition: meta.condition ], [ input_file ] ]
-            }
-            .set { ch_samplesheet }
-    }
+    // A sample may have one row per sequencing run. Its runs are collected under its id, and
+    // the FASTQ files of all of them kept for concatenation, while the BAM files and Salmon
+    // results, which describe the whole sample, must be the same on every row
+    channel
+        .fromList(samplesheet_rows)
+        .map { meta, fastq_1, fastq_2, genome_bam, transcriptome_bam, salmon_results ->
+            def fastqs = fastq_1 ? (fastq_2 ? [ fastq_1, fastq_2 ] : [ fastq_1 ]) : []
+            // A BAM file does not say whether its reads were paired, so without FASTQ
+            // files that comes from the 'single_end' column, which defaults to paired end
+            def single_end = fastq_1 ? !fastq_2 : (meta.single_end instanceof Boolean ? meta.single_end : false)
+            def sample_meta = [ id: meta.id, condition: meta.condition, strandedness: meta.strandedness, single_end: single_end ]
+            return [ meta.id, sample_meta, fastqs, genome_bam ?: null, transcriptome_bam ?: null, salmon_results ?: null ]
+        }
+        .groupTuple()
+        .map { samplesheet ->
+            validateInputSamplesheet(samplesheet)
+        }
+        .set { ch_samplesheet }
+
+    // The modules that read the sheet themselves only need the sample and condition, once
+    // per sample, in samplesheet order, whatever input columns the sheet has
+    ch_samplesheet_file = channel
+        .fromList(samplesheet_rows.collect { row -> row[0] }.unique { meta -> meta.id })
+        .collectFile(name: 'samplesheet.csv', seed: 'sample,condition', sort: 'index', newLine: true) { meta ->
+            "${meta.id},${meta.condition}"
+        }
+        .first()
 
     //
     // Create channel from the contrasts file provided through params.contrasts
@@ -211,8 +186,8 @@ workflow PIPELINE_INITIALISATION {
         .first()
 
     emit:
-    samplesheet        = ch_samplesheet                                      // channel: [ val(meta), [ files ] ]
-    samplesheet_file   = channel.value(file(input, checkIfExists: true))     // channel: path(samplesheet.csv)
+    samplesheet        = ch_samplesheet                                      // channel: [ val(meta), [ fastq ], genome_bam, transcriptome_bam, salmon_results ], absent inputs null
+    samplesheet_file   = ch_samplesheet_file                                 // channel: path(samplesheet.csv), with the sample, condition header, one row per sample
     contrastsheet      = ch_contrastsheet                                    // channel: [ contrast, treatment, control ]
     contrastsheet_file = ch_contrastsheet_file                               // channel: path(contrastsheet.csv), with the contrast, treatment, control header
     versions           = ch_versions
@@ -341,54 +316,116 @@ def validateInputParameters() {
         error("Please provide an input samplesheet to the pipeline e.g. '--input samplesheet.csv'")
     }
 
-    // ASpli reads genome BAM files, which only the STAR alignment or a genome BAM
-    // samplesheet provide
-    if (params.aspli && !(params.source == 'genome_bam' || (params.source == 'fastq' && !params.skip_alignment))) {
-        error("--aspli needs genome BAM files: use '--source genome_bam', or '--source fastq' without '--skip_alignment'.")
+    if (params.source) {
+        log.warn("The '--source' parameter is deprecated and ignored: the input type is worked out from the samplesheet columns. It will be removed in a future release.")
     }
 }
 
 //
-// Schema the input samplesheet is validated against, selected from --source
+// Which input types the samplesheet gives, from the columns that are filled. Methods
+// compare the samples of a contrast, so a column is filled for every sample or for none
 //
-// Each source declares a different set of columns, so there is one schema per source.
-// Every place that reads the samplesheet goes through this function, so a samplesheet
-// can never be accepted by one consumer and rejected by another.
-//
-def samplesheetSchema(source) {
-    def source_schemas = [
-        fastq:             "${projectDir}/assets/schema_input.json",
-        genome_bam:        "${projectDir}/assets/schema_input_genome_bam.json",
-        transcriptome_bam: "${projectDir}/assets/schema_input_transcriptome_bam.json",
-        salmon_results:    "${projectDir}/assets/schema_input_salmon_results.json",
-    ]
+def getSamplesheetInputTypes(samplesheet_rows) {
+    def columns = [ fastq: [1, 'fastq_1'], genome_bam: [3, 'genome_bam'], transcriptome_bam: [4, 'transcriptome_bam'], salmon_results: [5, 'salmon_results'] ]
+    def samples = samplesheet_rows.collect { row -> row[0].id }.unique()
 
-    if (!source_schemas.containsKey(source)) {
-        error("Invalid --source parameter: '${source}'. Must be one of: ${source_schemas.keySet().join(', ')}")
+    def input_types = columns.collectEntries { input_type, column ->
+        def (index, name) = column
+        def samples_with = samplesheet_rows.findAll { row -> row[index] }.collect { row -> row[0].id }.unique()
+        def samples_without = samples - samples_with
+        if (samples_with && samples_without) {
+            error("Please check input samplesheet -> The '${name}' column must be filled for every sample or for none, as the samples of a contrast are compared with each other. It is empty for: ${samples_without.join(', ')}")
+        }
+        return [ (input_type): samples_with as boolean ]
     }
 
-    return source_schemas[source]
+    if (!input_types.any { _input_type, given -> given }) {
+        error("Please check input samplesheet -> Each sample needs at least one of the 'fastq_1', 'genome_bam', 'transcriptome_bam' or 'salmon_results' columns.")
+    }
+    if (input_types.transcriptome_bam && input_types.salmon_results) {
+        error("Please check input samplesheet -> The 'transcriptome_bam' and 'salmon_results' columns cannot both be given, as either one is quantified for the transcript level analyses.")
+    }
+
+    return input_types
+}
+
+//
+// Input types of the samplesheet at --input, for the callers that need them as values
+// to decide which steps run
+//
+def samplesheetInputRoutes(input) {
+    return getInputRoutes(getSamplesheetInputTypes(samplesheetToList(input, "${projectDir}/assets/schema_input.json")))
+}
+
+//
+// How each part of the pipeline gets its input. A BAM file or Salmon result given in the
+// samplesheet is used instead of making it from the FASTQ files, which are only processed
+// for what nothing else in the samplesheet provides
+//
+def getInputRoutes(input_types) {
+    def star = input_types.fastq && !input_types.genome_bam && !params.skip_alignment && params.aligner in ['star', 'star_salmon']
+    def star_salmon = input_types.transcriptome_bam || (star && params.aligner == 'star_salmon')
+    def pseudo_salmon = input_types.fastq && !input_types.transcriptome_bam && !input_types.salmon_results && params.pseudo_aligner == 'salmon'
+
+    return [
+        input_types:    input_types,
+        fastq:          star || pseudo_salmon,                 // FASTQ files are trimmed and quality checked
+        star:           star,                                  // FASTQ files are aligned with STAR
+        genome:         input_types.genome_bam || star,        // genome BAM files reach the exon and junction methods
+        star_salmon:    star_salmon,                           // transcriptome BAM files are quantified with Salmon
+        pseudo_salmon:  pseudo_salmon,                         // FASTQ files are quantified with Salmon
+        salmon_results: input_types.salmon_results as boolean, // Salmon results are taken from the samplesheet
+    ]
+}
+
+//
+// Check that the input routes can run the methods asked for
+//
+def validateInputRoutes(input_routes) {
+    if (input_routes.input_types.fastq && !input_routes.fastq) {
+        log.info("The FASTQ files of the samplesheet are not used: BAM files or Salmon results are given for every analysis that would use them.")
+    }
+
+    // ASpli reads genome BAM files, which only the STAR alignment or a genome BAM column provide
+    if (params.aspli && !input_routes.genome) {
+        error("--aspli needs genome BAM files: give a 'genome_bam' samplesheet column, or FASTQ files without '--skip_alignment'.")
+    }
 }
 
 //
 // Validate channels from input samplesheet
 //
 def validateInputSamplesheet(input) {
-    def (metas, fastqs) = input[1..2]
+    def (metas, fastqs, genome_bams, transcriptome_bams, salmon_results) = input[1..5]
+    def sample = metas[0].id
 
     // Check that multiple runs of the same sample are of the same strandedness
     def strandedness_ok = metas.collect { meta -> meta.strandedness }.unique().size == 1
     if (!strandedness_ok) {
-        error("Please check input samplesheet -> Multiple runs of a sample must have the same strandedness: ${metas[0].id}")
+        error("Please check input samplesheet -> Multiple runs of a sample must have the same strandedness: ${sample}")
     }
 
     // Check that multiple runs of the same sample are of the same datatype i.e. single-end / paired-end
     def endedness_ok = metas.collect { meta -> meta.single_end }.unique().size == 1
     if (!endedness_ok) {
-        error("Please check input samplesheet -> Multiple runs of a sample must be of the same datatype i.e. single-end or paired-end: ${metas[0].id}")
+        error("Please check input samplesheet -> Multiple runs of a sample must be of the same datatype i.e. single-end or paired-end: ${sample}")
     }
 
-    return [metas[0], fastqs]
+    if (metas.collect { meta -> meta.condition }.unique().size() > 1) {
+        error("Please check input samplesheet -> Multiple rows of a sample must have the same condition: ${sample}")
+    }
+
+    if (fastqs.any { run -> run } && !fastqs.every { run -> run }) {
+        error("Please check input samplesheet -> Multiple rows of a sample must all have FASTQ files or none: ${sample}")
+    }
+
+    [ genome_bam: genome_bams, transcriptome_bam: transcriptome_bams, salmon_results: salmon_results ].each { column, values ->
+        if (values.collect { value -> value?.toString() }.unique().size() > 1) {
+            error("Please check input samplesheet -> Multiple rows of a sample must give the same '${column}': ${sample}")
+        }
+    }
+
+    return [ metas[0], fastqs.flatten(), genome_bams[0], transcriptome_bams[0], salmon_results[0] ]
 }
 
 //
@@ -579,7 +616,7 @@ def skipAlignmentWarn() {
 //
 def rmatsReadError(samples) {
     samples
-        .map { meta, _files -> meta.single_end }
+        .map { row -> row[0].single_end }
         .unique()
         .collect()
         .map {
@@ -594,7 +631,7 @@ def rmatsReadError(samples) {
 //
 def rmatsStrandednessError(samples) {
     samples
-        .map { meta, _files -> meta.strandedness }
+        .map { row -> row[0].strandedness }
         .unique()
         .collect()
         .map {
@@ -641,7 +678,7 @@ def getSamtoolsStatsMedianReadLength(samples_stats) {
 //
 def aspliReadError(samples) {
     samples
-        .map { meta, _files -> meta.single_end }
+        .map { row -> row[0].single_end }
         .unique()
         .collect()
         .map {
