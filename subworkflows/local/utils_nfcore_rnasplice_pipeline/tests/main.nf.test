@@ -27,6 +27,12 @@ nextflow_workflow {
             "${sample},${condition},${testdata}${sample}.Aligned.out.bam\n"
         }.join()
 
+        // Quoted column names, as spreadsheet tools write them
+        def genome_bam_blocking = new File("${launchDir}/samplesheet_genome_bam_blocking.csv")
+        genome_bam_blocking.text = '"sample","condition","batch","genome_bam"\n' + samples.collect { sample, condition ->
+            "${sample},${condition},1,${testdata}${sample}.Aligned.out.bam\n"
+        }.join()
+
         def transcriptome_bam = new File("${launchDir}/samplesheet_transcriptome_bam_optional_columns.csv")
         transcriptome_bam.text = "sample,condition,strandedness,single_end,genome_bam,transcriptome_bam\n" + samples.collect { sample, condition ->
             "${sample},${condition},forward,true,${testdata}${sample}.Aligned.out.bam,${testdata}${sample}.Aligned.toTranscriptome.out.bam\n"
@@ -64,7 +70,7 @@ nextflow_workflow {
         def contrasts = [
             'contrastsheet_legacy.csv'         : "contrast,treatment,control\nGBR-YRI,GBR,YRI\n",
             'contrastsheet_new.csv'            : "id,variable,reference,target\nGBR-YRI,condition,YRI,GBR\n",
-            'contrastsheet_new_blocking.csv'   : "id,variable,reference,target,blocking\nGBR-YRI,condition,YRI,GBR,batch\n",
+            'contrastsheet_new_blocking.csv'   : "id,variable,reference,target,blocking\nGBR-YRI,condition,YRI,GBR,batch\nYRI-GBR,condition,GBR,YRI,NA\n",
             'contrastsheet_mixed.csv'          : "id,variable,reference,treatment\nGBR-YRI,condition,YRI,GBR\n",
             'contrastsheet_variable.csv'       : "id,variable,reference,target\nGBR-YRI,batch,YRI,GBR\n",
             'contrastsheet_missing_target.csv' : "id,variable,reference,target\nGBR-YRI,condition,YRI,\n",
@@ -130,8 +136,7 @@ nextflow_workflow {
                 { assert workflow.out.samplesheet.size() == 4 },
                 { assert workflow.out.samplesheet.every { row -> row[0].strandedness == 'unstranded' } },
                 { assert workflow.out.samplesheet.every { row -> !row[0].single_end } },
-                // The modules reading the sheet get the sample and condition only
-                { assert new File(workflow.out.samplesheet_file[0].toString()).readLines() == [ 'sample,condition', 'ERR188383,GBR', 'ERR188428,GBR', 'ERR188454,YRI', 'ERR204916,YRI' ] }
+                { assert workflow.out.samplesheet_file[0].toString().endsWith('samplesheet_genome_bam.csv') }
             )
         }
 
@@ -196,7 +201,7 @@ nextflow_workflow {
                 // Both runs of ERR188383 are kept for concatenation, its BAM files once
                 { assert workflow.out.samplesheet.find { row -> row[0].id == 'ERR188383' }[1].size() == 4 },
                 { assert workflow.out.samplesheet.every { row -> row[2].endsWith('.Aligned.out.bam') && row[3].endsWith('.Aligned.toTranscriptome.out.bam') && row[4] == null } },
-                { assert new File(workflow.out.samplesheet_file[0].toString()).readLines() == [ 'sample,condition', 'ERR188383,GBR', 'ERR188428,GBR', 'ERR188454,YRI', 'ERR204916,YRI' ] }
+                { assert workflow.out.samplesheet_file[0].toString().endsWith('samplesheet_rnaseq_bams.csv') }
             )
         }
 
@@ -436,7 +441,40 @@ nextflow_workflow {
 
     }
 
-    test("contrastsheet - blocking is ignored") {
+    test("contrastsheet - blocking is passed on") {
+
+        when {
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = "${outputDir}"
+                input[5] = "${launchDir}/samplesheet_genome_bam_blocking.csv"
+                input[6] = 'genome_bam'
+                input[7] = "${launchDir}/contrastsheet_new_blocking.csv"
+                input[8] = false
+                input[9] = false
+                input[10] = false
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                // An NA blocking value means no blocking, as in nf-core/differentialabundance
+                { assert workflow.out.contrastsheet == [
+                    [ contrast: 'GBR-YRI', treatment: 'GBR', control: 'YRI', blocking: 'batch' ],
+                    [ contrast: 'YRI-GBR', treatment: 'YRI', control: 'GBR' ]
+                ] }
+            )
+        }
+
+    }
+
+    test("contrastsheet - blocking column missing from the samplesheet fails") {
 
         when {
             workflow {
@@ -457,9 +495,8 @@ nextflow_workflow {
 
         then {
             assertAll(
-                { assert workflow.success },
-                // The blocking column is ignored, with a warning in the Nextflow log
-                { assert workflow.out.contrastsheet[0] == [ contrast: 'GBR-YRI', treatment: 'GBR', control: 'YRI' ] }
+                { assert workflow.failed },
+                { assert (workflow.stdout + workflow.stderr).any { line -> line.contains("Contrast 'GBR-YRI': blocking columns missing from the samplesheet: batch") } }
             )
         }
 
