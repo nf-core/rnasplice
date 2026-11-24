@@ -51,6 +51,7 @@ params {
     star_index: String? = getGenomeAttribute('star')
     salmon_index: String? = getGenomeAttribute('salmon')
     star_ignore_sjdbgtf: Boolean
+    max_intron_length: Integer?
     skip_alignment: Boolean
     save_unaligned: Boolean
     save_align_intermeds: Boolean
@@ -99,12 +100,15 @@ params {
 
     // Leafcutter
     leafcutter: Boolean
-    leafcutter_max_intron_len: Integer = 500000
+    leafcutter_max_intron_len: Integer?
     leafcutter_min_cluster_reads: Integer = 10
     leafcutter_min_cluster_ratio: Float = 0.001
     leafcutter_ds_min_samples_per_intron: Integer = 5
     leafcutter_ds_min_samples_per_group: Integer = 3
     leafcutter_ds_min_coverage: Integer = 20
+
+    // ASpli
+    aspli_max_intron_len: Integer?
 
     // DRIMSeq Filtering
     min_samps_feature_expr: Integer = 2
