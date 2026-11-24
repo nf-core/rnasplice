@@ -32,7 +32,7 @@ include { rmatsStrandednessError                                          } from
 include { getSamtoolsStatsMedianReadLength                                } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
 include { aspliReadError                                                  } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
 include { multiqcTsvFromList                                              } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
-include { paramsSummaryMultiqc                                            } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { paramsSummaryMultiqc                                            } from 'plugin/nf-core-utils'
 include { methodsDescriptionText                                          } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
 
 
@@ -49,13 +49,12 @@ include { SALMON_QUANT as SALMON_QUANT_STAR_AUTO                          } from
 include { MULTIQC                                                         } from '../modules/nf-core/multiqc/'
 include { EAUTILS_GTF2BED                                                 } from '../modules/nf-core/ea-utils/gtf2bed'
 include { RSEQC_INFEREXPERIMENT                                           } from '../modules/nf-core/rseqc/inferexperiment'
-include { CUSTOM_DUMPSOFTWAREVERSIONS                                     } from '../modules/nf-core/custom/dumpsoftwareversions'
 include { CAT_FASTQ                                                       } from '../modules/nf-core/cat/fastq'
 include { FASTQ_FASTQC_UMITOOLS_TRIMGALORE                                } from '../subworkflows/nf-core/fastq_fastqc_umitools_trimgalore'
 include { BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG as BEDGRAPH_TO_BIGWIG_FORWARD } from '../subworkflows/nf-core/bedgraph_bedclip_bedgraphtobigwig/main'
 include { BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG as BEDGRAPH_TO_BIGWIG_REVERSE } from '../subworkflows/nf-core/bedgraph_bedclip_bedgraphtobigwig/main'
 include { BAM_SORT_STATS_SAMTOOLS                                         } from '../subworkflows/nf-core/bam_sort_stats_samtools/main'
-include { softwareVersionsToYAML                                          } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { collectVersions                                                 } from 'plugin/nf-core-utils'
 include { paramsSummaryMap                                                } from 'plugin/nf-schema'
 
 /*
@@ -86,7 +85,6 @@ workflow RNASPLICE {
 
     main:
 
-    def ch_versions = channel.empty()
     def ch_multiqc_files = channel.empty()
     def pass_trimmed_reads = [:]
     def ch_rseqc_txt = channel.empty()
@@ -673,25 +671,11 @@ workflow RNASPLICE {
     // REPORTING LAYER & VERSION COLLATOR SYNC
     // ====================================================================
 
-    def topic_versions = channel.topic("versions")
-        .distinct()
-        .branch { entry ->
-            versions_file: entry instanceof Path
-            versions_tuple: true
-        }
-
-    def topic_versions_string = topic_versions.versions_tuple
-        .map { process, tool, version ->
-            [ process[process.lastIndexOf(':')+1..-1], "  ${tool}: ${version}" ]
-        }
-        .groupTuple(by:0)
-        .map { process, tool_versions ->
-            tool_versions.unique().sort()
-            "${process}:\n${tool_versions.join('\n')}"
-        }
-
-    def ch_collated_versions = softwareVersionsToYAML(ch_versions.mix(topic_versions.versions_file))
-        .mix(topic_versions_string)
+    def ch_collated_versions = channel.topic('versions')
+        // Read via Nextflow's Path API so remote work directories remain supported.
+        .map { entry -> entry instanceof Path ? entry.text : entry }
+        .toList()
+        .map { versions -> collectVersions(versions, workflow.nextflow.version) }
         .collectFile(
             storeDir: "${outdir}/pipeline_info",
             name: 'nf_core_'  +  'rnasplice_software_'  + 'mqc_'  + 'versions.yml',
@@ -765,5 +749,4 @@ workflow RNASPLICE {
     )
     emit:
     multiqc_report = MULTIQC.out.report.map { _meta, report -> [report] }.toList() // channel: /path/to/multiqc_report.html
-    versions       = ch_versions // channel: [ path(versions.yml) ]
 }

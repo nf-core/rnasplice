@@ -9,6 +9,8 @@
 ----------------------------------------------------------------------------------------
 */
 
+include { getGenomeAttribute } from 'plugin/nf-core-utils'
+
 params {
 
     // Input options
@@ -172,6 +174,7 @@ params {
     email: String?
     email_on_fail: String?
     plaintext_email: Boolean
+    force_completion_email: Boolean = false
     help: Boolean
     help_full: Boolean
     show_hidden: Boolean
@@ -303,22 +306,4 @@ workflow {
         params.monochrome_logs,
         NFCORE_RNASPLICE.out.multiqc_report
     )
-}
-
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    FUNCTIONS
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
-
-//
-// Get attribute from genome config file e.g. fasta
-//
-def getGenomeAttribute(attribute) {
-    if (params.genomes && params.genome && params.genomes.containsKey(params.genome)) {
-        if (params.genomes[params.genome].containsKey(attribute)) {
-            return params.genomes[params.genome][attribute]
-        }
-    }
-    return null
 }

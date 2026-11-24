@@ -3,7 +3,7 @@
         "content": [
             {
                 "CREATEBAMLIST": {
-                    "sed": 4.9
+                    "sed": "4.9"
                 },
                 "DEXSEQ_COUNT": {
                     "bioconductor-dexseq": "1.56.0",
@@ -40,7 +40,7 @@
                     "python": "3.14.6"
                 },
                 "GUNZIP_FASTA": {
-                    "gunzip": 1.13
+                    "gunzip": "1.13"
                 },
                 "MAKE_TRANSCRIPTS_FASTA": {
                     "rsem": "1.3.1",
@@ -62,7 +62,7 @@
                     "python": "3.14.6"
                 },
                 "RMATS_POST": {
-                    "pairadise": 1.0,
+                    "pairadise": "1.0",
                     "rmats": "4.3.0"
                 },
                 "RMATS_PREP": {
@@ -72,22 +72,22 @@
                     "rseqc": "5.0.4"
                 },
                 "SAMTOOLS_FAIDX": {
-                    "samtools": 1.24
+                    "samtools": "1.24"
                 },
                 "SAMTOOLS_FLAGSTAT": {
-                    "samtools": 1.24
+                    "samtools": "1.24"
                 },
                 "SAMTOOLS_IDXSTATS": {
-                    "samtools": 1.24
+                    "samtools": "1.24"
                 },
                 "SAMTOOLS_INDEX": {
-                    "samtools": 1.24
+                    "samtools": "1.24"
                 },
                 "SAMTOOLS_SORT": {
-                    "samtools": 1.24
+                    "samtools": "1.24"
                 },
                 "SAMTOOLS_STATS": {
-                    "samtools": 1.24
+                    "samtools": "1.24"
                 },
                 "SUBREAD_FEATURECOUNTS": {
                     "subread": "2.1.1"
@@ -746,10 +746,10 @@
                 "ERR204916_sorted.bam": "46024b92c7c6c2a2883ad998f41b46b9"
             }
         ],
-        "timestamp": "2026-11-23T17:07:53.883611394",
+        "timestamp": "2026-11-24T12:36:51.649180349",
         "meta": {
-            "nf-test": "0.9.5",
-            "nextflow": "26.04.4"
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
         }
     }
 }
