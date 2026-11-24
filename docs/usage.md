@@ -138,14 +138,14 @@ nf-core/rnaseq writes a samplesheet listing the BAM files of each sample when it
 ```bash
 nextflow run nf-core/rnaseq \
     --input samplesheet.csv \
-    --outdir rnaseq_results \
+    --outdir $PWD/rnaseq_results \
     --aligner star_salmon \
     --save_align_intermeds \
     --save_reference \
     -profile docker
 ```
 
-Add a `condition` column to `rnaseq_results/samplesheets/samplesheet_with_bams.csv` and give it to rnasplice with the references of the rnaseq run:
+Add a `condition` column to `rnaseq_results/samplesheets/samplesheet_with_bams.csv` and give it to rnasplice with the references of the rnaseq run. nf-core/rnaseq writes the BAM paths relative to its `--outdir`, so give it an absolute path as above, or run rnasplice from the directory nf-core/rnaseq was run from.
 
 ```bash
 nextflow run nf-core/rnasplice \
