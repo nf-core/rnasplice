@@ -32,7 +32,7 @@
                     "python": "3.14.6"
                 },
                 "GUNZIP_FASTA": {
-                    "gunzip": 1.13
+                    "gunzip": "1.13"
                 },
                 "MAKE_TRANSCRIPTS_FASTA": {
                     "rsem": "1.3.1",
@@ -45,22 +45,22 @@
                     "salmon": "1.10.3"
                 },
                 "SAMTOOLS_FAIDX": {
-                    "samtools": 1.24
+                    "samtools": "1.24"
                 },
                 "SAMTOOLS_FLAGSTAT": {
-                    "samtools": 1.24
+                    "samtools": "1.24"
                 },
                 "SAMTOOLS_IDXSTATS": {
-                    "samtools": 1.24
+                    "samtools": "1.24"
                 },
                 "SAMTOOLS_INDEX": {
-                    "samtools": 1.24
+                    "samtools": "1.24"
                 },
                 "SAMTOOLS_SORT": {
-                    "samtools": 1.24
+                    "samtools": "1.24"
                 },
                 "SAMTOOLS_STATS": {
-                    "samtools": 1.24
+                    "samtools": "1.24"
                 },
                 "SPLITFILES_PSI": {
                     "r-base": "4.6.1"
@@ -73,27 +73,27 @@
                 },
                 "SUPPA_CLUSTEREVENTS": {
                     "statsmodels": "0.14.6",
-                    "suppa": 2.4
+                    "suppa": "2.4"
                 },
                 "SUPPA_DIFFSPLICE": {
                     "statsmodels": "0.14.6",
-                    "suppa": 2.4
+                    "suppa": "2.4"
                 },
                 "SUPPA_GENERATEEVENTS_IOE": {
                     "statsmodels": "0.14.6",
-                    "suppa": 2.4
+                    "suppa": "2.4"
                 },
                 "SUPPA_GENERATEEVENTS_IOI": {
                     "statsmodels": "0.14.6",
-                    "suppa": 2.4
+                    "suppa": "2.4"
                 },
                 "SUPPA_PSIPEREVENT": {
                     "statsmodels": "0.14.6",
-                    "suppa": 2.4
+                    "suppa": "2.4"
                 },
                 "SUPPA_PSIPERISOFORM": {
                     "statsmodels": "0.14.6",
-                    "suppa": 2.4
+                    "suppa": "2.4"
                 },
                 "TXIMPORT": {
                     "bioconductor-tximeta": "1.28.2",
@@ -401,10 +401,10 @@
                 "ERR204916_sorted.bam": "7e7f9ebdb3ed2f2452bf794352625e9f"
             }
         ],
-        "timestamp": "2026-11-23T09:03:26.971396674",
+        "timestamp": "2026-11-24T12:44:14.466191222",
         "meta": {
-            "nf-test": "0.9.5",
-            "nextflow": "26.04.3"
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
         }
     }
 }
