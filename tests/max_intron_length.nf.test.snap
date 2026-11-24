@@ -16,6 +16,9 @@
                 "GENEANNOTATION_TABLES": {
                     "python": "3.14.6"
                 },
+                "GFFREAD_TX2GENE": {
+                    "gffread": "0.12.7"
+                },
                 "GTFGENEFILTER": {
                     "python": "3.14.6"
                 },
@@ -76,7 +79,7 @@
             1524,
             "aspli.settings.tsv:md5,fc077b38061bf208520ce5c02069b4cd"
         ],
-        "timestamp": "2026-11-23T15:33:12.994546085",
+        "timestamp": "2026-11-24T12:15:29.813054401",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.3"
