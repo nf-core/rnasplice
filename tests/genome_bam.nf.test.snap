@@ -33,6 +33,9 @@
                 "GFFREAD_GTF2GFF3": {
                     "gffread": "0.12.7"
                 },
+                "GFFREAD_TX2GENE": {
+                    "gffread": "0.12.7"
+                },
                 "GTFGENEFILTER": {
                     "python": "3.14.6"
                 },
@@ -743,10 +746,10 @@
                 "ERR204916_sorted.bam": "46024b92c7c6c2a2883ad998f41b46b9"
             }
         ],
-        "timestamp": "2026-11-23T08:59:32.223943396",
+        "timestamp": "2026-11-23T17:07:53.883611394",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.3"
+            "nextflow": "26.04.4"
         }
     }
 }

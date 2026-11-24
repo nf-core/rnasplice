@@ -20,11 +20,20 @@ nextflow_workflow {
     // The test-datasets have no SUPPA TPM table, so it is built from the Salmon results
     // of two GBR and two YRI samples of the pipeline test data, as the pipeline does
     setup {
+        run("GFFREAD_TX2GENE") {
+            script '../../../../modules/local/gffread/tx2gene/main.nf'
+            process {
+            """
+            input[0] = file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
+            """
+            }
+        }
+
         run("GENEANNOTATION_TABLES") {
             script '../../../../modules/local/geneannotation/tables/main.nf'
             process {
             """
-            input[0] = [ [ id:'genes_chrX' ], file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true) ]
+            input[0] = GFFREAD_TX2GENE.out.tx2gene.map { tx2gene -> [ [ id:'genes_chrX' ], tx2gene ] }
             """
             }
         }
@@ -39,7 +48,7 @@ nextflow_workflow {
                     [ [ id:'ERR188454' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454.tar.gz', checkIfExists: true) ],
                     [ [ id:'ERR204916' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916.tar.gz', checkIfExists: true) ],
                 )
-                input[1] = file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
+                input[1] = GFFREAD_TX2GENE.out.tx2gene
                 """
             }
         }

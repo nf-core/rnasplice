@@ -9,6 +9,7 @@ nextflow_process {
     tag "modules_local"
     tag "geneannotation"
     tag "geneannotation/tables"
+    tag "gffread/tx2gene"
 
     setup {
         // An Ensembl gene with a name, a GENCODE gene with `gene_type` and a versioned ID,
@@ -24,6 +25,25 @@ nextflow_process {
             exon('ENSG00000000005.6', 'ENST00000000003.2', 'gene_name "TNMD"; gene_type "protein_coding";'),
             exon('ENSG00000000001', 'ENST00000000004', 'exon_number "1";'),
         ].join('\n') + '\n'
+
+        // The module reads the transcript table gffread writes, as in the pipeline
+        run("GFFREAD_TX2GENE") {
+            script '../../../gffread/tx2gene/main.nf'
+            process {
+                """
+                input[0] = file("${outputDir}/genes.gtf", checkIfExists: true)
+                """
+            }
+        }
+
+        run("GFFREAD_TX2GENE", alias: "GFFREAD_TX2GENE_CHRX") {
+            script '../../../gffread/tx2gene/main.nf'
+            process {
+                """
+                input[0] = file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
+                """
+            }
+        }
     }
 
     test("gtf") {
@@ -31,7 +51,7 @@ nextflow_process {
         when {
             process {
                 """
-                input[0] = [ [ id:'genes' ], file("${outputDir}/genes.gtf", checkIfExists: true) ]
+                input[0] = GFFREAD_TX2GENE.out.tx2gene.map { tx2gene -> [ [ id:'genes' ], tx2gene ] }
                 """
             }
         }
@@ -63,10 +83,7 @@ nextflow_process {
         when {
             process {
                 """
-                input[0] = [
-                    [ id:'genes_chrX' ],
-                    file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true),
-                ]
+                input[0] = GFFREAD_TX2GENE_CHRX.out.tx2gene.map { tx2gene -> [ [ id:'genes_chrX' ], tx2gene ] }
                 """
             }
         }
@@ -87,7 +104,7 @@ nextflow_process {
         when {
             process {
                 """
-                input[0] = [ [ id:'genes' ], file("${outputDir}/genes.gtf", checkIfExists: true) ]
+                input[0] = GFFREAD_TX2GENE.out.tx2gene.map { tx2gene -> [ [ id:'genes' ], tx2gene ] }
                 """
             }
         }

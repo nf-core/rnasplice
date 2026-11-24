@@ -553,9 +553,9 @@ If [IsoformSwitchAnalyzeR](https://www.bioconductor.org/packages/release/bioc/ht
 
 Most results tables identify genes by their ID only. The pipeline writes the gene name and biotype of every gene of the GTF to `annotation/` on every run, and writes a copy of the DEXSeq (DEU and DTU), stageR, edgeR and SUPPA dPSI tables with the gene name and biotype right after the gene ID column. These copies end in `.annotated.tsv`, or `.annotated.csv` for the edgeR tables, and sit next to the tables they are made from, which are left as they are. The count, TPM and PSI matrices are not annotated, so that they keep one ID column.
 
-A gene with no `gene_name` in the GTF is named by its gene ID, and the biotype is read from `gene_biotype` (Ensembl) or `gene_type` (GENCODE). The attributes the gene ID and name are read from follow `--gtf_group_features` and `--gtf_extra_attributes`. In the annotated copies:
+The tables are made from the gffread transcript table of the GTF, the same one tximport uses. A gene with no `gene_name` in the GTF is named by its gene ID, and the biotype is read from `gene_biotype` (Ensembl) or `gene_type` (GENCODE). The attributes the gene ID and name are read from follow `--gtf_group_features` and `--gtf_extra_attributes`. In the annotated copies:
 
-- Genes that DEXSeq aggregates (`ENSG00000147140+ENSG00000255591`) or SUPPA pools (`ENSG00000147140_and_ENSG00000255591`) get their names joined in the same way (`NONO+AL590762.1`).
+- Genes that DEXSeq aggregates (`ENSG00000147140+ENSG00000255591`) or SUPPA pools (`ENSG00000147140_and_ENSG00000255591`) get their names joined with the same separator (`NONO+AL590762.1`, `NONO_and_AL590762.1`).
 - A gene ID that only differs from the GTF in its version suffix (`ENSG00000004961.15`) still gets its name.
 - A gene that is not in the GTF gets `NA`, and every row of the table is kept.
 

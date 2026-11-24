@@ -29,7 +29,10 @@ output:
   tx2gene:
     - "*.tx2gene.tsv":
         type: file
-        description: Tab-separated transcript-to-gene mapping table
+        description: |
+          Tab-separated transcript table with no header. By default the columns are
+          transcript ID, gene ID, gene name, `gene_biotype` and `gene_type`, with `.`
+          for a missing attribute
         pattern: "*.{tx2gene.tsv}"
         ontologies:
           - edam: "http://edamontology.org/format_3475" # TSV
