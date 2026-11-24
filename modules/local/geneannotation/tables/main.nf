@@ -8,7 +8,7 @@ process GENEANNOTATION_TABLES {
         'community.wave.seqera.io/library/python:3.14.6--aa65261f82da0547' }"
 
     input:
-    tuple val(meta), path(gtf)
+    tuple val(meta), path(tx2gene) // tx2gene: gffread table of transcript_id, gene_id, gene_name, gene_biotype and gene_type, as GFFREAD_TX2GENE writes it
 
     output:
     tuple val(meta), path("*.gene_annotation.tsv")      , emit: gene

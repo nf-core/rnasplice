@@ -18,11 +18,20 @@ nextflow_workflow {
     // (salmon.merged.txi.dtu.rds) plus the matching tximport.tx2gene.tsv
     // and samplesheet.csv, so it provides the first three subworkflow inputs
     setup {
+        run("GFFREAD_TX2GENE") {
+            script '../../../../modules/local/gffread/tx2gene/main.nf'
+            process {
+            """
+            input[0] = file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
+            """
+            }
+        }
+
         run("GENEANNOTATION_TABLES") {
             script '../../../../modules/local/geneannotation/tables/main.nf'
             process {
             """
-            input[0] = [ [ id:'genes_chrX' ], file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true) ]
+            input[0] = GFFREAD_TX2GENE.out.tx2gene.map { tx2gene -> [ [ id:'genes_chrX' ], tx2gene ] }
             """
             }
         }

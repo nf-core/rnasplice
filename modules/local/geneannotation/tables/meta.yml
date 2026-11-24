@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
 name: "geneannotation_tables"
-description: Write the gene and transcript annotation tables of a GTF file, with the
-  name and biotype of each gene
+description: Write the gene and transcript annotation tables of a gffread transcript
+  table, with the name and biotype of each gene
 keywords:
   - annotation
   - gtf
@@ -9,8 +9,8 @@ keywords:
   - genomics
 tools:
   - "python":
-      description: "Python programming language. The module uses it to read the GTF file
-        and write the annotation tables."
+      description: "Python programming language. The module uses it to read the gffread
+        transcript table and write the annotation tables."
       homepage: "https://www.python.org/"
       documentation: "https://docs.python.org/3/"
       tool_dev_url: "https://github.com/python/cpython"
@@ -23,12 +23,15 @@ input:
         description: |
           Groovy Map containing annotation information
           e.g. `[ id:'genes' ]`
-    - gtf:
+    - tx2gene:
         type: file
-        description: GTF annotation file, optionally gzipped
-        pattern: "*.{gtf,gtf.gz}"
+        description: |
+          Transcript table of the GTF, as `gffread --table` writes it, with no header and
+          the columns transcript ID, gene ID, gene name, `gene_biotype` and `gene_type`.
+          gffread writes `.` for a missing attribute
+        pattern: "*.tsv"
         ontologies:
-          - edam: "http://edamontology.org/format_2306" # GTF
+          - edam: "http://edamontology.org/format_3475" # TSV
 
 output:
   gene:
@@ -41,7 +44,7 @@ output:
           type: file
           description: |
             One row per gene, sorted by gene ID, with the columns `gene_id`, `gene_name`
-            and `gene_biotype`. A gene with no name in the GTF is named by its ID, and a
+            and `gene_biotype`. A gene with no name is named by its ID, and a
             gene with no `gene_biotype` or `gene_type` has the biotype `NA`
           pattern: "*.gene_annotation.tsv"
           ontologies:

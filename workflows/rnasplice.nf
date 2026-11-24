@@ -8,6 +8,7 @@ include { BEDTOOLS_GENOMECOV as BEDTOOLS_GENOMECOV_FORWARD                } from
 include { BEDTOOLS_GENOMECOV as BEDTOOLS_GENOMECOV_REVERSE                } from '../modules/nf-core/bedtools/genomecov'
 include { ISOFORMSWITCHANALYZER                                           } from '../modules/local/isoformswitchanalyzer'
 include { GENEANNOTATION_TABLES                                           } from '../modules/local/geneannotation/tables'
+include { GFFREAD_TX2GENE                                                 } from '../modules/local/gffread/tx2gene'
 include { ALIGN_STAR                                                      } from '../subworkflows/local/align_star'
 include { TX2GENE_TXIMPORT as TX2GENE_TXIMPORT_SALMON                     } from '../subworkflows/local/tx2gene_tximport'
 include { TX2GENE_TXIMPORT as TX2GENE_TXIMPORT_STAR_SALMON                } from '../subworkflows/local/tx2gene_tximport'
@@ -144,11 +145,21 @@ workflow RNASPLICE {
     }
 
     //
+    // MODULE: Transcript table of the GTF
+    //
+    // One gffread table with the gene ID, name and biotype of each transcript, which
+    // tximport and the annotation tables both read
+    GFFREAD_TX2GENE(ch_gtf)
+    ch_tx2gene = GFFREAD_TX2GENE.out.tx2gene
+
+    //
     // MODULE: Gene and transcript annotation tables of the GTF
     //
     // Made for every run, as a reference of the gene names, and used to write copies of
     // the results tables with the gene name next to each gene ID
-    GENEANNOTATION_TABLES(ch_gtf.map { gtf -> [[id: gtf.baseName], gtf] })
+    GENEANNOTATION_TABLES(
+        ch_gtf.combine(ch_tx2gene).map { gtf, tx2gene -> [[id: gtf.baseName], tx2gene] }
+    )
     ch_gene_annotation = GENEANNOTATION_TABLES.out.gene.first()
 
     //
@@ -502,7 +513,7 @@ workflow RNASPLICE {
             .mix(SALMON_QUANT_STAR.out.results)
             .set { ch_salmon_results }
 
-        TX2GENE_TXIMPORT_STAR_SALMON(ch_salmon_results, ch_gtf)
+        TX2GENE_TXIMPORT_STAR_SALMON(ch_salmon_results, ch_tx2gene)
         ch_tximport_tx2gene = TX2GENE_TXIMPORT_STAR_SALMON.out.tximport_tx2gene
         ch_txi_s = TX2GENE_TXIMPORT_STAR_SALMON.out.txi_s
         ch_txi_dtu = TX2GENE_TXIMPORT_STAR_SALMON.out.txi_dtu
@@ -570,10 +581,10 @@ workflow RNASPLICE {
         )
         ch_salmon_results = SALMON_QUANT_SALMON.out.results
 
-        TX2GENE_TXIMPORT_SALMON(ch_salmon_results, ch_gtf)
+        TX2GENE_TXIMPORT_SALMON(ch_salmon_results, ch_tx2gene)
     }
     else if (params.source == 'salmon_results') {
-        TX2GENE_TXIMPORT_SALMON(ch_salmon_results, ch_gtf)
+        TX2GENE_TXIMPORT_SALMON(ch_salmon_results, ch_tx2gene)
 
         // The samplesheet may point at tarballs, which TX2GENE_TXIMPORT extracts.
         // Consumers downstream need the extracted directories, not the archives
