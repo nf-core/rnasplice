@@ -244,6 +244,12 @@
                     "fa_icon": "fas fa-remove-format",
                     "hidden": true
                 },
+                "force_completion_email": {
+                    "type": "boolean",
+                    "description": "Send the completion email on Seqera Platform launches, where it is skipped by default.",
+                    "fa_icon": "fas fa-envelope",
+                    "hidden": true
+                },
                 "max_multiqc_email_size": {
                     "type": "string",
                     "description": "File size limit when attaching MultiQC reports to summary emails.",
@@ -428,6 +434,13 @@
                     "description": "When using pre-built STAR indices do not re-extract and use splice junctions from the GTF file.",
                     "fa_icon": "fas fa-ban"
                 },
+                "max_intron_length": {
+                    "type": "integer",
+                    "description": "Maximum intron length in bases, for STAR and as the default of the LeafCutter and ASpli intron limits.",
+                    "help_text": "Set it for organisms with short introns, such as Arabidopsis, where introns longer than a few kb are rare. It is passed to STAR as `--alignIntronMax` and `--alignMatesGapMax`, and is the intron limit of LeafCutter and ASpli unless `--leafcutter_max_intron_len` or `--aspli_max_intron_len` is set. When it is not set, STAR uses its default limit of about 590 kb, whatever the genome, LeafCutter uses 500 kb and ASpli 50 kb.",
+                    "minimum": 1,
+                    "fa_icon": "fas fa-ruler-horizontal"
+                },
                 "salmon_quant_libtype": {
                     "type": "string",
                     "fa_icon": "fas fa-fast-forward",
@@ -487,8 +500,8 @@
                 },
                 "leafcutter_max_intron_len": {
                     "type": "integer",
-                    "default": 500000,
                     "description": "Maximum intron length in bases for LeafCutter junction extraction and clustering (regtools `-M`, leafcutter-cluster `-l`).",
+                    "help_text": "When it is not set, it is `--max_intron_length`, or 500000 if that is not set either.",
                     "minimum": 1,
                     "fa_icon": "fas fa-ruler-horizontal"
                 },
@@ -548,6 +561,13 @@
                     "type": "integer",
                     "description": "Minimum read length given to ASpli. Estimated from the BAM files when not set.",
                     "help_text": "ASpli only counts a read over an exon-intron boundary when it overlaps the boundary by at least this many bases, so it must not be longer than the reads. When it is not set, it is the 5th percentile of the lengths of all the primary mapped reads of each BAM file, taken from the BAM file with the shortest reads.",
+                    "minimum": 1,
+                    "fa_icon": "fas fa-ruler-horizontal"
+                },
+                "aspli_max_intron_len": {
+                    "type": "integer",
+                    "description": "Maximum intron length in bases for ASpli. Junctions longer than this are not counted (gbCounts `maxISize`).",
+                    "help_text": "When it is not set, it is `--max_intron_length`, or 50000 if that is not set either.",
                     "minimum": 1,
                     "fa_icon": "fas fa-ruler-horizontal"
                 }

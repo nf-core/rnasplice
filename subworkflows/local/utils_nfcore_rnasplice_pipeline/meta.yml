@@ -10,12 +10,6 @@ keywords:
   - pipeline
   - initialise
   - completion
-components:
-  - utils_nextflow_pipeline
-  - utils_nfcore_pipeline
-  - utils_nfschema_plugin
-  - completionemail
-  - completionsummary
 input:
   - version:
       type: boolean
@@ -106,11 +100,6 @@ output:
         contrast, treatment and control header
         Structure: path(contrastsheet.csv)
       pattern: "*.csv"
-  - versions:
-      type: file
-      description: |
-        PIPELINE_INITIALISATION: channel of software versions
-      pattern: "versions.yml"
 authors:
   - "@piplus2"
 maintainers:

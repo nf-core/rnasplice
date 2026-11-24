@@ -6,7 +6,7 @@
                     "python": "3.14.6"
                 },
                 "CREATEBAMLIST": {
-                    "sed": 4.9
+                    "sed": "4.9"
                 },
                 "DEXSEQ_COUNT": {
                     "bioconductor-dexseq": "1.56.0",
@@ -57,7 +57,7 @@
                     "python": "3.14.6"
                 },
                 "GUNZIP_FASTA": {
-                    "gunzip": 1.13
+                    "gunzip": "1.13"
                 },
                 "ISOFORMSWITCHANALYZER": {
                     "bioconductor-isoformswitchanalyzer": "2.12.0",
@@ -86,7 +86,7 @@
                     "python": "3.14.6"
                 },
                 "RMATS_POST": {
-                    "pairadise": 1.0,
+                    "pairadise": "1.0",
                     "rmats": "4.3.0"
                 },
                 "RMATS_PREP": {
@@ -102,22 +102,22 @@
                     "salmon": "1.10.3"
                 },
                 "SAMTOOLS_FAIDX": {
-                    "samtools": 1.24
+                    "samtools": "1.24"
                 },
                 "SAMTOOLS_FLAGSTAT": {
-                    "samtools": 1.24
+                    "samtools": "1.24"
                 },
                 "SAMTOOLS_IDXSTATS": {
-                    "samtools": 1.24
+                    "samtools": "1.24"
                 },
                 "SAMTOOLS_INDEX": {
-                    "samtools": 1.24
+                    "samtools": "1.24"
                 },
                 "SAMTOOLS_SORT": {
-                    "samtools": 1.24
+                    "samtools": "1.24"
                 },
                 "SAMTOOLS_STATS": {
-                    "samtools": 1.24
+                    "samtools": "1.24"
                 },
                 "SPLITFILES_PSI": {
                     "r-base": "4.6.1"
@@ -130,12 +130,12 @@
                 },
                 "STAR_ALIGN": {
                     "gawk": "5.1.0",
-                    "samtools": 1.21,
+                    "samtools": "1.21",
                     "star": "2.7.11b"
                 },
                 "STAR_GENOMEGENERATE": {
                     "gawk": "5.1.0",
-                    "samtools": 1.21,
+                    "samtools": "1.21",
                     "star": "2.7.11b"
                 },
                 "SUBREAD_FEATURECOUNTS": {
@@ -146,27 +146,27 @@
                 },
                 "SUPPA_CLUSTEREVENTS": {
                     "statsmodels": "0.14.6",
-                    "suppa": 2.4
+                    "suppa": "2.4"
                 },
                 "SUPPA_DIFFSPLICE": {
                     "statsmodels": "0.14.6",
-                    "suppa": 2.4
+                    "suppa": "2.4"
                 },
                 "SUPPA_GENERATEEVENTS_IOE": {
                     "statsmodels": "0.14.6",
-                    "suppa": 2.4
+                    "suppa": "2.4"
                 },
                 "SUPPA_GENERATEEVENTS_IOI": {
                     "statsmodels": "0.14.6",
-                    "suppa": 2.4
+                    "suppa": "2.4"
                 },
                 "SUPPA_PSIPEREVENT": {
                     "statsmodels": "0.14.6",
-                    "suppa": 2.4
+                    "suppa": "2.4"
                 },
                 "SUPPA_PSIPERISOFORM": {
                     "statsmodels": "0.14.6",
-                    "suppa": 2.4
+                    "suppa": "2.4"
                 },
                 "TRIMGALORE": {
                     "trimgalore": "2.3.0"
@@ -1368,10 +1368,10 @@
                 "ERR204916_sorted.bam": "1f2abfcbb9697c56744ffb5fcfeb9f17"
             }
         ],
-        "timestamp": "2026-11-23T08:58:05.652307878",
+        "timestamp": "2026-11-24T12:34:20.31346967",
         "meta": {
-            "nf-test": "0.9.5",
-            "nextflow": "26.04.3"
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
         }
     }
 }

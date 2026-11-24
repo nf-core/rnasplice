@@ -9,6 +9,8 @@
 ----------------------------------------------------------------------------------------
 */
 
+include { getGenomeAttribute } from 'plugin/nf-core-utils'
+
 params {
 
     // Input options
@@ -49,6 +51,7 @@ params {
     star_index: String? = getGenomeAttribute('star')
     salmon_index: String? = getGenomeAttribute('salmon')
     star_ignore_sjdbgtf: Boolean
+    max_intron_length: Integer?
     skip_alignment: Boolean
     save_unaligned: Boolean
     save_align_intermeds: Boolean
@@ -97,12 +100,15 @@ params {
 
     // Leafcutter
     leafcutter: Boolean
-    leafcutter_max_intron_len: Integer = 500000
+    leafcutter_max_intron_len: Integer?
     leafcutter_min_cluster_reads: Integer = 10
     leafcutter_min_cluster_ratio: Float = 0.001
     leafcutter_ds_min_samples_per_intron: Integer = 5
     leafcutter_ds_min_samples_per_group: Integer = 3
     leafcutter_ds_min_coverage: Integer = 20
+
+    // ASpli
+    aspli_max_intron_len: Integer?
 
     // DRIMSeq Filtering
     min_samps_feature_expr: Integer = 2
@@ -168,6 +174,7 @@ params {
     email: String?
     email_on_fail: String?
     plaintext_email: Boolean
+    force_completion_email: Boolean = false
     help: Boolean
     help_full: Boolean
     show_hidden: Boolean
@@ -300,22 +307,4 @@ workflow {
         params.monochrome_logs,
         NFCORE_RNASPLICE.out.multiqc_report
     )
-}
-
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    FUNCTIONS
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
-
-//
-// Get attribute from genome config file e.g. fasta
-//
-def getGenomeAttribute(attribute) {
-    if (params.genomes && params.genome && params.genomes.containsKey(params.genome)) {
-        if (params.genomes[params.genome].containsKey(attribute)) {
-            return params.genomes[params.genome][attribute]
-        }
-    }
-    return null
 }
