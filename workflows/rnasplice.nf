@@ -9,8 +9,6 @@ include { BEDTOOLS_GENOMECOV as BEDTOOLS_GENOMECOV_REVERSE                } from
 include { ISOFORMSWITCHANALYZER                                           } from '../modules/local/isoformswitchanalyzer'
 include { GENEANNOTATION_TABLES                                           } from '../modules/local/geneannotation/tables'
 include { GFFREAD_TX2GENE                                                 } from '../modules/local/gffread/tx2gene'
-include { BAM_REFERENCECHECK as BAM_REFERENCECHECK_GENOME                 } from '../modules/local/bam/referencecheck'
-include { BAM_REFERENCECHECK as BAM_REFERENCECHECK_TRANSCRIPTOME          } from '../modules/local/bam/referencecheck'
 include { ALIGN_STAR                                                      } from '../subworkflows/local/align_star'
 include { TX2GENE_TXIMPORT as TX2GENE_TXIMPORT_SALMON                     } from '../subworkflows/local/tx2gene_tximport'
 include { TX2GENE_TXIMPORT as TX2GENE_TXIMPORT_STAR_SALMON                } from '../subworkflows/local/tx2gene_tximport'
@@ -34,6 +32,7 @@ include { rmatsStrandednessError                                          } from
 include { getSamtoolsStatsMedianReadLength                                } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
 include { aspliReadError                                                  } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
 include { multiqcTsvFromList                                              } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
+include { checkBamReferenceSequences                                      } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
 include { paramsSummaryMultiqc                                            } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { methodsDescriptionText                                          } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
 
@@ -53,6 +52,8 @@ include { EAUTILS_GTF2BED                                                 } from
 include { RSEQC_INFEREXPERIMENT                                           } from '../modules/nf-core/rseqc/inferexperiment'
 include { CUSTOM_DUMPSOFTWAREVERSIONS                                     } from '../modules/nf-core/custom/dumpsoftwareversions'
 include { CAT_FASTQ                                                       } from '../modules/nf-core/cat/fastq'
+include { SAMTOOLS_SPLITHEADER as SAMTOOLS_SPLITHEADER_GENOME             } from '../modules/nf-core/samtools/splitheader'
+include { SAMTOOLS_SPLITHEADER as SAMTOOLS_SPLITHEADER_TRANSCRIPTOME      } from '../modules/nf-core/samtools/splitheader'
 include { FASTQ_FASTQC_UMITOOLS_TRIMGALORE                                } from '../subworkflows/nf-core/fastq_fastqc_umitools_trimgalore'
 include { BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG as BEDGRAPH_TO_BIGWIG_FORWARD } from '../subworkflows/nf-core/bedgraph_bedclip_bedgraphtobigwig/main'
 include { BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG as BEDGRAPH_TO_BIGWIG_REVERSE } from '../subworkflows/nf-core/bedgraph_bedclip_bedgraphtobigwig/main'
@@ -239,8 +240,16 @@ workflow RNASPLICE {
     // SUBWORKFLOW: Genome BAM files from the samplesheet, checked against the genome and sorted
     //
     if (input_routes.input_types.genome_bam) {
-        BAM_REFERENCECHECK_GENOME(ch_input_genome_bam, ch_fai)
-        BAM_SORT_STATS_SAMTOOLS(BAM_REFERENCECHECK_GENOME.out.bam, ch_fasta.map { fasta -> [[:], fasta, []] })
+        SAMTOOLS_SPLITHEADER_GENOME(ch_input_genome_bam)
+        ch_checked_genome_bam = SAMTOOLS_SPLITHEADER_GENOME.out.sequences
+            .combine(ch_fai.map { _meta, fai -> fai })
+            .map { meta, sequences, fai ->
+                checkBamReferenceSequences(meta, sequences, fai, 'the genome FASTA')
+                return meta.id
+            }
+            .join(ch_input_genome_bam.map { meta, bam -> [ meta.id, meta, bam ] })
+            .map { _id, meta, bam -> [ meta, bam ] }
+        BAM_SORT_STATS_SAMTOOLS(ch_checked_genome_bam, ch_fasta.map { fasta -> [[:], fasta, []] })
 
         //
         // SUBWORKFLOW: Infer the strandedness of the samples set to 'auto' with RSeQC
@@ -286,8 +295,15 @@ workflow RNASPLICE {
     // report those
     //
     if (input_routes.input_types.transcriptome_bam) {
-        BAM_REFERENCECHECK_TRANSCRIPTOME(ch_input_transcriptome_bam, ch_transcript_fai)
-        ch_transcriptome_bam_for_salmon = BAM_REFERENCECHECK_TRANSCRIPTOME.out.bam
+        SAMTOOLS_SPLITHEADER_TRANSCRIPTOME(ch_input_transcriptome_bam)
+        ch_transcriptome_bam_for_salmon = SAMTOOLS_SPLITHEADER_TRANSCRIPTOME.out.sequences
+            .combine(ch_transcript_fai.map { _meta, fai -> fai })
+            .map { meta, sequences, fai ->
+                checkBamReferenceSequences(meta, sequences, fai, 'the transcript FASTA')
+                return meta.id
+            }
+            .join(ch_input_transcriptome_bam.map { meta, bam -> [ meta.id, meta, bam ] })
+            .map { _id, meta, bam -> [ meta, bam ] }
 
         if (!input_routes.genome) {
             BAM_SORT_STATS_SAMTOOLS_TRANSCRIPTOME(ch_transcriptome_bam_for_salmon, ch_fasta.map { fasta -> [[:], fasta, []] })

@@ -642,6 +642,41 @@ def rmatsStrandednessError(samples) {
 }
 
 //
+// Fail when the reference sequences in a BAM header, by name and length, are not all in
+// the index of the FASTA file the pipeline uses for them, as a BAM file aligned to another
+// reference would be quantified against the wrong sequences. The stub header is a
+// placeholder, so stub runs are not checked
+//
+def checkBamReferenceSequences(meta, sequences_file, fai_file, reference_name) {
+    if (workflow.stubRun) {
+        return
+    }
+
+    def reference_lengths = [:]
+    fai_file.eachLine { line ->
+        def fields = line.split('\t')
+        reference_lengths[fields[0]] = fields[1]
+    }
+
+    def bam_sequences = sequences_file.readLines().findAll { line -> line.startsWith('@SQ') }.collect { line ->
+        def tags = line.split('\t').drop(1).collectEntries { tag -> [ (tag.take(2)): tag.drop(3) ] }
+        [ name: tags.SN, length: tags.LN ]
+    }
+    if (!bam_sequences) {
+        error("The BAM file of sample '${meta.id}' has no @SQ lines in its header, so it cannot be checked against ${reference_name}.")
+    }
+
+    def mismatched = bam_sequences.findAll { sequence -> reference_lengths[sequence.name] != sequence.length }
+    if (mismatched) {
+        def examples = mismatched.take(5).collect { sequence -> "${sequence.name} (${sequence.length} bp)" }.join(', ')
+        error(
+            "The BAM file of sample '${meta.id}' was not aligned to ${reference_name}: ${mismatched.size()} of its ${bam_sequences.size()} reference sequences are missing from ${fai_file.name} or have another length, for example ${examples}. " +
+            "Give the pipeline the references the BAM files were aligned to. For BAM files from nf-core/rnaseq that is its genome FASTA and, for transcriptome BAM files, the transcript FASTA it wrote to '<outdir>/genome', given with '--transcript_fasta'."
+        )
+    }
+}
+
+//
 // Median read length of the reads of all the samples, from the read length histograms
 // ('RL' lines) of their samtools stats files, given as [ meta, stats ] pairs. rMATS takes
 // one read length per run and recommends the median when the reads vary in length.

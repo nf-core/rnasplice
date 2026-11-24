@@ -335,7 +335,8 @@ nextflow_workflow {
         then {
             assertAll(
                 { assert workflow.success },
-                { assert (workflow.stdout + workflow.stderr).any { line -> line.contains("The '--source' parameter is deprecated and ignored") } }
+                // Warnings go to the Nextflow log rather than the console
+                { assert path("${outputDir}/../meta/nextflow.log").text.contains("The '--source' parameter is deprecated and ignored") }
             )
         }
 
