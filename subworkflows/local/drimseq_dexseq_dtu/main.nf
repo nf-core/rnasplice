@@ -13,7 +13,7 @@ workflow DRIMSEQ_DEXSEQ_DTU {
     txi // path: *.txi*.rds (either txi.s.rds or txi.dtu.rds)
     tximport_tx2gene // path: tximport.tx2gene.tsv
     samplesheet // path: /path/to/samplesheet.csv
-    ch_contrastsheet // channel: [ contrast:, treatment:, control: ]
+    ch_contrastsheet // channel: [ contrast:, treatment:, control:, blocking: (when set) ]
     ch_gene_annotation // channel: [ val(meta), path(tsv) ], the gene annotation table, as a value channel
 
     main:
@@ -32,14 +32,15 @@ workflow DRIMSEQ_DEXSEQ_DTU {
     // MODULE: DEXSeq DTU
     //
 
-    // `DEXSEQ_DTU` runs once per contrast, with the contrast name as its id. DRIMSeq
+    // `DEXSEQ_DTU` runs once per contrast, with the contrast name as its id and, when
+    // set, its blocking variables, which `ext.args` passes to the module. DRIMSeq
     // filters features, not samples, so the samplesheet still describes every column of
     // the filtered count table
     ch_dexseq_dtu_input = ch_contrastsheet
         .combine(samplesheet)
         .combine(DRIMSEQ_DMFILTER.out.drimseq_counts_tsv)
         .multiMap { row, samplesheet_csv, counts_tsv ->
-            def meta = [id: row.contrast]
+            def meta = row.blocking ? [id: row.contrast, blocking: row.blocking] : [id: row.contrast]
             contrast: [meta, 'condition', row.control, row.treatment]
             counts: [meta, samplesheet_csv, counts_tsv]
         }
