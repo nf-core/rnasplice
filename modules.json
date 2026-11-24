@@ -32,12 +32,12 @@
                     },
                     "dexseq/dtu": {
                         "branch": "master",
-                        "git_sha": "6ec19c227668f806a4150248f90b34346be90310",
+                        "git_sha": "7871e1ccb9829c62f790d8c9984939859d75f69b",
                         "installed_by": ["modules"]
                     },
                     "dexseq/exon": {
                         "branch": "master",
-                        "git_sha": "7d863b147abf8128c3f5ed996ef2631ce7fe99ba",
+                        "git_sha": "7871e1ccb9829c62f790d8c9984939859d75f69b",
                         "installed_by": ["modules"]
                     },
                     "dexseq/prepareannotation": {

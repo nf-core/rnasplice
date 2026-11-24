@@ -171,15 +171,44 @@ id,variable,reference,target
 TREATMENT_CONTROL,condition,CONTROL,TREATMENT
 ```
 
-| Column      | Description                                                                                                       |
-| ----------- | ----------------------------------------------------------------------------------------------------------------- |
-| `id`        | An arbitrary identifier, unique within the contrastsheet, used to name contrast-wise output files.                |
-| `variable`  | The samplesheet column to compare. Only `condition` is supported.                                                 |
-| `reference` | The reference (base) level of the comparison, a `condition` of the samplesheet.                                   |
-| `target`    | The target level of the comparison, a `condition` of the samplesheet. Log fold changes are target over reference. |
-| `blocking`  | Optional. Accepted for compatibility with nf-core/differentialabundance, but ignored with a warning.              |
+| Column      | Description                                                                                                          |
+| ----------- | -------------------------------------------------------------------------------------------------------------------- |
+| `id`        | An arbitrary identifier, unique within the contrastsheet, used to name contrast-wise output files.                   |
+| `variable`  | The samplesheet column to compare. Only `condition` is supported.                                                    |
+| `reference` | The reference (base) level of the comparison, a `condition` of the samplesheet.                                      |
+| `target`    | The target level of the comparison, a `condition` of the samplesheet. Log fold changes are target over reference.    |
+| `blocking`  | Optional. Samplesheet columns to adjust for, separated by semicolons. See [Blocking variables](#blocking-variables). |
 
 The contrastsheet can have more columns, which are ignored.
+
+### Blocking variables
+
+The `blocking` column names samplesheet columns to adjust for in a contrast, such as batch or donor, separated by semicolons without spaces. Each contrast can have its own blocking variables, or none:
+
+```csv
+id,variable,reference,target,blocking
+TREATMENT_CONTROL,condition,CONTROL,TREATMENT,batch;donor
+```
+
+Only some methods can adjust for blocking variables. The others ignore them, and the pipeline prints a warning when the contrastsheet sets any, so take this into account when you compare results between methods:
+
+| Method                                            | Adjusts for blocking variables |
+| ------------------------------------------------- | ------------------------------ |
+| DEXSeq DEU (`--dexseq_exon`)                      | Yes                            |
+| DEXSeq DTU (`--dexseq_dtu`)                       | Yes                            |
+| edgeR DEU (`--edger_exon`)                        | No                             |
+| rMATS (`--rmats`)                                 | No                             |
+| SUPPA (`--suppa`)                                 | No                             |
+| IsoformSwitchAnalyzeR (`--isoformswitchanalyzer`) | No                             |
+| ASpli (`--aspli`)                                 | No                             |
+| LeafCutter (`--leafcutter`)                       | No                             |
+
+DEXSeq adds each blocking variable to its models as an interaction with exon, for example `~ sample + exon + batch:exon + condition:exon` against `~ sample + exon + batch:exon`. The DEXSeq log fold changes are not adjusted for the blocking variables.
+
+Blocking variables are always treated as categorical, so numeric donor IDs are not read as continuous values. Each blocking column must have a value for every sample, and the same value in every row of a sample with several sequencing runs. They are checked against the samples of each contrast:
+
+- A variable with a single value in the contrast is left out of the model, with a warning.
+- Variables confounded with `condition`, or leaving no residual degrees of freedom, stop the pipeline with an error.
 
 ### Deprecated column names
 

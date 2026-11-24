@@ -14,7 +14,7 @@ workflow DEXSEQ_DEU {
     ch_dexseq_gff // path dexseq gff, empty when `skip_annotation` is false
     skip_annotation // boolean: true when a DEXSeq annotation is supplied in `ch_dexseq_gff`
     ch_samplesheet // channel.fromPath(params.input)
-    ch_contrastsheet // channel: [ contrast:, treatment:, control: ]
+    ch_contrastsheet // channel: [ contrast:, treatment:, control:, blocking: (when set) ]
     ch_gene_annotation // channel: [ val(meta), path(tsv) ], the gene annotation table, as a value channel
 
     main:
@@ -63,13 +63,14 @@ workflow DEXSEQ_DEU {
         .map { _meta, txt -> txt }
         .toSortedList { txt_a, txt_b -> txt_a.name <=> txt_b.name }
 
-    // `DEXSEQ_EXON` runs once per contrast, with the contrast name as its id
+    // `DEXSEQ_EXON` runs once per contrast, with the contrast name as its id and, when
+    // set, its blocking variables, which `ext.args` passes to the module
     ch_dexseq_exon_input = ch_contrastsheet
         .combine(ch_samplesheet)
         .combine(ch_dexseq_clean_txt.map { txts -> [txts] })
         .combine(ch_dexseq_gff)
         .multiMap { row, samplesheet, txts, gff_meta, gff ->
-            def meta = [id: row.contrast]
+            def meta = row.blocking ? [id: row.contrast, blocking: row.blocking] : [id: row.contrast]
             contrast: [meta, 'condition', row.control, row.treatment]
             counts: [meta, samplesheet, txts]
             gff: [gff_meta, gff]
