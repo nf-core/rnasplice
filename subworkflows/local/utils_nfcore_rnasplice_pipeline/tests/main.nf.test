@@ -53,6 +53,10 @@ nextflow_workflow {
             "${sample},${condition},${testdata}${sample}.Aligned.out.bam\n"
         }.join() + "ERR188383,GBR,${testdata}ERR188428.Aligned.out.bam\n"
 
+        new File("${launchDir}/samplesheet_fastq_no_strandedness.csv").text = "sample,fastq_1,fastq_2,condition\n" + samples.collect { sample, condition ->
+            "${sample},${testdata}${sample}_chrX_1.fastq.gz,${testdata}${sample}_chrX_2.fastq.gz,${condition}\n"
+        }.join()
+
         new File("${launchDir}/samplesheet_no_input.csv").text = "sample,condition,strandedness\n" + samples.collect { sample, condition ->
             "${sample},${condition},unstranded\n"
         }.join()
@@ -305,6 +309,34 @@ nextflow_workflow {
             assertAll(
                 { assert workflow.failed },
                 { assert (workflow.stdout + workflow.stderr).any { line -> line.contains("Each sample needs at least one of") } }
+            )
+        }
+
+    }
+
+    test("FASTQ without strandedness fails") {
+
+        when {
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = "${outputDir}"
+                input[5] = "${launchDir}/samplesheet_fastq_no_strandedness.csv"
+                input[6] = params.pipelines_testdata_base_path + 'samplesheet/contrastsheet.csv'
+                input[7] = false
+                input[8] = false
+                input[9] = false
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.failed },
+                { assert (workflow.stdout + workflow.stderr).any { line -> line.contains("The 'strandedness' column must be filled for samples with FASTQ files") } }
             )
         }
 

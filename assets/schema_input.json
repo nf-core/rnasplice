@@ -67,7 +67,6 @@
                 "type": "string",
                 "errorMessage": "Strandedness must be one of 'auto', 'forward', 'reverse' or 'unstranded'",
                 "enum": ["auto", "forward", "reverse", "unstranded"],
-                "default": "unstranded",
                 "meta": ["strandedness"]
             },
             "single_end": {

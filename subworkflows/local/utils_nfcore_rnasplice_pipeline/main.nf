@@ -124,7 +124,10 @@ workflow PIPELINE_INITIALISATION {
             // A BAM file does not say whether its reads were paired, so without FASTQ
             // files that comes from the 'single_end' column, which defaults to paired end
             def single_end = fastq_1 ? !fastq_2 : (meta.single_end instanceof Boolean ? meta.single_end : false)
-            def sample_meta = [ id: meta.id, condition: meta.condition, strandedness: meta.strandedness, single_end: single_end ]
+            // BAM files and Salmon results carry no strandedness to infer from their reads, so
+            // without FASTQ files a missing value is taken as unstranded
+            def strandedness = meta.strandedness ?: 'unstranded'
+            def sample_meta = [ id: meta.id, condition: meta.condition, strandedness: strandedness, single_end: single_end ]
             return [ meta.id, sample_meta, fastqs, genome_bam ?: null, transcriptome_bam ?: null, salmon_results ?: null ]
         }
         .groupTuple()
@@ -337,6 +340,11 @@ def getSamplesheetInputTypes(samplesheet_rows) {
             error("Please check input samplesheet -> The '${name}' column must be filled for every sample or for none, as the samples of a contrast are compared with each other. It is empty for: ${samples_without.join(', ')}")
         }
         return [ (input_type): samples_with as boolean ]
+    }
+
+    def fastq_samples_without_strandedness = samplesheet_rows.findAll { row -> row[1] && !row[0].strandedness }.collect { row -> row[0].id }.unique()
+    if (fastq_samples_without_strandedness) {
+        error("Please check input samplesheet -> The 'strandedness' column must be filled for samples with FASTQ files, use 'auto' to infer it. It is empty for: ${fastq_samples_without_strandedness.join(', ')}")
     }
 
     if (!input_types.any { _input_type, given -> given }) {
