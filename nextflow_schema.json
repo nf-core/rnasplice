@@ -430,7 +430,7 @@
                 "max_intron_length": {
                     "type": "integer",
                     "description": "Maximum intron length in bases, for STAR and as the default of the LeafCutter and ASpli intron limits.",
-                    "help_text": "Set it for organisms with short introns, such as Arabidopsis, where introns longer than a few kb are rare. It is passed to STAR as `--alignIntronMax` and `--alignMatesGapMax`, and is the intron limit of LeafCutter and ASpli unless `--leafcutter_max_intron_len` or `--aspli_max_intron_len` is set. When it is not set, STAR sets its own limits from the genome size (about 590 kb for the human genome), LeafCutter uses 500 kb and ASpli 50 kb.",
+                    "help_text": "Set it for organisms with short introns, such as Arabidopsis, where introns longer than a few kb are rare. It is passed to STAR as `--alignIntronMax` and `--alignMatesGapMax`, and is the intron limit of LeafCutter and ASpli unless `--leafcutter_max_intron_len` or `--aspli_max_intron_len` is set. When it is not set, STAR uses its default limit of about 590 kb, whatever the genome, LeafCutter uses 500 kb and ASpli 50 kb.",
                     "minimum": 1,
                     "fa_icon": "fas fa-ruler-horizontal"
                 },

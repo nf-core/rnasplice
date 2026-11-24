@@ -237,7 +237,7 @@ Although [STAR](https://github.com/alexdobin/STAR) is fast, users may wish to ch
 
 ### Maximum intron length
 
-By default STAR sets the longest intron it aligns across from the size of the genome, about 590 kb for the human genome. In organisms with short introns, such as _Arabidopsis thaliana_, where introns longer than a few kb are rare, this lets STAR report spurious long introns, which then reach the splicing analyses as junctions. Set `--max_intron_length` to a length suited to the organism:
+By default STAR aligns across introns up to about 590 kb long, `(2^winBinNbits)*winAnchorDistNbins` with its default settings, whatever the genome. In organisms with short introns, such as _Arabidopsis thaliana_, where introns longer than a few kb are rare, this lets STAR report spurious long introns, which then reach the splicing analyses as junctions. Set `--max_intron_length` to a length suited to the organism:
 
 ```bash
 --max_intron_length 6000
