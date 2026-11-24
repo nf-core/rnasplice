@@ -49,8 +49,9 @@ input:
       type: map
       description: |
         The input channel containing the parsed contrastsheet, one row per contrast.
-        `DEXSEQ_EXON` runs once per contrast, with the contrast name as its id
-        Structure: [ contrast: val(contrast), treatment: val(condition), control: val(condition) ]
+        `DEXSEQ_EXON` runs once per contrast, with the contrast name as its id. The optional
+        blocking holds samplesheet columns to adjust for, separated by semicolons
+        Structure: [ contrast: val(contrast), treatment: val(condition), control: val(condition), blocking: val(columns) ]
   - ch_gene_annotation:
       type: file
       description: |

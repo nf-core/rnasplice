@@ -176,7 +176,8 @@ workflow PIPELINE_INITIALISATION {
     //
     // Both the id, variable, reference, target[, blocking] columns and the deprecated
     // contrast, treatment, control columns are accepted. Rows are normalised to the
-    // latter, which the downstream code and the modules reading the sheet use.
+    // latter, which the downstream code and the modules reading the sheet use, plus
+    // blocking when it is set.
     //
 
     // Fails early with a clear error when the contrasts file does not exist
@@ -189,14 +190,25 @@ workflow PIPELINE_INITIALISATION {
     if (contrast_metas.any { meta -> isLegacyContrastRow(meta) }) {
         log.warn("The contrastsheet columns 'contrast', 'treatment' and 'control' are deprecated and will be removed in a future release. Please use 'id', 'target' and 'reference' instead, together with a 'variable' column set to 'condition'. The columns map as contrast -> id, treatment -> target and control -> reference")
     }
-    if (contrast_metas.any { meta -> meta.blocking }) {
-        log.warn("The contrastsheet 'blocking' column is ignored, blocking factors are not supported")
-    }
 
     def contrast_rows = contrast_metas.collect { meta ->
         def contrast_row = normaliseContrastRow(meta)
         validateInputContrastsheet([[contrast_row]])
         return contrast_row
+    }
+
+    if (contrast_rows.any { row -> row.blocking }) {
+        log.warn("The contrastsheet 'blocking' column is used by DEXSeq DEU (--dexseq_exon) and DEXSeq DTU (--dexseq_dtu) only, the other methods ignore it")
+    }
+
+    // Fails before any analysis when a blocking column is not in the samplesheet, as the
+    // DEXSeq modules would only find out after the alignment and counting
+    def samplesheet_columns = file(input).readLines()[0].tokenize(',')*.trim()
+    contrast_rows.findAll { row -> row.blocking }.each { row ->
+        def missing_columns = row.blocking.tokenize(';') - samplesheet_columns
+        if (missing_columns) {
+            error("Contrast '${row.contrast}': blocking columns missing from the samplesheet: ${missing_columns.join(', ')}")
+        }
     }
 
     ch_contrastsheet = channel.fromList(contrast_rows)
@@ -213,7 +225,7 @@ workflow PIPELINE_INITIALISATION {
     emit:
     samplesheet        = ch_samplesheet                                      // channel: [ val(meta), [ files ] ]
     samplesheet_file   = channel.value(file(input, checkIfExists: true))     // channel: path(samplesheet.csv)
-    contrastsheet      = ch_contrastsheet                                    // channel: [ contrast, treatment, control ]
+    contrastsheet      = ch_contrastsheet                                    // channel: [ contrast, treatment, control, blocking (when set) ]
     contrastsheet_file = ch_contrastsheet_file                               // channel: path(contrastsheet.csv), with the contrast, treatment, control header
     versions           = ch_versions
 }
@@ -408,7 +420,9 @@ def normaliseContrastRow(meta) {
     if (isLegacyContrastRow(meta)) {
         return [ contrast: meta.contrast, treatment: meta.treatment, control: meta.control ]
     }
-    return [ contrast: meta.id, treatment: meta.target, control: meta.reference ]
+    def row = [ contrast: meta.id, treatment: meta.target, control: meta.reference ]
+    // As in nf-core/differentialabundance, an NA blocking value means no blocking
+    return meta.blocking && meta.blocking != 'NA' ? row + [ blocking: meta.blocking ] : row
 }
 
 //
