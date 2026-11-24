@@ -15,6 +15,7 @@ include { samplesheetToList         } from 'plugin/nf-schema'
 include { validateParameters        } from 'plugin/nf-schema'
 include { checkCondaChannels        } from 'plugin/nf-core-utils'
 include { checkConfigProvided       } from 'plugin/nf-core-utils'
+include { checkProfileProvided      } from 'plugin/nf-core-utils'
 include { completionEmail           } from 'plugin/nf-core-utils'
 include { completionSummary         } from 'plugin/nf-core-utils'
 include { dumpParametersToJSON      } from 'plugin/nf-core-utils'
@@ -285,20 +286,6 @@ workflow PIPELINE_COMPLETION {
     FUNCTIONS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-
-// nf-core-utils checks its args for -profile, but Nextflow only passes positional args here.
-def checkProfileProvided(nextflow_cli_args) {
-    if (workflow.profile.endsWith(',')) {
-        error(
-            "The `-profile` option cannot end with a trailing comma, please remove it and re-run the pipeline!\n" + "HINT: A common mistake is to provide multiple values separated by spaces e.g. `-profile test, docker`.\n"
-        )
-    }
-    if (nextflow_cli_args[0]) {
-        log.warn(
-            "nf-core pipelines do not accept positional arguments. The positional argument `${nextflow_cli_args[0]}` has been detected.\n" + "HINT: A common mistake is to provide multiple values separated by spaces e.g. `-profile test, docker`.\n"
-        )
-    }
-}
 
 //
 // Check and validate pipeline parameters

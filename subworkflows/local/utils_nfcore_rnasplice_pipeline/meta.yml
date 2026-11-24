@@ -10,9 +10,6 @@ keywords:
   - pipeline
   - initialise
   - completion
-components:
-  - completionemail
-  - completionsummary
 input:
   - version:
       type: boolean
