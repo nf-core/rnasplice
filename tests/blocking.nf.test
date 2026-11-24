@@ -39,12 +39,11 @@ nextflow_pipeline {
             assert workflow.success
 
             assertAll(
-                // GBR-YRI is blocked on batch and YRI-GBR is not, in both the exon and DTU analyses
-                { assert dexseq_models.sort() == [
-                    '~sample + exon + batch:exon + condition:exon',
-                    '~sample + exon + batch:exon + condition:exon',
-                    '~sample + exon + condition:exon',
-                    '~sample + exon + condition:exon'
+                // GBR-YRI is blocked on batch and YRI-GBR is not, in the exon analysis and in
+                // the DTU analyses of the STAR and Salmon quantifications
+                { assert dexseq_models.countBy { model -> model } == [
+                    '~sample + exon + batch:exon + condition:exon': 3,
+                    '~sample + exon + condition:exon': 3
                 ] },
                 { assert snapshot(
                     // Remove Nextflow version to prevent cross-version testing failures
