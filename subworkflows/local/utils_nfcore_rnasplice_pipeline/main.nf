@@ -203,7 +203,7 @@ workflow PIPELINE_INITIALISATION {
 
     // Fails before any analysis when a blocking column is not in the samplesheet, as the
     // DEXSeq modules would only find out after the alignment and counting
-    def samplesheet_columns = file(input).readLines()[0].tokenize(',')*.trim()
+    def samplesheet_columns = file(input).readLines()[0].tokenize(',').collect { column -> column.trim().replaceAll(/^"|"$/, '') }
     contrast_rows.findAll { row -> row.blocking }.each { row ->
         def missing_columns = row.blocking.tokenize(';') - samplesheet_columns
         if (missing_columns) {

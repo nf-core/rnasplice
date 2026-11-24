@@ -27,8 +27,9 @@ nextflow_workflow {
             "${sample},${condition},${testdata}${sample}.Aligned.out.bam\n"
         }.join()
 
+        // Quoted column names, as spreadsheet tools write them
         def genome_bam_blocking = new File("${launchDir}/samplesheet_genome_bam_blocking.csv")
-        genome_bam_blocking.text = "sample,condition,batch,genome_bam\n" + samples.collect { sample, condition ->
+        genome_bam_blocking.text = '"sample","condition","batch","genome_bam"\n' + samples.collect { sample, condition ->
             "${sample},${condition},1,${testdata}${sample}.Aligned.out.bam\n"
         }.join()
 
