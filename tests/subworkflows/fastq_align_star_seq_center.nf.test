@@ -1,11 +1,12 @@
 nextflow_workflow {
 
     name "Test STAR read groups with --seq_center"
-    script "../subworkflows/nf-core/fastq_align_star/main.nf"
+    script "../../subworkflows/nf-core/fastq_align_star/main.nf"
     workflow "FASTQ_ALIGN_STAR"
-    config "./seq_center.config"
+    config "./fastq_align_star_seq_center.config"
 
-    tag "pipeline"
+    tag "subworkflows"
+    tag "subworkflows/fastq_align_star"
     tag "star"
     tag "star/align"
 
@@ -15,7 +16,7 @@ nextflow_workflow {
 
         setup {
             run("STAR_GENOMEGENERATE") {
-                script "../modules/nf-core/star/genomegenerate/main.nf"
+                script "../../modules/nf-core/star/genomegenerate/main.nf"
                 process {
                     """
                     input[0] = channel.of([
