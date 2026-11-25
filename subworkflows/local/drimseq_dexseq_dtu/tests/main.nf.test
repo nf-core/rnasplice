@@ -13,13 +13,14 @@ nextflow_workflow {
     tag "dexseq/dtu"
     tag "stager"
 
-    // The gene annotation comes from the chrX GTF the transcript counts were made with
+    // The gene annotation comes from the whole chrX GTF the transcript counts were made with,
+    // not the chrX_subset one of the other tests
     setup {
         run("GFFREAD_TX2GENE") {
             script '../../../../modules/local/gffread/tx2gene/main.nf'
             process {
             """
-            input[0] = file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
+            input[0] = file('https://raw.githubusercontent.com/nf-core/test-datasets/rnasplice/reference/genes_chrX.gtf', checkIfExists: true)
             """
             }
         }
