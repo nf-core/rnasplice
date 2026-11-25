@@ -1,0 +1,256 @@
+nextflow_function {
+
+    name "Test Function parseSamplesheet"
+    script "../main.nf"
+    function "parseSamplesheet"
+
+    tag "subworkflows"
+    tag "subworkflows/utils_nfcore_rnasplice_pipeline"
+
+    // BAM samplesheets carry optional strandedness and single_end columns, which have to
+    // reach the meta map of every sample so that the tools that need the library type and
+    // the read type get them, and which default to unstranded and paired end, see
+    // https://github.com/nf-core/rnasplice/issues/184
+
+    def testdata = 'https://raw.githubusercontent.com/nf-core/test-datasets/rnasplice/chrX_subset/testdata/'
+    def samples = [ 'ERR188383': 'GBR', 'ERR188428': 'GBR', 'ERR188454': 'YRI', 'ERR204916': 'YRI' ]
+
+    // As written by nf-core/rnaseq with --save_align_intermeds, plus a condition column,
+    // with a second sequencing run for the first sample
+    def rnaseq_row = { sample, condition, run ->
+        "${sample},${testdata}${sample}_chrX_1.fastq.gz,${testdata}${sample}_chrX_2.fastq.gz,reverse,ILLUMINA,${run},${testdata}${sample}.Aligned.out.bam,95.5,${testdata}${sample}.Aligned.toTranscriptome.out.bam,${condition}\n"
+    }
+
+    def samplesheets = [
+        'samplesheet_genome_bam_optional_columns.csv': "sample,condition,strandedness,single_end,genome_bam\n" + samples.collect { sample, condition ->
+            "${sample},${condition},reverse,true,${testdata}${sample}.Aligned.out.bam\n"
+        }.join(),
+        'samplesheet_genome_bam.csv': "sample,condition,genome_bam\n" + samples.collect { sample, condition ->
+            "${sample},${condition},${testdata}${sample}.Aligned.out.bam\n"
+        }.join(),
+        'samplesheet_transcriptome_bam_optional_columns.csv': "sample,condition,strandedness,single_end,genome_bam,transcriptome_bam\n" + samples.collect { sample, condition ->
+            "${sample},${condition},forward,true,${testdata}${sample}.Aligned.out.bam,${testdata}${sample}.Aligned.toTranscriptome.out.bam\n"
+        }.join(),
+        'samplesheet_rnaseq_bams.csv': "sample,fastq_1,fastq_2,strandedness,seq_platform,seq_center,genome_bam,percent_mapped,transcriptome_bam,condition\n" +
+            rnaseq_row('ERR188383', 'GBR', 'RUN2') + samples.collect { sample, condition -> rnaseq_row(sample, condition, 'RUN1') }.join(),
+        'samplesheet_partial_genome_bam.csv': "sample,condition,genome_bam\n" + samples.collect { sample, condition ->
+            "${sample},${condition},${sample == 'ERR204916' ? '' : testdata + sample + '.Aligned.out.bam'}\n"
+        }.join(),
+        'samplesheet_transcriptome_bam_salmon_results.csv': "sample,condition,transcriptome_bam,salmon_results\n" + samples.collect { sample, condition ->
+            "${sample},${condition},${testdata}${sample}.Aligned.toTranscriptome.out.bam,${testdata}${sample}.tar.gz\n"
+        }.join(),
+        'samplesheet_conflicting_runs.csv': "sample,condition,genome_bam\n" + samples.collect { sample, condition ->
+            "${sample},${condition},${testdata}${sample}.Aligned.out.bam\n"
+        }.join() + "ERR188383,GBR,${testdata}ERR188428.Aligned.out.bam\n",
+        'samplesheet_fastq_no_strandedness.csv': "sample,fastq_1,fastq_2,condition\n" + samples.collect { sample, condition ->
+            "${sample},${testdata}${sample}_chrX_1.fastq.gz,${testdata}${sample}_chrX_2.fastq.gz,${condition}\n"
+        }.join(),
+        'samplesheet_no_input.csv': "sample,condition,strandedness\n" + samples.collect { sample, condition ->
+            "${sample},${condition},unstranded\n"
+        }.join(),
+    ]
+
+    // Function tests have no setup block, so each test writes the samplesheet it reads
+    def writeSamplesheet = { dir, name ->
+        def sheet = new File("${dir}/${name}")
+        sheet.parentFile.mkdirs()
+        sheet.text = samplesheets[name]
+        return sheet.toString()
+    }
+
+    test("genome_bam - strandedness and read type") {
+
+        when {
+            def samplesheet = writeSamplesheet(outputDir, 'samplesheet_genome_bam_optional_columns.csv')
+            function {
+                """
+                input[0] = "${samplesheet}"
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result.samples.size() == 4 },
+                { assert function.result.samples.every { row -> row[0].strandedness == 'reverse' } },
+                { assert function.result.samples.every { row -> row[0].single_end } },
+                { assert function.result.samples.every { row -> row[2].toString().endsWith('.Aligned.out.bam') && row[3] == null } }
+            )
+        }
+
+    }
+
+    test("genome_bam - no optional columns") {
+
+        when {
+            def samplesheet = writeSamplesheet(outputDir, 'samplesheet_genome_bam.csv')
+            function {
+                """
+                input[0] = "${samplesheet}"
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result.samples.size() == 4 },
+                { assert function.result.samples.every { row -> row[0].strandedness == 'unstranded' } },
+                { assert function.result.samples.every { row -> !row[0].single_end } }
+            )
+        }
+
+    }
+
+    test("genome_bam and transcriptome_bam - strandedness and read type") {
+
+        when {
+            def samplesheet = writeSamplesheet(outputDir, 'samplesheet_transcriptome_bam_optional_columns.csv')
+            function {
+                """
+                input[0] = "${samplesheet}"
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result.samples.size() == 4 },
+                { assert function.result.samples.every { row -> row[0].strandedness == 'forward' } },
+                { assert function.result.samples.every { row -> row[0].single_end } },
+                { assert function.result.samples.every { row -> row[2].toString().endsWith('.Aligned.out.bam') && row[3].toString().endsWith('.Aligned.toTranscriptome.out.bam') } }
+            )
+        }
+
+    }
+
+    test("rnaseq samplesheet_with_bams.csv - BAMs, FASTQ runs and extra columns") {
+
+        when {
+            def samplesheet = writeSamplesheet(outputDir, 'samplesheet_rnaseq_bams.csv')
+            function {
+                """
+                input[0] = "${samplesheet}"
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result.samples.size() == 4 },
+                { assert function.result.samples.every { row -> row[0].keySet() == [ 'id', 'condition', 'strandedness', 'single_end' ] as Set } },
+                { assert function.result.samples.every { row -> row[0].strandedness == 'reverse' && !row[0].single_end } },
+                // Both runs of ERR188383 are kept for concatenation, its BAM files once
+                { assert function.result.samples.find { row -> row[0].id == 'ERR188383' }[1].size() == 4 },
+                { assert function.result.samples.every { row -> row[2].toString().endsWith('.Aligned.out.bam') && row[3].toString().endsWith('.Aligned.toTranscriptome.out.bam') && row[4] == null } },
+                // The BAM files take over from the FASTQ files for every analysis
+                { assert function.result.input_routes.findAll { key, _value -> key != 'input_types' } == [ fastq: false, star: false, genome: true, star_salmon: true, pseudo_salmon: false, salmon_results: false ] }
+            )
+        }
+
+    }
+
+    test("partly filled BAM column fails") {
+
+        when {
+            def samplesheet = writeSamplesheet(outputDir, 'samplesheet_partial_genome_bam.csv')
+            function {
+                """
+                input[0] = "${samplesheet}"
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.failed },
+                { assert (function.stdout + function.stderr).any { line -> line.contains("The 'genome_bam' column must be filled for every sample or for none") } }
+            )
+        }
+
+    }
+
+    test("transcriptome_bam with salmon_results fails") {
+
+        when {
+            def samplesheet = writeSamplesheet(outputDir, 'samplesheet_transcriptome_bam_salmon_results.csv')
+            function {
+                """
+                input[0] = "${samplesheet}"
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.failed },
+                { assert (function.stdout + function.stderr).any { line -> line.contains("The 'transcriptome_bam' and 'salmon_results' columns cannot both be given") } }
+            )
+        }
+
+    }
+
+    test("runs of a sample with different BAM files fail") {
+
+        when {
+            def samplesheet = writeSamplesheet(outputDir, 'samplesheet_conflicting_runs.csv')
+            function {
+                """
+                input[0] = "${samplesheet}"
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.failed },
+                { assert (function.stdout + function.stderr).any { line -> line.contains("Multiple rows of a sample must give the same 'genome_bam': ERR188383") } }
+            )
+        }
+
+    }
+
+    test("sample without input fails") {
+
+        when {
+            def samplesheet = writeSamplesheet(outputDir, 'samplesheet_no_input.csv')
+            function {
+                """
+                input[0] = "${samplesheet}"
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.failed },
+                { assert (function.stdout + function.stderr).any { line -> line.contains("Each sample needs at least one of") } }
+            )
+        }
+
+    }
+
+    test("FASTQ without strandedness fails") {
+
+        when {
+            def samplesheet = writeSamplesheet(outputDir, 'samplesheet_fastq_no_strandedness.csv')
+            function {
+                """
+                input[0] = "${samplesheet}"
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.failed },
+                { assert (function.stdout + function.stderr).any { line -> line.contains("The 'strandedness' column must be filled for samples with FASTQ files") } }
+            )
+        }
+
+    }
+
+}

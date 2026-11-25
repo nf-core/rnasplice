@@ -193,7 +193,7 @@ params {
 include { RNASPLICE               } from './workflows/rnasplice'
 include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_nfcore_rnasplice_pipeline'
 include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_rnasplice_pipeline'
-include { samplesheetInputRoutes  } from './subworkflows/local/utils_nfcore_rnasplice_pipeline'
+include { parseSamplesheet        } from './subworkflows/local/utils_nfcore_rnasplice_pipeline'
 include { PREPARE_GENOME          } from './subworkflows/local/prepare_genome'
 
 /*
@@ -208,13 +208,15 @@ include { PREPARE_GENOME          } from './subworkflows/local/prepare_genome'
 workflow NFCORE_RNASPLICE {
 
     take:
-    ch_samplesheet       // channel: [ val(meta), [ files ] ], the parsed samplesheet
-    ch_samplesheet_file  // channel: path(samplesheet.csv), for the processes that read it
-    ch_contrastsheet     // channel: [ contrast, treatment, control ], the parsed contrasts
+    input                 // string: path to the samplesheet
+    ch_samplesheet_file   // channel: path(samplesheet.csv), for the processes that read it
+    ch_contrastsheet      // channel: [ contrast, treatment, control ], the parsed contrasts
     ch_contrastsheet_file // channel: path(contrastsheet.csv), for the processes that read it
-    input_routes          // map: how each part of the pipeline gets its input, see `getInputRoutes`
 
     main:
+
+    def samplesheet = parseSamplesheet(input)
+    def input_routes = samplesheet.input_routes
 
     //
     // SUBWORKFLOW: Prepare reference genome files
@@ -237,7 +239,7 @@ workflow NFCORE_RNASPLICE {
     // WORKFLOW: Run pipeline
     //
     RNASPLICE(
-        ch_samplesheet,
+        channel.fromList(samplesheet.samples),
         ch_samplesheet_file,
         ch_contrastsheet,
         ch_contrastsheet_file,
@@ -289,11 +291,10 @@ workflow {
     // WORKFLOW: Run main workflow
     //
     NFCORE_RNASPLICE(
-        PIPELINE_INITIALISATION.out.samplesheet,
+        params.input,
         PIPELINE_INITIALISATION.out.samplesheet_file,
         PIPELINE_INITIALISATION.out.contrastsheet,
         PIPELINE_INITIALISATION.out.contrastsheet_file,
-        samplesheetInputRoutes(params.input),
     )
 
     //

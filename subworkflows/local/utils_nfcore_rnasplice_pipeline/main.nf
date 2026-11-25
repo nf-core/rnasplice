@@ -34,7 +34,7 @@ workflow PIPELINE_INITIALISATION {
     monochrome_logs // boolean: Do not use coloured log outputs
     nextflow_cli_args //   array: List of positional nextflow CLI args
     outdir            //  string: The output directory where the results will be saved
-    input             //  string: Path to input samplesheet
+    input             //  string: Path to input samplesheet, parsed by `parseSamplesheet`
     contrasts         //  string: Path to the contrasts sheet
     help              // boolean: Display help message and exit
     help_full         // boolean: Show the full help message
@@ -111,46 +111,10 @@ workflow PIPELINE_INITIALISATION {
     validateInputParameters()
 
     //
-    // Create channel from input file provided through params.input
-    //
-    // Every input type is an optional column, and which ones are filled decides how each
-    // method gets its input, see `getInputRoutes`. This is where the samplesheet is
-    // validated: what is emitted is a parsed channel for the consumers that need the values
-    // and the validated path for the processes that read the sheet themselves.
-    //
-
-    def samplesheet_rows = readSamplesheet(input)
-    validateInputRoutes(getInputRoutes(getSamplesheetInputTypes(samplesheet_rows)))
-
-    // A sample may have one row per sequencing run. Its runs are collected under its id, and
-    // the FASTQ files of all of them kept for concatenation, while the BAM files and Salmon
-    // results, which describe the whole sample, must be the same on every row
-    channel
-        .fromList(samplesheet_rows)
-        .map { row ->
-            def meta = row.meta
-            def fastqs = row.fastq_1 ? (row.fastq_2 ? [ row.fastq_1, row.fastq_2 ] : [ row.fastq_1 ]) : []
-            // A BAM file does not say whether its reads were paired, so without FASTQ
-            // files that comes from the 'single_end' column
-            def single_end = row.fastq_1 ? !row.fastq_2 : meta.single_end
-            // BAM files and Salmon results carry no strandedness to infer from their reads, so
-            // without FASTQ files a missing value is taken as unstranded
-            def strandedness = meta.strandedness ?: 'unstranded'
-            def sample_meta = [ id: meta.id, condition: meta.condition, strandedness: strandedness, single_end: single_end ]
-            return [ meta.id, sample_meta, fastqs, row.genome_bam ?: null, row.transcriptome_bam ?: null, row.salmon_results ?: null ]
-        }
-        .groupTuple()
-        .map { samplesheet ->
-            validateInputSamplesheet(samplesheet)
-        }
-        .set { ch_samplesheet }
-
-    //
     // Create channel from the contrasts file provided through params.contrasts
     //
-    // Validated here next to the samplesheet, so each sheet is read once and both are
-    // emitted the same way: the rows for the consumers that work from the values, the
-    // validated path for the processes that read the sheet themselves.
+    // Read once here: the rows are emitted for the consumers that work from the values,
+    // and a canonical file for the processes that read the sheet themselves.
     //
     // Both the id, variable, reference, target[, blocking] columns and the deprecated
     // contrast, treatment, control columns are accepted. Rows are normalised to the
@@ -201,7 +165,6 @@ workflow PIPELINE_INITIALISATION {
         .first()
 
     emit:
-    samplesheet        = ch_samplesheet                                      // channel: [ val(meta), [ fastq ], genome_bam, transcriptome_bam, salmon_results ], absent inputs null
     samplesheet_file   = channel.value(file(input, checkIfExists: true))     // channel: path(samplesheet.csv)
     contrastsheet      = ch_contrastsheet                                    // channel: [ contrast, treatment, control, blocking (when set) ]
     contrastsheet_file = ch_contrastsheet_file                               // channel: path(contrastsheet.csv), with the contrast, treatment, control header
@@ -362,11 +325,35 @@ def getSamplesheetInputTypes(samplesheet_rows) {
 }
 
 //
-// Input types of the samplesheet at --input, for the callers that need them as values
-// to decide which steps run
+// Read and check the samplesheet once, for every part of the pipeline that needs it.
+// Returns the samples and how each part of the pipeline gets its input, as plain values,
+// as the input routes decide which steps run. A sample may have one row per sequencing
+// run: its runs are merged under its id, keeping the FASTQ files of all of them for
+// concatenation, while the BAM files and Salmon results, which describe the whole
+// sample, must be the same on every row
 //
-def samplesheetInputRoutes(input) {
-    return getInputRoutes(getSamplesheetInputTypes(readSamplesheet(input)))
+def parseSamplesheet(input) {
+    def samplesheet_rows = readSamplesheet(input)
+    def input_routes = getInputRoutes(getSamplesheetInputTypes(samplesheet_rows))
+    validateInputRoutes(input_routes)
+
+    def samples = samplesheet_rows
+        .collect { row ->
+            def meta = row.meta
+            def fastqs = row.fastq_1 ? (row.fastq_2 ? [ row.fastq_1, row.fastq_2 ] : [ row.fastq_1 ]) : []
+            // A BAM file does not say whether its reads were paired, so without FASTQ
+            // files that comes from the 'single_end' column
+            def single_end = row.fastq_1 ? !row.fastq_2 : meta.single_end
+            // BAM files and Salmon results carry no strandedness to infer from their reads, so
+            // without FASTQ files a missing value is taken as unstranded
+            def strandedness = meta.strandedness ?: 'unstranded'
+            def sample_meta = [ id: meta.id, condition: meta.condition, strandedness: strandedness, single_end: single_end ]
+            return [ meta.id, sample_meta, fastqs, row.genome_bam ?: null, row.transcriptome_bam ?: null, row.salmon_results ?: null ]
+        }
+        .groupBy { run -> run[0] }
+        .collect { id, runs -> validateInputSamplesheet([ id ] + (1..5).collect { index -> runs.collect { run -> run[index] } }) }
+
+    return [ samples: samples, input_routes: input_routes ]
 }
 
 //
