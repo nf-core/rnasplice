@@ -4,8 +4,8 @@ process CUSTOM_SPLICINGSUMMARY {
 
     conda "${moduleDir}/environment.yml"
     container "${workflow.containerEngine in ['singularity', 'apptainer'] && !task.ext.singularity_pull_docker_container
-        ? 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/ae/aef53fbd0e985ecd501715fa12b879f390e7d90d45f84178ee0f02d44788019c/data'
-        : 'community.wave.seqera.io/library/pandas_python_pyyaml:8c93186c973f2d81'}"
+        ? 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/5a/5ad122d0a8e6da5ddadc47909d45d49a12c1232ce0d492a9592dc9e9e23e730c/data'
+        : 'community.wave.seqera.io/library/pandas_python_pyyaml:599168875025982d'}"
 
     input:
     // labels[i] is a map of the kind, route and id (sample or contrast) of results[i]
