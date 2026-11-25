@@ -36,10 +36,7 @@ nextflow_workflow {
                 input[6]  = null
                 input[7]  = null
                 input[8]  = false
-                input[9]  = 'fastq'
-                input[10] = 'star'
-                input[11] = 'salmon'
-                input[12] = false
+                input[9]  = [ input_types: [ fastq: true, genome_bam: false, transcriptome_bam: false, salmon_results: false ], fastq: true, star: true, genome: true, star_salmon: false, pseudo_salmon: true, salmon_results: false ]
                 """
             }
         }
@@ -90,10 +87,7 @@ nextflow_workflow {
                 input[6]  = params.pipelines_testdata_base_path + 'testdata/dexseq/genes_chrX.DEXSeq.gff.gz'
                 input[7]  = gzip.call("${workDir}/quant.tpm", "${workDir}/quant.tpm.gz")
                 input[8]  = true
-                input[9]  = 'fastq'
-                input[10] = 'star_salmon'
-                input[11] = 'salmon'
-                input[12] = false
+                input[9]  = [ input_types: [ fastq: true, genome_bam: false, transcriptome_bam: false, salmon_results: false ], fastq: true, star: true, genome: true, star_salmon: true, pseudo_salmon: true, salmon_results: false ]
                 """
             }
         }
@@ -117,7 +111,7 @@ nextflow_workflow {
 
     }
 
-    test("homo_sapiens - genome_bam source - gzipped gtf - no indices") {
+    test("homo_sapiens - genome and transcriptome BAM input - gzipped gtf - no indices") {
 
         when {
             workflow {
@@ -140,10 +134,7 @@ nextflow_workflow {
                 input[6]  = null
                 input[7]  = "${workDir}/quant.tpm"
                 input[8]  = false
-                input[9]  = 'genome_bam'
-                input[10] = 'star_salmon'
-                input[11] = 'salmon'
-                input[12] = false
+                input[9]  = [ input_types: [ fastq: false, genome_bam: true, transcriptome_bam: true, salmon_results: false ], fastq: false, star: false, genome: true, star_salmon: true, pseudo_salmon: false, salmon_results: false ]
                 """
             }
         }
@@ -159,6 +150,7 @@ nextflow_workflow {
                     workflow.out.chrom_sizes,
                     workflow.out.gtf,
                     workflow.out.transcript_fasta,
+                    workflow.out.transcript_fai,
                     workflow.out.suppa_tpm
                 ).match() }
             )
@@ -182,10 +174,7 @@ nextflow_workflow {
                 input[6]  = null
                 input[7]  = null
                 input[8]  = false
-                input[9]  = 'fastq'
-                input[10] = 'star'
-                input[11] = 'salmon'
-                input[12] = false
+                input[9]  = [ input_types: [ fastq: true, genome_bam: false, transcriptome_bam: false, salmon_results: false ], fastq: true, star: true, genome: true, star_salmon: false, pseudo_salmon: true, salmon_results: false ]
                 """
             }
         }

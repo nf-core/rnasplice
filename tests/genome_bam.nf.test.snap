@@ -5,9 +5,6 @@
                 "CREATEBAMLIST": {
                     "sed": "4.9"
                 },
-                "CUSTOM_GTFFILTER": {
-                    "python": "3.14.5"
-                },
                 "DEXSEQ_COUNT": {
                     "bioconductor-dexseq": "1.56.0",
                     "htseq": "2.1.2"
@@ -41,10 +38,6 @@
                 },
                 "GUNZIP_FASTA": {
                     "gunzip": "1.13"
-                },
-                "MAKE_TRANSCRIPTS_FASTA": {
-                    "rsem": "1.3.1",
-                    "star": "2.7.10a"
                 },
                 "MISOPY_INDEX": {
                     "misopy": "0.5.4",
@@ -85,6 +78,9 @@
                 },
                 "SAMTOOLS_SORT": {
                     "samtools": "1.24"
+                },
+                "SAMTOOLS_SPLITHEADER_GENOME": {
+                    "samtools": "1.25"
                 },
                 "SAMTOOLS_STATS": {
                     "samtools": "1.24"
@@ -624,7 +620,7 @@
                 "star_salmon/samtools_stats/ERR204916.stats"
             ],
             [
-                "genes_chrX_genes.gff3:md5,c0467de65939b63d98ff90a803a79622",
+                "genes_chrX_genes.gff3:md5,8143d91e8c2057f1b56e8a19dfb75413",
                 "genes.gff:md5,96be13c1360e34dd9e565d9ac9a5a7bf",
                 "miso_settings.txt:md5,c092cc3e878a299674a99c508b6b2e72",
                 "ERR188383.featureCounts.tsv.summary:md5,fce2679a2e1b36cde212b4c3d1d001ab",
@@ -746,7 +742,7 @@
                 "ERR204916_sorted.bam": "46024b92c7c6c2a2883ad998f41b46b9"
             }
         ],
-        "timestamp": "2026-11-25T12:42:58.588804339",
+        "timestamp": "2026-11-24T18:18:16.625865479",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"

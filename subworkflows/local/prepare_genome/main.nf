@@ -13,6 +13,7 @@ include { UNTAR as UNTAR_STAR_INDEX } from '../../../modules/nf-core/untar'
 include { UNTAR as UNTAR_SALMON_INDEX } from '../../../modules/nf-core/untar'
 
 include { SAMTOOLS_FAIDX } from '../../../modules/nf-core/samtools/faidx'
+include { SAMTOOLS_FAIDX as SAMTOOLS_FAIDX_TRANSCRIPTS } from '../../../modules/nf-core/samtools/faidx'
 include { GFFREAD } from '../../../modules/nf-core/gffread'
 include { STAR_GENOMEGENERATE } from '../../../modules/nf-core/star/genomegenerate'
 include { SALMON_INDEX } from '../../../modules/nf-core/salmon/index'
@@ -33,10 +34,7 @@ workflow PREPARE_GENOME {
     gff_dexseq // string: path to the flattened DEXSeq GFF annotation, may be gzipped
     suppa_tpm // string: path to the SUPPA transcript TPM table, may be gzipped
     gencode // boolean: whether the annotation is from GENCODE
-    source // string: type of input data [fastq, genome_bam, transcriptome_bam, salmon_results]
-    aligner // string: genome aligner [star, star_salmon]
-    pseudo_aligner // string: pseudo aligner [salmon]
-    skip_alignment // boolean: whether the genome alignment is skipped
+    input_routes // map: how each part of the pipeline gets its input, from `getInputRoutes`
 
     main:
 
@@ -80,30 +78,34 @@ workflow PREPARE_GENOME {
     //
 
     // Without a transcript FASTA, one is built from the genome and the annotation, keeping
-    // only the genes on sequences present in the genome FASTA
-    if (transcript_fasta) {
-        if (transcript_fasta.endsWith('.gz')) {
-            ch_transcript_fasta = GUNZIP_TRANSCRIPT_FASTA([[:], file(transcript_fasta, checkIfExists: true)]).gunzip
+    // only the genes on sequences present in the genome FASTA. Only Salmon, strandedness
+    // inference from FASTQ files and IsoformSwitchAnalyzeR read it
+    ch_transcript_fasta = channel.empty()
+    if (input_routes.fastq || input_routes.star_salmon || input_routes.pseudo_salmon || input_routes.salmon_results) {
+        if (transcript_fasta) {
+            if (transcript_fasta.endsWith('.gz')) {
+                ch_transcript_fasta = GUNZIP_TRANSCRIPT_FASTA([[:], file(transcript_fasta, checkIfExists: true)]).gunzip
+            }
+            else {
+                ch_transcript_fasta = channel.value([[:], file(transcript_fasta, checkIfExists: true)])
+            }
+            if (gencode) {
+                ch_transcript_fasta = SEQKIT_REPLACE(
+                    ch_transcript_fasta.map { _meta, fa -> [[id: fa.baseName], fa] },
+                    '',
+                ).fastx
+            }
         }
         else {
-            ch_transcript_fasta = channel.value([[:], file(transcript_fasta, checkIfExists: true)])
+            ch_filter_gtf = CUSTOM_GTFFILTER(
+                ch_gtf.map { _meta, gtf_file -> [[id: gtf_file.baseName], gtf_file] },
+                ch_fasta,
+            ).gtf
+            ch_transcript_fasta = MAKE_TRANSCRIPTS_FASTA(
+                ch_fasta.map { _meta, fa -> fa },
+                ch_filter_gtf.map { _meta, filter_gtf -> filter_gtf },
+            ).transcript_fasta.map { fa -> [[:], fa] }
         }
-        if (gencode) {
-            ch_transcript_fasta = SEQKIT_REPLACE(
-                ch_transcript_fasta.map { _meta, fa -> [[id: fa.baseName], fa] },
-                '',
-            ).fastx
-        }
-    }
-    else {
-        ch_filter_gtf = CUSTOM_GTFFILTER(
-            ch_gtf.map { _meta, gtf_file -> [[id: gtf_file.baseName], gtf_file] },
-            ch_fasta,
-        ).gtf
-        ch_transcript_fasta = MAKE_TRANSCRIPTS_FASTA(
-            ch_fasta.map { _meta, fa -> fa },
-            ch_filter_gtf.map { _meta, filter_gtf -> filter_gtf },
-        ).transcript_fasta.map { fa -> [[:], fa] }
     }
 
     //
@@ -112,12 +114,18 @@ workflow PREPARE_GENOME {
 
     SAMTOOLS_FAIDX(ch_fasta.map { meta, fa -> [meta, fa, []] }, true)
 
+    // Transcriptome BAM files from the samplesheet are checked against this index
+    ch_transcript_fai = channel.empty()
+    if (input_routes.input_types.transcriptome_bam) {
+        ch_transcript_fai = SAMTOOLS_FAIDX_TRANSCRIPTS(ch_transcript_fasta.map { meta, fa -> [meta, fa, []] }, false).fai
+    }
+
     //
     // MODULE: UNTAR_STAR_INDEX, GENOMEPARAMSUPGRADE and STAR_GENOMEGENERATE
     //
 
     ch_star_index = channel.empty()
-    if (source == 'fastq' && !skip_alignment && aligner in ['star', 'star_salmon']) {
+    if (input_routes.star) {
         if (star_index) {
             if (star_index.endsWith('.tar.gz')) {
                 ch_star_index_raw = UNTAR_STAR_INDEX([[:], file(star_index, checkIfExists: true)]).untar
@@ -140,10 +148,11 @@ workflow PREPARE_GENOME {
     // MODULE: UNTAR_SALMON_INDEX and SALMON_INDEX
     //
 
-    // `star_salmon` quantifies the STAR transcriptome alignments, which needs no index, so an
-    // index is only built for the `salmon` pseudo aligner
+    // `star_salmon` quantifies transcriptome alignments, which needs no index, so an index is
+    // only built for the `salmon` pseudo aligner. A given index is also used to infer the
+    // strandedness of 'auto' FASTQ samples
     ch_salmon_index = channel.empty()
-    if (source == 'fastq' && (pseudo_aligner == 'salmon' || aligner == 'star_salmon')) {
+    if (input_routes.fastq && (input_routes.pseudo_salmon || input_routes.star_salmon)) {
         if (salmon_index) {
             if (salmon_index.endsWith('.tar.gz')) {
                 ch_salmon_index = UNTAR_SALMON_INDEX([[:], file(salmon_index, checkIfExists: true)]).untar
@@ -152,7 +161,7 @@ workflow PREPARE_GENOME {
                 ch_salmon_index = channel.value([[:], file(salmon_index, checkIfExists: true)])
             }
         }
-        else if (pseudo_aligner == 'salmon') {
+        else if (input_routes.pseudo_salmon) {
             ch_salmon_index = SALMON_INDEX(
                 ch_fasta.map { _meta, fa -> fa },
                 ch_transcript_fasta.map { _meta, tr -> tr },
@@ -194,6 +203,7 @@ workflow PREPARE_GENOME {
     chrom_sizes = SAMTOOLS_FAIDX.out.sizes // channel: [ val(meta), path(genome.fasta.sizes) ]
     gtf = ch_gtf.map { _meta, out_gtf -> out_gtf } // channel: path(genome.gtf)
     transcript_fasta = ch_transcript_fasta.map { _meta, fa -> fa } // channel: path(transcripts.fasta)
+    transcript_fai = ch_transcript_fai // channel: [ val(meta), path(transcripts.fasta.fai) ], for transcriptome BAM input
     star_index = ch_star_index.map { _meta, index -> index } // channel: path(star/index/)
     salmon_index = ch_salmon_index.map { _meta, index -> index } // channel: path(salmon/index/)
     dexseq_gff = ch_dexseq_gff.map { _meta, dexseq_gff -> dexseq_gff } // channel: path(dexseq.gff)

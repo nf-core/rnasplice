@@ -16,7 +16,7 @@ params {
     // Input options
     input: String
     contrasts: String
-    source: String = 'fastq'
+    source: String?
 
     // References
     fasta: String = getGenomeAttribute('fasta')
@@ -193,6 +193,7 @@ params {
 include { RNASPLICE               } from './workflows/rnasplice'
 include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_nfcore_rnasplice_pipeline'
 include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_rnasplice_pipeline'
+include { parseSamplesheet        } from './subworkflows/local/utils_nfcore_rnasplice_pipeline'
 include { PREPARE_GENOME          } from './subworkflows/local/prepare_genome'
 
 /*
@@ -207,12 +208,15 @@ include { PREPARE_GENOME          } from './subworkflows/local/prepare_genome'
 workflow NFCORE_RNASPLICE {
 
     take:
-    ch_samplesheet       // channel: [ val(meta), [ files ] ], the parsed samplesheet
-    ch_samplesheet_file  // channel: path(samplesheet.csv), for the processes that read it
-    ch_contrastsheet     // channel: [ contrast, treatment, control ], the parsed contrasts
+    input                 // string: path to the samplesheet
+    ch_contrastsheet      // channel: [ contrast, treatment, control ], the parsed contrasts
     ch_contrastsheet_file // channel: path(contrastsheet.csv), for the processes that read it
 
     main:
+
+    def samplesheet = parseSamplesheet(input)
+    def input_routes = samplesheet.input_routes
+    def ch_samplesheet_file = channel.value(file(input, checkIfExists: true))
 
     //
     // SUBWORKFLOW: Prepare reference genome files
@@ -228,24 +232,23 @@ workflow NFCORE_RNASPLICE {
         params.gff_dexseq,
         params.suppa_tpm,
         params.gencode,
-        params.source,
-        params.aligner,
-        params.pseudo_aligner,
-        params.skip_alignment,
+        input_routes,
     )
 
     //
     // WORKFLOW: Run pipeline
     //
     RNASPLICE(
-        ch_samplesheet,
+        channel.fromList(samplesheet.samples),
         ch_samplesheet_file,
         ch_contrastsheet,
         ch_contrastsheet_file,
+        input_routes,
         PREPARE_GENOME.out.fasta,
         PREPARE_GENOME.out.fai,
         PREPARE_GENOME.out.gtf,
         PREPARE_GENOME.out.transcript_fasta,
+        PREPARE_GENOME.out.transcript_fai,
         PREPARE_GENOME.out.dexseq_gff,
         PREPARE_GENOME.out.salmon_index,
         PREPARE_GENOME.out.star_index,
@@ -278,7 +281,6 @@ workflow {
         args,
         params.outdir,
         params.input,
-        params.source,
         params.contrasts,
         params.help,
         params.help_full,
@@ -289,10 +291,9 @@ workflow {
     // WORKFLOW: Run main workflow
     //
     NFCORE_RNASPLICE(
-        PIPELINE_INITIALISATION.out.samplesheet,
-        PIPELINE_INITIALISATION.out.samplesheet_file,
+        params.input,
         PIPELINE_INITIALISATION.out.contrastsheet,
-        PIPELINE_INITIALISATION.out.contrastsheet_file
+        PIPELINE_INITIALISATION.out.contrastsheet_file,
     )
 
     //

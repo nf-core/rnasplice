@@ -132,15 +132,18 @@
                 "suppa_tpm": [
                     
                 ],
+                "transcript_fai": [
+                    
+                ],
                 "transcript_fasta": [
                     "genome.transcripts.fa:md5,d41d8cd98f00b204e9800998ecf8427e"
                 ]
             }
         ],
-        "timestamp": "2026-09-23T12:30:44.947864209",
+        "timestamp": "2026-11-24T11:38:23.401342359",
         "meta": {
-            "nf-test": "0.9.5",
-            "nextflow": "26.04.1"
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
         }
     },
     "homo_sapiens - gzipped inputs, gff and supplied indices": {
@@ -206,7 +209,7 @@
             "nextflow": "26.10.6"
         }
     },
-    "homo_sapiens - genome_bam source - gzipped gtf - no indices": {
+    "homo_sapiens - genome and transcriptome BAM input - gzipped gtf - no indices": {
         "content": [
             [
                 "/nf-core/test-datasets/modules/data/genomics/homo_sapiens/genome/genome.fasta"
@@ -234,13 +237,21 @@
                 "/nf-core/test-datasets/modules/data/genomics/homo_sapiens/genome/transcriptome.fasta"
             ],
             [
+                [
+                    {
+                        
+                    },
+                    "transcriptome.fasta.fai:md5,410de28d075ebb6a4d68705bb44ef47a"
+                ]
+            ],
+            [
                 "quant.tpm:md5,d606cb7c509c0f2d4287cd83243201d9"
             ]
         ],
-        "timestamp": "2026-09-23T16:48:43.731886703",
+        "timestamp": "2026-11-24T11:38:15.059148649",
         "meta": {
-            "nf-test": "0.9.5",
-            "nextflow": "26.04.1"
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
         }
     }
 }
