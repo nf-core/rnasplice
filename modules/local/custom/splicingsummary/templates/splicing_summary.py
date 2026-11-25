@@ -14,6 +14,7 @@ import operator
 import platform
 import re
 import shlex
+import statistics
 import textwrap
 from collections import defaultdict
 
@@ -62,6 +63,18 @@ PRIMARY_UNITS = {
     "rMATS": "JC events",
 }
 
+# Analyses that measure the same thing from the same quantification are one line of evidence
+FAMILIES = {
+    "DEXSeq DEU": "Exon usage",
+    "edgeR DEU": "Exon usage",
+    "DEXSeq DTU + stageR": "Transcript usage",
+    "IsoformSwitchAnalyzeR": "Transcript usage",
+    "SUPPA2": "SUPPA2 events",
+    "LeafCutter": "LeafCutter clusters",
+    "ASpli": "ASpli bins",
+    "rMATS": "rMATS events",
+}
+
 ROUTE_ORDER = ["STAR", "Salmon", ""]
 ROUTE_LABELS = {"STAR": "STAR + Salmon", "Salmon": "Salmon", "": ""}
 
@@ -69,9 +82,12 @@ NO_EFFECT_CUTOFF = "no effect-size cutoff"
 RMATS_FDR = 0.05
 P_BINS = 20
 P_MIN_FEATURES = 100
+LEAFCUTTER_DEFAULTS = {"g": 3, "i": 5, "c": 20}
 PSI_CONCORDANCE_MIN_EVENTS = 50
+PSI_CONCORDANCE_FEW_EVENTS = 200
 # Pure Python correlations are quadratic in samples, so the concordance uses a sample of events
 PSI_CONCORDANCE_MAX_EVENTS = 5000
+SUPPA_TYPE_MIN_SIGNIFICANT = 10
 AGREEMENT_MAX_GENES = 100
 
 DEXSEQ_COUNTERS = {
@@ -138,6 +154,8 @@ def parse_ext_args(args_string):
     parser.add_argument("--min_samps_feature_expr", type=int, default=2)
     parser.add_argument("--min_samps_feature_prop", type=int, default=2)
     parser.add_argument("--rmats_paired_stats", type=flag, default=False)
+    parser.add_argument("--power_min_replicates", type=int, default=None, help="Samples per condition below which a run is called low power")
+    parser.add_argument("--power_min_splices", type=float, default=None, help="Median STAR splices per sample below which a run is called low power")
     return parser.parse_args(shlex.split(args_string))
 
 
@@ -201,6 +219,28 @@ def write_section(section_id, name, description, plot_type, data, helptext, pcon
         json.dump(content, handle, indent=4)
 
 
+def splices_text(count):
+    return f"{count / 1e6:.2f} M" if count >= 1e5 else f"{count:,.0f}"
+
+
+class Reverses:
+    """Contrasts that test the same comparison as another in reverse; the later of each pair is the reverse."""
+
+    def __init__(self, contrasts):
+        by_pair = {(contrast["treatment"], contrast["control"]): name for name, contrast in contrasts.items()}
+        self.other = {
+            name: by_pair[(contrast["control"], contrast["treatment"])]
+            for name, contrast in contrasts.items()
+            if (contrast["control"], contrast["treatment"]) in by_pair
+        }
+
+    def is_reverse(self, contrast):
+        return contrast in self.other and contrast > self.other[contrast]
+
+    def label(self, contrast):
+        return f"{contrast} (reverse of {self.other[contrast]})" if self.is_reverse(contrast) else contrast
+
+
 #
 # Genes
 #
@@ -237,7 +277,7 @@ class Genes:
 
 
 class Calls:
-    """Tested and significant features of one table, the genes behind them, and their p-values."""
+    """Tested and significant features of one table, the genes behind them, their p-values and the effect sizes of the significant ones."""
 
     def __init__(self):
         self.tested = 0
@@ -246,11 +286,14 @@ class Calls:
         self.significant_genes = set()
         self.p_bins = [0] * P_BINS
         self.p_count = 0
+        self.effects = []
 
-    def add(self, significant, gene=None, pvalue=None):
+    def add(self, significant, gene=None, pvalue=None, effect=None):
         self.tested += 1
         if significant:
             self.significant += 1
+            if effect is not None:
+                self.effects.append(abs(effect))
         self.add_gene(significant, gene)
         if pvalue is not None and 0 <= pvalue <= 1:
             self.p_bins[min(int(pvalue * P_BINS), P_BINS - 1)] += 1
@@ -266,15 +309,22 @@ class Calls:
         return self.tested, self.significant
 
 
-def scan(path, q_column, cutoff, genes, gene_column=None, p_column=None, delimiter="\\t"):
+def scan(path, q_column, cutoff, genes, gene_column=None, p_column=None, effect_column=None, delimiter="\\t"):
     """Features with a q-value are tested, and significant below the cutoff."""
     calls = Calls()
     for row in read_delimited(path, delimiter):
         qvalue = to_float(row.get(q_column))
         if qvalue is None:
             continue
-        gene = genes.key(row[gene_column]) if gene_column else None
-        calls.add(qvalue < cutoff, gene, to_float(row.get(p_column)) if p_column else None)
+        if effect_column and effect_column not in row:
+            # DEXSeq names its fold change column after the conditions, `log2fold_<treatment>_<control>`
+            effect_column = next((column for column in row if column.startswith(effect_column)), None)
+        calls.add(
+            qvalue < cutoff,
+            genes.key(row[gene_column]) if gene_column else None,
+            to_float(row.get(p_column)) if p_column else None,
+            to_float(row.get(effect_column)) if effect_column else None,
+        )
     return calls
 
 
@@ -372,7 +422,7 @@ def suppa_diffsplice(path, alpha, dpsi_cutoff, genes):
             if dpsi is None or pvalue is None:
                 continue
             significant = pvalue < alpha and abs(dpsi) > dpsi_cutoff
-            calls.add(significant, genes.key(fields[0].split(";")[0]), pvalue)
+            calls.add(significant, genes.key(fields[0].split(";")[0]), pvalue, dpsi)
             event_type = suppa_event_type(fields[0])
             if event_type:
                 tested_by_type[event_type] += 1
@@ -415,13 +465,14 @@ def isoformswitchanalyzer(path, contrasts, alpha, dif, genes):
         contrast = by_pair.get(pair, f"{pair[1]}-{pair[0]}")
         delta = to_float(row["dIF"])
         significant = qvalue < alpha and delta is not None and abs(delta) > dif
-        isoforms[contrast].add(significant)
+        isoforms[contrast].add(significant, effect=delta)
         gene_switches[contrast][genes.key(row["gene_id"])] |= significant
     gene_calls = {}
     for contrast, switches in gene_switches.items():
         gene_calls[contrast] = Calls()
         for gene, switched in switches.items():
             gene_calls[contrast].add(switched, gene)
+        gene_calls[contrast].effects = isoforms[contrast].effects
     return isoforms, gene_calls
 
 
@@ -462,7 +513,7 @@ def rmats_jc(path, calls, genes):
     for row in read_delimited(path):
         fdr = to_float(row.get("FDR"))
         if fdr is not None:
-            calls.add(fdr <= RMATS_FDR, genes.key(row["GeneID"]), to_float(row.get("PValue")))
+            calls.add(fdr <= RMATS_FDR, genes.key(row["GeneID"]), to_float(row.get("PValue")), to_float(row.get("IncLevelDifference")))
 
 
 #
@@ -480,7 +531,73 @@ def write_general_stats(general_stats):
             handle.write("\\t".join([sample] + cells) + "\\n")
 
 
-def write_design_section(contrasts, conditions, ran, args):
+def contrast_sizes(contrasts, conditions):
+    return {name: (len(conditions.get(contrast["treatment"], ())), len(conditions.get(contrast["control"], ()))) for name, contrast in contrasts.items()}
+
+
+def range_text(values, formatter=str):
+    low, high = min(values), max(values)
+    return formatter(low) if low == high else f"{formatter(low)} to {formatter(high)}"
+
+
+def write_verdict_section(contrasts, conditions, splices, args):
+    """
+    The replicates and depth behind the differential calls, judged against the power
+    thresholds where they are set.
+    """
+    sizes = [size for pair in contrast_sizes(contrasts, conditions).values() for size in pair]
+    if not sizes and not splices:
+        return
+    facts, reasons, met = [], [], []
+    if sizes:
+        facts.append(f"{range_text(sizes)} sample{'' if max(sizes) == 1 else 's'} per condition")
+        if args.power_min_replicates is not None:
+            if min(sizes) < args.power_min_replicates:
+                reasons.append(f"fewer than {args.power_min_replicates} samples in a condition ({min(sizes)})")
+            else:
+                met.append(f"at least {args.power_min_replicates} samples per condition")
+    if splices:
+        median = statistics.median(splices.values())
+        facts.append(f"a median of {splices_text(median)} spliced reads per sample (STAR splices, {range_text(list(splices.values()), splices_text)})")
+        if args.power_min_splices is not None:
+            if median < args.power_min_splices:
+                reasons.append(f"a median below {splices_text(args.power_min_splices)} spliced reads per sample")
+            else:
+                met.append(f"a median of at least {splices_text(args.power_min_splices)} spliced reads per sample")
+    facts_text = f"Design and depth: {'; '.join(facts)}."
+    if reasons:
+        message = f"<strong>Low power: {' and '.join(reasons)}; treat differential calls as exploratory.</strong> {facts_text}"
+        alert = "warning"
+    elif met and not reasons and args.power_min_replicates is not None and (args.power_min_splices is not None or not splices):
+        message = f"<strong>Design and depth meet the power thresholds: {' and '.join(met)}.</strong> {facts_text}"
+        alert = "success"
+    else:
+        message = facts_text
+        alert = "info"
+    write_section(
+        "splicing_verdict",
+        "Design and Depth",
+        "The replicates and sequencing depth behind the differential splicing calls.",
+        "html",
+        f'<div class="alert alert-{alert}">{message}</div>',
+        """
+            Differential splicing tests compare the variation of splicing between conditions with
+            the variation between the replicates of a condition, so their power depends on the
+            number of samples per condition and on the reads that cover the splice junctions and
+            events. Spliced reads are the STAR `Number of splices: Total` of each sample, which
+            counts a read once for each junction it spans.
+
+            With few replicates or few spliced reads, calls are unstable: the genes called first
+            are the most highly expressed ones, and different analyses call different genes by
+            chance. Where the pipeline is given power thresholds, this line says whether the run
+            meets them; in a low-power run, use the results to plan a larger experiment or to
+            choose genes for validation, not as findings. The Design Check below gives the details
+            for each contrast and analysis.
+            """,
+    )
+
+
+def write_design_section(contrasts, conditions, splices, ran, args):
     """Samples per condition of each contrast, against the minimum sample settings of the analyses that ran."""
     if not contrasts or not conditions:
         return
@@ -492,32 +609,48 @@ def write_design_section(contrasts, conditions, ran, args):
         "n_treatment": {"title": "Treatment samples", "description": "Samples of the treatment condition", "format": "{:,.0f}", "scale": False},
         "n_control": {"title": "Control samples", "description": "Samples of the control condition", "format": "{:,.0f}", "scale": False},
     }
+    if splices:
+        headers["splices"] = {
+            "title": "Median spliced reads (M)",
+            "description": "Median STAR splices (Number of splices: Total) of the samples of the contrast, in millions",
+            "format": "{:,.2f}",
+            "scale": False,
+        }
     if "LeafCutter" in ran:
-        headers["leafcutter_g"] = {**setting, "title": "LeafCutter min per group", "description": "--leafcutter_ds_min_samples_per_group (leafcutter_ds -g)"}
-        headers["leafcutter_i"] = {**setting, "title": "LeafCutter min per intron", "description": "--leafcutter_ds_min_samples_per_intron (leafcutter_ds -i)"}
+        headers["leafcutter_g"] = {**setting, "title": "LeafCutter -g", "description": "--leafcutter_ds_min_samples_per_group"}
+        headers["leafcutter_i"] = {**setting, "title": "LeafCutter -i", "description": "--leafcutter_ds_min_samples_per_intron"}
+        headers["leafcutter_c"] = {**setting, "title": "LeafCutter -c", "description": "--leafcutter_ds_min_coverage"}
     if "DRIMSeq" in ran:
         headers["drimseq_gene"] = {**setting, "title": "DRIMSeq min samples", "description": "--min_samps_gene_expr, applied to all the samples of the run"}
     headers["status"] = {
         "title": "Status",
-        "description": "OK, or what the contrast is short of and what to do about it",
+        "description": "OK when nothing below is short; otherwise what the contrast is short of and what to do about it",
         "scale": False,
         "cond_formatting_rules": {"pass": [{"s_eq": "OK"}], "warn": [{"s_ne": "OK"}]},
     }
 
+    g, i, c = args.leafcutter_min_samples_per_group, args.leafcutter_min_samples_per_intron, args.leafcutter_min_coverage
     data = {}
-    for name in sorted(contrasts):
+    for name, (n_treatment, n_control) in sorted(contrast_sizes(contrasts, conditions).items()):
         contrast = contrasts[name]
-        n_treatment = len(conditions.get(contrast["treatment"], ()))
-        n_control = len(conditions.get(contrast["control"], ()))
         row = {"treatment": contrast["treatment"], "control": contrast["control"], "n_treatment": n_treatment, "n_control": n_control}
         problems = []
-        if min(n_treatment, n_control) < 2:
-            problems.append(f"No replicates: a condition of this contrast has one sample ({n_treatment} and {n_control}), so the tests cannot estimate within-condition variance. Add replicates.")
+        smallest = min(n_treatment, n_control)
+        if smallest < 2:
+            problems.append(f"No replicates: a condition has one sample ({n_treatment} and {n_control}), so the tests cannot estimate within-condition variance. Add replicates.")
+        elif args.power_min_replicates is not None and smallest < args.power_min_replicates:
+            problems.append(f"Fewer than {args.power_min_replicates} samples in a condition ({n_treatment} and {n_control}); expect low power and unstable calls.")
+        samples = conditions.get(contrast["treatment"], set()) | conditions.get(contrast["control"], set())
+        contrast_splices = [splices[sample] for sample in samples if sample in splices]
+        if contrast_splices:
+            median = statistics.median(contrast_splices)
+            row["splices"] = median / 1e6
+            if args.power_min_splices is not None and median < args.power_min_splices:
+                problems.append(f"Low depth: a median of {splices_text(median)} spliced reads per sample, below {splices_text(args.power_min_splices)}, so many junctions and events have too few reads to test.")
         if "LeafCutter" in ran:
-            g, i = args.leafcutter_min_samples_per_group, args.leafcutter_min_samples_per_intron
-            row["leafcutter_g"], row["leafcutter_i"] = g, i
+            row["leafcutter_g"], row["leafcutter_i"], row["leafcutter_c"] = g, i, c
             needs, options = [], []
-            if min(n_treatment, n_control) < g:
+            if smallest < g:
                 needs.append(f"at least {g} samples per group (this contrast has {n_treatment} and {n_control})")
                 options.append("--leafcutter_ds_min_samples_per_group")
             if n_treatment + n_control < i:
@@ -525,6 +658,11 @@ def write_design_section(contrasts, conditions, ran, args):
                 options.append("--leafcutter_ds_min_samples_per_intron")
             if needs:
                 problems.append(f"LeafCutter will test few or no clusters: it needs {' and '.join(needs)}. Add replicates or lower {' / '.join(options)}.")
+            defaults = LEAFCUTTER_DEFAULTS
+            if g < defaults["g"] or i < defaults["i"] or c < defaults["c"]:
+                problems.append(
+                    f"LeafCutter settings (-g {g} -i {i} -c {c}) are below the tool defaults (-g {defaults['g']} -i {defaults['i']} -c {defaults['c']}); calls rest on very few samples or reads."
+                )
         if "DRIMSeq" in ran:
             row["drimseq_gene"] = args.min_samps_gene_expr
             needed = max(args.min_samps_gene_expr, args.min_samps_feature_expr, args.min_samps_feature_prop)
@@ -543,29 +681,31 @@ def write_design_section(contrasts, conditions, ran, args):
     write_section(
         "splicing_design_check",
         "Design Check",
-        "Whether each contrast has the samples the splicing analyses that ran need. A contrast short of a minimum "
-        "gets few or no tested features from that analysis, however strong its splicing changes.",
+        "Whether each contrast has the replicates, depth and analysis settings for reliable calls. A contrast short of a minimum "
+        "gets few or no tested features, and calls that rest on few samples or reads are unstable.",
         "table",
         data,
         """
             Each row is one contrast of the contrastsheet, with the samples of its treatment and
-            control conditions. The status is **OK** when the contrast meets the minimum sample
-            settings of every analysis that ran, and otherwise says what it is short of and which
-            parameter to change. The settings checked are hidden columns.
+            control conditions and their median STAR spliced reads. The status is **OK** when
+            nothing is short, and otherwise says what the contrast is short of and what to change.
+            The settings checked are hidden columns.
 
-            * Every analysis needs at least two samples per condition to estimate the variance
-              between replicates.
-            * LeafCutter tests a cluster only with `--leafcutter_ds_min_samples_per_group` samples
-              in each group and introns with reads in `--leafcutter_ds_min_samples_per_intron`
-              samples.
+            * A condition with one sample gives no estimate of the variance between replicates,
+              so the tests have nothing to compare the difference between conditions with.
+            * Where the pipeline is given power thresholds, contrasts with fewer samples per
+              condition or fewer spliced reads per sample than them are flagged.
+            * LeafCutter tests a cluster only with `-g` samples per group with `-c` reads, using
+              introns with reads in `-i` samples. Lowering these below the defaults
+              (`-g 3 -i 5 -c 20`) lets it test clusters, but the calls then rest on very few
+              samples or reads.
             * The DRIMSeq filter before DEXSeq DTU runs on all the samples of the run, and keeps
               genes expressed in `--min_samps_gene_expr` of them.
             * The paired tests of SUPPA2 (`--diffsplice_paired`) and rMATS
               (`--rmats_paired_stats`) pair the samples of the two conditions, so need as many
               in each.
 
-            Lowering a minimum lets the analysis test more features, at the cost of tests that
-            rest on fewer samples. Adding replicates is the better fix where possible.
+            Adding replicates is the best fix; more depth helps the junction-based analyses.
             """,
         pconfig={"id": "splicing_design_check_table", "title": "Splicing: Design Check", "namespace": "Design check", "col1_header": "Contrast", "sort_rows": False},
         headers=headers,
@@ -609,26 +749,34 @@ def write_concordance_section(psi_by_route, condition_of):
     ]
     sampled = f", {len(used):,} of them taken evenly across the matrix" if step > 1 else ""
     route_text = f" From the {route_label(route)} quantification." if len(psi_by_route) > 1 else ""
+    few = (
+        f" With under {PSI_CONCORDANCE_FEW_EVENTS} events the correlations are noisy and no block structure is expected."
+        if len(informative) < PSI_CONCORDANCE_FEW_EVENTS
+        else ""
+    )
     write_section(
         "suppa_psi_concordance",
         "SUPPA2: PSI Concordance",
-        f"Spearman correlation of PSI between samples ({len(informative):,} events quantified in every sample, mean PSI 0.05-0.95{sampled}).{route_text}",
+        f"Spearman correlation of PSI between samples ({len(informative):,} events quantified in every sample, mean PSI 0.05-0.95{sampled}).{route_text}{few}",
         "heatmap",
         matrix,
-        """
+        f"""
             PSI (percent spliced in) is the share of an event's expression that comes from its
             alternative form. This heatmap correlates the PSI values of each pair of samples over
             the SUPPA2 local events quantified in every sample, leaving out events with a mean PSI
             below 0.05 or above 0.95, which are nearly constant and would make every pair look
             alike. Samples are sorted by condition.
 
-            Good: samples of the same condition correlate more closely with each other than with
-            the samples of other conditions, giving blocks along the diagonal.
+            With many events and a clear difference between the conditions, samples of the same
+            condition correlate more closely with each other than with the other condition,
+            giving blocks along the diagonal. With few events (under about
+            {PSI_CONCORDANCE_FEW_EVENTS}) or a subtle contrast, no block structure is expected
+            and single correlations are noisy; suspect mislabelling only when a sample's QC and
+            correlations stand out consistently.
 
-            Bad: a sample that correlates poorly with every other sample can have a library or
-            quantification problem, and one that correlates best with another condition can be
-            mislabelled. Check its QC above and its condition in the samplesheet before trusting
-            the differential results.
+            A sample that correlates poorly with every other sample, and also stands out in the
+            QC sections above, may have a library or quantification problem worth checking
+            before trusting the differential results.
             """,
         pconfig={"id": "suppa_psi_concordance_plot", "title": "SUPPA2: PSI Concordance", "xlab": "Sample", "ylab": "Sample", "min": 0, "max": 1, "square": True},
         xcats=names,
@@ -636,39 +784,36 @@ def write_concordance_section(psi_by_route, condition_of):
     )
 
 
-def reciprocal_contrasts(contrasts):
-    by_pair = {(contrast["treatment"], contrast["control"]): name for name, contrast in contrasts.items()}
-    return {name: by_pair[(contrast["control"], contrast["treatment"])] for name, contrast in contrasts.items() if (contrast["control"], contrast["treatment"]) in by_pair}
-
-
-def write_differential_table(rows, reciprocal):
+def write_differential_table(rows, reverses):
     """One row per contrast and one column per analysis, so the analyses of a contrast read
     across. Analyses count different features, so each column states its own in its header."""
     rows.sort(key=lambda row: (METHOD_ORDER.index(row["method"]), ROUTE_ORDER.index(row["route"]), row["unit"], row["contrast"]))
     primary_routes = {method: first_route({row["route"] for row in rows if row["method"] == method}) for method in METHOD_ORDER}
+    contrasts = sorted({row["contrast"] for row in rows})
     headers = {}
     data = defaultdict(dict)
-    if reciprocal:
+    if any(contrast in reverses.other for contrast in contrasts):
         headers["reciprocal"] = {
             "title": "Reverse of",
             "description": "The contrast that tests the same comparison in reverse, which is not an independent finding",
             "scale": False,
         }
-        for contrast, other in reciprocal.items():
-            data[contrast]["reciprocal"] = other
+        for contrast in contrasts:
+            if contrast in reverses.other:
+                data[contrast]["reciprocal"] = reverses.other[contrast]
     for row in rows:
         key = re.sub("[^a-z0-9]+", "_", " ".join(part for part in (row["method"], row["route"], row["unit"]) if part).lower())
         route = f" ({route_label(row['route'])})" if row["route"] else ""
         title = f"{row['method']} {row['unit']}{route}"
+        primary = row["route"] == primary_routes[row["method"]]
         if key not in headers:
             route_text = f", from the {route_label(row['route'])} quantification" if row["route"] else ""
-            primary = PRIMARY_UNITS.get(row["method"]) == row["unit"] and row["route"] == primary_routes[row["method"]]
             headers[key] = {
                 "title": title,
                 "description": f"{row['method']}: {row['unit']} called significant ({row['threshold']}; {row['effect']}){route_text}",
                 "format": "{:,.0f}",
                 "scale": "Purples",
-                "hidden": not primary,
+                "hidden": not (primary and PRIMARY_UNITS.get(row["method"]) == row["unit"]),
             }
             headers[f"{key}_tested"] = {
                 "title": f"{title}: tested",
@@ -677,12 +822,22 @@ def write_differential_table(rows, reciprocal):
                 "scale": "Blues",
                 "hidden": True,
             }
+            if row["effect_unit"] and primary:
+                headers[f"{key}_effect"] = {
+                    "title": f"{title}: median {row['effect_unit']}",
+                    "description": f"{row['method']}: median {row['effect_unit']} of the {row['unit']} called significant{route_text}",
+                    "format": "{:,.2f}",
+                    "scale": "Greens",
+                    "hidden": True,
+                }
         data[row["contrast"]][key] = row["significant"]
         data[row["contrast"]][f"{key}_tested"] = row["tested"]
+        if row["effect_unit"] and primary and row["effects"]:
+            data[row["contrast"]][f"{key}_effect"] = statistics.median(row["effects"])
     reciprocal_text = (
         " Contrasts in the Reverse of column test the same comparison in reverse, so they are not independent findings; "
         "for some tools, such as rMATS with paired statistics, their calls can differ slightly."
-        if reciprocal
+        if "reciprocal" in headers
         else ""
     )
     write_section(
@@ -693,7 +848,7 @@ def write_differential_table(rows, reciprocal):
         "with different tests and effect-size cutoffs. STAR + Salmon: Salmon quantification of STAR alignments; "
         f"Salmon: Salmon pseudo-alignment.{reciprocal_text}",
         "table",
-        {contrast: data[contrast] for contrast in sorted(data)},
+        {contrast: data[contrast] for contrast in contrasts},
         """
             Each row is one contrast, and each visible column one analysis: the genes DEXSeq DEU,
             edgeR, DEXSeq DTU with stageR and IsoformSwitchAnalyzeR call significant, the events
@@ -702,14 +857,18 @@ def write_differential_table(rows, reciprocal):
             The column descriptions give the threshold and effect-size cutoff of each analysis.
 
             More columns are hidden: the feature-level counts (exon bins, exons, transcripts,
-            isoforms, junction clusters), the Salmon route, and the number of features each
-            analysis tested. Show them with the Configure Columns button.
+            isoforms, junction clusters), the Salmon route, the number of features each analysis
+            tested, and the median effect size of the significant calls (|log2 fold change| for
+            DEXSeq DEU, edgeR and ASpli, |dPSI| for SUPPA2, |IncLevelDifference| for rMATS and
+            |dIF| for IsoformSwitchAnalyzeR). Show them with the Configure Columns button.
 
             How to read it: a contrast with significant features in several analyses has
-            splicing changes that do not depend on one method. Zero in an analysis that tested
-            many features is a real negative; zero in one that tested few (see the hidden tested
-            columns and the Design Check) says little. The Shared Genes table below shows which
-            genes the analyses agree on.
+            splicing changes that do not depend on one method, if the run has the replicates and
+            depth to support them (see Power and Design Check). Zero in an analysis that tested
+            many features, in a well-replicated and deep run, suggests no large changes; it does
+            not show there are none. Zero in one that tested few says little. Small median effect
+            sizes with many calls point to subtle changes; large ones with few calls in a small
+            run are often driven by single samples.
 
             rMATS counts junction-count (JC) events with FDR <= 0.05 and, by default, no |dPSI|
             cutoff. DEXSeq tests the features left after its independent filtering, those with
@@ -720,7 +879,7 @@ def write_differential_table(rows, reciprocal):
     )
 
 
-def write_leafcutter_outcomes_section(outcomes, args):
+def write_leafcutter_outcomes_section(outcomes, args, reverses):
     categories = {
         "significant": {"name": f"Significant (adjusted p < {fmt(args.fdr)})", "color": "#7b4ea3"},
         "not_significant": {"name": "Not significant", "color": "#437bb1"},
@@ -736,10 +895,11 @@ def write_leafcutter_outcomes_section(outcomes, args):
         f"run with -g {args.leafcutter_min_samples_per_group} (`--leafcutter_ds_min_samples_per_group`), "
         f"-i {args.leafcutter_min_samples_per_intron} (`--leafcutter_ds_min_samples_per_intron`) and "
         f"-c {args.leafcutter_min_coverage} (`--leafcutter_ds_min_coverage`). Significant: adjusted p < {fmt(args.fdr)}. "
-        "Many 'Not tested' clusters usually mean too few samples per group or too little depth, not an absence of splicing changes.",
+        "Many 'Not tested' clusters usually mean too few samples per group or too little depth, not an absence of splicing changes. "
+        "Very few clusters in total means too few junction reads for clustering (see LeafCutter Junction Reads in General Statistics).",
         "bargraph",
-        outcomes,
-        f"""
+        {reverses.label(contrast): values for contrast, values in sorted(outcomes.items())},
+        """
             LeafCutter groups introns that share a splice site into clusters, and `leafcutter_ds`
             tests each cluster for a change in intron usage between the conditions. It only tests
             clusters that pass its coverage filters. The reasons for not testing a cluster, as
@@ -753,10 +913,12 @@ def write_leafcutter_outcomes_section(outcomes, args):
             * **Not enough valid samples**: fewer than `-g` samples in a group reach `-c` reads
             * **Timeout** and **Error**: the model fit did not finish
 
-            Good: most clusters tested, a share of them significant. Bad: most clusters not
-            tested, usually for one of the coverage reasons. Check the Design Check and the
-            LeafCutter junction reads in General Statistics; add replicates or depth, or lower the
-            settings above. The p-values are adjusted with the Benjamini-Hochberg method.
+            Good: many clusters, most of them tested, a share of them significant. Bad: most
+            clusters not tested, usually for one of the coverage reasons, or very few clusters
+            at all, which means the samples have too few junction reads for the clustering.
+            Check the Design Check and the LeafCutter junction reads in General Statistics; add
+            replicates or depth, or lower the settings above. The p-values are adjusted with the
+            Benjamini-Hochberg method.
             """,
         pconfig={"id": "leafcutter_cluster_test_outcomes_plot", "title": "LeafCutter: Cluster Test Outcomes", "ylab": "Clusters", "cpswitch_counts_label": "Number of clusters"},
         categories=categories,
@@ -768,18 +930,15 @@ def lighter(colour):
     return "#" + "".join(f"{(channel + 255) // 2:02x}" for channel in channels)
 
 
-def write_suppa_events_section(diffsplice, significance):
+def write_suppa_events_section(diffsplice, significance, reverses):
     """diffsplice: (contrast, route) -> dPSI table summary of local events."""
     route = first_route({route for _, route in diffsplice})
     if route is None:
         return
     local = {contrast: stats for (contrast, stats_route), stats in sorted(diffsplice.items()) if stats_route == route}
     route_text = f" From the {route_label(route)} quantification." if len({route for _, route in diffsplice}) > 1 else ""
-    description = (
-        f"Significant SUPPA2 events by type and direction ({significance}). The second tab shows them as a percentage "
-        f"of the events of that type that were tested.{route_text}"
-    )
-    helptext = """
+    description = f"Significant SUPPA2 events by type and direction ({significance}). With few significant events, differences between types are not interpretable.{route_text}"
+    helptext = f"""
         Each bar is one contrast, split by the SUPPA2 event type and by whether the PSI is
         higher or lower in the treatment than in the control. SUPPA2 reports dPSI as the PSI of
         condition 2 minus that of condition 1, and the pipeline runs it with the control as
@@ -791,17 +950,20 @@ def write_suppa_events_section(diffsplice, significance):
         * **RI**: retained intron
         * **AF** / **AL**: alternative first / last exon
 
-        The annotation defines many more events of some types than others, so the second tab,
-        the percentage of the tested events of each type, compares types more fairly than the
-        counts. A strong bias towards one type or direction can be biology (for example more
-        intron retention in one condition), or a sign of a technical difference between the
-        conditions, such as RNA degradation or library preparation, worth checking in the QC.
+        With few significant events, differences between types or directions are not
+        interpretable. The annotation defines many more events of some types than others, so
+        where a type has at least {SUPPA_TYPE_MIN_SIGNIFICANT} significant events a second tab
+        shows them as a percentage of the tested events of that type, which compares types more
+        fairly than the counts. A strong bias towards one type or direction in a well-powered
+        run can be biology (for example more intron retention in one condition), or a technical
+        difference between the conditions, such as RNA degradation or library preparation,
+        worth checking in the QC.
         """
     with_significant = {contrast: stats for contrast, stats in local.items() if stats["calls"].significant}
     if not with_significant:
         write_section("suppa_significant_events", "SUPPA2: Significant Events", description, "html", "<p>No contrast has any significant events.</p>", helptext)
         return
-    without_significant = [contrast for contrast in local if contrast not in with_significant]
+    without_significant = [reverses.label(contrast) for contrast in local if contrast not in with_significant]
     if without_significant:
         description += f" Contrasts without significant events, not shown: {', '.join(without_significant)}."
     categories = {}
@@ -810,40 +972,46 @@ def write_suppa_events_section(diffsplice, significance):
         categories[f"{event_type}: lower in treatment"] = {"name": f"{event_type}: lower in treatment", "color": lighter(colour)}
 
     def by_category(stats, as_percentage):
+        totals = defaultdict(int)
+        for (event_type, _), count in stats["significant_by_type"].items():
+            totals[event_type] += count
         values = {}
         for (event_type, higher), count in stats["significant_by_type"].items():
+            if as_percentage and totals[event_type] < SUPPA_TYPE_MIN_SIGNIFICANT:
+                continue
             name = f"{event_type}: {'higher' if higher else 'lower'} in treatment"
             values[name] = 100 * count / stats["tested_by_type"][event_type] if as_percentage else count
         return values
 
+    datasets = [{reverses.label(contrast): by_category(stats, False) for contrast, stats in with_significant.items()}]
+    data_labels = [{"name": "Events", "ylab": "Significant events"}]
+    percentages = {reverses.label(contrast): by_category(stats, True) for contrast, stats in with_significant.items()}
+    percentages = {contrast: values for contrast, values in percentages.items() if values}
+    if percentages:
+        datasets.append(percentages)
+        data_labels.append({"name": f"% of tested (types with {SUPPA_TYPE_MIN_SIGNIFICANT}+ significant)", "ylab": "% of the tested events of the type"})
+    pconfig = {"id": "suppa_significant_events_plot", "title": "SUPPA2: Significant Events", "ylab": "Significant events", "stacking": "group", "cpswitch": False}
+    if len(datasets) > 1:
+        pconfig["data_labels"] = data_labels
     write_section(
         "suppa_significant_events",
         "SUPPA2: Significant Events",
         description,
         "bargraph",
-        [
-            {contrast: by_category(stats, False) for contrast, stats in with_significant.items()},
-            {contrast: by_category(stats, True) for contrast, stats in with_significant.items()},
-        ],
+        datasets if len(datasets) > 1 else datasets[0],
         helptext,
-        pconfig={
-            "id": "suppa_significant_events_plot",
-            "title": "SUPPA2: Significant Events",
-            "ylab": "Significant events",
-            "stacking": "group",
-            "cpswitch": False,
-            "data_labels": [
-                {"name": "Events", "ylab": "Significant events"},
-                {"name": "% of tested", "ylab": "% of the tested events of the type"},
-            ],
-        },
-        categories=[categories, categories],
+        pconfig=pconfig,
+        categories=[categories] * len(datasets) if len(datasets) > 1 else categories,
     )
 
 
-def write_agreement_section(gene_calls, genes):
+def write_agreement_section(gene_calls, genes, reverses):
     """gene_calls: contrast -> (method, route) -> Calls of genes."""
-    usable = {contrast: methods for contrast, methods in gene_calls.items() if len({method for method, _ in methods}) >= 2}
+    usable = {
+        contrast: methods
+        for contrast, methods in gene_calls.items()
+        if len({method for method, _ in methods}) >= 2 and not reverses.is_reverse(contrast)
+    }
     if not usable:
         return
     two_routes = any((method, "STAR") in methods and (method, "Salmon") in methods for methods in usable.values() for method, _ in methods)
@@ -851,17 +1019,20 @@ def write_agreement_section(gene_calls, genes):
     capped = []
     for contrast in sorted(usable):
         methods = usable[contrast]
-        families = defaultdict(set)
+        called_by = defaultdict(set)
         for (method, _), calls in methods.items():
             for gene in calls.significant_genes:
-                families[gene].add(method)
-        shared = sorted(((gene, called) for gene, called in families.items() if len(called) >= 2), key=lambda item: (-len(item[1]), genes.name(item[0])))
+                called_by[gene].add(method)
+        shared = [(gene, called, {FAMILIES.get(method, method) for method in called}) for gene, called in called_by.items()]
+        shared = sorted(((gene, called, families) for gene, called, families in shared if len(families) >= 2), key=lambda item: (-len(item[2]), -len(item[1]), genes.name(item[0])))
         if len(shared) > AGREEMENT_MAX_GENES:
             capped.append(f"{contrast} ({len(shared):,})")
-        for gene, called in shared[:AGREEMENT_MAX_GENES]:
+        for gene, called, families in shared[:AGREEMENT_MAX_GENES]:
             row = {
                 "gene_id": gene,
+                "n_families": len(families),
                 "n_methods": len(called),
+                "families": ", ".join(sorted(families)),
                 "methods": ", ".join(method for method in METHOD_ORDER if method in called),
             }
             if two_routes:
@@ -872,12 +1043,17 @@ def write_agreement_section(gene_calls, genes):
                 ]
                 row["both_routes"] = ", ".join(both) or "No"
             rows[f"{genes.name(gene)} ({contrast})"] = row
+    reverse_text = ", ".join(f"{contrast} is the reverse of {reverses.other[contrast]}" for contrast in sorted(reverses.other) if reverses.is_reverse(contrast) and contrast in gene_calls)
     description = (
-        "Genes called significant by at least two analyses in each contrast. An analysis that tests few genes calls few, "
-        "so absence from this table is not disagreement."
+        "Genes called significant by at least two independent lines of evidence in each contrast, sorted by the number of them. "
+        "Analyses that measure the same thing from the same quantification count once: exon usage (DEXSeq DEU, edgeR), "
+        "transcript usage (DEXSeq DTU + stageR, IsoformSwitchAnalyzeR), and SUPPA2, rMATS, LeafCutter and ASpli each on their own. "
+        "An analysis that tests few genes calls few, so absence from this table is not disagreement."
     )
+    if reverse_text:
+        description += f" Reverse contrasts are not shown ({reverse_text})."
     if capped:
-        description += f" Only the {AGREEMENT_MAX_GENES} genes with the most analyses are shown for: {', '.join(capped)}."
+        description += f" Only the {AGREEMENT_MAX_GENES} genes with the most support are shown for: {', '.join(capped)}."
     helptext = """
         The analyses test different features (exon bins, events, transcripts, isoforms, intron
         clusters), so their calls are compared by gene: an analysis calls a gene significant
@@ -886,21 +1062,32 @@ def write_agreement_section(gene_calls, genes):
         names LeafCutter and IsoformSwitchAnalyzeR report are mapped to gene IDs through the
         annotation.
 
-        A gene called by analyses of different kinds (exon usage, transcript usage, local
-        events, intron clusters) is the strongest candidate for follow-up. Where an analysis
-        ran on both quantification routes, the last column lists the analyses that call the
-        gene from both, which makes the call robust to the quantification.
+        Agreement between analyses that share the same quantification (DEXSeq DTU and
+        IsoformSwitchAnalyzeR) is not independent support, so they count as one line of
+        evidence in the Lines of evidence column. A shared gene is a candidate only if the run
+        has adequate replicates and depth (see Power and Design Check); highly expressed genes
+        are called first in small datasets. Where an analysis ran on both quantification
+        routes, the last column lists the analyses that call the gene from both.
 
         Few or no shared genes is common: the analyses differ in power and in what they can
         detect. Check the tested counts in the Differential Splicing table before reading it as
         disagreement.
         """
     if not rows:
-        write_section("splicing_method_agreement", "Method Agreement: Shared Genes", description, "html", "<p>No gene is called significant by two or more analyses in any contrast.</p>", helptext)
+        write_section(
+            "splicing_method_agreement",
+            "Method Agreement: Shared Genes",
+            description,
+            "html",
+            "<p>No gene is called significant by two or more independent lines of evidence in any contrast.</p>",
+            helptext,
+        )
         return
     headers = {
         "gene_id": {"title": "Gene ID", "scale": False},
+        "n_families": {"title": "Lines of evidence", "description": "Independent lines of evidence that call the gene significant", "format": "{:,.0f}", "scale": "Purples"},
         "n_methods": {"title": "Analyses", "description": "Analyses that call the gene significant", "format": "{:,.0f}", "scale": "Purples"},
+        "families": {"title": "Evidence", "description": "Independent lines of evidence that call the gene significant", "scale": False},
         "methods": {"title": "Called by", "description": "Analyses that call the gene significant", "scale": False},
     }
     if two_routes:
@@ -921,7 +1108,7 @@ def write_agreement_section(gene_calls, genes):
     )
 
 
-def write_pvalue_section(histograms):
+def write_pvalue_section(histograms, reverses):
     """histograms: contrast -> series name -> Calls."""
     datasets = {contrast: {name: calls for name, calls in series.items() if calls.p_count >= P_MIN_FEATURES} for contrast, series in histograms.items()}
     contrasts = sorted(contrast for contrast, series in datasets.items() if series)
@@ -965,7 +1152,7 @@ def write_pvalue_section(histograms):
             "ymin": 0,
             "ymax": 30,
             "tt_suffix": "%",
-            "data_labels": [{"name": contrast, "ylab": "% of tested features"} for contrast in contrasts],
+            "data_labels": [{"name": reverses.label(contrast), "ylab": "% of tested features"} for contrast in contrasts],
         },
     )
 
@@ -987,6 +1174,7 @@ def main():
     for _, path in by_kind.pop("contrasts", []):
         for row in read_delimited(path, ","):
             contrasts[row["contrast"]] = {"treatment": row["treatment"], "control": row["control"]}
+    reverses = Reverses(contrasts)
     conditions = defaultdict(set)
     condition_of = {}
     for _, path in by_kind.pop("samplesheet", []):
@@ -995,6 +1183,7 @@ def main():
             condition_of[row["sample"]] = row["condition"]
 
     general_stats = defaultdict(dict)
+    splices = {}
     suppa_psi_by_route = {}
     suppa_events = {}
     leafcutter_outcomes_by_contrast = {}
@@ -1004,7 +1193,7 @@ def main():
     rows = []
     ran = set()
 
-    def add_row(method, route, contrast, unit, counts, threshold, effect=NO_EFFECT_CUTOFF, tested_text=None):
+    def add_row(method, route, contrast, unit, counts, threshold, effect=NO_EFFECT_CUTOFF, tested_text=None, effect_unit=None, effects=()):
         tested, significant = counts
         rows.append(
             {
@@ -1017,10 +1206,13 @@ def main():
                 "threshold": threshold,
                 "effect": effect,
                 "tested_text": tested_text,
+                "effect_unit": effect_unit,
+                "effects": list(effects),
             }
         )
 
     dexseq_tested = "after independent filtering, the {} with an adjusted p-value"
+    log2fc = "|log2 fold change|"
 
     for kind, entries in by_kind.items():
         for label, path in entries:
@@ -1029,6 +1221,7 @@ def main():
             if kind == "star_log":
                 total, annotated = star_splices(path)
                 if total:
+                    splices[contrast] = total
                     general_stats[contrast]["star_annotated_splices"] = percentage(annotated or 0, total)
                     general_stats[contrast]["star_splices"] = total / 1e6
             elif kind == "dexseq_counts":
@@ -1043,17 +1236,17 @@ def main():
                 for row in read_delimited(path):
                     general_stats[row["Sample"]]["leafcutter_reads_strandless"] = to_float(row["Reads strandless (%)"])
             elif kind == "dexseq_deu_bins":
-                calls = scan(path, "padj", args.fdr, genes, p_column="pvalue")
+                calls = scan(path, "padj", args.fdr, genes, gene_column="groupID", p_column="pvalue", effect_column="log2fold_")
                 histograms[contrast]["DEXSeq DEU exon bins"] = calls
-                add_row("DEXSeq DEU", route, contrast, "exon bins", calls.counts(), f"padj < {fdr}", tested_text=dexseq_tested.format("exon bins"))
+                add_row("DEXSeq DEU", route, contrast, "exon bins", calls.counts(), f"padj < {fdr}", tested_text=dexseq_tested.format("exon bins"), effect_unit=log2fc, effects=calls.effects)
             elif kind == "dexseq_deu_genes":
                 calls = scan(path, "padj", args.fdr, genes, gene_column="groupID")
                 gene_calls[contrast][("DEXSeq DEU", route)] = calls
                 add_row("DEXSeq DEU", route, contrast, "genes", calls.counts(), f"gene q-value < {fdr}", tested_text=dexseq_tested.format("genes"))
             elif kind == "edger_exons":
-                calls = scan(path, "FDR", args.fdr, genes, p_column="P.Value", delimiter=",")
+                calls = scan(path, "FDR", args.fdr, genes, p_column="P.Value", effect_column="logFC", delimiter=",")
                 histograms[contrast]["edgeR DEU exons"] = calls
-                add_row("edgeR DEU", route, contrast, "exons", calls.counts(), f"FDR < {fdr}")
+                add_row("edgeR DEU", route, contrast, "exons", calls.counts(), f"FDR < {fdr}", effect_unit=log2fc, effects=calls.effects)
             elif kind == "edger_genes":
                 calls = scan(path, "FDR", args.fdr, genes, gene_column="Geneid", delimiter=",")
                 gene_calls[contrast][("edgeR DEU", route)] = calls
@@ -1089,7 +1282,17 @@ def main():
                     suppa_events[(contrast, route)] = stats
                     gene_calls[contrast][("SUPPA2", route)] = stats["calls"]
                 unit = "events" if kind == "suppa_events" else "transcripts"
-                add_row("SUPPA2", route, contrast, unit, stats["calls"].counts(), suppa_significance.split(",")[0], effect=f"|dPSI| > {fmt(args.suppa_dpsi)}")
+                add_row(
+                    "SUPPA2",
+                    route,
+                    contrast,
+                    unit,
+                    stats["calls"].counts(),
+                    suppa_significance.split(",")[0],
+                    effect=f"|dPSI| > {fmt(args.suppa_dpsi)}",
+                    effect_unit="|dPSI|" if kind == "suppa_events" else None,
+                    effects=stats["calls"].effects,
+                )
             elif kind == "isa_features":
                 isoforms, isa_genes = isoformswitchanalyzer(path, contrasts, args.isa_alpha, args.isa_dif, genes)
                 threshold, effect = f"switch q < {fmt(args.isa_alpha)}", f"|dIF| > {fmt(args.isa_dif)}"
@@ -1097,7 +1300,18 @@ def main():
                     add_row("IsoformSwitchAnalyzeR", route, isa_contrast, "isoforms", calls.counts(), threshold, effect=effect)
                 for isa_contrast, calls in isa_genes.items():
                     gene_calls[isa_contrast][("IsoformSwitchAnalyzeR", route)] = calls
-                    add_row("IsoformSwitchAnalyzeR", route, isa_contrast, "genes with switches", calls.counts(), threshold, effect=effect, tested_text="genes with at least one isoform with a switch q-value")
+                    add_row(
+                        "IsoformSwitchAnalyzeR",
+                        route,
+                        isa_contrast,
+                        "genes with switches",
+                        calls.counts(),
+                        threshold,
+                        effect=effect,
+                        tested_text="genes with at least one isoform with a switch q-value",
+                        effect_unit="|dIF|",
+                        effects=calls.effects,
+                    )
             elif kind == "leafcutter_ds":
                 ran.add("LeafCutter")
                 outcomes, calls = leafcutter_outcomes(path, args.fdr, genes)
@@ -1107,10 +1321,10 @@ def main():
                 gene_calls[contrast][("LeafCutter", route)] = calls
                 add_row("LeafCutter", route, contrast, "clusters", (tested, outcomes.get("significant", 0)), f"p.adjust < {fdr}")
             elif kind == "aspli_bins":
-                calls = scan(path, "bin.fdr", args.fdr, genes, gene_column="locus", p_column="pvalue")
+                calls = scan(path, "bin.fdr", args.fdr, genes, gene_column="locus", p_column="pvalue", effect_column="logFC")
                 histograms[contrast]["ASpli bins"] = calls
                 gene_calls[contrast][("ASpli", route)] = calls
-                add_row("ASpli", route, contrast, "bins", calls.counts(), f"bin.fdr < {fdr}")
+                add_row("ASpli", route, contrast, "bins", calls.counts(), f"bin.fdr < {fdr}", effect_unit=log2fc, effects=calls.effects)
             elif kind == "aspli_clusters":
                 calls = scan(path, "FDR", args.fdr, genes, p_column="pvalue")
                 histograms[contrast]["ASpli junction clusters"] = calls
@@ -1126,6 +1340,7 @@ def main():
                     f"FDR <= {fmt(RMATS_FDR)}",
                     effect="no |dPSI| cutoff, the rMATS default",
                     tested_text="events with junction-count (JC) statistics, the primary rMATS result",
+                    effect_unit="|IncLevelDifference|",
                 )
             elif kind == "rmats_jc":
                 ran.add("rMATS")
@@ -1136,6 +1351,16 @@ def main():
     for contrast, calls in rmats_calls.items():
         gene_calls[contrast][("rMATS", "")] = calls
         histograms[contrast]["rMATS JC events"] = calls
+        for row in rows:
+            if row["method"] == "rMATS" and row["contrast"] == contrast:
+                row["effects"] = calls.effects
+
+    # The DEXSeq DEU effect sizes come from its exon bins, its gene table having none
+    for row in rows:
+        if row["method"] == "DEXSeq DEU" and row["unit"] == "genes":
+            bins = next((other for other in rows if other["method"] == "DEXSeq DEU" and other["unit"] == "exon bins" and other["contrast"] == row["contrast"]), None)
+            if bins:
+                row["effect_unit"], row["effects"] = f"{log2fc} of significant exon bins", bins["effects"]
 
     psi_route = first_route(suppa_psi_by_route)
     if psi_route is not None:
@@ -1145,16 +1370,16 @@ def main():
 
     if general_stats:
         write_general_stats(general_stats)
-    write_design_section(contrasts, conditions, ran, args)
+    write_verdict_section(contrasts, conditions, splices, args)
+    write_design_section(contrasts, conditions, splices, ran, args)
     write_concordance_section(suppa_psi_by_route, condition_of)
     if rows:
-        contrasts_with_rows = {name: contrast for name, contrast in contrasts.items() if any(row["contrast"] == name for row in rows)}
-        write_differential_table(rows, reciprocal_contrasts(contrasts_with_rows))
+        write_differential_table(rows, reverses)
     if leafcutter_outcomes_by_contrast:
-        write_leafcutter_outcomes_section(leafcutter_outcomes_by_contrast, args)
-    write_suppa_events_section(suppa_events, suppa_significance)
-    write_agreement_section(gene_calls, genes)
-    write_pvalue_section(histograms)
+        write_leafcutter_outcomes_section(leafcutter_outcomes_by_contrast, args, reverses)
+    write_suppa_events_section(suppa_events, suppa_significance, reverses)
+    write_agreement_section(gene_calls, genes, reverses)
+    write_pvalue_section(histograms, reverses)
 
     with open("versions.yml", "w") as handle:
         handle.write('"${task.process}":\\n')

@@ -13,6 +13,8 @@ report_section_order:
     order: -1001
   "nf-core-rnasplice-summary":
     order: -1002
+  splicing_verdict:
+    order: 0
   splicing_design_check:
     order: 1
   suppa_psi_concordance:
@@ -131,14 +133,13 @@ custom_data:
         max: 100
         scale: "RdYlGn"
       star_splices:
-        title: "Splices"
+        title: "Spliced Reads"
         namespace: "STAR"
-        description: "Splices STAR found, in millions (Number of splices: Total, from Log.final.out)"
+        description: "Spliced reads in millions (Number of splices: Total, from Log.final.out; a read spanning several junctions counts once for each). The junction-based splicing analyses need these reads"
         suffix: " M"
         format: "{:,.2f}"
         min: 0
         scale: "Blues"
-        hidden: true
       dexseq_reads_in_bins:
         title: "Reads in Exon Bins"
         namespace: "DEXSeq"

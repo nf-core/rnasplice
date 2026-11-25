@@ -58,8 +58,10 @@ nextflow_process {
                     'leafcutter_cluster_test_outcomes_mqc.json',
                     'splicing_design_check_mqc.json',
                     'splicing_method_agreement_mqc.json',
+                    'splicing_verdict_mqc.json',
                     'suppa_significant_events_mqc.json',
                 ] },
+                { assert sections('splicing_verdict').data.contains('Design and depth: 1 sample per condition; a median of 150 spliced reads per sample') },
                 { assert sections('differential_splicing').parent_id == 'splicing' },
                 { assert sections('differential_splicing').helptext },
                 { assert sections('differential_splicing').data == [
@@ -68,12 +70,12 @@ nextflow_process {
                         edger_deu_genes: 1, edger_deu_genes_tested: 2,
                         dexseq_dtu_stager_star_genes: 1, dexseq_dtu_stager_star_genes_tested: 2,
                         dexseq_dtu_stager_star_transcripts: 1, dexseq_dtu_stager_star_transcripts_tested: 2,
-                        suppa2_star_events: 2, suppa2_star_events_tested: 3,
-                        isoformswitchanalyzer_star_genes_with_switches: 1, isoformswitchanalyzer_star_genes_with_switches_tested: 2,
+                        suppa2_star_events: 2, suppa2_star_events_tested: 3, suppa2_star_events_effect: 0.4,
+                        isoformswitchanalyzer_star_genes_with_switches: 1, isoformswitchanalyzer_star_genes_with_switches_tested: 2, isoformswitchanalyzer_star_genes_with_switches_effect: 0.3,
                         isoformswitchanalyzer_star_isoforms: 1, isoformswitchanalyzer_star_isoforms_tested: 3,
                         leafcutter_clusters: 1, leafcutter_clusters_tested: 2,
-                        aspli_bins: 1, aspli_bins_tested: 2,
-                        rmats_jc_events: 1, rmats_jc_events_tested: 5,
+                        aspli_bins: 1, aspli_bins_tested: 2, aspli_bins_effect: 1.2,
+                        rmats_jc_events: 1, rmats_jc_events_tested: 5, rmats_jc_events_effect: 0.3,
                     ]
                 ] },
                 { assert sections('differential_splicing').headers.findAll { _key, header -> !header.hidden }.collect { _key, header -> header.title } == [
@@ -87,8 +89,7 @@ nextflow_process {
                 ] },
                 { assert sections('suppa_significant_events').description.contains('gene-corrected p < 0.05, |dPSI| > 0.05') },
                 { assert sections('suppa_significant_events').data == [
-                    ['A-B': ['Skipped exon: higher in treatment': 1, 'Retained intron: higher in treatment': 1]],
-                    ['A-B': ['Skipped exon: higher in treatment': 50.0, 'Retained intron: higher in treatment': 100.0]],
+                    'A-B': ['Skipped exon: higher in treatment': 1, 'Retained intron: higher in treatment': 1],
                 ] },
                 { assert sections('leafcutter_cluster_test_outcomes').data == [
                     'A-B': [significant: 1, not_significant: 1, not_enough_samples: 1],
@@ -98,7 +99,9 @@ nextflow_process {
                 { assert sections('splicing_method_agreement').data == [
                     'GENE1 (A-B)': [
                         gene_id: 'G1',
+                        n_families: 6,
                         n_methods: 7,
+                        families: 'ASpli bins, Exon usage, LeafCutter clusters, SUPPA2 events, Transcript usage, rMATS events',
                         methods: 'edgeR DEU, DEXSeq DTU + stageR, SUPPA2, IsoformSwitchAnalyzeR, LeafCutter, ASpli, rMATS',
                     ]
                 ] },

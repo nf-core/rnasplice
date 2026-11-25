@@ -64,7 +64,7 @@ output:
           type: file
           description: |
             MultiQC custom-content sections under the Splicing parent section, each
-            written when its inputs are given: `splicing_design_check`,
+            written when its inputs are given: `splicing_verdict`, `splicing_design_check`,
             `suppa_psi_concordance`, `differential_splicing` (significant features of
             each analysis and contrast), `leafcutter_cluster_test_outcomes`,
             `suppa_significant_events`, `splicing_method_agreement` and

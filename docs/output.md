@@ -271,16 +271,18 @@ General Statistics gets these columns per sample:
 - STAR "Annotated Splices": the percentage of the splices STAR found that are annotated junctions. Below about 95% suggests the genome and annotation do not match.
 - DEXSeq "Reads in Exon Bins": the approximate percentage of the reads `dexseq_count` counted into exon bins. Low values usually mean the wrong strandedness or a mismatched annotation.
 - LeafCutter "Junction Reads": the reads on the introns of the LeafCutter clusters, which `leafcutter_ds` compares with `--leafcutter_ds_min_coverage`.
-- Hidden columns: the number of STAR splices, the SUPPA2 events with a PSI value, the LeafCutter introns detected, and the LeafCutter reads left without a strand in unstranded samples, highlighted above 5%.
+- STAR "Spliced Reads": the spliced reads of each sample, in millions, which the junction-based analyses depend on.
+- Hidden columns: the SUPPA2 events with a PSI value, the LeafCutter introns detected, and the LeafCutter reads left without a strand in unstranded samples, highlighted above 5%.
 
 The Splicing section has these parts, in this order:
 
-- Design Check: whether each contrast has the samples the analyses that ran need, with a status that says what a contrast is short of and which parameter to change.
+- Design and Depth: one line with the samples per condition and the median spliced reads per sample behind the differential calls, read as a low-power warning when the run falls short of the power thresholds the pipeline is given.
+- Design Check: whether each contrast has the samples the analyses that ran need, with a status that says what a contrast is short of and which parameter to change. It also flags LeafCutter settings below the tool defaults.
 - SUPPA2 PSI Concordance: how closely the PSI values of each pair of samples agree. Samples of the same condition should agree most.
-- Differential Splicing: the features each analysis called significant in each contrast, one column per analysis, at gene level where the analysis has one. Counts are not comparable across columns. Feature-level counts, the second quantification route and the numbers tested are hidden columns. A contrast that tests the same comparison as another in reverse is marked.
+- Differential Splicing: the features each analysis called significant in each contrast, one column per analysis, at gene level where the analysis has one. Counts are not comparable across columns. Feature-level counts, the second quantification route, the numbers tested and the median effect size of the significant calls (|log2 fold change|, |dPSI|, |IncLevelDifference| or |dIF|) are hidden columns. A contrast that tests the same comparison as another in reverse is marked, here and in the plots, as it is not an independent finding.
 - LeafCutter Cluster Test Outcomes: whether each intron cluster was tested, and if not why, with the LeafCutter settings the pipeline ran with.
-- SUPPA2 Significant Events: the significant local events of each contrast by event type and by whether the PSI is higher or lower in the treatment, with a second tab of the percentage of the tested events of each type.
-- Method Agreement: the genes called significant by at least two analyses in each contrast, and the analyses that call them from both quantification routes.
+- SUPPA2 Significant Events: the significant local events of each contrast by event type and by whether the PSI is higher or lower in the treatment, with a second tab of the percentage of the tested events of each type for the types with at least 10 significant events.
+- Method Agreement: the genes called significant by at least two independent lines of evidence in each contrast, counting analyses that measure the same thing from the same quantification once (DEXSeq DEU and edgeR as exon usage, DEXSeq DTU and IsoformSwitchAnalyzeR as transcript usage), with the analyses that call them from both quantification routes. Reverse contrasts are left out.
 - P-value Distributions (Diagnostic): the p-values of the features each analysis with at least 100 tested features tested, a check on the power and calibration of the tests.
 
 The rMATS module of MultiQC, in versions that include it, shows the rMATS sections right after the Splicing section.
