@@ -272,6 +272,10 @@ design <- read.csv(samplesheet, check.names = FALSE)
 
 design <- design[, c("sample", "condition"), drop = FALSE]
 
+# A sample sequenced in several runs has one samplesheet row per run
+
+design <- design[!duplicated(design[["sample"]]), , drop = FALSE]
+
 colnames(design) <- c("sampleID", "condition")
 
 

@@ -36,15 +36,8 @@
                 "GFFREAD_TX2GENE": {
                     "gffread": "0.12.7"
                 },
-                "GTFGENEFILTER": {
-                    "python": "3.14.6"
-                },
                 "GUNZIP_FASTA": {
                     "gunzip": "1.13"
-                },
-                "MAKE_TRANSCRIPTS_FASTA": {
-                    "rsem": "1.3.1",
-                    "star": "2.7.10a"
                 },
                 "MISOPY_INDEX": {
                     "misopy": "0.5.4",
@@ -85,6 +78,9 @@
                 },
                 "SAMTOOLS_SORT": {
                     "samtools": "1.24"
+                },
+                "SAMTOOLS_SPLITHEADER_GENOME": {
+                    "samtools": "1.25"
                 },
                 "SAMTOOLS_STATS": {
                     "samtools": "1.24"
@@ -746,7 +742,7 @@
                 "ERR204916_sorted.bam": "46024b92c7c6c2a2883ad998f41b46b9"
             }
         ],
-        "timestamp": "2026-11-24T12:36:51.649180349",
+        "timestamp": "2026-11-24T18:18:16.625865479",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"

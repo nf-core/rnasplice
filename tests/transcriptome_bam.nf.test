@@ -1,6 +1,6 @@
 nextflow_pipeline {
 
-    name "Test pipeline with --source transcriptome_bam"
+    name "Test pipeline with genome and transcriptome BAM input"
     script "../main.nf"
     profile "test_transcriptome_bam"
     tag "pipeline"
