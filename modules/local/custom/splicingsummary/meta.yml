@@ -61,27 +61,21 @@ output:
           pattern: "*_mqc.json"
           ontologies:
             - edam: http://edamontology.org/format_3464 # JSON
-  versions_python:
-    - - ${task.process}:
-          type: string
-          description: The name of the process
-      - python:
-          type: string
-          description: The name of the tool
-      - python --version | sed "s/Python //":
-          type: eval
-          description: The expression to obtain the version of the tool
+  versions:
+    - versions.yml:
+        type: file
+        description: File containing software versions
+        pattern: "versions.yml"
+        ontologies:
+          - edam: http://edamontology.org/format_3750 # YAML
 topics:
   versions:
-    - - ${task.process}:
-          type: string
-          description: The name of the process
-      - python:
-          type: string
-          description: The name of the tool
-      - python --version | sed "s/Python //":
-          type: eval
-          description: The expression to obtain the version of the tool
+    - versions.yml:
+        type: file
+        description: File containing software versions
+        pattern: "versions.yml"
+        ontologies:
+          - edam: http://edamontology.org/format_3750 # YAML
 authors:
   - "@pinin4fjords"
 maintainers:

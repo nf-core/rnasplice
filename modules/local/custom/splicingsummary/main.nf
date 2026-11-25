@@ -13,7 +13,7 @@ process CUSTOM_SPLICINGSUMMARY {
 
     output:
     tuple val(meta), path("*_mqc.json"), emit: sections, optional: true
-    tuple val("${task.process}"), val('python'), eval('python --version | sed "s/Python //"'), topic: versions, emit: versions_python
+    path "versions.yml"                , emit: versions, topic: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -25,5 +25,10 @@ process CUSTOM_SPLICINGSUMMARY {
     """
     touch splicing_sample_metrics_mqc.json
     touch differential_splicing_mqc.json
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        python: \$(python --version | sed 's/Python //')
+    END_VERSIONS
     """
 }

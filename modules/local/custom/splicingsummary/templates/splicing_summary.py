@@ -10,6 +10,7 @@ import csv
 import gzip
 import json
 import math
+import platform
 import operator
 import re
 import shlex
@@ -1502,6 +1503,10 @@ def main():
     write_suppa_events_section(suppa_events, suppa_significance, reverses)
     write_agreement_section(gene_calls, genes, reverses)
     write_pvalue_section(histograms, reverses)
+
+    with open("versions.yml", "w") as handle:
+        handle.write('"${task.process}":\\n')
+        handle.write(f"    python: {platform.python_version()}\\n")
 
 
 if __name__ == "__main__":
