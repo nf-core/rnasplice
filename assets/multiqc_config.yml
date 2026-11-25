@@ -11,6 +11,12 @@ report_section_order:
 export_plots: true
 disable_version_detection: true
 
+# Genome-wide DEXSeq exon usage results tables are larger than the 50 MB default
+log_filesize_limit: 500000000
+
+extra_fn_clean_exts:
+  - "_sorted"
+
 # Order of modules
 top_modules:
   - "fail_trimmed_samples"
@@ -26,6 +32,10 @@ module_order:
   - featurecounts
   - samtools
   - rseqc
+  - rmats
+  - dexseq
+  - leafcutter
+  - suppa
 
 custom_data:
   fail_trimmed_samples:
