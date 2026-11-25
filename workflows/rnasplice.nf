@@ -519,6 +519,7 @@ workflow RNASPLICE {
                 ch_contrastsheet,
                 params.aspli_read_len ?: 0,
                 ch_gene_annotation,
+                params.aspli_bin_fdr,
             )
             ch_splicing_results = ch_splicing_results
                 .mix(splicingResults(ASPLI.out.gb_du.transpose().filter { _meta, tsv -> tsv.name.endsWith('.bins_du.tsv') }, 'aspli_bins'))
@@ -591,6 +592,7 @@ workflow RNASPLICE {
                 ch_samplesheet_file,
                 ch_contrastsheet,
                 ch_gene_annotation,
+                params.stager_alpha,
             )
             ch_splicing_results = ch_splicing_results
                 .mix(splicingResults(DRIMSEQ_DEXSEQ_DTU_STAR_SALMON.out.dexseq_exon_results_tsv, 'dexseq_dtu_transcripts', 'STAR'))
@@ -672,6 +674,7 @@ workflow RNASPLICE {
                 ch_samplesheet_file,
                 ch_contrastsheet,
                 ch_gene_annotation,
+                params.stager_alpha,
             )
             ch_splicing_results = ch_splicing_results
                 .mix(splicingResults(DRIMSEQ_DEXSEQ_DTU_SALMON.out.dexseq_exon_results_tsv, 'dexseq_dtu_transcripts', 'Salmon'))

@@ -13,6 +13,7 @@ workflow ASPLI {
     ch_contrastsheet // channel: [ contrast:, treatment:, control: ]
     read_length // integer: --minReadLength of ASpli, 0 to estimate it from the BAM files
     ch_gene_annotation // channel: [ val(meta), path(tsv) ], the gene names of the symbol column
+    bin_fdr // float: adjusted p-value cutoff for differential bin usage
 
     main:
 
@@ -94,7 +95,7 @@ workflow ASPLI {
         .combine(ch_contrasts)
         .map { _meta, features, gbcounts, jcounts, contrast -> [contrast, features, gbcounts, jcounts] }
 
-    ASPLI_DU(ch_du_input)
+    ASPLI_DU(ch_du_input, bin_fdr)
 
     emit:
     features = ASPLI_COUNTS.out.features // channel: [ val(meta), path(rds) ]

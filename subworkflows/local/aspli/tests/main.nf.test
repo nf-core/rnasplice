@@ -54,6 +54,7 @@ nextflow_workflow {
                 )
                 input[4] = 0
                 input[5] = GENEANNOTATION_TABLES.out.gene.first()
+                input[6] = 0.05
                 """
             }
         }
@@ -133,6 +134,7 @@ nextflow_workflow {
                 )
                 input[4] = 0
                 input[5] = GENEANNOTATION_TABLES.out.gene.first()
+                input[6] = 0.05
                 """
             }
         }
@@ -167,6 +169,7 @@ nextflow_workflow {
                 )
                 input[4] = 0
                 input[5] = GENEANNOTATION_TABLES.out.gene.first()
+                input[6] = 0.05
                 """
             }
         }

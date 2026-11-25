@@ -41,6 +41,9 @@ input:
   - - analysis_type:
         type: string
         description: Tool that produced the input tables, either `dexseq` or `drimseq`
+  - - alpha:
+        type: float
+        description: Target overall false discovery rate of the stage-wise adjustment; `--alpha` in `task.ext.args` overrides it
 
 output:
   stager_rds:
