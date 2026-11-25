@@ -91,7 +91,7 @@ workflow PREPARE_GENOME {
         if (gencode) {
             ch_transcript_fasta = SEQKIT_REPLACE(
                 ch_transcript_fasta.map { _meta, fa -> [[id: fa.baseName], fa] },
-                'fa',
+                '',
             ).fastx
         }
     }
