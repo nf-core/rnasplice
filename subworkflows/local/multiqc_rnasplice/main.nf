@@ -66,32 +66,22 @@ workflow MULTIQC_RNASPLICE {
         .mix(ch_fail_trimming_tsv.collectFile(name: 'fail_trimmed_samples_mqc.tsv'))
         .mix(ch_strand_check_tsv.collectFile(name: 'fail_strand_check_mqc.tsv'))
         .mix(ch_rmats)
-        .mix(CUSTOM_SPLICINGSUMMARY.out.sample_metrics.map { _meta, tsv -> tsv })
         .mix(CUSTOM_SPLICINGSUMMARY.out.sections.map { _meta, sections -> sections })
         .mix(ch_workflow_summary)
         .mix(ch_methods_description)
         .mix(ch_collated_versions)
 
+    // A custom config is applied on top of the pipeline's, and the sample merge config last
     MULTIQC(
-        ch_files.flatten().collect()
-            .combine(ch_sample_merge_config.ifEmpty([]).toList())
-            .map { row ->
-                def files = row[0..-2]
-                // A path is iterable over its directories, so it is added as one item
-                def configs = [
-                    multiqc_config
-                        ? file(multiqc_config, checkIfExists: true)
-                        : file("${projectDir}/assets/multiqc_config.yml", checkIfExists: true)
-                ]
-                configs.addAll(row[-1] instanceof List ? row[-1] : [row[-1]])
-                [
-                    [id: 'rnasplice'],
-                    files,
-                    configs,
-                    multiqc_logo ? file(multiqc_logo, checkIfExists: true) : [],
-                    [],
-                    [],
-                ]
+        ch_files.flatten().collect().map { files -> [files] }
+            .combine(ch_sample_merge_config)
+            .map { files, merge_config ->
+                def configs = [file("${projectDir}/assets/multiqc_config.yml", checkIfExists: true)]
+                if (multiqc_config) {
+                    configs << file(multiqc_config, checkIfExists: true)
+                }
+                configs << merge_config
+                [[id: 'rnasplice'], files, configs, multiqc_logo ? file(multiqc_logo, checkIfExists: true) : [], [], []]
             }
     )
 

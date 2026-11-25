@@ -12,9 +12,8 @@ process CUSTOM_SPLICINGSUMMARY {
     tuple val(meta), val(labels), path(results, stageAs: 'results*/*')
 
     output:
-    tuple val(meta), path("splicing_sample_metrics_mqc.tsv"), emit: sample_metrics, optional: true
-    tuple val(meta), path("*_mqc.json")                     , emit: sections      , optional: true
-    path "versions.yml"                                     , topic: versions     , emit: versions_splicingsummary
+    tuple val(meta), path("*_mqc.json"), emit: sections, optional: true
+    tuple val("${task.process}"), val('python'), eval('python --version | sed "s/Python //"'), topic: versions, emit: versions_python
 
     when:
     task.ext.when == null || task.ext.when
@@ -24,12 +23,7 @@ process CUSTOM_SPLICINGSUMMARY {
 
     stub:
     """
-    touch splicing_sample_metrics_mqc.tsv
+    touch splicing_sample_metrics_mqc.json
     touch differential_splicing_mqc.json
-
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        python: \$(python --version | sed 's/Python //')
-    END_VERSIONS
     """
 }

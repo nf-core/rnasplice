@@ -10,7 +10,7 @@ nextflow_workflow {
     tag "custom/splicingsummary"
     tag "multiqc"
 
-    test("splicing results and custom content") {
+    test("splicing results, custom content and a custom config") {
 
         when {
             workflow {
@@ -29,7 +29,7 @@ nextflow_workflow {
                     [ [ kind:'dexseq_deu_bins', route:''    , id:'A-B' ], file("${projectDir}/modules/local/custom/splicingsummary/tests/A-B.dexseq.results.tsv", checkIfExists: true) ],
                 )
                 input[8] = channel.empty()
-                input[9] = null
+                input[9] = "${projectDir}/subworkflows/local/multiqc_rnasplice/tests/custom_multiqc_config.yml"
                 input[10] = null
                 input[11] = null
                 """
@@ -39,9 +39,15 @@ nextflow_workflow {
         then {
             assert workflow.success
             def data_dir = workflow.out.data[0]
+            def report_data = path("${data_dir}/multiqc_data.json").json
+            def multiqc_log = path("${data_dir}/multiqc.log").text
             assertAll(
                 { assert workflow.out.report[0].flatten().collect { report -> file(report).name } == [ 'multiqc_report.html' ] },
                 { assert path("${data_dir}/multiqc_general_stats.txt").readLines()[0].contains('dexseq_reads_in_bins') },
+                { assert report_data.config_title == 'Custom title' },
+                { assert report_data.config_report_comment.contains('nf-core/rnasplice') },
+                { assert multiqc_log.contains("'Read 1': [{'type': 'regex', 'pattern': '(?<=^S1)_1\$'}]") },
+                { assert multiqc_log.contains("'Read 2': [{'type': 'regex', 'pattern': '(?<=^S1)_2\$'}]") },
                 { assert path("${data_dir}/multiqc_suppa_significant_events_plot.txt").readLines().size() == 2 },
                 { assert path("${data_dir}/multiqc_differential_splicing_table.txt").readLines().size() == 2 },
                 { assert snapshot(

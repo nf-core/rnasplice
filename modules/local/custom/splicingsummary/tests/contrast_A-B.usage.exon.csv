@@ -1,0 +1,4 @@
+Geneid,Chr,Start,End,Strand,Length,logFC,exon.F,P.Value,FDR
+G1,1,10,20,+,11,2.0,15,0.001,0.01
+G1,1,30,40,+,11,-0.5,1,0.4,0.6
+G2,1,50,60,-,11,NA,NA,NA,NA

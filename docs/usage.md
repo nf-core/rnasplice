@@ -76,6 +76,8 @@ CONTROL_REP2,AEG588A2_S2_L002_R1_001.fastq.gz,AEG588A2_S2_L002_R2_001.fastq.gz,r
 
 The strandedness used can be checked against the alignments with `--strand_check`, which runs [RSeQC infer_experiment.py](https://rseqc.sourceforge.net/#infer-experiment-py) on the genome BAM files with the same thresholds. A sample whose RSeQC result does not match the strandedness it was analysed with is reported with a warning in the log and in the Strandedness Checks table of the MultiQC report. `--strand_check` needs genome alignments, so it works with `--aligner star` or `star_salmon`, and with genome BAM input. A genome BAM sample set to `auto` already has its RSeQC result, so RSeQC is not run on it again, and the table only reports whether a strandedness could be called.
 
+The genome BAM files are also checked with [RSeQC junction_saturation.py](https://rseqc.sourceforge.net/#junction-saturation-py), which counts the splice junctions found in growing subsets of the reads of each sample. MultiQC plots it to show whether junction detection has levelled off at the sequencing depth. Skip it with `--skip_junction_saturation`.
+
 > [!NOTE]
 > rMATS needs every sample to have the same strandedness. With `auto` samples this is checked once their strandedness is inferred, and the pipeline stops if the samples differ.
 

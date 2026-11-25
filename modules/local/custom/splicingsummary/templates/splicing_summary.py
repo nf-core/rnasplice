@@ -11,7 +11,6 @@ import gzip
 import json
 import math
 import operator
-import platform
 import re
 import shlex
 import statistics
@@ -20,7 +19,6 @@ from collections import defaultdict
 
 labels = json.loads(r"""${groovy.json.JsonOutput.toJson(labels)}""")
 staged = json.loads(r"""${groovy.json.JsonOutput.toJson((results instanceof List ? results : [results]).collect { result -> result.toString() })}""")
-GENERAL_STATS_FILE = "splicing_sample_metrics_mqc.tsv"
 
 PARENT = {
     "parent_id": "splicing",
@@ -28,15 +26,62 @@ PARENT = {
     "parent_description": "Whether the data supported the splicing analyses, what they found and whether they agree, computed by the pipeline from their result tables.",
 }
 
-# Column: number format
-GENERAL_STATS_COLUMNS = {
-    "star_annotated_splices": "{:.2f}",
-    "star_splices": "{:.4f}",
-    "dexseq_reads_in_bins": "{:.2f}",
-    "suppa_events_quantified": "{:.2f}",
-    "leafcutter_junction_reads": "{:.0f}",
-    "leafcutter_introns_detected": "{:.2f}",
-    "leafcutter_reads_strandless": "{:.2f}",
+PERCENT = {"suffix": "%", "min": 0, "max": 100, "scale": "RdYlGn"}
+GENERAL_STATS_HEADERS = {
+    "star_annotated_splices": {
+        **PERCENT,
+        "title": "Annotated Splices",
+        "namespace": "STAR",
+        "description": "Percentage of the splices STAR found that are annotated junctions (Number of splices: Annotated (sjdb) over Total, from Log.final.out). Below about 95% suggests a genome/annotation mismatch.",
+    },
+    "star_splices": {
+        "title": "Spliced Reads",
+        "namespace": "STAR",
+        "description": "Spliced reads per sample from STAR, in millions. No validated minimum exists; in one benchmark, detection of validated events was mostly stable from 40-50 M total reads per sample (Mehmood et al. 2020). See Junction Saturation for whether this sample's junction detection has levelled off.",
+        "suffix": " M",
+        "format": "{:,.2f}",
+        "min": 0,
+        "scale": "Blues",
+    },
+    "dexseq_reads_in_bins": {
+        **PERCENT,
+        "title": "Reads in Exon Bins",
+        "namespace": "DEXSeq",
+        "description": "Approximate percentage of the reads dexseq_count counted into exon bins, against those it counted as _empty, _ambiguous, _lowaqual or _notaligned; a read overlapping several exon bins of one gene counts once for each. Low values usually mean dexseq_count ran with the wrong strandedness or a mismatched annotation.",
+    },
+    "suppa_events_quantified": {
+        **PERCENT,
+        "title": "Events Quantified",
+        "namespace": "SUPPA2",
+        "description": "Percentage of the SUPPA2 local splicing events with a PSI value in the sample, from the STAR + Salmon route when both routes ran",
+        "hidden": True,
+    },
+    "leafcutter_junction_reads": {
+        "title": "Junction Reads",
+        "namespace": "LeafCutter",
+        "description": "Reads on the introns of the LeafCutter clusters in the sample, a read spanning several introns counting once for each. leafcutter_ds tests a cluster only in samples with at least --leafcutter_ds_min_coverage (-c) reads on it",
+        "format": "{:,.0f}",
+        "min": 0,
+        "scale": "Blues",
+    },
+    "leafcutter_introns_detected": {
+        **PERCENT,
+        "title": "Introns Detected",
+        "namespace": "LeafCutter",
+        "description": "Percentage of the introns in the LeafCutter clusters with at least one read in the sample",
+        "hidden": True,
+    },
+    "leafcutter_reads_strandless": {
+        "title": "Reads Strandless",
+        "namespace": "LeafCutter",
+        "description": "Percentage of the junction reads of an unstranded sample on junctions that got no strand from the aligner XS tag, the splice motif or the annotation. LeafCutter discards these junctions without a message, so more than about 5% is worth checking",
+        "suffix": "%",
+        "min": 0,
+        "max": 100,
+        "scale": "OrRd",
+        "hidden": True,
+        "cond_formatting_rules": {"warn": [{"gt": 5}]},
+    },
 }
 
 METHOD_ORDER = [
@@ -79,6 +124,7 @@ ROUTE_ORDER = ["STAR", "Salmon", ""]
 ROUTE_LABELS = {"STAR": "STAR + Salmon", "Salmon": "Salmon", "": ""}
 
 NO_EFFECT_CUTOFF = "no effect-size cutoff"
+# The FDR cutoff of the rMATS summary.txt, which the pipeline does not change
 RMATS_FDR = 0.05
 P_BINS = 20
 P_MIN_FEATURES = 100
@@ -95,6 +141,7 @@ KIND_ANALYSES = {
     "suppa_events": "SUPPA2",
     "suppa_isoforms": "SUPPA2",
     "isa_features": "IsoformSwitchAnalyzeR",
+    "leafcutter_numers": "LeafCutter",
     "leafcutter_ds": "LeafCutter",
     "aspli_bins": "ASpli",
     "aspli_clusters": "ASpli",
@@ -158,9 +205,11 @@ def parse_ext_args(args_string):
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--fdr", type=float, default=0.05, help="Adjusted p-value cutoff of the tools without one of their own")
-    parser.add_argument("--stager_alpha", type=float, default=0.05, help="Target OFDR of stageR, the alpha of run_stager.R")
+    parser.add_argument("--stager_alpha", type=float, default=0.05, help="Target OFDR of stageR, --stager_alpha")
+    parser.add_argument("--aspli_bin_fdr", type=float, default=0.05, help="Bin FDR cutoff of ASpli, --aspli_bin_fdr")
     parser.add_argument("--suppa_alpha", type=float, default=0.05, help="p-value cutoff of SUPPA2 diffSplice")
-    parser.add_argument("--suppa_dpsi", type=float, default=0.05, help="Absolute dPSI cutoff of SUPPA2")
+    parser.add_argument("--suppa_dpsi", type=float, default=0.05, help="Absolute dPSI cutoff of SUPPA2, the --clusterevents_dpsithreshold of clusterEvents")
+    parser.add_argument("--leafcutter_min_samples_per_condition", type=int, default=5, help="Samples each condition needs for the pipeline to test a LeafCutter contrast")
     parser.add_argument("--suppa_gene_correction", type=flag, default=True, help="Whether diffSplice corrected its p-values by gene")
     parser.add_argument("--suppa_paired", type=flag, default=False, help="Whether diffSplice ran a paired test")
     parser.add_argument("--isa_alpha", type=float, default=0.05, help="Switch q-value cutoff of IsoformSwitchAnalyzeR")
@@ -392,14 +441,20 @@ def leafcutter_introns(path):
 
 
 def suppa_psi(path):
-    """Events with a PSI value in each sample, and the PSI vectors of the events quantified in all of them."""
+    """
+    Events with a PSI value in each sample, and an evenly spaced sample of the informative
+    events (quantified in every sample, mean PSI 0.05 to 0.95), at most twice the
+    concordance cap, with their total.
+    """
     with open(path) as handle:
-        samples = handle.readline().rstrip("\\n").split("\\t")
+        samples = handle.readline().rstrip("\n").split("\t")
         quantified = [0] * len(samples)
-        complete = []
+        informative = []
+        informative_total = 0
+        stride = 1
         events = 0
         for line in handle:
-            values = line.rstrip("\\n").split("\\t")[1:]
+            values = line.rstrip("\n").split("\t")[1:]
             if not values:
                 continue
             events += 1
@@ -408,9 +463,16 @@ def suppa_psi(path):
             for index, psi in enumerate(psis):
                 if psi is not None:
                     quantified[index] += 1
-            if None not in psis:
-                complete.append(psis)
-    return {"samples": samples, "quantified": quantified, "events": events, "complete": complete}
+            # Events near 0 or 1 in every sample would make every pair of samples look alike
+            if None in psis or not 0.05 <= sum(psis) / len(psis) <= 0.95:
+                continue
+            if informative_total % stride == 0:
+                informative.append(psis)
+                if len(informative) >= 2 * PSI_CONCORDANCE_MAX_EVENTS:
+                    informative = informative[::2]
+                    stride *= 2
+            informative_total += 1
+    return {"samples": samples, "quantified": quantified, "events": events, "informative": informative, "informative_total": informative_total}
 
 
 #
@@ -538,13 +600,15 @@ def rmats_jc(path, calls, genes):
 
 
 def write_general_stats(general_stats):
-    columns = [column for column in GENERAL_STATS_COLUMNS if any(column in values for values in general_stats.values())]
-    with open(GENERAL_STATS_FILE, "w") as handle:
-        handle.write("\\t".join(["Sample"] + columns) + "\\n")
-        for sample in sorted(general_stats):
-            values = general_stats[sample]
-            cells = ["" if values.get(column) is None else GENERAL_STATS_COLUMNS[column].format(values[column]) for column in columns]
-            handle.write("\\t".join([sample] + cells) + "\\n")
+    columns = [column for column in GENERAL_STATS_HEADERS if any(values.get(column) is not None for values in general_stats.values())]
+    content = {
+        "id": "splicing_sample_metrics",
+        "plot_type": "generalstats",
+        "headers": {column: GENERAL_STATS_HEADERS[column] for column in columns},
+        "data": {sample: {column: values[column] for column in columns if values.get(column) is not None} for sample, values in sorted(general_stats.items())},
+    }
+    with open("splicing_sample_metrics_mqc.json", "w") as handle:
+        json.dump(content, handle, indent=4)
 
 
 def contrast_sizes(contrasts, conditions):
@@ -685,10 +749,13 @@ def write_design_section(contrasts, conditions, splices, ran, args):
             cannot.append(f"rMATS paired statistics (--rmats_paired_stats) need equal groups ({n_treatment} and {n_control})")
         if "LeafCutter" in ran:
             row["leafcutter_g"], row["leafcutter_i"], row["leafcutter_c"] = g, i, c
-            if smallest < g:
-                cannot.append(f"LeafCutter needs at least {g} samples per group (-g) (lower --leafcutter_ds_min_samples_per_group or add replicates)")
-            if n_treatment + n_control < i:
-                cannot.append(f"LeafCutter needs {i} samples with reads per intron (-i), the contrast has {n_treatment + n_control} (lower --leafcutter_ds_min_samples_per_intron or add samples)")
+            minimum = args.leafcutter_min_samples_per_condition
+            if smallest < minimum:
+                cannot.append(
+                    f"LeafCutter not tested: the pipeline tests a LeafCutter contrast only with at least {minimum} samples per condition, "
+                    f"the larger of -g and -i ({n_treatment} and {n_control}) (lower --leafcutter_ds_min_samples_per_group and "
+                    "--leafcutter_ds_min_samples_per_intron or add replicates)"
+                )
             if leafcutter_below_defaults(args):
                 below.append(f"LeafCutter settings {leafcutter_flags(args)} are below its defaults {LEAFCUTTER_DEFAULT_FLAGS}")
             if smallest < 4:
@@ -789,12 +856,11 @@ def write_concordance_section(psi_by_route, condition_of):
     if route is None:
         return
     psi = psi_by_route[route]
-    # Events near 0 or 1 in every sample would make every pair of samples look alike
-    informative = [values for values in psi["complete"] if 0.05 <= sum(values) / len(values) <= 0.95]
-    if len(psi["samples"]) < 2 or len(informative) < PSI_CONCORDANCE_MIN_EVENTS:
+    total = psi["informative_total"]
+    if len(psi["samples"]) < 2 or total < PSI_CONCORDANCE_MIN_EVENTS:
         return
-    step = max(1, math.ceil(len(informative) / PSI_CONCORDANCE_MAX_EVENTS))
-    used = informative[::step]
+    step = max(1, math.ceil(len(psi["informative"]) / PSI_CONCORDANCE_MAX_EVENTS))
+    used = psi["informative"][::step]
     order = sorted(range(len(psi["samples"])), key=lambda index: (condition_of.get(psi["samples"][index], ""), psi["samples"][index]))
     names = [f"{psi['samples'][index]} ({condition_of[psi['samples'][index]]})" if psi["samples"][index] in condition_of else psi["samples"][index] for index in order]
     ranks = [centred_ranks([values[index] for values in used]) for index in order]
@@ -803,17 +869,17 @@ def write_concordance_section(psi_by_route, condition_of):
         [round(sum(map(operator.mul, ranks[i], ranks[j])) / (norms[i] * norms[j]), 3) if norms[i] and norms[j] else None for j in range(len(ranks))]
         for i in range(len(ranks))
     ]
-    sampled = f", {len(used):,} of them taken evenly across the matrix" if step > 1 else ""
+    sampled = f", {len(used):,} of them taken evenly across the matrix" if len(used) < total else ""
     route_text = f" From the {route_label(route)} quantification." if len(psi_by_route) > 1 else ""
     few = (
         f" With under {PSI_CONCORDANCE_FEW_EVENTS} events the correlations are noisy and no block structure is expected."
-        if len(informative) < PSI_CONCORDANCE_FEW_EVENTS
+        if total < PSI_CONCORDANCE_FEW_EVENTS
         else ""
     )
     write_section(
         "suppa_psi_concordance",
         "SUPPA2: PSI Concordance",
-        f"Spearman correlation of PSI between samples ({len(informative):,} events quantified in every sample, mean PSI 0.05-0.95{sampled}).{route_text}{few}",
+        f"Spearman correlation of PSI between samples ({total:,} events quantified in every sample, mean PSI 0.05-0.95{sampled}).{route_text}{few}",
         "heatmap",
         matrix,
         f"""
@@ -902,7 +968,7 @@ def write_differential_table(rows, reverses):
         "Features each splicing analysis called significant in each contrast, one column per analysis at gene level "
         "where the analysis has one. Counts are not comparable across columns: the analyses count different units "
         "with different tests and effect-size cutoffs. STAR + Salmon: Salmon quantification of STAR alignments; "
-        f"Salmon: Salmon pseudo-alignment.{reciprocal_text}",
+        f"Salmon: Salmon pseudo-alignment. An empty cell is a contrast the analysis did not test; the Design Check says why.{reciprocal_text}",
         "table",
         {contrast: data[contrast] for contrast in contrasts},
         """
@@ -926,8 +992,8 @@ def write_differential_table(rows, reverses):
             sizes with many calls point to subtle changes; large ones with few calls in a small
             run are often driven by single samples.
 
-            rMATS counts junction-count (JC) events with FDR <= 0.05 and, by default, no |dPSI|
-            cutoff. DEXSeq tests the features left after its independent filtering, those with
+            rMATS counts junction-count (JC) events with FDR <= 0.05, the cutoff of the rMATS
+            summary.txt, and with no |dPSI| cutoff, the rMATS default. DEXSeq tests the features left after its independent filtering, those with
             an adjusted p-value.
             """,
         pconfig={"id": "differential_splicing_table", "title": "Differential splicing", "namespace": "Differential splicing", "col1_header": "Contrast", "sort_rows": False},
@@ -1005,6 +1071,11 @@ def write_suppa_events_section(diffsplice, significance, reverses):
         * **MX**: mutually exclusive exons
         * **RI**: retained intron
         * **AF** / **AL**: alternative first / last exon
+
+        An event is significant with a `diffSplice` p-value below `--diffsplice_alpha` and an
+        absolute dPSI above `--clusterevents_dpsithreshold`, the dPSI bound of SUPPA2
+        `clusterEvents`, used here as the effect-size cutoff so that these counts match the
+        events the pipeline clusters.
 
         With few significant events, differences between types or directions are not
         interpretable. The annotation defines many more events of some types than others, so
@@ -1374,10 +1445,10 @@ def main():
                 gene_calls[contrast][("LeafCutter", route)] = calls
                 add_row("LeafCutter", route, contrast, "clusters", (tested, outcomes.get("significant", 0)), f"p.adjust < {fdr}")
             elif kind == "aspli_bins":
-                calls = scan(path, "bin.fdr", args.fdr, genes, gene_column="locus", p_column="pvalue", effect_column="logFC")
+                calls = scan(path, "bin.fdr", args.aspli_bin_fdr, genes, gene_column="locus", p_column="pvalue", effect_column="logFC")
                 histograms[contrast]["ASpli bins"] = calls
                 gene_calls[contrast][("ASpli", route)] = calls
-                add_row("ASpli", route, contrast, "bins", calls.counts(), f"bin.fdr < {fdr}", effect_unit=log2fc, effects=calls.effects)
+                add_row("ASpli", route, contrast, "bins", calls.counts(), f"bin.fdr < {fmt(args.aspli_bin_fdr)}", effect_unit=log2fc, effects=calls.effects)
             elif kind == "aspli_clusters":
                 calls = scan(path, "FDR", args.fdr, genes, p_column="pvalue")
                 histograms[contrast]["ASpli junction clusters"] = calls
@@ -1431,10 +1502,6 @@ def main():
     write_suppa_events_section(suppa_events, suppa_significance, reverses)
     write_agreement_section(gene_calls, genes, reverses)
     write_pvalue_section(histograms, reverses)
-
-    with open("versions.yml", "w") as handle:
-        handle.write('"${task.process}":\\n')
-        handle.write(f"    python: {platform.python_version()}\\n")
 
 
 if __name__ == "__main__":

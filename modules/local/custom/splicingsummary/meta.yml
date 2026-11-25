@@ -43,18 +43,6 @@ input:
         pattern: "*.{txt,tsv,csv,psi,dpsi,gz,out}"
         ontologies: []
 output:
-  sample_metrics:
-    - - meta:
-          type: map
-          description: |
-            Groovy Map containing run information
-      - "splicing_sample_metrics_mqc.tsv":
-          type: file
-          description: Per-sample columns for the MultiQC General Statistics table,
-            written when a per-sample table is given
-          pattern: "splicing_sample_metrics_mqc.tsv"
-          ontologies:
-            - edam: http://edamontology.org/format_3475 # TSV
   sections:
     - - meta:
           type: map
@@ -63,30 +51,37 @@ output:
       - "*_mqc.json":
           type: file
           description: |
-            MultiQC custom-content sections under the Splicing parent section, each
-            written when its inputs are given: `splicing_verdict`, `splicing_design_check`,
-            `suppa_psi_concordance`, `differential_splicing` (significant features of
-            each analysis and contrast), `leafcutter_cluster_test_outcomes`,
-            `suppa_significant_events`, `splicing_method_agreement` and
-            `splicing_pvalue_histograms`
+            MultiQC custom content, each file written when its inputs are given:
+            `splicing_sample_metrics` (General Statistics columns), and the sections
+            under the Splicing parent section, `splicing_verdict`,
+            `splicing_design_check`, `suppa_psi_concordance`, `differential_splicing`
+            (significant features of each analysis and contrast),
+            `leafcutter_cluster_test_outcomes`, `suppa_significant_events`,
+            `splicing_method_agreement` and `splicing_pvalue_histograms`
           pattern: "*_mqc.json"
           ontologies:
             - edam: http://edamontology.org/format_3464 # JSON
-  versions_splicingsummary:
-    - versions.yml:
-        type: file
-        description: File containing software versions
-        pattern: "versions.yml"
-        ontologies:
-          - edam: http://edamontology.org/format_3750 # YAML
+  versions_python:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - python:
+          type: string
+          description: The name of the tool
+      - python --version | sed "s/Python //":
+          type: eval
+          description: The expression to obtain the version of the tool
 topics:
   versions:
-    - versions.yml:
-        type: file
-        description: File containing software versions
-        pattern: "versions.yml"
-        ontologies:
-          - edam: http://edamontology.org/format_3750 # YAML
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - python:
+          type: string
+          description: The name of the tool
+      - python --version | sed "s/Python //":
+          type: eval
+          description: The expression to obtain the version of the tool
 authors:
   - "@pinin4fjords"
 maintainers:

@@ -37,10 +37,13 @@ export_plots: true
 disable_version_detection: true
 
 # Trim Galore names trimmed reads `<sample>_1_val_1` (paired-end) or `<sample>_trimmed`
-# (single-end), so these give trimmed and raw reads the same sample name
+# (single-end), and featureCounts and samtools report `<sample>_sorted.bam`, so these give
+# every tool's reports the sample name
 extra_fn_clean_exts:
-  - "_sorted"
-  - "_val"
+  - type: regex
+    pattern: "_sorted(?=\\.|$)"
+  - type: regex
+    pattern: "_val_[12](?=\\.|$)"
   - type: regex
     pattern: "_trimmed$"
 
@@ -124,67 +127,3 @@ custom_data:
         max: 100
       Unstranded (%):
         max: 100
-  splicing_sample_metrics:
-    plot_type: "generalstats"
-    headers:
-      star_annotated_splices:
-        title: "Annotated Splices"
-        namespace: "STAR"
-        description: "Percentage of the splices STAR found that are annotated junctions (Number of splices: Annotated (sjdb) over Total, from Log.final.out). Below about 95% suggests a genome/annotation mismatch."
-        suffix: "%"
-        min: 0
-        max: 100
-        scale: "RdYlGn"
-      star_splices:
-        title: "Spliced Reads"
-        namespace: "STAR"
-        description: "Spliced reads per sample from STAR, in millions. No validated minimum exists; in one benchmark, detection of validated events was mostly stable from 40-50 M total reads per sample (Mehmood et al. 2020). See Junction Saturation for whether this sample's junction detection has levelled off."
-        suffix: " M"
-        format: "{:,.2f}"
-        min: 0
-        scale: "Blues"
-      dexseq_reads_in_bins:
-        title: "Reads in Exon Bins"
-        namespace: "DEXSeq"
-        description: "Approximate percentage of the reads dexseq_count counted into exon bins, against those it counted as _empty, _ambiguous, _lowaqual or _notaligned; a read overlapping several exon bins of one gene counts once for each. Low values usually mean dexseq_count ran with the wrong strandedness or a mismatched annotation."
-        suffix: "%"
-        min: 0
-        max: 100
-        scale: "RdYlGn"
-      suppa_events_quantified:
-        title: "Events Quantified"
-        namespace: "SUPPA2"
-        description: "Percentage of the SUPPA2 local splicing events with a PSI value in the sample, from the STAR + Salmon route when both routes ran"
-        suffix: "%"
-        min: 0
-        max: 100
-        scale: "RdYlGn"
-        hidden: true
-      leafcutter_junction_reads:
-        title: "Junction Reads"
-        namespace: "LeafCutter"
-        description: "Reads on the introns of the LeafCutter clusters in the sample, a read spanning several introns counting once for each. leafcutter_ds tests a cluster only in samples with at least --leafcutter_ds_min_coverage (-c) reads on it"
-        format: "{:,.0f}"
-        min: 0
-        scale: "Blues"
-      leafcutter_introns_detected:
-        title: "Introns Detected"
-        namespace: "LeafCutter"
-        description: "Percentage of the introns in the LeafCutter clusters with at least one read in the sample"
-        suffix: "%"
-        min: 0
-        max: 100
-        scale: "RdYlGn"
-        hidden: true
-      leafcutter_reads_strandless:
-        title: "Reads Strandless"
-        namespace: "LeafCutter"
-        description: "Percentage of the junction reads of an unstranded sample on junctions that got no strand from the aligner XS tag, the splice motif or the annotation. LeafCutter discards these junctions without a message, so more than about 5% is worth checking"
-        suffix: "%"
-        min: 0
-        max: 100
-        scale: "OrRd"
-        hidden: true
-        cond_formatting_rules:
-          warn:
-            - gt: 5

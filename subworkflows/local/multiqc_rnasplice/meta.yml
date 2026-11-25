@@ -39,8 +39,8 @@ input:
   - ch_leafcutter_strand_summary:
       type: file
       description: |
-        Junction strand summary of each unstranded sample, combined into
-        leafcutter_junction_strands_mqc.tsv
+        Junction strand summary of each unstranded sample, passed to CUSTOM_SPLICINGSUMMARY
+        for the LeafCutter reads strandless column of General Statistics
         Structure: [ val(meta), path(tsv) ]
       pattern: "*.strand_summary.tsv"
   - ch_rmats_read_outcomes:
@@ -69,7 +69,7 @@ input:
       pattern: "*.yml"
   - multiqc_config:
       type: string
-      description: Path to a custom MultiQC config, or null for the one of the pipeline
+      description: Path to a custom MultiQC config applied on top of the one of the pipeline, or null
   - multiqc_logo:
       type: string
       description: Path to a custom MultiQC logo, or null
