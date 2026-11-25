@@ -2,7 +2,7 @@
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://raw.githubusercontent.com/nf-core/rnasplice/master/assets/schema_input.json",
     "title": "nf-core/rnasplice pipeline - params.input schema",
-    "description": "Schema for the file provided with params.input",
+    "description": "Schema for the file provided with params.input. The input type of each method is worked out from which of the fastq, genome_bam, transcriptome_bam and salmon_results columns are filled",
     "type": "array",
     "items": {
         "type": "object",
@@ -54,7 +54,7 @@
                 "format": "file-path",
                 "exists": true,
                 "pattern": "^([\\S\\s]*\\/)?[^\\s\\/]+\\.f(ast)?q\\.gz$",
-                "errorMessage": "FastQ file for reads 1 must be provided, cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
+                "errorMessage": "FastQ file for reads 1 cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
             },
             "fastq_2": {
                 "type": "string",
@@ -65,17 +65,63 @@
             },
             "strandedness": {
                 "type": "string",
-                "errorMessage": "Strandedness must be provided and be one of 'auto', 'forward', 'reverse' or 'unstranded'",
+                "errorMessage": "Strandedness must be one of 'auto', 'forward', 'reverse' or 'unstranded'",
                 "enum": ["auto", "forward", "reverse", "unstranded"],
                 "meta": ["strandedness"]
+            },
+            "single_end": {
+                "type": "boolean",
+                "errorMessage": "Single end must be 'true' for single end reads or 'false' for paired end reads",
+                "meta": ["single_end"],
+                "default": false
             },
             "condition": {
                 "type": "string",
                 "pattern": "^\\S+$",
                 "errorMessage": "Condition must be provided and contain syntactically valid names.",
                 "meta": ["condition"]
+            },
+            "genome_bam": {
+                "type": "string",
+                "format": "file-path",
+                "exists": true,
+                "pattern": "^\\S+\\.bam$",
+                "errorMessage": "Genome BAM file cannot contain spaces and must have extension '.bam'"
+            },
+            "transcriptome_bam": {
+                "type": "string",
+                "format": "file-path",
+                "exists": true,
+                "pattern": "^\\S+\\.bam$",
+                "errorMessage": "Transcriptome BAM file cannot contain spaces and must have extension '.bam'"
+            },
+            "salmon_results": {
+                "type": "string",
+                "pattern": "^\\S+\\.tar\\.gz$",
+                "format": "file-path",
+                "exists": true,
+                "errorMessage": "Salmon results must be a '.tar.gz' archive and cannot contain spaces"
+            },
+            "seq_platform": {
+                "type": "string",
+                "pattern": "^\\S+$",
+                "errorMessage": "seq_platform cannot contain spaces",
+                "meta": ["seq_platform"]
+            },
+            "seq_center": {
+                "type": "string",
+                "pattern": "^\\S+$",
+                "errorMessage": "seq_center cannot contain spaces",
+                "meta": ["seq_center"]
+            },
+            "percent_mapped": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100,
+                "errorMessage": "percent_mapped must be a number between 0 and 100",
+                "meta": ["percent_mapped"]
             }
         },
-        "required": ["sample", "fastq_1", "strandedness", "condition"]
+        "required": ["sample", "condition"]
     }
 }
