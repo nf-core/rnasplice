@@ -319,12 +319,6 @@ def validateInputParameters() {
         error("--clusterevents_isoform specified without diffsplice_isoform... please specify e.g. --diffsplice_isoform=true")
     }
 
-    if (!params.skip_alignment) {
-        if (params.aligner == "star_salmon" && params.pseudo_aligner == "salmon") {
-            log.warn("Both --aligner=star_salmon and --pseudo_aligner=salmon specified. Downstream analyses will be performed on both salmon output files.")
-        }
-    }
-
     if (!params.input) {
         error("Please provide an input samplesheet to the pipeline e.g. '--input samplesheet.csv'")
     }
@@ -402,6 +396,10 @@ def getInputRoutes(input_types) {
 def validateInputRoutes(input_routes) {
     if (input_routes.input_types.fastq && !input_routes.fastq) {
         log.info("The FASTQ files of the samplesheet are not used: BAM files or Salmon results are given for every analysis that would use them.")
+    }
+
+    if (input_routes.star_salmon && input_routes.pseudo_salmon) {
+        log.warn("Both --aligner=star_salmon and --pseudo_aligner=salmon specified. Downstream analyses will be performed on both salmon output files.")
     }
 
     // ASpli reads genome BAM files, which only the STAR alignment or a genome BAM column provide
