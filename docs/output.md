@@ -27,7 +27,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 - Other steps.
   - [BEDTools and bedGraphToBigWig](#bedtools-and-bedgraphtobigwig) - Create bigWig coverage files
 - Quality control.
-  - [RSeQC](#rseqc) - Strandedness check of the genome alignments
+  - [RSeQC](#rseqc) - Strandedness check and junction saturation of the genome alignments
   - [MultiQC](#multiqc) - Aggregate report describing results and QC from the whole pipeline
 - Pseudo-alignment and quantification.
   - [Salmon](#salmon) - Wicked fast gene and isoform quantification relative to the transcriptome
@@ -243,6 +243,9 @@ The [bigWig](https://genome.ucsc.edu/goldenpath/help/bigWig.html) format is an i
 
 - `<ALIGNER>/rseqc/infer_experiment/`
   - `*.infer_experiment.txt`: If `--strand_check` is specified, or for a genome BAM sample set to `auto`, the fraction of reads explained by each strand, from RSeQC infer_experiment.py.
+- `<ALIGNER>/rseqc/junction_saturation/`
+  - `*.junctionSaturation_plot.pdf`: Unless `--skip_junction_saturation` is specified, the known, novel and all splice junctions RSeQC junction_saturation.py finds in growing subsets of the reads of each genome BAM file.
+  - `*.junctionSaturation_plot.r`: The R script that draws the plot, with its numbers, which MultiQC reads.
 
 </details>
 
@@ -271,13 +274,13 @@ General Statistics gets these columns per sample:
 - STAR "Annotated Splices": the percentage of the splices STAR found that are annotated junctions. Below about 95% suggests the genome and annotation do not match.
 - DEXSeq "Reads in Exon Bins": the approximate percentage of the reads `dexseq_count` counted into exon bins. Low values usually mean the wrong strandedness or a mismatched annotation.
 - LeafCutter "Junction Reads": the reads on the introns of the LeafCutter clusters, which `leafcutter_ds` compares with `--leafcutter_ds_min_coverage`.
-- STAR "Spliced Reads": the spliced reads of each sample, in millions, which the junction-based analyses depend on.
+- STAR "Spliced Reads": the spliced reads of each sample, in millions. No validated minimum exists; the RSeQC Junction Saturation section shows whether junction detection has levelled off at the depth of each sample.
 - Hidden columns: the SUPPA2 events with a PSI value, the LeafCutter introns detected, and the LeafCutter reads left without a strand in unstranded samples, highlighted above 5%.
 
 The Splicing section has these parts, in this order:
 
-- Design and Depth: one line with the samples per condition and the median spliced reads per sample behind the differential calls, read as a low-power warning when the run falls short of the power thresholds the pipeline is given.
-- Design Check: whether each contrast has the samples the analyses that ran need, with a status that says what a contrast is short of and which parameter to change. It also flags LeafCutter settings below the tool defaults.
+- Design and Depth: one line with the samples per contrast, any LeafCutter settings below its defaults and the spliced reads per sample, followed by the published evidence that applies to such a design, where there is any.
+- Design Check: for each contrast, whether an analysis cannot run as configured, runs below the guidance in its documentation, or meets the tool requirements (which does not mean the contrast is adequately powered), with what to change and the published evidence that applies.
 - SUPPA2 PSI Concordance: how closely the PSI values of each pair of samples agree. Samples of the same condition should agree most.
 - Differential Splicing: the features each analysis called significant in each contrast, one column per analysis, at gene level where the analysis has one. Counts are not comparable across columns. Feature-level counts, the second quantification route, the numbers tested and the median effect size of the significant calls (|log2 fold change|, |dPSI|, |IncLevelDifference| or |dIF|) are hidden columns. A contrast that tests the same comparison as another in reverse is marked, here and in the plots, as it is not an independent finding.
 - LeafCutter Cluster Test Outcomes: whether each intron cluster was tested, and if not why, with the LeafCutter settings the pipeline ran with.
@@ -593,7 +596,7 @@ The rMATS, LeafCutter and IsoformSwitchAnalyzeR tables already have gene names, 
 
 - `genome/`
   - `*.fa`, `*.gtf`, `*.gff`: If the `--save_reference` parameter is provided then all of the genome reference files will be placed in this directory.
-  - `*.bed`: If the `--save_reference` parameter is provided together with `--strand_check`, or with a genome BAM samplesheet that has an `auto` sample, the BED12 gene model RSeQC reads, made from the GTF.
+  - `*.bed`: If the `--save_reference` parameter is provided together with `--strand_check`, or with a genome BAM samplesheet that has an `auto` sample, the BED12 gene model RSeQC reads, made from the GTF. It is also made for the junction saturation unless `--skip_junction_saturation` is specified.
 - `genome/index/`
   - `star/`: Directory containing STAR indices.
   - `salmon/`: Directory containing Salmon indices.

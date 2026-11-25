@@ -83,6 +83,24 @@ RMATS_FDR = 0.05
 P_BINS = 20
 P_MIN_FEATURES = 100
 LEAFCUTTER_DEFAULTS = {"g": 3, "i": 5, "c": 20}
+DTU_ANALYSES = {"DRIMSeq", "IsoformSwitchAnalyzeR"}
+KIND_ANALYSES = {
+    "dexseq_deu_bins": "DEXSeq DEU",
+    "dexseq_deu_genes": "DEXSeq DEU",
+    "edger_exons": "edgeR DEU",
+    "edger_genes": "edgeR DEU",
+    "dexseq_dtu_transcripts": "DRIMSeq",
+    "dexseq_dtu_genes": "DRIMSeq",
+    "stager": "DRIMSeq",
+    "suppa_events": "SUPPA2",
+    "suppa_isoforms": "SUPPA2",
+    "isa_features": "IsoformSwitchAnalyzeR",
+    "leafcutter_ds": "LeafCutter",
+    "aspli_bins": "ASpli",
+    "aspli_clusters": "ASpli",
+    "rmats_summary": "rMATS",
+    "rmats_jc": "rMATS",
+}
 PSI_CONCORDANCE_MIN_EVENTS = 50
 PSI_CONCORDANCE_FEW_EVENTS = 200
 # Pure Python correlations are quadratic in samples, so the concordance uses a sample of events
@@ -154,8 +172,6 @@ def parse_ext_args(args_string):
     parser.add_argument("--min_samps_feature_expr", type=int, default=2)
     parser.add_argument("--min_samps_feature_prop", type=int, default=2)
     parser.add_argument("--rmats_paired_stats", type=flag, default=False)
-    parser.add_argument("--power_min_replicates", type=int, default=None, help="Samples per condition below which a run is called low power")
-    parser.add_argument("--power_min_splices", type=float, default=None, help="Median STAR splices per sample below which a run is called low power")
     return parser.parse_args(shlex.split(args_string))
 
 
@@ -540,65 +556,86 @@ def range_text(values, formatter=str):
     return formatter(low) if low == high else f"{formatter(low)} to {formatter(high)}"
 
 
-def write_verdict_section(contrasts, conditions, splices, args):
+REFERENCES = """
+    References:
+
+    * Love MI, Soneson C, Patro R (2018). Swimming downstream: statistical analysis of
+      differential transcript usage following Salmon quantification. F1000Research 7:952.
+    * Mehmood A et al. (2020). Systematic evaluation of differential splicing tools for
+      RNA-seq studies. Briefings in Bioinformatics 21:2052.
+    * LeafCutter usage documentation:
+      <https://davidaknowles.github.io/leafcutter/articles/Usage.html>
     """
-    The replicates and depth behind the differential calls, judged against the power
-    thresholds where they are set.
-    """
-    sizes = [size for pair in contrast_sizes(contrasts, conditions).values() for size in pair]
+
+
+def leafcutter_settings(args):
+    return args.leafcutter_min_samples_per_group, args.leafcutter_min_samples_per_intron, args.leafcutter_min_coverage
+
+
+def leafcutter_below_defaults(args):
+    g, i, c = leafcutter_settings(args)
+    return g < LEAFCUTTER_DEFAULTS["g"] or i < LEAFCUTTER_DEFAULTS["i"] or c < LEAFCUTTER_DEFAULTS["c"]
+
+
+def leafcutter_flags(args):
+    g, i, c = leafcutter_settings(args)
+    return f"-g {g} -i {i} -c {c}"
+
+
+LEAFCUTTER_DEFAULT_FLAGS = f"-g {LEAFCUTTER_DEFAULTS['g']} -i {LEAFCUTTER_DEFAULTS['i']} -c {LEAFCUTTER_DEFAULTS['c']}"
+
+
+def write_verdict_section(contrasts, conditions, splices, ran, args):
+    """The facts behind the differential calls, with the published evidence that applies to them."""
+    sizes = contrast_sizes(contrasts, conditions)
     if not sizes and not splices:
         return
-    facts, reasons, met = [], [], []
+    facts, evidence = [], []
     if sizes:
-        facts.append(f"{range_text(sizes)} sample{'' if max(sizes) == 1 else 's'} per condition")
-        if args.power_min_replicates is not None:
-            if min(sizes) < args.power_min_replicates:
-                reasons.append(f"fewer than {args.power_min_replicates} samples in a condition ({min(sizes)})")
-            else:
-                met.append(f"at least {args.power_min_replicates} samples per condition")
+        designs = {f"{n_treatment} vs {n_control}" for n_treatment, n_control in sizes.values()}
+        if len(designs) == 1:
+            facts.append(f"Design: {designs.pop()} samples per contrast.")
+        else:
+            facts.append("Design: " + ", ".join(f"{n_treatment} vs {n_control} ({name})" for name, (n_treatment, n_control) in sorted(sizes.items())) + " samples.")
+    if "LeafCutter" in ran and leafcutter_below_defaults(args):
+        facts.append(f"LeafCutter ran with <code>{leafcutter_flags(args)}</code>; its defaults are <code>{LEAFCUTTER_DEFAULT_FLAGS}</code>.")
     if splices:
-        median = statistics.median(splices.values())
-        facts.append(f"a median of {splices_text(median)} spliced reads per sample (STAR splices, {range_text(list(splices.values()), splices_text)})")
-        if args.power_min_splices is not None:
-            if median < args.power_min_splices:
-                reasons.append(f"a median below {splices_text(args.power_min_splices)} spliced reads per sample")
-            else:
-                met.append(f"a median of at least {splices_text(args.power_min_splices)} spliced reads per sample")
-    facts_text = f"Design and depth: {'; '.join(facts)}."
-    if reasons:
-        message = f"<strong>Low power: {' and '.join(reasons)}; treat differential calls as exploratory.</strong> {facts_text}"
-        alert = "warning"
-    elif met and not reasons and args.power_min_replicates is not None and (args.power_min_splices is not None or not splices):
-        message = f"<strong>Design and depth meet the power thresholds: {' and '.join(met)}.</strong> {facts_text}"
-        alert = "success"
-    else:
-        message = facts_text
-        alert = "info"
+        values = list(splices.values())
+        facts.append(f"Spliced reads per sample: median {splices_text(statistics.median(values))} (range {range_text(values, splices_text)}).")
+    smallest = min((size for pair in sizes.values() for size in pair), default=None)
+    if smallest is not None and ran & DTU_ANALYSES and smallest <= 2:
+        evidence.append("in simulations, most transcript-usage methods did not control the false discovery rate at 2 samples per group (Love et al. 2018)")
+    if smallest is not None and "LeafCutter" in ran and smallest < 4:
+        evidence.append("LeafCutter is documented as well calibrated down to 4 vs 4")
+    message = " ".join(facts)
+    if evidence:
+        sentence = "; ".join(evidence)
+        message += f" {sentence[0].upper()}{sentence[1:]}. Treat the calls below as exploratory."
     write_section(
         "splicing_verdict",
         "Design and Depth",
-        "The replicates and sequencing depth behind the differential splicing calls.",
+        "The replicates, analysis settings and sequencing depth behind the differential splicing calls, with the published evidence that applies to them.",
         "html",
-        f'<div class="alert alert-{alert}">{message}</div>',
+        f'<div class="alert alert-info">{message}</div>',
         """
-            Differential splicing tests compare the variation of splicing between conditions with
-            the variation between the replicates of a condition, so their power depends on the
-            number of samples per condition and on the reads that cover the splice junctions and
-            events. Spliced reads are the STAR `Number of splices: Total` of each sample, which
-            counts a read once for each junction it spans.
+            The line gives the samples per contrast, any analysis settings below the tool
+            defaults, and the spliced reads of each sample (STAR `Number of splices: Total`, which
+            counts a read once for each junction it spans). Where a published evaluation or the
+            tool documentation covers a design like this one, the line adds what it found, and
+            then suggests treating the calls as exploratory.
 
-            With few replicates or few spliced reads, calls are unstable: the genes called first
-            are the most highly expressed ones, and different analyses call different genes by
-            chance. Where the pipeline is given power thresholds, this line says whether the run
-            meets them; in a low-power run, use the results to plan a larger experiment or to
-            choose genes for validation, not as findings. The Design Check below gives the details
-            for each contrast and analysis.
-            """,
+            No published minimum number of replicates or depth applies to all splicing analyses.
+            Power and error control improve with replicates (Mehmood et al. 2020). The Design
+            Check below gives the details for each contrast and analysis, and the RSeQC Junction
+            Saturation section shows whether junction detection has levelled off at the depth of
+            each sample.
+            """
+        + REFERENCES,
     )
 
 
 def write_design_section(contrasts, conditions, splices, ran, args):
-    """Samples per condition of each contrast, against the minimum sample settings of the analyses that ran."""
+    """Samples per condition of each contrast, against the requirements and documented guidance of the analyses that ran."""
     if not contrasts or not conditions:
         return
     total = len({sample for samples in conditions.values() for sample in samples})
@@ -624,89 +661,108 @@ def write_design_section(contrasts, conditions, splices, ran, args):
         headers["drimseq_gene"] = {**setting, "title": "DRIMSeq min samples", "description": "--min_samps_gene_expr, applied to all the samples of the run"}
     headers["status"] = {
         "title": "Status",
-        "description": "OK when nothing below is short; otherwise what the contrast is short of and what to do about it",
+        "description": "Cannot run, Runs below documented guidance, or Meets tool requirements. Meeting the requirements of the tools does not mean the contrast is adequately powered",
         "scale": False,
-        "cond_formatting_rules": {"pass": [{"s_eq": "OK"}], "warn": [{"s_ne": "OK"}]},
+        "cond_formatting_rules": {"fail": [{"s_eq": "Cannot run"}], "warn": [{"s_eq": "Runs below documented guidance"}]},
     }
+    headers["details"] = {"title": "Details", "description": "What the contrast is short of, and what to change", "scale": False}
+    headers["evidence"] = {"title": "Evidence", "description": "Published evidence or tool documentation that applies to this design", "scale": False}
 
-    g, i, c = args.leafcutter_min_samples_per_group, args.leafcutter_min_samples_per_intron, args.leafcutter_min_coverage
+    g, i, c = leafcutter_settings(args)
+    variance_analyses = [analysis for analysis in ("DEXSeq DEU", "edgeR DEU", "DRIMSeq", "SUPPA2") if analysis in ran]
     data = {}
     for name, (n_treatment, n_control) in sorted(contrast_sizes(contrasts, conditions).items()):
         contrast = contrasts[name]
         row = {"treatment": contrast["treatment"], "control": contrast["control"], "n_treatment": n_treatment, "n_control": n_control}
-        problems = []
         smallest = min(n_treatment, n_control)
-        if smallest < 2:
-            problems.append(f"No replicates: a condition has one sample ({n_treatment} and {n_control}), so the tests cannot estimate within-condition variance. Add replicates.")
-        elif args.power_min_replicates is not None and smallest < args.power_min_replicates:
-            problems.append(f"Fewer than {args.power_min_replicates} samples in a condition ({n_treatment} and {n_control}); expect low power and unstable calls.")
-        samples = conditions.get(contrast["treatment"], set()) | conditions.get(contrast["control"], set())
-        contrast_splices = [splices[sample] for sample in samples if sample in splices]
-        if contrast_splices:
-            median = statistics.median(contrast_splices)
-            row["splices"] = median / 1e6
-            if args.power_min_splices is not None and median < args.power_min_splices:
-                problems.append(f"Low depth: a median of {splices_text(median)} spliced reads per sample, below {splices_text(args.power_min_splices)}, so many junctions and events have too few reads to test.")
+        cannot, below, evidence = [], [], []
+        if smallest < 2 and variance_analyses:
+            names = ", ".join("DEXSeq DTU" if analysis == "DRIMSeq" else analysis for analysis in variance_analyses)
+            cannot.append(f"{names} need replicates to estimate variance ({n_treatment} and {n_control} samples)")
+        if "SUPPA2" in ran and args.suppa_paired and n_treatment != n_control:
+            cannot.append(f"the SUPPA2 paired test (--diffsplice_paired) needs equal groups ({n_treatment} and {n_control})")
+        if "rMATS" in ran and args.rmats_paired_stats and n_treatment != n_control:
+            cannot.append(f"rMATS paired statistics (--rmats_paired_stats) need equal groups ({n_treatment} and {n_control})")
         if "LeafCutter" in ran:
             row["leafcutter_g"], row["leafcutter_i"], row["leafcutter_c"] = g, i, c
-            needs, options = [], []
             if smallest < g:
-                needs.append(f"at least {g} samples per group (this contrast has {n_treatment} and {n_control})")
-                options.append("--leafcutter_ds_min_samples_per_group")
+                cannot.append(f"LeafCutter needs at least {g} samples per group (-g) (lower --leafcutter_ds_min_samples_per_group or add replicates)")
             if n_treatment + n_control < i:
-                needs.append(f"{i} samples with reads per intron ({n_treatment + n_control} in total)")
-                options.append("--leafcutter_ds_min_samples_per_intron")
-            if needs:
-                problems.append(f"LeafCutter will test few or no clusters: it needs {' and '.join(needs)}. Add replicates or lower {' / '.join(options)}.")
-            defaults = LEAFCUTTER_DEFAULTS
-            if g < defaults["g"] or i < defaults["i"] or c < defaults["c"]:
-                problems.append(
-                    f"LeafCutter settings (-g {g} -i {i} -c {c}) are below the tool defaults (-g {defaults['g']} -i {defaults['i']} -c {defaults['c']}); calls rest on very few samples or reads."
-                )
+                cannot.append(f"LeafCutter needs {i} samples with reads per intron (-i), the contrast has {n_treatment + n_control} (lower --leafcutter_ds_min_samples_per_intron or add samples)")
+            if leafcutter_below_defaults(args):
+                below.append(f"LeafCutter settings {leafcutter_flags(args)} are below its defaults {LEAFCUTTER_DEFAULT_FLAGS}")
+            if smallest < 4:
+                below.append(f"LeafCutter with fewer than 4 samples per group ({n_treatment} and {n_control})")
+                evidence.append("LeafCutter: well calibrated down to 4 vs 4 (LeafCutter documentation)")
+            if (n_treatment, n_control) == (2, 2) and i < 4:
+                below.append(f"LeafCutter -i {i} is below the -i 4 (with -g 2) its documentation suggests for 2 vs 2")
+                evidence.append(f"LeafCutter: -i {i} is below the documented 2 vs 2 setting -i 4")
         if "DRIMSeq" in ran:
             row["drimseq_gene"] = args.min_samps_gene_expr
             needed = max(args.min_samps_gene_expr, args.min_samps_feature_expr, args.min_samps_feature_prop)
             if total < needed:
-                problems.append(
-                    f"DRIMSeq will keep few or no genes: its filter needs {needed} samples and the run has {total}. "
-                    "Add samples or lower --min_samps_gene_expr, --min_samps_feature_expr and --min_samps_feature_prop."
+                cannot.append(
+                    f"the DRIMSeq filter needs {needed} samples and the run has {total} (lower --min_samps_gene_expr, --min_samps_feature_expr and --min_samps_feature_prop, or add samples)"
                 )
-        if "SUPPA2" in ran and args.suppa_paired and n_treatment != n_control:
-            problems.append(f"The SUPPA2 paired test needs the same number of samples in each condition ({n_treatment} and {n_control}). Balance the conditions or set --diffsplice_paired false.")
-        if "rMATS" in ran and args.rmats_paired_stats and n_treatment != n_control:
-            problems.append(f"rMATS paired statistics need the same number of samples in each condition ({n_treatment} and {n_control}). Balance the conditions or set --rmats_paired_stats false.")
-        row["status"] = " ".join(problems) or "OK"
+        if ran & DTU_ANALYSES:
+            if smallest <= 2:
+                evidence.append("DTU: most methods did not control gene-level FDR at 2 per group (Love et al. 2018)")
+            elif smallest == 3:
+                evidence.append("DTU: DEXSeq + stageR OFDR about 10% vs 5% target at 3 per group (Love et al. 2018)")
+        if (n_treatment, n_control) == (2, 2):
+            evidence.append("Permutation checks impossible (3 distinct relabellings, minimum p = 1/3)")
+        samples = conditions.get(contrast["treatment"], set()) | conditions.get(contrast["control"], set())
+        contrast_splices = [splices[sample] for sample in samples if sample in splices]
+        if contrast_splices:
+            row["splices"] = statistics.median(contrast_splices) / 1e6
+        if cannot:
+            row["status"] = "Cannot run"
+        elif below:
+            row["status"] = "Runs below documented guidance"
+        else:
+            row["status"] = "Meets tool requirements"
+        details = []
+        if cannot:
+            details.append(f"Cannot run: {'; '.join(cannot)}.")
+        if below:
+            details.append(f"Runs below documented guidance: {'; '.join(below)}.")
+        row["details"] = " ".join(details)
+        row["evidence"] = "; ".join(evidence)
         data[name] = row
 
     write_section(
         "splicing_design_check",
         "Design Check",
-        "Whether each contrast has the replicates, depth and analysis settings for reliable calls. A contrast short of a minimum "
-        "gets few or no tested features, and calls that rest on few samples or reads are unstable.",
+        "Whether each contrast meets the requirements of the splicing analyses that ran and the guidance in their documentation, "
+        "with the published evidence that applies to its design. Meeting the requirements of the tools does not mean the contrast is adequately powered.",
         "table",
         data,
         """
             Each row is one contrast of the contrastsheet, with the samples of its treatment and
-            control conditions and their median STAR spliced reads. The status is **OK** when
-            nothing is short, and otherwise says what the contrast is short of and what to change.
-            The settings checked are hidden columns.
+            control conditions and their median STAR spliced reads. The status has three tiers:
 
-            * A condition with one sample gives no estimate of the variance between replicates,
-              so the tests have nothing to compare the difference between conditions with.
-            * Where the pipeline is given power thresholds, contrasts with fewer samples per
-              condition or fewer spliced reads per sample than them are flagged.
-            * LeafCutter tests a cluster only with `-g` samples per group with `-c` reads, using
-              introns with reads in `-i` samples. Lowering these below the defaults
-              (`-g 3 -i 5 -c 20`) lets it test clusters, but the calls then rest on very few
-              samples or reads.
-            * The DRIMSeq filter before DEXSeq DTU runs on all the samples of the run, and keeps
-              genes expressed in `--min_samps_gene_expr` of them.
-            * The paired tests of SUPPA2 (`--diffsplice_paired`) and rMATS
-              (`--rmats_paired_stats`) pair the samples of the two conditions, so need as many
-              in each.
+            * **Cannot run**: an analysis cannot test this contrast as configured. A condition
+              with one sample gives DEXSeq, edgeR, DEXSeq DTU and SUPPA2 no estimate of the
+              variance between replicates; the paired tests of SUPPA2 (`--diffsplice_paired`)
+              and rMATS (`--rmats_paired_stats`) need as many samples in each condition; and
+              LeafCutter and the DRIMSeq filter need the samples their settings ask for.
+            * **Runs below documented guidance**: the analysis runs, but with settings below
+              the tool defaults or with fewer samples than its documentation covers. LeafCutter
+              defaults to `-g 3 -i 5 -c 20`, is documented as well calibrated down to 4 vs 4, and
+              suggests `-i 4 -g 2` for 2 vs 2.
+            * **Meets tool requirements**: none of the above. This is not a statement that the
+              contrast is adequately powered.
 
-            Adding replicates is the best fix; more depth helps the junction-based analyses.
-            """,
+            The Details column says what to change, and the Evidence column gives the published
+            evaluations or documentation that apply to the design, where they exist. With 2 vs 2
+            samples there are only 3 distinct ways to relabel the samples, so permutation checks
+            cannot give a p-value below 1/3.
+
+            No published minimum number of replicates applies to all splicing analyses. Power and
+            error control improve with replicates (Mehmood et al. 2020); the entries above give
+            the evidence that exists for specific tools.
+            """
+        + REFERENCES,
         pconfig={"id": "splicing_design_check_table", "title": "Splicing: Design Check", "namespace": "Design check", "col1_header": "Contrast", "sort_rows": False},
         headers=headers,
     )
@@ -1218,6 +1274,8 @@ def main():
         for label, path in entries:
             # The id is the sample of a per-sample table and the contrast of a result table
             route, contrast = label["route"], label["id"]
+            if kind in KIND_ANALYSES:
+                ran.add(KIND_ANALYSES[kind])
             if kind == "star_log":
                 total, annotated = star_splices(path)
                 if total:
@@ -1252,16 +1310,13 @@ def main():
                 gene_calls[contrast][("edgeR DEU", route)] = calls
                 add_row("edgeR DEU", route, contrast, "genes", calls.counts(), f"Simes FDR < {fdr}")
             elif kind == "dexseq_dtu_transcripts":
-                ran.add("DRIMSeq")
                 calls = scan(path, "padj", args.fdr, genes, p_column="pvalue")
                 histograms[contrast][with_route("DEXSeq DTU transcripts", route)] = calls
                 add_row("DEXSeq DTU", route, contrast, "transcripts", calls.counts(), f"padj < {fdr}", tested_text=dexseq_tested.format("transcripts"))
             elif kind == "dexseq_dtu_genes":
-                ran.add("DRIMSeq")
                 calls = scan(path, "padj", args.fdr, genes, gene_column="groupID")
                 add_row("DEXSeq DTU", route, contrast, "genes", calls.counts(), f"gene q-value < {fdr}", tested_text=dexseq_tested.format("genes"))
             elif kind == "stager":
-                ran.add("DRIMSeq")
                 gene_level, transcripts = stager_levels(path, args.stager_alpha, genes)
                 gene_calls[contrast][("DEXSeq DTU + stageR", route)] = gene_level
                 alpha = fmt(args.stager_alpha)
@@ -1276,7 +1331,6 @@ def main():
                     tested_text="transcripts of the genes that passed screening, which the confirmation stage tests",
                 )
             elif kind in ("suppa_events", "suppa_isoforms"):
-                ran.add("SUPPA2")
                 stats = suppa_diffsplice(path, args.suppa_alpha, args.suppa_dpsi, genes)
                 if kind == "suppa_events":
                     suppa_events[(contrast, route)] = stats
@@ -1313,7 +1367,6 @@ def main():
                         effects=calls.effects,
                     )
             elif kind == "leafcutter_ds":
-                ran.add("LeafCutter")
                 outcomes, calls = leafcutter_outcomes(path, args.fdr, genes)
                 leafcutter_outcomes_by_contrast[contrast] = outcomes
                 tested = sum(outcomes.get(key, 0) for key in ("significant", "not_significant", "no_pvalue"))
@@ -1330,7 +1383,6 @@ def main():
                 histograms[contrast]["ASpli junction clusters"] = calls
                 add_row("ASpli", route, contrast, "junction clusters", calls.counts(), f"FDR < {fdr}")
             elif kind == "rmats_summary":
-                ran.add("rMATS")
                 add_row(
                     "rMATS",
                     route,
@@ -1343,7 +1395,6 @@ def main():
                     effect_unit="|IncLevelDifference|",
                 )
             elif kind == "rmats_jc":
-                ran.add("rMATS")
                 rmats_jc(path, rmats_calls[contrast], genes)
             else:
                 raise ValueError(f"Unknown splicing result kind '{kind}' for {path}")
@@ -1370,7 +1421,7 @@ def main():
 
     if general_stats:
         write_general_stats(general_stats)
-    write_verdict_section(contrasts, conditions, splices, args)
+    write_verdict_section(contrasts, conditions, splices, ran, args)
     write_design_section(contrasts, conditions, splices, ran, args)
     write_concordance_section(suppa_psi_by_route, condition_of)
     if rows:

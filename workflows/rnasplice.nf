@@ -48,6 +48,7 @@ include { SALMON_QUANT as SALMON_QUANT_STAR                               } from
 include { SALMON_QUANT as SALMON_QUANT_STAR_AUTO                          } from '../modules/nf-core/salmon/quant'
 include { EAUTILS_GTF2BED                                                 } from '../modules/nf-core/ea-utils/gtf2bed'
 include { RSEQC_INFEREXPERIMENT                                           } from '../modules/nf-core/rseqc/inferexperiment'
+include { RSEQC_JUNCTIONSATURATION                                        } from '../modules/nf-core/rseqc/junctionsaturation'
 include { CAT_FASTQ                                                       } from '../modules/nf-core/cat/fastq'
 include { SAMTOOLS_SPLITHEADER as SAMTOOLS_SPLITHEADER_GENOME             } from '../modules/nf-core/samtools/splitheader'
 include { SAMTOOLS_SPLITHEADER as SAMTOOLS_SPLITHEADER_TRANSCRIPTOME      } from '../modules/nf-core/samtools/splitheader'
@@ -91,6 +92,7 @@ workflow RNASPLICE {
     def ch_multiqc_files = channel.empty()
     def pass_trimmed_reads = [:]
     def ch_rseqc_txt = channel.empty()
+    def ch_junction_saturation = channel.empty()
     def ch_leafcutter_strand_summary = channel.empty()
     def ch_fail_trimming_tsv = channel.empty()
     def ch_strand_check_tsv = channel.empty()
@@ -223,12 +225,13 @@ workflow RNASPLICE {
     }
 
     //
-    // MODULE: BED12 annotation for RSeQC, made for the strand check, or for a genome BAM
-    // samplesheet with an 'auto' sample
+    // MODULE: BED12 annotation for RSeQC, made for the strand check and the junction
+    // saturation of the genome BAM files, or for a genome BAM samplesheet with an 'auto' sample
     //
     def strand_check_genome_bam = params.strand_check && input_routes.genome
-    if (strand_check_genome_bam || input_routes.input_types.genome_bam) {
-        ch_gtf_for_bed = strand_check_genome_bam
+    def rseqc_genome_bam = strand_check_genome_bam || (!params.skip_junction_saturation && input_routes.genome)
+    if (rseqc_genome_bam || input_routes.input_types.genome_bam) {
+        ch_gtf_for_bed = rseqc_genome_bam
             ? ch_gtf
             : ch_gtf
                 .combine(ch_input_genome_bam.filter { meta, _bam -> meta.strandedness == 'auto' })
@@ -322,6 +325,17 @@ workflow RNASPLICE {
 
 
     if (input_routes.genome) {
+        //
+        // MODULE: Splice junctions RSeQC finds in growing subsets of the reads of each genome BAM
+        //
+        if (!params.skip_junction_saturation) {
+            RSEQC_JUNCTIONSATURATION(
+                ch_genome_bam.join(ch_genome_bam_index),
+                ch_gene_bed,
+            )
+            ch_junction_saturation = RSEQC_JUNCTIONSATURATION.out.rscript
+        }
+
         //
         // MODULE: Check the strandedness used against the one RSeQC infers from the genome BAM
         //
@@ -791,6 +805,7 @@ workflow RNASPLICE {
             .mix(ch_samtools_flagstat)
             .mix(ch_samtools_idxstats)
             .mix(ch_rseqc_txt)
+            .mix(ch_junction_saturation)
 
         if (params.edger_exon && input_routes.genome) {
             ch_multiqc_files = ch_multiqc_files.mix(EDGER_DEU.out.featureCounts_summary)

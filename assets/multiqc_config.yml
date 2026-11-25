@@ -135,7 +135,7 @@ custom_data:
       star_splices:
         title: "Spliced Reads"
         namespace: "STAR"
-        description: "Spliced reads in millions (Number of splices: Total, from Log.final.out; a read spanning several junctions counts once for each). The junction-based splicing analyses need these reads"
+        description: "Spliced reads per sample from STAR, in millions. No validated minimum exists; in one benchmark, detection of validated events was mostly stable from 40-50 M total reads per sample (Mehmood et al. 2020). See Junction Saturation for whether this sample's junction detection has levelled off."
         suffix: " M"
         format: "{:,.2f}"
         min: 0

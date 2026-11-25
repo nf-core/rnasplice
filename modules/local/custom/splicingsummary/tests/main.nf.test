@@ -61,7 +61,8 @@ nextflow_process {
                     'splicing_verdict_mqc.json',
                     'suppa_significant_events_mqc.json',
                 ] },
-                { assert sections('splicing_verdict').data.contains('Design and depth: 1 sample per condition; a median of 150 spliced reads per sample') },
+                { assert sections('splicing_verdict').data.contains('Design: 1 vs 1 samples per contrast. Spliced reads per sample: median 150 (range 100 to 200).') },
+                { assert sections('splicing_verdict').data.contains('Treat the calls below as exploratory.') },
                 { assert sections('differential_splicing').parent_id == 'splicing' },
                 { assert sections('differential_splicing').helptext },
                 { assert sections('differential_splicing').data == [
@@ -95,7 +96,9 @@ nextflow_process {
                     'A-B': [significant: 1, not_significant: 1, not_enough_samples: 1],
                 ] },
                 { assert sections('leafcutter_cluster_test_outcomes').description.contains('-g 3') },
-                { assert sections('splicing_design_check').data['A-B'].status.contains('LeafCutter will test few or no clusters: it needs at least 3 samples per group (this contrast has 1 and 1)') },
+                { assert sections('splicing_design_check').data['A-B'].status == 'Cannot run' },
+                { assert sections('splicing_design_check').data['A-B'].details.contains('LeafCutter needs at least 3 samples per group (-g)') },
+                { assert sections('splicing_design_check').data['A-B'].evidence.contains('Love et al. 2018') },
                 { assert sections('splicing_method_agreement').data == [
                     'GENE1 (A-B)': [
                         gene_id: 'G1',

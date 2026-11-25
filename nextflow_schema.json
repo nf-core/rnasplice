@@ -395,6 +395,12 @@
                     "description": "Skip bigWig file creation.",
                     "fa_icon": "fas fa-fast-forward"
                 },
+                "skip_junction_saturation": {
+                    "type": "boolean",
+                    "description": "Skip the RSeQC junction saturation of the genome BAM files.",
+                    "fa_icon": "fas fa-fast-forward",
+                    "help_text": "RSeQC junction_saturation.py counts the known and novel splice junctions found in growing subsets of the reads of each sample, which MultiQC plots to show whether junction detection has levelled off at the sequencing depth."
+                },
                 "strand_check": {
                     "type": "boolean",
                     "fa_icon": "fas fa-check-square",
