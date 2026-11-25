@@ -378,10 +378,7 @@ workflow RNASPLICE {
                 ch_contrastsheet,
                 ch_gene_annotation,
             )
-            ch_splicing_multiqc = ch_splicing_multiqc.mix(
-                DEXSEQ_DEU.out.dexseq_clean_txt.flatten(),
-                DEXSEQ_DEU.out.dexseq_exon_results_tsv.map { _meta, tsv -> tsv },
-            )
+            ch_splicing_multiqc = ch_splicing_multiqc.mix(DEXSEQ_DEU.out.dexseq_clean_txt.flatten())
         }
 
         if (params.edger_exon) {
@@ -460,7 +457,6 @@ workflow RNASPLICE {
             ch_splicing_multiqc = ch_splicing_multiqc.mix(
                 LEAFCUTTER.out.numers.map { _meta, counts -> counts },
                 LEAFCUTTER.out.cluster_significance.map { _meta, txt -> txt },
-                LEAFCUTTER.out.effect_sizes.map { _meta, txt -> txt },
             )
         }
 
@@ -542,9 +538,6 @@ workflow RNASPLICE {
                 ch_contrastsheet,
                 ch_gene_annotation,
             )
-            ch_splicing_multiqc = ch_splicing_multiqc.mix(
-                prefixedForMultiqc(DRIMSEQ_DEXSEQ_DTU_STAR_SALMON.out.dexseq_exon_results_tsv, 'star_salmon')
-            )
         }
 
         if (params.suppa) {
@@ -622,9 +615,6 @@ workflow RNASPLICE {
                 ch_samplesheet_file,
                 ch_contrastsheet,
                 ch_gene_annotation,
-            )
-            ch_splicing_multiqc = ch_splicing_multiqc.mix(
-                prefixedForMultiqc(DRIMSEQ_DEXSEQ_DTU_SALMON.out.dexseq_exon_results_tsv, 'salmon')
             )
         }
 
@@ -797,9 +787,9 @@ workflow RNASPLICE {
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-// The STAR and Salmon quantifications write SUPPA and DEXSeq DTU files of the same names,
-// and MultiQC names a comparison after its file, so MultiQC gets copies prefixed with the
-// quantification they came from
+// The STAR and Salmon quantifications write SUPPA dPSI files of the same names, and MultiQC
+// names a comparison after its file, so MultiQC gets copies prefixed with the quantification
+// they came from
 def prefixedForMultiqc(ch_files, prefix) {
     return ch_files
         .map { _meta, files -> files }
