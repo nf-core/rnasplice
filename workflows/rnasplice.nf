@@ -853,7 +853,9 @@ def splicingResults(ch_results, kind, route = '') {
 }
 
 //
-// SUPPA2 names its contrasts after their conditions, so the contrastsheet gives their names
+// SUPPA2 names its contrasts after their conditions, so the contrastsheet gives their names.
+// SUPPA2 and IsoformSwitchAnalyzeR ignore blocking, so contrasts with the same conditions
+// share their results
 //
 def suppaContrastResults(ch_dpsi, ch_contrastsheet, kind, route) {
     return ch_dpsi

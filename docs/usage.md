@@ -78,6 +78,8 @@ The strandedness used can be checked against the alignments with `--strand_check
 
 The genome BAM files are also checked with [RSeQC junction_saturation.py](https://rseqc.sourceforge.net/#junction-saturation-py), which counts the splice junctions found in growing subsets of the reads of each sample. MultiQC plots it to show whether junction detection has levelled off at the sequencing depth. Skip it with `--skip_junction_saturation`.
 
+The splicing sections of the MultiQC report count significant features with the thresholds the tools ran with: `--diffsplice_alpha` and `--clusterevents_dpsithreshold` for SUPPA2, `--stager_alpha` for stageR, `--aspli_bin_fdr` for ASpli, `--isoformswitchanalyzer_alpha` and `--isoformswitchanalyzer_dIF` for IsoformSwitchAnalyzeR, the `--leafcutter_ds_*` settings for LeafCutter, and the FDR cutoff of its own summary for rMATS.
+
 > [!NOTE]
 > rMATS needs every sample to have the same strandedness. With `auto` samples this is checked once their strandedness is inferred, and the pipeline stops if the samples differ.
 

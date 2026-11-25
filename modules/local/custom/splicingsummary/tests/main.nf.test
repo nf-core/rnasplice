@@ -122,9 +122,9 @@ nextflow_process {
                 { assert sections('splicing_method_agreement').data == [
                     'GENE1 (A-B)': [
                         gene_id: 'G1',
-                        n_families: 6,
+                        n_families: 4,
                         n_methods: 8,
-                        families: 'ASpli bins, Exon usage, LeafCutter clusters, SUPPA2 events, Transcript usage, rMATS events',
+                        families: 'ASpli, Exon counts, Junction reads, Transcript abundances',
                         methods: 'DEXSeq DEU, edgeR DEU, DEXSeq DTU + stageR, SUPPA2, IsoformSwitchAnalyzeR, LeafCutter, ASpli, rMATS',
                     ]
                 ] },
@@ -196,6 +196,84 @@ nextflow_process {
                 { assert sections('suppa_psi_concordance').description.startsWith('Spearman correlation of PSI between samples (60 events quantified in every sample, mean PSI 0.05-0.95).') },
                 { assert sections('suppa_psi_concordance').xcats == ['S1 (A)', 'S2 (A)', 'S3 (B)'] },
                 { assert sections('suppa_psi_concordance').data == [[1.0, 1.0, -1.0], [1.0, 1.0, -1.0], [-1.0, -1.0, 1.0]] },
+                { assert snapshot(process.out).match() }
+            )
+        }
+
+    }
+
+    test("malformed table") {
+
+        when {
+            process {
+                """
+                def results = [
+                    [ [ kind:'rmats_summary', route:''    , id:'A-B' ], 'A-B_bad_summary.txt'   ],
+                    [ [ kind:'suppa_events' , route:'STAR', id:'A-B' ], 'local_A-B.dpsi'        ],
+                    [ [ kind:'suppa_psi'    , route:'STAR', id:''    ], 'empty.psi'             ],
+                    [ [ kind:'contrasts'    , route:''    , id:''    ], 'contrastsheet.csv'     ],
+                    [ [ kind:'samplesheet'  , route:''    , id:''    ], 'sample_conditions.csv' ],
+                ]
+                input[0] = [
+                    [ id:'splicing_summary' ],
+                    results.collect { label, _name -> label },
+                    results.collect { _label, name -> file("${moduleTestDir}/\${name}", checkIfExists: true) },
+                ]
+                """
+            }
+        }
+
+        then {
+            def sections = { name -> path(process.out.sections[0][1].find { section -> section.toString().endsWith("/${name}_mqc.json") }).json }
+            assert process.success
+            assertAll(
+                { assert process.out.sections[0][1].collect { section -> new File(section.toString()).name }.sort() == [
+                    'differential_splicing_mqc.json',
+                    'splicing_design_check_mqc.json',
+                    'splicing_verdict_mqc.json',
+                    'suppa_significant_events_mqc.json',
+                ] },
+                { assert sections('splicing_verdict').data.contains('Could not summarise rMATS summary (A-B_bad_summary.txt): KeyError: &#x27;TotalEventsJC&#x27;. Its results are left out of this report.') },
+                { assert sections('differential_splicing').data == [
+                    'A-B': [suppa2_star_events: 2, suppa2_star_events_tested: 3, suppa2_star_events_effect: 0.4],
+                ] },
+                { assert snapshot(process.out).match() }
+            )
+        }
+
+    }
+
+    test("contrasts sharing their conditions") {
+
+        when {
+            process {
+                """
+                def results = [
+                    [ [ kind:'isa_features' , route:'STAR', id:''          ], 'isoformfeatures_shared.csv'   ],
+                    [ [ kind:'leafcutter_ds', route:''    , id:'treated'   ], 'A-B_cluster_significance.txt' ],
+                    [ [ kind:'leafcutter_ds', route:''    , id:'a_reverse' ], 'A-B_cluster_significance.txt' ],
+                    [ [ kind:'contrasts'    , route:''    , id:''          ], 'contrastsheet_shared.csv'     ],
+                ]
+                input[0] = [
+                    [ id:'splicing_summary' ],
+                    results.collect { label, _name -> label },
+                    results.collect { _label, name -> file("${moduleTestDir}/\${name}", checkIfExists: true) },
+                ]
+                """
+            }
+        }
+
+        then {
+            def sections = { name -> path(process.out.sections[0][1].find { section -> section.toString().endsWith("/${name}_mqc.json") }).json }
+            def isoforms = { contrast -> sections('differential_splicing').data[contrast].subMap(['isoformswitchanalyzer_star_isoforms', 'isoformswitchanalyzer_star_isoforms_tested']) }
+            assert process.success
+            assertAll(
+                { assert sections('differential_splicing').data.keySet() == ['a_reverse', 'treated', 'treated_batch'] as Set },
+                { assert isoforms('treated') == [isoformswitchanalyzer_star_isoforms: 1, isoformswitchanalyzer_star_isoforms_tested: 2] },
+                { assert isoforms('treated_batch') == [isoformswitchanalyzer_star_isoforms: 1, isoformswitchanalyzer_star_isoforms_tested: 2] },
+                { assert isoforms('a_reverse') == [isoformswitchanalyzer_star_isoforms: 1, isoformswitchanalyzer_star_isoforms_tested: 1] },
+                { assert sections('differential_splicing').data['a_reverse'].reciprocal == 'treated' },
+                { assert sections('leafcutter_cluster_test_outcomes').data.keySet() == ['treated', 'a_reverse (reverse of treated)'] as Set },
                 { assert snapshot(process.out).match() }
             )
         }

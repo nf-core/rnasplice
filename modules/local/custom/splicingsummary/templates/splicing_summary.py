@@ -8,13 +8,16 @@
 import argparse
 import csv
 import gzip
+import html
 import json
 import math
+import os
 import platform
 import operator
 import re
 import shlex
 import statistics
+import sys
 import textwrap
 from collections import defaultdict
 
@@ -109,16 +112,16 @@ PRIMARY_UNITS = {
     "rMATS": "JC events",
 }
 
-# Analyses that measure the same thing from the same quantification are one line of evidence
+# Analyses built on the same quantification are one line of evidence
 FAMILIES = {
-    "DEXSeq DEU": "Exon usage",
-    "edgeR DEU": "Exon usage",
-    "DEXSeq DTU + stageR": "Transcript usage",
-    "IsoformSwitchAnalyzeR": "Transcript usage",
-    "SUPPA2": "SUPPA2 events",
-    "LeafCutter": "LeafCutter clusters",
-    "ASpli": "ASpli bins",
-    "rMATS": "rMATS events",
+    "DEXSeq DEU": "Exon counts",
+    "edgeR DEU": "Exon counts",
+    "DEXSeq DTU + stageR": "Transcript abundances",
+    "IsoformSwitchAnalyzeR": "Transcript abundances",
+    "SUPPA2": "Transcript abundances",
+    "LeafCutter": "Junction reads",
+    "rMATS": "Junction reads",
+    "ASpli": "ASpli",
 }
 
 ROUTE_ORDER = ["STAR", "Salmon", ""]
@@ -131,6 +134,31 @@ P_BINS = 20
 P_MIN_FEATURES = 100
 LEAFCUTTER_DEFAULTS = {"g": 3, "i": 5, "c": 20}
 DTU_ANALYSES = {"DRIMSeq", "IsoformSwitchAnalyzeR"}
+INPUT_NAMES = {
+    "gene_annotation": "the gene annotation",
+    "contrasts": "the contrastsheet",
+    "samplesheet": "the samplesheet",
+    "star_log": "STAR log",
+    "dexseq_counts": "DEXSeq counts",
+    "suppa_psi": "SUPPA2 PSI",
+    "leafcutter_numers": "LeafCutter intron counts",
+    "leafcutter_strands": "LeafCutter junction strands",
+    "dexseq_deu_bins": "DEXSeq DEU exon bins",
+    "dexseq_deu_genes": "DEXSeq DEU genes",
+    "edger_exons": "edgeR DEU exons",
+    "edger_genes": "edgeR DEU genes",
+    "dexseq_dtu_transcripts": "DEXSeq DTU transcripts",
+    "dexseq_dtu_genes": "DEXSeq DTU genes",
+    "stager": "DEXSeq DTU + stageR",
+    "suppa_events": "SUPPA2 events",
+    "suppa_isoforms": "SUPPA2 isoforms",
+    "isa_features": "IsoformSwitchAnalyzeR",
+    "leafcutter_ds": "LeafCutter",
+    "aspli_bins": "ASpli bins",
+    "aspli_clusters": "ASpli junction clusters",
+    "rmats_summary": "rMATS summary",
+    "rmats_jc": "rMATS JC events",
+}
 KIND_ANALYSES = {
     "dexseq_deu_bins": "DEXSeq DEU",
     "dexseq_deu_genes": "DEXSeq DEU",
@@ -289,19 +317,35 @@ def splices_text(count):
     return f"{count / 1e6:.2f} M" if count >= 1e5 else f"{count:,.0f}"
 
 
+def contrasts_by_pair(contrasts):
+    """
+    The contrasts of each (treatment, control) pair, in contrastsheet order. Contrasts can share
+    their conditions and differ in blocking only.
+    """
+    by_pair = defaultdict(list)
+    for name, contrast in contrasts.items():
+        by_pair[(contrast["treatment"], contrast["control"])].append(name)
+    return by_pair
+
+
 class Reverses:
-    """Contrasts that test the same comparison as another in reverse; the later of each pair is the reverse."""
+    """
+    Contrasts that test the same comparison as an earlier contrast of the contrastsheet in
+    reverse, each paired with the first such earlier contrast.
+    """
 
     def __init__(self, contrasts):
-        by_pair = {(contrast["treatment"], contrast["control"]): name for name, contrast in contrasts.items()}
-        self.other = {
-            name: by_pair[(contrast["control"], contrast["treatment"])]
-            for name, contrast in contrasts.items()
-            if (contrast["control"], contrast["treatment"]) in by_pair
-        }
+        order = {name: index for index, name in enumerate(contrasts)}
+        by_pair = contrasts_by_pair(contrasts)
+        self.other = {}
+        for name, contrast in contrasts.items():
+            reversed_names = by_pair.get((contrast["control"], contrast["treatment"]), [])
+            if reversed_names:
+                self.other[name] = reversed_names[0]
+        self.order = order
 
     def is_reverse(self, contrast):
-        return contrast in self.other and contrast > self.other[contrast]
+        return contrast in self.other and self.order[contrast] > self.order[self.other[contrast]]
 
     def label(self, contrast):
         return f"{contrast} (reverse of {self.other[contrast]})" if self.is_reverse(contrast) else contrast
@@ -373,6 +417,15 @@ class Calls:
 
     def counts(self):
         return self.tested, self.significant
+
+    def extend(self, other):
+        self.tested += other.tested
+        self.significant += other.significant
+        self.tested_genes |= other.tested_genes
+        self.significant_genes |= other.significant_genes
+        self.p_bins = [mine + theirs for mine, theirs in zip(self.p_bins, other.p_bins)]
+        self.p_count += other.p_count
+        self.effects += other.effects
 
 
 def scan(path, q_column, cutoff, genes, gene_column=None, p_column=None, effect_column=None, delimiter="\\t"):
@@ -473,6 +526,8 @@ def suppa_psi(path):
                     informative = informative[::2]
                     stride *= 2
             informative_total += 1
+    if not events or not any(samples):
+        return None
     return {"samples": samples, "quantified": quantified, "events": events, "informative": informative, "informative_total": informative_total}
 
 
@@ -532,26 +587,31 @@ def stager_levels(path, alpha, genes):
 
 
 def isoformswitchanalyzer(path, contrasts, alpha, dif, genes):
-    """Isoforms and genes with a switch q-value, by the contrast of their comparison."""
-    by_pair = {(contrast["control"], contrast["treatment"]): name for name, contrast in contrasts.items()}
-    isoforms = defaultdict(Calls)
-    gene_switches = defaultdict(lambda: defaultdict(bool))
+    """
+    Isoforms and genes with a switch q-value, for every contrast of the conditions of each
+    comparison, as IsoformSwitchAnalyzeR ignores blocking.
+    """
+    isoforms_by_pair = defaultdict(Calls)
+    switches_by_pair = defaultdict(lambda: defaultdict(bool))
     for row in read_delimited(path, ","):
         qvalue = to_float(row["isoform_switch_q_value"])
         if qvalue is None:
             continue
-        pair = (row["condition_1"], row["condition_2"])
-        contrast = by_pair.get(pair, f"{pair[1]}-{pair[0]}")
+        pair = (row["condition_2"], row["condition_1"])
         delta = to_float(row["dIF"])
         significant = qvalue < alpha and delta is not None and abs(delta) > dif
-        isoforms[contrast].add(significant, effect=delta)
-        gene_switches[contrast][genes.key(row["gene_id"])] |= significant
-    gene_calls = {}
-    for contrast, switches in gene_switches.items():
-        gene_calls[contrast] = Calls()
-        for gene, switched in switches.items():
-            gene_calls[contrast].add(switched, gene)
-        gene_calls[contrast].effects = isoforms[contrast].effects
+        isoforms_by_pair[pair].add(significant, effect=delta)
+        switches_by_pair[pair][genes.key(row["gene_id"])] |= significant
+    by_pair = contrasts_by_pair(contrasts)
+    isoforms, gene_calls = {}, {}
+    for pair, pair_isoforms in isoforms_by_pair.items():
+        pair_genes = Calls()
+        for gene, switched in switches_by_pair[pair].items():
+            pair_genes.add(switched, gene)
+        pair_genes.effects = pair_isoforms.effects
+        for contrast in by_pair.get(pair, [f"{pair[0]}-{pair[1]}"]):
+            isoforms[contrast] = pair_isoforms
+            gene_calls[contrast] = pair_genes
     return isoforms, gene_calls
 
 
@@ -588,11 +648,13 @@ def rmats_summary(path):
     return tested, significant
 
 
-def rmats_jc(path, calls, genes):
+def rmats_jc(path, genes):
+    calls = Calls()
     for row in read_delimited(path):
         fdr = to_float(row.get("FDR"))
         if fdr is not None:
             calls.add(fdr <= RMATS_FDR, genes.key(row["GeneID"]), to_float(row.get("PValue")), to_float(row.get("IncLevelDifference")))
+    return calls
 
 
 #
@@ -650,10 +712,13 @@ def leafcutter_flags(args):
 LEAFCUTTER_DEFAULT_FLAGS = f"-g {LEAFCUTTER_DEFAULTS['g']} -i {LEAFCUTTER_DEFAULTS['i']} -c {LEAFCUTTER_DEFAULTS['c']}"
 
 
-def write_verdict_section(contrasts, conditions, splices, ran, args):
-    """The facts behind the differential calls, with the published evidence that applies to them."""
+def write_verdict_section(contrasts, conditions, splices, ran, args, failures):
+    """
+    The facts behind the differential calls, with the published evidence that applies to them,
+    and the inputs that could not be summarised.
+    """
     sizes = contrast_sizes(contrasts, conditions)
-    if not sizes and not splices:
+    if not sizes and not splices and not failures:
         return
     facts, evidence = [], []
     if sizes:
@@ -681,13 +746,19 @@ def write_verdict_section(contrasts, conditions, splices, ran, args):
         "Design and Depth",
         "The replicates, analysis settings and sequencing depth behind the differential splicing calls, with the published evidence that applies to them.",
         "html",
-        f'<div class="alert alert-info">{message}</div>',
+        (f'<div class="alert alert-info">{message}</div>' if message else "")
+        + "".join(
+            f'<div class="alert alert-warning">Could not summarise {html.escape(name)} ({html.escape(filename)}): {html.escape(error)}. Its results are left out of this report.</div>'
+            for name, filename, error in failures
+        ),
         """
             The line gives the samples per contrast, any analysis settings below the tool
             defaults, and the spliced reads of each sample (STAR `Number of splices: Total`, which
             counts a read once for each junction it spans). Where a published evaluation or the
             tool documentation covers a design like this one, the line adds what it found, and
-            then suggests treating the calls as exploratory.
+            then suggests treating the calls as exploratory. An input the pipeline could not
+            read, for example a table whose columns changed with a new version of its tool, is
+            listed with the error, and its results are left out of this report.
 
             No published minimum number of replicates or depth applies to all splicing analyses.
             Power and error control improve with replicates (Mehmood et al. 2020). The Design
@@ -987,7 +1058,7 @@ def write_differential_table(rows, reverses):
 
             How to read it: a contrast with significant features in several analyses has
             splicing changes that do not depend on one method, if the run has the replicates and
-            depth to support them (see Power and Design Check). Zero in an analysis that tested
+            depth to support them (see Design and Depth, and Design Check). Zero in an analysis that tested
             many features, in a well-replicated and deep run, suggests no large changes; it does
             not show there are none. Zero in one that tested few says little. Small median effect
             sizes with many calls point to subtle changes; large ones with few calls in a small
@@ -1174,8 +1245,8 @@ def write_agreement_section(gene_calls, genes, reverses):
     reverse_text = ", ".join(f"{contrast} is the reverse of {reverses.other[contrast]}" for contrast in sorted(reverses.other) if reverses.is_reverse(contrast) and contrast in gene_calls)
     description = (
         "Genes called significant by at least two independent lines of evidence in each contrast, sorted by the number of them. "
-        "Analyses that measure the same thing from the same quantification count once: exon usage (DEXSeq DEU, edgeR), "
-        "transcript usage (DEXSeq DTU + stageR, IsoformSwitchAnalyzeR), and SUPPA2, rMATS, LeafCutter and ASpli each on their own. "
+        "Analyses built on the same quantification count once: transcript abundances (DEXSeq DTU + stageR, IsoformSwitchAnalyzeR, SUPPA2), "
+        "exon counts (DEXSeq DEU, edgeR), junction reads (rMATS, LeafCutter), and ASpli, which combines its own bin and junction counts. "
         "An analysis that tests few genes calls few, so absence from this table is not disagreement."
     )
     if reverse_text:
@@ -1190,10 +1261,12 @@ def write_agreement_section(gene_calls, genes, reverses):
         names LeafCutter and IsoformSwitchAnalyzeR report are mapped to gene IDs through the
         annotation.
 
-        Agreement between analyses that share the same quantification (DEXSeq DTU and
-        IsoformSwitchAnalyzeR) is not independent support, so they count as one line of
-        evidence in the Lines of evidence column. A shared gene is a candidate only if the run
-        has adequate replicates and depth (see Power and Design Check); highly expressed genes
+        Analyses built on the same quantification count once in the Lines of evidence column,
+        as their agreement is not independent support: transcript abundances (DEXSeq DTU +
+        stageR, IsoformSwitchAnalyzeR and SUPPA2, which all use the Salmon transcript
+        quantification), exon counts (DEXSeq DEU and edgeR), junction reads (rMATS and
+        LeafCutter), and ASpli, which combines its own bin and junction counts. A shared gene is a candidate only if the run
+        has adequate replicates and depth (see Design and Depth, and Design Check); highly expressed genes
         are called first in small datasets. Where an analysis ran on both quantification
         routes, the last column lists the analyses that call the gene from both.
 
@@ -1295,20 +1368,41 @@ def main():
     for label, path in zip(labels, staged):
         by_kind[label["kind"]].append((label, path))
 
+    failures = []
+
+    def guarded(kind, path, parse):
+        """Parse one input, recording a failure instead of stopping the report."""
+        try:
+            parse()
+        except Exception as error:
+            name = INPUT_NAMES.get(kind, kind)
+            filename = os.path.basename(path)
+            message = f"{type(error).__name__}: {error}"
+            print(f"WARNING: could not summarise {name} ({filename}): {message}. Its results are left out of the report.", file=sys.stderr)
+            failures.append((name, filename, message))
+
     genes = Genes()
-    for _, path in by_kind.pop("gene_annotation", []):
-        genes.load(path)
     contrasts = {}
-    for _, path in by_kind.pop("contrasts", []):
-        for row in read_delimited(path, ","):
-            contrasts[row["contrast"]] = {"treatment": row["treatment"], "control": row["control"]}
-    reverses = Reverses(contrasts)
     conditions = defaultdict(set)
     condition_of = {}
+
+    def load_contrasts(path):
+        rows = [(row["contrast"], {"treatment": row["treatment"], "control": row["control"]}) for row in read_delimited(path, ",")]
+        contrasts.update(rows)
+
+    def load_samplesheet(path):
+        rows = [(row["sample"], row["condition"]) for row in read_delimited(path, ",")]
+        for sample, condition in rows:
+            conditions[condition].add(sample)
+            condition_of[sample] = condition
+
+    for _, path in by_kind.pop("gene_annotation", []):
+        guarded("gene_annotation", path, lambda path=path: genes.load(path))
+    for _, path in by_kind.pop("contrasts", []):
+        guarded("contrasts", path, lambda path=path: load_contrasts(path))
     for _, path in by_kind.pop("samplesheet", []):
-        for row in read_delimited(path, ","):
-            conditions[row["condition"]].add(row["sample"])
-            condition_of[row["sample"]] = row["condition"]
+        guarded("samplesheet", path, lambda path=path: load_samplesheet(path))
+    reverses = Reverses(contrasts)
 
     general_stats = defaultdict(dict)
     splices = {}
@@ -1342,134 +1436,140 @@ def main():
     dexseq_tested = "after independent filtering, the {} with an adjusted p-value"
     log2fc = "|log2 fold change|"
 
+    def summarise(kind, label, path):
+        # The id is the sample of a per-sample table and the contrast of a result table
+        route, contrast = label["route"], label["id"]
+        if kind in KIND_ANALYSES:
+            ran.add(KIND_ANALYSES[kind])
+        if kind == "star_log":
+            total, annotated = star_splices(path)
+            if total:
+                splices[contrast] = total
+                general_stats[contrast]["star_annotated_splices"] = percentage(annotated or 0, total)
+                general_stats[contrast]["star_splices"] = total / 1e6
+        elif kind == "dexseq_counts":
+            general_stats[contrast]["dexseq_reads_in_bins"] = dexseq_reads_in_bins(path)
+        elif kind == "suppa_psi":
+            psi = suppa_psi(path)
+            if psi:
+                suppa_psi_by_route[route] = psi
+        elif kind == "leafcutter_numers":
+            for sample, values in leafcutter_introns(path).items():
+                general_stats[sample]["leafcutter_junction_reads"] = values["reads"]
+                general_stats[sample]["leafcutter_introns_detected"] = values["introns_detected"]
+        elif kind == "leafcutter_strands":
+            strandless = [(row["Sample"], to_float(row["Reads strandless (%)"])) for row in read_delimited(path)]
+            for sample, value in strandless:
+                general_stats[sample]["leafcutter_reads_strandless"] = value
+        elif kind == "dexseq_deu_bins":
+            calls = scan(path, "padj", args.fdr, genes, gene_column="groupID", p_column="pvalue", effect_column="log2fold_")
+            histograms[contrast]["DEXSeq DEU exon bins"] = calls
+            add_row("DEXSeq DEU", route, contrast, "exon bins", calls.counts(), f"padj < {fdr}", tested_text=dexseq_tested.format("exon bins"), effect_unit=log2fc, effects=calls.effects)
+        elif kind == "dexseq_deu_genes":
+            calls = scan(path, "padj", args.fdr, genes, gene_column="groupID")
+            gene_calls[contrast][("DEXSeq DEU", route)] = calls
+            add_row("DEXSeq DEU", route, contrast, "genes", calls.counts(), f"gene q-value < {fdr}", tested_text=dexseq_tested.format("genes"))
+        elif kind == "edger_exons":
+            calls = scan(path, "FDR", args.fdr, genes, p_column="P.Value", effect_column="logFC", delimiter=",")
+            histograms[contrast]["edgeR DEU exons"] = calls
+            add_row("edgeR DEU", route, contrast, "exons", calls.counts(), f"FDR < {fdr}", effect_unit=log2fc, effects=calls.effects)
+        elif kind == "edger_genes":
+            calls = scan(path, "FDR", args.fdr, genes, gene_column="Geneid", delimiter=",")
+            gene_calls[contrast][("edgeR DEU", route)] = calls
+            add_row("edgeR DEU", route, contrast, "genes", calls.counts(), f"Simes FDR < {fdr}")
+        elif kind == "dexseq_dtu_transcripts":
+            calls = scan(path, "padj", args.fdr, genes, p_column="pvalue")
+            histograms[contrast][with_route("DEXSeq DTU transcripts", route)] = calls
+            add_row("DEXSeq DTU", route, contrast, "transcripts", calls.counts(), f"padj < {fdr}", tested_text=dexseq_tested.format("transcripts"))
+        elif kind == "dexseq_dtu_genes":
+            calls = scan(path, "padj", args.fdr, genes, gene_column="groupID")
+            add_row("DEXSeq DTU", route, contrast, "genes", calls.counts(), f"gene q-value < {fdr}", tested_text=dexseq_tested.format("genes"))
+        elif kind == "stager":
+            gene_level, transcripts = stager_levels(path, args.stager_alpha, genes)
+            gene_calls[contrast][("DEXSeq DTU + stageR", route)] = gene_level
+            alpha = fmt(args.stager_alpha)
+            add_row("DEXSeq DTU + stageR", route, contrast, "genes", gene_level.counts(), f"screening padj < {alpha}")
+            add_row(
+                "DEXSeq DTU + stageR",
+                route,
+                contrast,
+                "transcripts",
+                transcripts.counts(),
+                f"confirmation padj < {alpha}, at a target OFDR of {alpha}",
+                tested_text="transcripts of the genes that passed screening, which the confirmation stage tests",
+            )
+        elif kind in ("suppa_events", "suppa_isoforms"):
+            stats = suppa_diffsplice(path, args.suppa_alpha, args.suppa_dpsi, genes)
+            if kind == "suppa_events":
+                suppa_events[(contrast, route)] = stats
+                gene_calls[contrast][("SUPPA2", route)] = stats["calls"]
+            unit = "events" if kind == "suppa_events" else "transcripts"
+            add_row(
+                "SUPPA2",
+                route,
+                contrast,
+                unit,
+                stats["calls"].counts(),
+                suppa_significance.split(",")[0],
+                effect=f"|dPSI| > {fmt(args.suppa_dpsi)}",
+                effect_unit="|dPSI|" if kind == "suppa_events" else None,
+                effects=stats["calls"].effects,
+            )
+        elif kind == "isa_features":
+            isoforms, isa_genes = isoformswitchanalyzer(path, contrasts, args.isa_alpha, args.isa_dif, genes)
+            threshold, effect = f"switch q < {fmt(args.isa_alpha)}", f"|dIF| > {fmt(args.isa_dif)}"
+            for isa_contrast, calls in isoforms.items():
+                add_row("IsoformSwitchAnalyzeR", route, isa_contrast, "isoforms", calls.counts(), threshold, effect=effect)
+            for isa_contrast, calls in isa_genes.items():
+                gene_calls[isa_contrast][("IsoformSwitchAnalyzeR", route)] = calls
+                add_row(
+                    "IsoformSwitchAnalyzeR",
+                    route,
+                    isa_contrast,
+                    "genes with switches",
+                    calls.counts(),
+                    threshold,
+                    effect=effect,
+                    tested_text="genes with at least one isoform with a switch q-value",
+                    effect_unit="|dIF|",
+                    effects=calls.effects,
+                )
+        elif kind == "leafcutter_ds":
+            outcomes, calls = leafcutter_outcomes(path, args.fdr, genes)
+            leafcutter_outcomes_by_contrast[contrast] = outcomes
+            tested = sum(outcomes.get(key, 0) for key in ("significant", "not_significant", "no_pvalue"))
+            histograms[contrast]["LeafCutter clusters"] = calls
+            gene_calls[contrast][("LeafCutter", route)] = calls
+            add_row("LeafCutter", route, contrast, "clusters", (tested, outcomes.get("significant", 0)), f"p.adjust < {fdr}")
+        elif kind == "aspli_bins":
+            calls = scan(path, "bin.fdr", args.aspli_bin_fdr, genes, gene_column="locus", p_column="pvalue", effect_column="logFC")
+            histograms[contrast]["ASpli bins"] = calls
+            gene_calls[contrast][("ASpli", route)] = calls
+            add_row("ASpli", route, contrast, "bins", calls.counts(), f"bin.fdr < {fmt(args.aspli_bin_fdr)}", effect_unit=log2fc, effects=calls.effects)
+        elif kind == "aspli_clusters":
+            calls = scan(path, "FDR", args.fdr, genes, p_column="pvalue")
+            histograms[contrast]["ASpli junction clusters"] = calls
+            add_row("ASpli", route, contrast, "junction clusters", calls.counts(), f"FDR < {fdr}")
+        elif kind == "rmats_summary":
+            add_row(
+                "rMATS",
+                route,
+                contrast,
+                "JC events",
+                rmats_summary(path),
+                f"FDR <= {fmt(RMATS_FDR)}",
+                effect="no |dPSI| cutoff, the rMATS default",
+                tested_text="events with junction-count (JC) statistics, the primary rMATS result",
+                effect_unit="|IncLevelDifference|",
+            )
+        elif kind == "rmats_jc":
+            rmats_calls[contrast].extend(rmats_jc(path, genes))
+        else:
+            raise ValueError(f"Unknown splicing result kind '{kind}' for {path}")
+
     for kind, entries in by_kind.items():
         for label, path in entries:
-            # The id is the sample of a per-sample table and the contrast of a result table
-            route, contrast = label["route"], label["id"]
-            if kind in KIND_ANALYSES:
-                ran.add(KIND_ANALYSES[kind])
-            if kind == "star_log":
-                total, annotated = star_splices(path)
-                if total:
-                    splices[contrast] = total
-                    general_stats[contrast]["star_annotated_splices"] = percentage(annotated or 0, total)
-                    general_stats[contrast]["star_splices"] = total / 1e6
-            elif kind == "dexseq_counts":
-                general_stats[contrast]["dexseq_reads_in_bins"] = dexseq_reads_in_bins(path)
-            elif kind == "suppa_psi":
-                suppa_psi_by_route[route] = suppa_psi(path)
-            elif kind == "leafcutter_numers":
-                for sample, values in leafcutter_introns(path).items():
-                    general_stats[sample]["leafcutter_junction_reads"] = values["reads"]
-                    general_stats[sample]["leafcutter_introns_detected"] = values["introns_detected"]
-            elif kind == "leafcutter_strands":
-                for row in read_delimited(path):
-                    general_stats[row["Sample"]]["leafcutter_reads_strandless"] = to_float(row["Reads strandless (%)"])
-            elif kind == "dexseq_deu_bins":
-                calls = scan(path, "padj", args.fdr, genes, gene_column="groupID", p_column="pvalue", effect_column="log2fold_")
-                histograms[contrast]["DEXSeq DEU exon bins"] = calls
-                add_row("DEXSeq DEU", route, contrast, "exon bins", calls.counts(), f"padj < {fdr}", tested_text=dexseq_tested.format("exon bins"), effect_unit=log2fc, effects=calls.effects)
-            elif kind == "dexseq_deu_genes":
-                calls = scan(path, "padj", args.fdr, genes, gene_column="groupID")
-                gene_calls[contrast][("DEXSeq DEU", route)] = calls
-                add_row("DEXSeq DEU", route, contrast, "genes", calls.counts(), f"gene q-value < {fdr}", tested_text=dexseq_tested.format("genes"))
-            elif kind == "edger_exons":
-                calls = scan(path, "FDR", args.fdr, genes, p_column="P.Value", effect_column="logFC", delimiter=",")
-                histograms[contrast]["edgeR DEU exons"] = calls
-                add_row("edgeR DEU", route, contrast, "exons", calls.counts(), f"FDR < {fdr}", effect_unit=log2fc, effects=calls.effects)
-            elif kind == "edger_genes":
-                calls = scan(path, "FDR", args.fdr, genes, gene_column="Geneid", delimiter=",")
-                gene_calls[contrast][("edgeR DEU", route)] = calls
-                add_row("edgeR DEU", route, contrast, "genes", calls.counts(), f"Simes FDR < {fdr}")
-            elif kind == "dexseq_dtu_transcripts":
-                calls = scan(path, "padj", args.fdr, genes, p_column="pvalue")
-                histograms[contrast][with_route("DEXSeq DTU transcripts", route)] = calls
-                add_row("DEXSeq DTU", route, contrast, "transcripts", calls.counts(), f"padj < {fdr}", tested_text=dexseq_tested.format("transcripts"))
-            elif kind == "dexseq_dtu_genes":
-                calls = scan(path, "padj", args.fdr, genes, gene_column="groupID")
-                add_row("DEXSeq DTU", route, contrast, "genes", calls.counts(), f"gene q-value < {fdr}", tested_text=dexseq_tested.format("genes"))
-            elif kind == "stager":
-                gene_level, transcripts = stager_levels(path, args.stager_alpha, genes)
-                gene_calls[contrast][("DEXSeq DTU + stageR", route)] = gene_level
-                alpha = fmt(args.stager_alpha)
-                add_row("DEXSeq DTU + stageR", route, contrast, "genes", gene_level.counts(), f"screening padj < {alpha}")
-                add_row(
-                    "DEXSeq DTU + stageR",
-                    route,
-                    contrast,
-                    "transcripts",
-                    transcripts.counts(),
-                    f"confirmation padj < {alpha}, at a target OFDR of {alpha}",
-                    tested_text="transcripts of the genes that passed screening, which the confirmation stage tests",
-                )
-            elif kind in ("suppa_events", "suppa_isoforms"):
-                stats = suppa_diffsplice(path, args.suppa_alpha, args.suppa_dpsi, genes)
-                if kind == "suppa_events":
-                    suppa_events[(contrast, route)] = stats
-                    gene_calls[contrast][("SUPPA2", route)] = stats["calls"]
-                unit = "events" if kind == "suppa_events" else "transcripts"
-                add_row(
-                    "SUPPA2",
-                    route,
-                    contrast,
-                    unit,
-                    stats["calls"].counts(),
-                    suppa_significance.split(",")[0],
-                    effect=f"|dPSI| > {fmt(args.suppa_dpsi)}",
-                    effect_unit="|dPSI|" if kind == "suppa_events" else None,
-                    effects=stats["calls"].effects,
-                )
-            elif kind == "isa_features":
-                isoforms, isa_genes = isoformswitchanalyzer(path, contrasts, args.isa_alpha, args.isa_dif, genes)
-                threshold, effect = f"switch q < {fmt(args.isa_alpha)}", f"|dIF| > {fmt(args.isa_dif)}"
-                for isa_contrast, calls in isoforms.items():
-                    add_row("IsoformSwitchAnalyzeR", route, isa_contrast, "isoforms", calls.counts(), threshold, effect=effect)
-                for isa_contrast, calls in isa_genes.items():
-                    gene_calls[isa_contrast][("IsoformSwitchAnalyzeR", route)] = calls
-                    add_row(
-                        "IsoformSwitchAnalyzeR",
-                        route,
-                        isa_contrast,
-                        "genes with switches",
-                        calls.counts(),
-                        threshold,
-                        effect=effect,
-                        tested_text="genes with at least one isoform with a switch q-value",
-                        effect_unit="|dIF|",
-                        effects=calls.effects,
-                    )
-            elif kind == "leafcutter_ds":
-                outcomes, calls = leafcutter_outcomes(path, args.fdr, genes)
-                leafcutter_outcomes_by_contrast[contrast] = outcomes
-                tested = sum(outcomes.get(key, 0) for key in ("significant", "not_significant", "no_pvalue"))
-                histograms[contrast]["LeafCutter clusters"] = calls
-                gene_calls[contrast][("LeafCutter", route)] = calls
-                add_row("LeafCutter", route, contrast, "clusters", (tested, outcomes.get("significant", 0)), f"p.adjust < {fdr}")
-            elif kind == "aspli_bins":
-                calls = scan(path, "bin.fdr", args.aspli_bin_fdr, genes, gene_column="locus", p_column="pvalue", effect_column="logFC")
-                histograms[contrast]["ASpli bins"] = calls
-                gene_calls[contrast][("ASpli", route)] = calls
-                add_row("ASpli", route, contrast, "bins", calls.counts(), f"bin.fdr < {fmt(args.aspli_bin_fdr)}", effect_unit=log2fc, effects=calls.effects)
-            elif kind == "aspli_clusters":
-                calls = scan(path, "FDR", args.fdr, genes, p_column="pvalue")
-                histograms[contrast]["ASpli junction clusters"] = calls
-                add_row("ASpli", route, contrast, "junction clusters", calls.counts(), f"FDR < {fdr}")
-            elif kind == "rmats_summary":
-                add_row(
-                    "rMATS",
-                    route,
-                    contrast,
-                    "JC events",
-                    rmats_summary(path),
-                    f"FDR <= {fmt(RMATS_FDR)}",
-                    effect="no |dPSI| cutoff, the rMATS default",
-                    tested_text="events with junction-count (JC) statistics, the primary rMATS result",
-                    effect_unit="|IncLevelDifference|",
-                )
-            elif kind == "rmats_jc":
-                rmats_jc(path, rmats_calls[contrast], genes)
-            else:
-                raise ValueError(f"Unknown splicing result kind '{kind}' for {path}")
+            guarded(kind, path, lambda: summarise(kind, label, path))
 
     for contrast, calls in rmats_calls.items():
         gene_calls[contrast][("rMATS", "")] = calls
@@ -1489,11 +1589,12 @@ def main():
     if psi_route is not None:
         psi = suppa_psi_by_route[psi_route]
         for index, sample in enumerate(psi["samples"]):
-            general_stats[sample]["suppa_events_quantified"] = percentage(psi["quantified"][index], psi["events"])
+            if sample:
+                general_stats[sample]["suppa_events_quantified"] = percentage(psi["quantified"][index], psi["events"])
 
     if general_stats:
         write_general_stats(general_stats)
-    write_verdict_section(contrasts, conditions, splices, ran, args)
+    write_verdict_section(contrasts, conditions, splices, ran, args, failures)
     write_design_section(contrasts, conditions, splices, ran, args)
     write_concordance_section(suppa_psi_by_route, condition_of)
     if rows:

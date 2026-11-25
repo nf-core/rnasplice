@@ -1,0 +1,4 @@
+contrast,treatment,control,blocking
+treated,A,B,
+treated_batch,A,B,batch
+a_reverse,B,A,
