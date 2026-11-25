@@ -66,9 +66,9 @@ nextflow_pipeline {
             // they are read from the scripts of the tasks
             def scripts = []
             new File("${launchDir}/work").eachFileRecurse { script -> if (script.name == '.command.sh') { scripts << script.text } }
-            def dexseq_strand = scripts.findAll { script -> script.contains('dexseq_count.py') }
+            def dexseq_strand = scripts.findAll { script -> script.contains('dexseq_count.py') && script =~ /--stranded \S+/ }
                 .collect { script -> (script =~ /--stranded (\S+)/)[0][1] }
-            def rmats_prep_libtype = scripts.findAll { script -> script.contains('rmats.py') && script.contains('--task prep') }
+            def rmats_prep_libtype = scripts.findAll { script -> script.contains('rmats.py') && script.contains('--task prep') && script =~ /--libType \S+/ }
                 .collect { script -> (script =~ /--libType (\S+)/)[0][1] }
 
             // Processes run, one entry per task, to check which LeafCutter junction extraction
