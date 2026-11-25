@@ -66,9 +66,7 @@ for (ao in names(args_opt)) {
 
 # Read the inputs staged by Nextflow
 
-txi <- '$txi'
-
-tximport_tx2gene <- '$tximport_tx2gene'
+counts_file <- '$counts'
 
 samplesheet <- '$samplesheet'
 
@@ -76,11 +74,6 @@ samplesheet <- '$samplesheet'
 # Attach required packages
 
 library(DRIMSeq)
-
-
-# Read in tx2gene file
-
-tx2gene <- read.csv(tximport_tx2gene, sep = "\\t", header = TRUE)
 
 
 # Read in sample sheet
@@ -106,31 +99,22 @@ samps <- samps[!duplicated(samps[, "sample"]), ]
 colnames(samps) <- c("sample_id", "condition")
 
 
-# Get counts from the tximport txi object
+# Read the tximport transcript counts (scaledTPM or dtuScaledTPM): transcript ID, gene ID
+# and one column per sample
 
-txi <- readRDS(txi)
-
-# Take the counts from txi (will be scaledTPM or dtuScaledTPM)
-
-cts <- txi\$counts
-
-# Ensure tx2gene and txi cts match
-
-tx2gene <- tx2gene[match(rownames(cts), tx2gene\$tx), ]
-
-if (!all(rownames(cts) == tx2gene\$tx)) {
-
-    stop("Tx2gene rownames and txi rownames must match.", call. = FALSE)
-
-}
-
-# Create counts data frame used downstream
+cts <- read.csv(counts_file, sep = "\\t", header = TRUE, check.names = FALSE)
 
 counts <- data.frame(
-    gene_id    = tx2gene\$gene_id,
-    feature_id = tx2gene\$tx,
-    cts
+    gene_id    = cts[[2]],
+    feature_id = cts[[1]],
+    cts[, -(1:2), drop = FALSE],
+    check.names = FALSE
 )
+
+# tximport keeps transcripts missing from the tx2gene as genes of their own, which are
+# not part of the annotation, so they are left out
+
+counts <- counts[counts\$gene_id != counts\$feature_id, ]
 
 # Filter for txs with > 0 counts across all samples
 

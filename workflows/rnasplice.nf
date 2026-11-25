@@ -149,7 +149,7 @@ workflow RNASPLICE {
     // MODULE: Transcript table of the GTF
     //
     // One gffread table with the gene ID, name and biotype of each transcript, which
-    // tximport and the annotation tables both read
+    // the annotation tables read
     GFFREAD_TX2GENE(ch_gtf)
     ch_tx2gene = GFFREAD_TX2GENE.out.tx2gene
 
@@ -533,17 +533,15 @@ workflow RNASPLICE {
             .mix(SALMON_QUANT_STAR.out.results)
             .set { ch_salmon_results }
 
-        TX2GENE_TXIMPORT_STAR_SALMON(ch_salmon_results, ch_tx2gene)
-        ch_tximport_tx2gene = TX2GENE_TXIMPORT_STAR_SALMON.out.tximport_tx2gene
-        ch_txi_s = TX2GENE_TXIMPORT_STAR_SALMON.out.txi_s
-        ch_txi_dtu = TX2GENE_TXIMPORT_STAR_SALMON.out.txi_dtu
+        TX2GENE_TXIMPORT_STAR_SALMON(ch_salmon_results, ch_gtf, params.gtf_group_features, params.gtf_extra_attributes)
         ch_txi_suppa_tpm = TX2GENE_TXIMPORT_STAR_SALMON.out.suppa_tpm
 
         if (params.dexseq_dtu) {
-            ch_txi = (params.dtu_txi == "dtuScaledTPM") ? ch_txi_dtu : ch_txi_s
+            ch_dtu_counts = (params.dtu_txi == "dtuScaledTPM")
+                ? TX2GENE_TXIMPORT_STAR_SALMON.out.counts_transcript_dtu_scaled
+                : TX2GENE_TXIMPORT_STAR_SALMON.out.counts_transcript_scaled
             DRIMSEQ_DEXSEQ_DTU_STAR_SALMON(
-                ch_txi,
-                ch_tximport_tx2gene,
+                ch_dtu_counts.map { _meta, counts -> counts },
                 ch_samplesheet_file,
                 ch_contrastsheet,
                 ch_gene_annotation,
@@ -601,10 +599,10 @@ workflow RNASPLICE {
         )
         ch_salmon_results = SALMON_QUANT_SALMON.out.results
 
-        TX2GENE_TXIMPORT_SALMON(ch_salmon_results, ch_tx2gene)
+        TX2GENE_TXIMPORT_SALMON(ch_salmon_results, ch_gtf, params.gtf_group_features, params.gtf_extra_attributes)
     }
     else if (input_routes.salmon_results) {
-        TX2GENE_TXIMPORT_SALMON(ch_input_salmon_results, ch_tx2gene)
+        TX2GENE_TXIMPORT_SALMON(ch_input_salmon_results, ch_gtf, params.gtf_group_features, params.gtf_extra_attributes)
 
         // The samplesheet may point at tarballs, which TX2GENE_TXIMPORT extracts.
         // Consumers downstream need the extracted directories, not the archives
@@ -613,10 +611,11 @@ workflow RNASPLICE {
 
     if (input_routes.pseudo_salmon || input_routes.salmon_results) {
         if (params.dexseq_dtu) {
-            ch_txi = (params.dtu_txi == "dtuScaledTPM") ? TX2GENE_TXIMPORT_SALMON.out.txi_dtu : TX2GENE_TXIMPORT_SALMON.out.txi_s
+            ch_dtu_counts = (params.dtu_txi == "dtuScaledTPM")
+                ? TX2GENE_TXIMPORT_SALMON.out.counts_transcript_dtu_scaled
+                : TX2GENE_TXIMPORT_SALMON.out.counts_transcript_scaled
             DRIMSEQ_DEXSEQ_DTU_SALMON(
-                ch_txi,
-                TX2GENE_TXIMPORT_SALMON.out.tximport_tx2gene,
+                ch_dtu_counts.map { _meta, counts -> counts },
                 ch_samplesheet_file,
                 ch_contrastsheet,
                 ch_gene_annotation,

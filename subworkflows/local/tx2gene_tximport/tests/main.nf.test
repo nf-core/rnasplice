@@ -9,23 +9,16 @@ nextflow_workflow {
     tag "subworkflows_"
     tag "subworkflows/tx2gene_tximport"
     tag "untar"
+    tag "custom"
+    tag "custom/tx2gene"
     tag "tximeta"
     tag "tximeta/tximport"
+    tag "suppatpm"
 
-    // The transcript to gene table comes from GFFREAD_TX2GENE, as in the pipeline.
     // The Salmon results of the test-datasets are tarballs. Extracted here, they stand in
     // for the bare directories that SALMON_QUANT emits, so that both tests must give the
     // same tximport tables
     setup {
-        run("GFFREAD_TX2GENE") {
-            script "../../../../modules/local/gffread/tx2gene/main.nf"
-            process {
-                """
-                input[0] = file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
-                """
-            }
-        }
-
         run("UNTAR", alias: "UNTAR_SALMON_RESULTS") {
             script "../../../../modules/nf-core/untar/main.nf"
             process {
@@ -47,20 +40,21 @@ nextflow_workflow {
             workflow {
                 """
                 input[0] = UNTAR_SALMON_RESULTS.out.untar
-                input[1] = GFFREAD_TX2GENE.out.tx2gene
+                input[1] = channel.value(file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true))
+                input[2] = 'gene_id'
+                input[3] = 'gene_name'
                 """
             }
         }
 
         then {
-            // The tximport RDS files hold R objects with run specific attributes, and the
-            // Salmon directories hold logs with timestamps, so only their names are snapshotted
+            // The Salmon directories hold logs with timestamps, so only their names are snapshotted
             assertAll(
                 { assert workflow.success },
                 { assert snapshot(
                     sanitizeOutput(
                         workflow.out,
-                        unstableKeys: [ "salmon_results", "txi", "txi_s", "txi_ls", "txi_dtu", "gi", "gi_s", "gi_ls" ]
+                        unstableKeys: [ "salmon_results" ]
                     )
                 ).match() }
             )
@@ -79,14 +73,15 @@ nextflow_workflow {
                     [ [ id:'ERR188454', condition:'YRI' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454.tar.gz', checkIfExists: true) ],
                     [ [ id:'ERR204916', condition:'YRI' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916.tar.gz', checkIfExists: true) ],
                 )
-                input[1] = GFFREAD_TX2GENE.out.tx2gene
+                input[1] = channel.value(file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true))
+                input[2] = 'gene_id'
+                input[3] = 'gene_name'
                 """
             }
         }
 
         then {
-            // The tximport RDS files hold R objects with run specific attributes, and the
-            // Salmon directories hold logs with timestamps, so only their names are snapshotted
+            // The Salmon directories hold logs with timestamps, so only their names are snapshotted
             assertAll(
                 { assert workflow.success },
                 // The meta map comes out as it went in, with no key added for the tarball
@@ -100,7 +95,7 @@ nextflow_workflow {
                 { assert snapshot(
                     sanitizeOutput(
                         workflow.out,
-                        unstableKeys: [ "salmon_results", "txi", "txi_s", "txi_ls", "txi_dtu", "gi", "gi_s", "gi_ls" ]
+                        unstableKeys: [ "salmon_results" ]
                     )
                 ).match() }
             )
@@ -119,7 +114,9 @@ nextflow_workflow {
                     [ [ id:'ERR188383', condition:'GBR' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.tar.gz', checkIfExists: true) ],
                     [ [ id:'ERR188454', condition:'YRI' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454.tar.gz', checkIfExists: true) ],
                 )
-                input[1] = GFFREAD_TX2GENE.out.tx2gene
+                input[1] = channel.value(file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true))
+                input[2] = 'gene_id'
+                input[3] = 'gene_name'
                 """
             }
         }

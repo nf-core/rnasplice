@@ -4,6 +4,9 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - bioconda::bioconductor-tximeta==1.28.2
-  - bioconda::bioconductor-tximport=1.38.2
-  - conda-forge::r-base=4.5.2
+  - conda-forge::coreutils=9.5
+  - conda-forge::grep=3.11
+  - conda-forge::gzip=1.13
+  - conda-forge::lbzip2=2.5
+  - conda-forge::sed=4.8
+  - conda-forge::tar=1.34

@@ -10,8 +10,7 @@ include { GENEANNOTATION_ANNOTATE as GENEANNOTATION_ANNOTATE_STAGER } from '../.
 
 workflow DRIMSEQ_DEXSEQ_DTU {
     take:
-    txi // path: *.txi*.rds (either txi.s.rds or txi.dtu.rds)
-    tximport_tx2gene // path: tximport.tx2gene.tsv
+    counts // path: tximport transcript counts, transcript_counts_dtu_scaled.tsv or transcript_counts_scaled.tsv
     samplesheet // path: /path/to/samplesheet.csv
     ch_contrastsheet // channel: [ contrast:, treatment:, control:, blocking: (when set) ]
     ch_gene_annotation // channel: [ val(meta), path(tsv) ], the gene annotation table, as a value channel
@@ -23,8 +22,7 @@ workflow DRIMSEQ_DEXSEQ_DTU {
     //
 
     DRIMSEQ_DMFILTER(
-        txi,
-        tximport_tx2gene,
+        counts,
         samplesheet,
     )
 

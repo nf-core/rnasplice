@@ -14,19 +14,13 @@ components:
   - dexseq/dtu
   - stager
 input:
-  - txi:
+  - counts:
       type: file
       description: |
-        The input channel containing the tximport object holding the transcript level
-        counts, either scaled TPM (`txi.s.rds`) or DTU scaled TPM (`txi.dtu.rds`)
-        Structure: [ path(txi) ]
-      pattern: "*.txi*.rds"
-  - tximport_tx2gene:
-      type: file
-      description: |
-        The input channel containing the transcript to gene mapping written by tximport
-        Structure: [ path(tx2gene) ]
-      pattern: "*.tximport.tx2gene.tsv"
+        The input channel containing the tximport transcript counts, either scaled TPM
+        (`transcript_counts_scaled.tsv`) or DTU scaled TPM (`transcript_counts_dtu_scaled.tsv`)
+        Structure: [ path(tsv) ]
+      pattern: "*transcript_counts*scaled.tsv"
   - samplesheet:
       type: file
       description: |

@@ -1,0 +1,73 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "suppatpm"
+description: Turn the transcript TPM table of tximeta/tximport into the expression
+  table format SUPPA reads
+keywords:
+  - suppa
+  - tximport
+  - tpm
+  - alternative splicing
+tools:
+  - "coreutils":
+      description: "The GNU Core Utilities are the basic file, shell and text manipulation
+        utilities of the GNU operating system."
+      homepage: "https://www.gnu.org/software/coreutils/manual/html_node/index.html"
+      documentation: "https://www.gnu.org/software/coreutils/manual/html_node/index.html"
+      tool_dev_url: "http://git.savannah.gnu.org/cgit/coreutils.git"
+      licence: ["GPL-3.0-or-later"]
+      identifier: ""
+
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing table information
+          e.g. `[ id:'suppa_tpm' ]`
+    - tpm:
+        type: file
+        description: Transcript TPM table from tximeta/tximport, with transcript ID and
+          gene ID columns followed by one column per sample
+        pattern: "*.tsv"
+        ontologies:
+          - edam: http://edamontology.org/format_3475
+output:
+  tpm:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing table information
+            e.g. `[ id:'suppa_tpm' ]`
+      - ${prefix}.txt:
+          type: file
+          description: SUPPA expression table, with sample names in a header one field
+            shorter than the rows, whose first field is the transcript ID
+          pattern: "*.txt"
+          ontologies:
+            - edam: http://edamontology.org/format_3475
+  versions_cut:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - cut:
+          type: string
+          description: The name of the tool
+      - cut --version 2>&1 | head -1 | sed "s/^.*coreutils) //":
+          type: eval
+          description: The expression to obtain the version of the tool
+
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - cut:
+          type: string
+          description: The name of the tool
+      - cut --version 2>&1 | head -1 | sed "s/^.*coreutils) //":
+          type: eval
+          description: The expression to obtain the version of the tool
+
+authors:
+  - "@pinin4fjords"
+maintainers:
+  - "@pinin4fjords"

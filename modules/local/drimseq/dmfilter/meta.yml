@@ -21,15 +21,13 @@ tools:
       identifier: biotools:drimseq
 
 input:
-  - - txi:
+  - - counts:
         type: file
-        description: Serialised tximport object holding transcript-level counts, either
-          scaledTPM (`*.txi.s.rds`) or dtuScaledTPM (`*.txi.dtu.rds`)
-        pattern: "*.rds"
-  - - tximport_tx2gene:
-        type: file
-        description: Tab-separated transcript to gene table with `tx` and `gene_id`
-          column headers
+        description: Tab-separated transcript counts from tximeta/tximport, scaledTPM
+          (`*transcript_counts_scaled.tsv`) or dtuScaledTPM (`*transcript_counts_dtu_scaled.tsv`),
+          with transcript ID and gene ID columns followed by one column per sample.
+          Transcripts that tximport keeps as their own gene, because the tx2gene lacks
+          them, are left out
         pattern: "*.tsv"
         ontologies:
           - edam: "http://edamontology.org/format_3475" # TSV
