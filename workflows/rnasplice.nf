@@ -34,6 +34,7 @@ include { aspliReadError                                                  } from
 include { multiqcTsvFromList                                              } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
 include { paramsSummaryMultiqc                                            } from 'plugin/nf-core-utils'
 include { toolCitations                                                   } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
+include { methodsDescriptionText                                          } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
 
 
 /*
@@ -55,7 +56,6 @@ include { BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG as BEDGRAPH_TO_BIGWIG_FORWARD } from
 include { BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG as BEDGRAPH_TO_BIGWIG_REVERSE } from '../subworkflows/nf-core/bedgraph_bedclip_bedgraphtobigwig/main'
 include { BAM_SORT_STATS_SAMTOOLS                                         } from '../subworkflows/nf-core/bam_sort_stats_samtools/main'
 include { collectVersions                                                 } from 'plugin/nf-core-utils'
-include { citationOutputs                                                 } from 'plugin/nf-core-utils'
 include { paramsSummaryMap                                                } from 'plugin/nf-schema'
 
 /*
@@ -691,20 +691,12 @@ workflow RNASPLICE {
         ? file(multiqc_methods_description, checkIfExists: true)
         : file("${projectDir}/assets/methods_description_template.yml", checkIfExists: true)
 
-    // The methods section cites the tools that ran, and the same citations are written
-    // for reference managers
+    // The methods section cites the tools that ran
     def meta_yml_paths = files("${projectDir}/modules/**/meta.yml").collect { meta_yml -> meta_yml.toString() }
-    def ch_citations = channel.topic('versions')
+    def ch_methods_description = channel.topic('versions')
         .toList()
-        .map { versions ->
-            citationOutputs(toolCitations(versions, meta_yml_paths, ['multiqc']), ['html', 'bibtex', 'csl_json'], ch_multiqc_custom_methods_description)
-        }
-    ch_multiqc_files = ch_multiqc_files.mix(
-        ch_citations.map { outputs -> outputs.methods_description }.collectFile(name: 'methods_description_mqc.yaml')
-    )
-    ch_citations
-        .flatMap { outputs -> [ [ 'citations.bib', outputs.bibtex ], [ 'citations.json', outputs.csl_json ] ] }
-        .collectFile(storeDir: "${outdir}/pipeline_info") { name, text -> [ name, text ] }
+        .map { versions -> methodsDescriptionText(ch_multiqc_custom_methods_description, toolCitations(versions, meta_yml_paths, ['multiqc'])) }
+    ch_multiqc_files = ch_multiqc_files.mix(ch_methods_description.collectFile(name: 'methods_description_mqc.yaml'))
 
     // Blend final channel maps
     ch_multiqc_files = ch_multiqc_files.mix(ch_collated_versions)

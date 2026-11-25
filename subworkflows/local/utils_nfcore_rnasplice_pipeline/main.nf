@@ -15,6 +15,8 @@ include { samplesheetToList         } from 'plugin/nf-schema'
 include { validateParameters        } from 'plugin/nf-schema'
 include { checkCondaChannels        } from 'plugin/nf-core-utils'
 include { citationsOnTheFly         } from 'plugin/nf-core-utils'
+include { toolCitationText          } from 'plugin/nf-core-utils'
+include { toolBibliographyText      } from 'plugin/nf-core-utils'
 include { checkConfigProvided       } from 'plugin/nf-core-utils'
 include { checkProfileProvided      } from 'plugin/nf-core-utils'
 include { completionEmail           } from 'plugin/nf-core-utils'
@@ -488,6 +490,37 @@ def toolCitations(version_entries, meta_yml_paths, extra_tools) {
     return citationsOnTheFly(versions, meta_yml_paths, extra_tools).collectEntries { tool, citation ->
         [ (tool): citation + [ citation: citation.citation.replaceAll(/\s+/, ' ').replace(' )', ')') ] ]
     }
+}
+
+//
+// MultiQC methods section, citing the given tools
+//
+def methodsDescriptionText(mqc_methods_yaml, citations) {
+    def meta = [:]
+    meta.workflow = workflow.toMap()
+    meta["manifest_map"] = workflow.manifest.toMap()
+
+    if (meta.manifest_map.doi) {
+        def temp_doi_ref = ""
+        def manifest_doi = meta.manifest_map.doi.tokenize(",")
+        manifest_doi.each { doi_ref ->
+            temp_doi_ref += "(doi: <a href=\'https://doi.org/${doi_ref.replace("https://doi.org/", "").replace(" ", "")}\'>${doi_ref.replace("https://doi.org/", "").replace(" ", "")}</a>), "
+        }
+        meta["doi_text"] = temp_doi_ref.substring(0, temp_doi_ref.length() - 2)
+    }
+    else {
+        meta["doi_text"] = ""
+    }
+    meta["nodoi_text"] = meta.manifest_map.doi ? "" : "<li>If available, make sure to update the text to include the Zenodo DOI of version of the pipeline used. </li>"
+
+    meta["tool_citations"] = toolCitationText(citations)
+    meta["tool_bibliography"] = toolBibliographyText(citations)
+
+    def methods_text = mqc_methods_yaml.text
+    def engine = new groovy.text.SimpleTemplateEngine()
+    def description_html = engine.createTemplate(methods_text).make(meta)
+
+    return description_html.toString()
 }
 
 //
