@@ -448,14 +448,14 @@ def suppa_psi(path):
     concordance cap, with their total.
     """
     with open(path) as handle:
-        samples = handle.readline().rstrip("\n").split("\t")
+        samples = handle.readline().rstrip("\\n").split("\\t")
         quantified = [0] * len(samples)
         informative = []
         informative_total = 0
         stride = 1
         events = 0
         for line in handle:
-            values = line.rstrip("\n").split("\t")[1:]
+            values = line.rstrip("\\n").split("\\t")[1:]
             if not values:
                 continue
             events += 1
