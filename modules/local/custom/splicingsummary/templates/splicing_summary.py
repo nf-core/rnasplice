@@ -409,8 +409,8 @@ def stager(run, label, path):
 def suppa_diffsplice(run, label, path):
     table = read_table(path)
     dpsi, pvalue = (
-        numbers(table.filter(regex=pattern).iloc[:, 0])
-        for pattern in ("dPSI$", "p-val$")
+        numbers(table[next(c for c in table if c.endswith(suffix))])
+        for suffix in ("_dPSI", "_p-val")
     )
     dpsi, pvalue = (
         dpsi[dpsi.notna() & pvalue.notna()],
