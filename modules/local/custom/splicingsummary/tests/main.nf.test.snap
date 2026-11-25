@@ -7,7 +7,7 @@
                         {
                             "id": "splicing_summary"
                         },
-                        "splicing_sample_metrics_mqc.tsv:md5,d0037ae6cfde35ef8af9617b08b7daec"
+                        "splicing_sample_metrics_mqc.tsv:md5,d1009044fc73521c1d0a15cb6070fc87"
                     ]
                 ],
                 "1": [
@@ -15,26 +15,40 @@
                         {
                             "id": "splicing_summary"
                         },
-                        "differential_splicing_mqc.tsv:md5,698159d9dfc393bc169941f1dd5e9db7"
+                        [
+                            "differential_splicing_mqc.json:md5,cd085fbf7a62600c220cde849fa82e9a",
+                            "leafcutter_cluster_test_outcomes_mqc.json:md5,c53243bfa69df2e5a7aaf4724369e670",
+                            "splicing_design_check_mqc.json:md5,54d22dc5c66b092643f918ea7f07a2f9",
+                            "splicing_method_agreement_mqc.json:md5,f821f6b116c1156ce258f8b5933ba16f",
+                            "splicing_verdict_mqc.json:md5,ceee51cbc0430e568c18c8db53067520",
+                            "suppa_significant_events_mqc.json:md5,625f991db7f2533fafa1ecae1bf65713"
+                        ]
                     ]
                 ],
                 "2": [
                     "versions.yml:md5,362be2e3e02141502a2dfa492f8b8885"
-                ],
-                "differential": [
-                    [
-                        {
-                            "id": "splicing_summary"
-                        },
-                        "differential_splicing_mqc.tsv:md5,698159d9dfc393bc169941f1dd5e9db7"
-                    ]
                 ],
                 "sample_metrics": [
                     [
                         {
                             "id": "splicing_summary"
                         },
-                        "splicing_sample_metrics_mqc.tsv:md5,d0037ae6cfde35ef8af9617b08b7daec"
+                        "splicing_sample_metrics_mqc.tsv:md5,d1009044fc73521c1d0a15cb6070fc87"
+                    ]
+                ],
+                "sections": [
+                    [
+                        {
+                            "id": "splicing_summary"
+                        },
+                        [
+                            "differential_splicing_mqc.json:md5,cd085fbf7a62600c220cde849fa82e9a",
+                            "leafcutter_cluster_test_outcomes_mqc.json:md5,c53243bfa69df2e5a7aaf4724369e670",
+                            "splicing_design_check_mqc.json:md5,54d22dc5c66b092643f918ea7f07a2f9",
+                            "splicing_method_agreement_mqc.json:md5,f821f6b116c1156ce258f8b5933ba16f",
+                            "splicing_verdict_mqc.json:md5,ceee51cbc0430e568c18c8db53067520",
+                            "suppa_significant_events_mqc.json:md5,625f991db7f2533fafa1ecae1bf65713"
+                        ]
                     ]
                 ],
                 "versions_splicingsummary": [
@@ -42,7 +56,7 @@
                 ]
             }
         ],
-        "timestamp": "2026-11-25T13:58:45.327559715",
+        "timestamp": "2026-11-25T16:22:38.988764626",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"
@@ -64,19 +78,11 @@
                         {
                             "id": "splicing_summary"
                         },
-                        "differential_splicing_mqc.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        "differential_splicing_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e"
                     ]
                 ],
                 "2": [
                     "versions.yml:md5,362be2e3e02141502a2dfa492f8b8885"
-                ],
-                "differential": [
-                    [
-                        {
-                            "id": "splicing_summary"
-                        },
-                        "differential_splicing_mqc.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
-                    ]
                 ],
                 "sample_metrics": [
                     [
@@ -86,12 +92,20 @@
                         "splicing_sample_metrics_mqc.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
                     ]
                 ],
+                "sections": [
+                    [
+                        {
+                            "id": "splicing_summary"
+                        },
+                        "differential_splicing_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
                 "versions_splicingsummary": [
                     "versions.yml:md5,362be2e3e02141502a2dfa492f8b8885"
                 ]
             }
         ],
-        "timestamp": "2026-11-25T13:58:51.852800009",
+        "timestamp": "2026-11-25T16:22:45.310727257",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"

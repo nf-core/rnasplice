@@ -8,6 +8,9 @@
                 "CREATEBAMLIST": {
                     "sed": "4.9"
                 },
+                "CUSTOM_SPLICINGSUMMARY": {
+                    "python": "3.12.12"
+                },
                 "DEXSEQ_COUNT": {
                     "bioconductor-dexseq": "1.56.0",
                     "htseq": "2.1.2"
@@ -27,6 +30,9 @@
                 "DRIMSEQ_DMFILTER": {
                     "bioconductor-drimseq": "1.18.0",
                     "r-base": "4.0.3"
+                },
+                "EAUTILS_GTF2BED": {
+                    "perl": "5.26.2"
                 },
                 "EDGER_EXON": {
                     "bioconductor-edger": "3.36.0",
@@ -81,6 +87,9 @@
                 },
                 "RMATS_PREP": {
                     "rmats": "4.3.0"
+                },
+                "RSEQC_JUNCTIONSATURATION": {
+                    "rseqc": "5.0.4"
                 },
                 "SALMON_QUANT_STAR": {
                     "salmon": "1.10.3"
@@ -439,11 +448,14 @@
                 "multiqc",
                 "multiqc/multiqc_data",
                 "multiqc/multiqc_data/featureCounts_assignment_plot.txt",
+                "multiqc/multiqc_data/junction_saturation_known.txt",
+                "multiqc/multiqc_data/junction_saturation_novel.txt",
                 "multiqc/multiqc_data/llms-full.txt",
                 "multiqc/multiqc_data/multiqc.log",
                 "multiqc/multiqc_data/multiqc.parquet",
                 "multiqc/multiqc_data/multiqc_citations.txt",
                 "multiqc/multiqc_data/multiqc_data.json",
+                "multiqc/multiqc_data/multiqc_differential_splicing_table.txt",
                 "multiqc/multiqc_data/multiqc_featurecounts.txt",
                 "multiqc/multiqc_data/multiqc_general_stats.txt",
                 "multiqc/multiqc_data/multiqc_samtools_flagstat.txt",
@@ -451,6 +463,16 @@
                 "multiqc/multiqc_data/multiqc_samtools_stats.txt",
                 "multiqc/multiqc_data/multiqc_software_versions.txt",
                 "multiqc/multiqc_data/multiqc_sources.txt",
+                "multiqc/multiqc_data/multiqc_splicing_design_check_table.txt",
+                "multiqc/multiqc_data/multiqc_splicing_method_agreement_table.txt",
+                "multiqc/multiqc_data/multiqc_splicing_pvalue_histograms_plot.txt",
+                "multiqc/multiqc_data/multiqc_splicing_pvalue_histograms_plot_1.txt",
+                "multiqc/multiqc_data/multiqc_suppa_psi_concordance_plot.txt",
+                "multiqc/multiqc_data/multiqc_suppa_significant_events_plot.txt",
+                "multiqc/multiqc_data/rseqc_junction_saturation_all.txt",
+                "multiqc/multiqc_data/rseqc_junction_saturation_plot_All_Junctions.txt",
+                "multiqc/multiqc_data/rseqc_junction_saturation_plot_Known_Junctions.txt",
+                "multiqc/multiqc_data/rseqc_junction_saturation_plot_Novel_Junctions.txt",
                 "multiqc/multiqc_data/samtools-flagstat-pct-table.txt",
                 "multiqc/multiqc_data/samtools-flagstat-table.txt",
                 "multiqc/multiqc_data/samtools-idxstats-mapped-reads-plot_Normalised_Counts.txt",
@@ -461,8 +483,12 @@
                 "multiqc/multiqc_data/samtools_insert_size.txt",
                 "multiqc/multiqc_plots",
                 "multiqc/multiqc_plots/pdf",
+                "multiqc/multiqc_plots/pdf/differential_splicing_table.pdf",
                 "multiqc/multiqc_plots/pdf/featureCounts_assignment_plot-cnt.pdf",
                 "multiqc/multiqc_plots/pdf/featureCounts_assignment_plot-pct.pdf",
+                "multiqc/multiqc_plots/pdf/rseqc_junction_saturation_plot_All_Junctions.pdf",
+                "multiqc/multiqc_plots/pdf/rseqc_junction_saturation_plot_Known_Junctions.pdf",
+                "multiqc/multiqc_plots/pdf/rseqc_junction_saturation_plot_Novel_Junctions.pdf",
                 "multiqc/multiqc_plots/pdf/samtools-flagstat-pct-table.pdf",
                 "multiqc/multiqc_plots/pdf/samtools-flagstat-table.pdf",
                 "multiqc/multiqc_plots/pdf/samtools-idxstats-mapped-reads-plot_Normalised_Counts-cnt.pdf",
@@ -475,9 +501,19 @@
                 "multiqc/multiqc_plots/pdf/samtools_alignment_plot-cnt.pdf",
                 "multiqc/multiqc_plots/pdf/samtools_alignment_plot-pct.pdf",
                 "multiqc/multiqc_plots/pdf/samtools_insert_size.pdf",
+                "multiqc/multiqc_plots/pdf/splicing_design_check_table.pdf",
+                "multiqc/multiqc_plots/pdf/splicing_method_agreement_table.pdf",
+                "multiqc/multiqc_plots/pdf/splicing_pvalue_histograms_plot_GBR-YRI.pdf",
+                "multiqc/multiqc_plots/pdf/splicing_pvalue_histograms_plot_YRI-GBR_reverse_of_GBR-YRI_.pdf",
+                "multiqc/multiqc_plots/pdf/suppa_psi_concordance_plot.pdf",
+                "multiqc/multiqc_plots/pdf/suppa_significant_events_plot.pdf",
                 "multiqc/multiqc_plots/png",
+                "multiqc/multiqc_plots/png/differential_splicing_table.png",
                 "multiqc/multiqc_plots/png/featureCounts_assignment_plot-cnt.png",
                 "multiqc/multiqc_plots/png/featureCounts_assignment_plot-pct.png",
+                "multiqc/multiqc_plots/png/rseqc_junction_saturation_plot_All_Junctions.png",
+                "multiqc/multiqc_plots/png/rseqc_junction_saturation_plot_Known_Junctions.png",
+                "multiqc/multiqc_plots/png/rseqc_junction_saturation_plot_Novel_Junctions.png",
                 "multiqc/multiqc_plots/png/samtools-flagstat-pct-table.png",
                 "multiqc/multiqc_plots/png/samtools-flagstat-table.png",
                 "multiqc/multiqc_plots/png/samtools-idxstats-mapped-reads-plot_Normalised_Counts-cnt.png",
@@ -490,9 +526,19 @@
                 "multiqc/multiqc_plots/png/samtools_alignment_plot-cnt.png",
                 "multiqc/multiqc_plots/png/samtools_alignment_plot-pct.png",
                 "multiqc/multiqc_plots/png/samtools_insert_size.png",
+                "multiqc/multiqc_plots/png/splicing_design_check_table.png",
+                "multiqc/multiqc_plots/png/splicing_method_agreement_table.png",
+                "multiqc/multiqc_plots/png/splicing_pvalue_histograms_plot_GBR-YRI.png",
+                "multiqc/multiqc_plots/png/splicing_pvalue_histograms_plot_YRI-GBR_reverse_of_GBR-YRI_.png",
+                "multiqc/multiqc_plots/png/suppa_psi_concordance_plot.png",
+                "multiqc/multiqc_plots/png/suppa_significant_events_plot.png",
                 "multiqc/multiqc_plots/svg",
+                "multiqc/multiqc_plots/svg/differential_splicing_table.svg",
                 "multiqc/multiqc_plots/svg/featureCounts_assignment_plot-cnt.svg",
                 "multiqc/multiqc_plots/svg/featureCounts_assignment_plot-pct.svg",
+                "multiqc/multiqc_plots/svg/rseqc_junction_saturation_plot_All_Junctions.svg",
+                "multiqc/multiqc_plots/svg/rseqc_junction_saturation_plot_Known_Junctions.svg",
+                "multiqc/multiqc_plots/svg/rseqc_junction_saturation_plot_Novel_Junctions.svg",
                 "multiqc/multiqc_plots/svg/samtools-flagstat-pct-table.svg",
                 "multiqc/multiqc_plots/svg/samtools-flagstat-table.svg",
                 "multiqc/multiqc_plots/svg/samtools-idxstats-mapped-reads-plot_Normalised_Counts-cnt.svg",
@@ -505,6 +551,12 @@
                 "multiqc/multiqc_plots/svg/samtools_alignment_plot-cnt.svg",
                 "multiqc/multiqc_plots/svg/samtools_alignment_plot-pct.svg",
                 "multiqc/multiqc_plots/svg/samtools_insert_size.svg",
+                "multiqc/multiqc_plots/svg/splicing_design_check_table.svg",
+                "multiqc/multiqc_plots/svg/splicing_method_agreement_table.svg",
+                "multiqc/multiqc_plots/svg/splicing_pvalue_histograms_plot_GBR-YRI.svg",
+                "multiqc/multiqc_plots/svg/splicing_pvalue_histograms_plot_YRI-GBR_reverse_of_GBR-YRI_.svg",
+                "multiqc/multiqc_plots/svg/suppa_psi_concordance_plot.svg",
+                "multiqc/multiqc_plots/svg/suppa_significant_events_plot.svg",
                 "multiqc/multiqc_report.html",
                 "pipeline_info",
                 "pipeline_info/nf_core_rnasplice_software_mqc_versions.yml",
@@ -696,6 +748,16 @@
                 "star_salmon/rmats/prep/ERR188454_read_outcomes_by_bam.txt",
                 "star_salmon/rmats/prep/ERR204916.rmats",
                 "star_salmon/rmats/prep/ERR204916_read_outcomes_by_bam.txt",
+                "star_salmon/rseqc",
+                "star_salmon/rseqc/junction_saturation",
+                "star_salmon/rseqc/junction_saturation/ERR188383.junctionSaturation_plot.pdf",
+                "star_salmon/rseqc/junction_saturation/ERR188383.junctionSaturation_plot.r",
+                "star_salmon/rseqc/junction_saturation/ERR188428.junctionSaturation_plot.pdf",
+                "star_salmon/rseqc/junction_saturation/ERR188428.junctionSaturation_plot.r",
+                "star_salmon/rseqc/junction_saturation/ERR188454.junctionSaturation_plot.pdf",
+                "star_salmon/rseqc/junction_saturation/ERR188454.junctionSaturation_plot.r",
+                "star_salmon/rseqc/junction_saturation/ERR204916.junctionSaturation_plot.pdf",
+                "star_salmon/rseqc/junction_saturation/ERR204916.junctionSaturation_plot.r",
                 "star_salmon/salmon",
                 "star_salmon/salmon/ERR188383",
                 "star_salmon/salmon/ERR188383/aux_info",
@@ -972,7 +1034,7 @@
                 "ERR204916_sorted.bam": "d04f778c726310a919eb676fe3432716"
             }
         ],
-        "timestamp": "2026-11-24T18:25:23.206798338",
+        "timestamp": "2026-11-25T16:39:10.169810763",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"

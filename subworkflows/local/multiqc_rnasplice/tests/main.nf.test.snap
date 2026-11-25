@@ -1,11 +1,11 @@
 {
     "splicing results and custom content": {
         "content": [
-            "multiqc_general_stats.txt:md5,1dbe268771ff02a7ef73182068735975",
-            "multiqc_differential_splicing_table.txt:md5,cb14eca63c5d5d081c3f60f53b619d18",
+            "multiqc_general_stats.txt:md5,bd8fb3afade80d54685d36ba14d63544",
+            "multiqc_differential_splicing_table.txt:md5,13228bffe6dc2ba501076e494bb15565",
             "multiqc_fail_trimmed_samples_table.txt:md5,7e98e5872935e71bb3696bfc3fc82a1e"
         ],
-        "timestamp": "2026-11-25T13:59:44.318393335",
+        "timestamp": "2026-11-25T16:23:07.322254584",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"

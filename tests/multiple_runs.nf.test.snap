@@ -8,6 +8,12 @@
                 "CREATEBAMLIST": {
                     "sed": "4.9"
                 },
+                "CUSTOM_SPLICINGSUMMARY": {
+                    "python": "3.12.12"
+                },
+                "EAUTILS_GTF2BED": {
+                    "perl": "5.26.2"
+                },
                 "FASTQC": {
                     "fastqc": "0.13.0"
                 },
@@ -33,6 +39,9 @@
                 },
                 "RMATS_PREP": {
                     "rmats": "4.3.0"
+                },
+                "RSEQC_JUNCTIONSATURATION": {
+                    "rseqc": "5.0.4"
                 },
                 "SALMON_INDEX": {
                     "salmon": "1.10.3"
@@ -83,7 +92,7 @@
                 }
             }
         ],
-        "timestamp": "2026-11-24T12:40:08.92857387",
+        "timestamp": "2026-11-25T16:37:39.474923619",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"
