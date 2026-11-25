@@ -285,6 +285,39 @@ nextflow_process {
 
     }
 
+    test("contrast condition missing from the samplesheet") {
+
+        when {
+            process {
+                """
+                // In the order the pipeline stages them, the contrastsheet before the samplesheet
+                def results = [
+                    [ [ kind:'contrasts'   , route:''    , id:''    ], 'contrastsheet_missing.csv' ],
+                    [ [ kind:'samplesheet' , route:''    , id:''    ], 'sample_conditions.csv'     ],
+                    [ [ kind:'suppa_events', route:'STAR', id:'A-B' ], 'local_A-B.dpsi'            ],
+                ]
+                input[0] = [
+                    [ id:'splicing_summary' ],
+                    results.collect { label, _name -> label },
+                    results.collect { _label, name -> file("${moduleTestDir}/\${name}", checkIfExists: true) },
+                ]
+                input[1] = file("${projectDir}/assets/multiqc_splicing_sections.yml", checkIfExists: true)
+                """
+            }
+        }
+
+        then {
+            def verdict = path(process.out.sections[0][1].find { section -> section.toString().endsWith('/splicing_verdict_mqc.json') }).json
+            assert process.success
+            assertAll(
+                { assert verdict.data == '<div class="alert alert-warning">Could not summarise the contrastsheet (contrastsheet_missing.csv): ValueError: condition &#x27;C&#x27; of contrast &#x27;C-B&#x27; has no sample in the samplesheet. Its results are left out of this report.</div>' },
+                { assert !process.out.sections[0][1].any { section -> section.toString().endsWith('/splicing_design_check_mqc.json') } },
+                { assert snapshot(process.out).match() }
+            )
+        }
+
+    }
+
     test("splicing results - stub") {
 
         options "-stub"
