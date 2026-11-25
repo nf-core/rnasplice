@@ -10,5 +10,17 @@
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"
         }
+    },
+    "splicing results, custom content and a custom config": {
+        "content": [
+            "multiqc_general_stats.txt:md5,0beb74ecb70b8ff42ceeaf36bf0f8afe",
+            "multiqc_differential_splicing_table.txt:md5,13228bffe6dc2ba501076e494bb15565",
+            "multiqc_fail_trimmed_samples_table.txt:md5,7e98e5872935e71bb3696bfc3fc82a1e"
+        ],
+        "timestamp": "2026-11-25T17:30:15.786436467",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
+        }
     }
 }
