@@ -14,6 +14,7 @@ include { paramsSummaryMap          } from 'plugin/nf-schema'
 include { samplesheetToList         } from 'plugin/nf-schema'
 include { validateParameters        } from 'plugin/nf-schema'
 include { checkCondaChannels        } from 'plugin/nf-core-utils'
+include { citationsOnTheFly         } from 'plugin/nf-core-utils'
 include { checkConfigProvided       } from 'plugin/nf-core-utils'
 include { checkProfileProvided      } from 'plugin/nf-core-utils'
 include { completionEmail           } from 'plugin/nf-core-utils'
@@ -457,46 +458,36 @@ def genomeExistsError() {
 }
 
 //
-// Generate methods description for MultiQC
+// Citations of the tools that ran, from the versions their processes report and the
+// meta.yml files of the modules. A version names a tool by its conda package, which can
+// differ from the meta.yml name by a 'bioconductor-' or 'r-' prefix and by case, so the
+// names are matched without either. A citation can inline a description written over
+// several lines, which would end the YAML block of the MultiQC methods section, so its
+// whitespace is collapsed. Tools that report no version before the citations are built,
+// such as MultiQC, which reads them, are given as extra_tools
 //
-def toolCitationText() {
-    def citation_text = ["Tools used in the workflow included:", "FastQC (Andrews 2010),", "MultiQC (Ewels et al. 2016)", "."].join(' ').trim()
+def toolCitations(version_entries, meta_yml_paths, extra_tools) {
+    def yaml = new org.yaml.snakeyaml.Yaml()
+    def tool_names = meta_yml_paths
+        .collectMany { path -> (yaml.load(file(path).text)?.tools ?: []).collectMany { tool -> tool.keySet() as List } }
+        .collectEntries { tool -> [ (tool.toLowerCase()): tool ] }
 
-    return citation_text
-}
-
-def toolBibliographyText() {
-    def reference_text = ["<li>Andrews S, (2010) FastQC, URL: https://www.bioinformatics.babraham.ac.uk/projects/fastqc/).</li>", "<li>Ewels, P., Magnusson, M., Lundin, S., & Käller, M. (2016). MultiQC: summarize analysis results for multiple tools and samples in a single report. Bioinformatics , 32(19), 3047–3048. doi: /10.1093/bioinformatics/btw354</li>"].join(' ').trim()
-
-    return reference_text
-}
-
-def methodsDescriptionText(mqc_methods_yaml) {
-    def meta = [:]
-    meta.workflow = workflow.toMap()
-    meta["manifest_map"] = workflow.manifest.toMap()
-
-    if (meta.manifest_map.doi) {
-        def temp_doi_ref = ""
-        def manifest_doi = meta.manifest_map.doi.tokenize(",")
-        manifest_doi.each { doi_ref ->
-            temp_doi_ref += "(doi: <a href=\'https://doi.org/${doi_ref.replace("https://doi.org/", "").replace(" ", "")}\'>${doi_ref.replace("https://doi.org/", "").replace(" ", "")}</a>), "
+    def versions = version_entries
+        .collectMany { entry ->
+            if (!(entry instanceof Path)) {
+                return [ entry ]
+            }
+            // A module that writes a versions.yml file reports it as one entry per process
+            return yaml.load(entry.text).collectMany { process, tools -> tools.collect { tool, version -> [ process, tool, version.toString() ] } }
         }
-        meta["doi_text"] = temp_doi_ref.substring(0, temp_doi_ref.length() - 2)
+        .collect { process, tool, version ->
+            def name = tool.toString().toLowerCase()
+            return [ process, tool_names[name] ?: tool_names[name.replaceFirst(/^(bioconductor|r)-/, '')] ?: tool, version ]
+        }
+
+    return citationsOnTheFly(versions, meta_yml_paths, extra_tools).collectEntries { tool, citation ->
+        [ (tool): citation + [ citation: citation.citation.replaceAll(/\s+/, ' ').replace(' )', ')') ] ]
     }
-    else {
-        meta["doi_text"] = ""
-    }
-    meta["nodoi_text"] = meta.manifest_map.doi ? "" : "<li>If available, make sure to update the text to include the Zenodo DOI of version of the pipeline used. </li>"
-
-    meta["tool_citations"] = ""
-    meta["tool_bibliography"] = ""
-
-    def methods_text = mqc_methods_yaml.text
-    def engine = new groovy.text.SimpleTemplateEngine()
-    def description_html = engine.createTemplate(methods_text).make(meta)
-
-    return description_html.toString()
 }
 
 //
