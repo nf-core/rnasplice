@@ -404,8 +404,7 @@ workflow RNASPLICE {
             EDGER_DEU(
                 ch_gtf,
                 ch_genome_bam,
-                ch_samplesheet_file,
-                ch_contrastsheet_file,
+                ch_contrastsheet,
                 ch_gene_annotation,
             )
         }

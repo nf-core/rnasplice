@@ -365,21 +365,20 @@ Finally, as discussed above in the DEXSeq count section, users can inspect count
 <summary>Output files</summary>
 
 - `edger/`
-  - `DGEList.rds`: DGEList R object following filtering, normalisation, and dispersion estimation.
-  - `DGEGLM.rds`: DGEGLM R object following edgeR::glmQLFit
-  - `DGELRT.exprs.rds`: DGELRT R object following differential exon expression analysis with edgeR::glmQLFTest
-  - `DGELRT.usage.rds`: DGELRT R object following differential exon usage analysis with edgeR::diffSpliceDGE
-  - `{contrast}.usage.usage.csv`: CSV file output of differential exon usage results per pairwise condition for top spliced results at the exon level.
-  - `{contrast}.usage.gene.csv`: CSV file output of differential exon usage results per pairwise condition for top spliced genes identified with F-tests.
-  - `{contrast}.usage.simes.csv`: CSV file output of differential exon usage results per pairwise condition for top spliced genes identified with the Simes method.
-  - `{contrast}.exprs.csv`: CSV file output of differential exon expression results per pairwise condition.
-  - `{contrast}.*.annotated.csv`: The same CSV files with the gene name and biotype after `Geneid`, see [Gene annotation](#gene-annotation).
+  - `edger_exon.tsv`: Exonic feature counts of all samples, joined from the per sample featureCounts tables.
+  - `{contrast}.edger.diffsplice.results.tsv`: Differential exon usage results at the exon level, each exon tested against the other exons of its gene with edgeR::diffSpliceDGE.
+  - `{contrast}.edger.diffsplice.simes.tsv`: Gene-level results, combining the exon-level p-values with the Simes method.
+  - `{contrast}.edger.diffsplice.gene.tsv`: Gene-level results of the F (or likelihood ratio) test.
+  - `{contrast}.edger.diffsplice.pdf`: edgeR::plotSpliceDGE plots of the top genes by Simes p-value (`--n_edger_plot`).
+  - `{contrast}.edger.bcv.png`: Biological coefficient of variation plot of the estimated dispersions.
+  - `{contrast}.DGEGLM.edger.rds`: DGEGLM R object following edgeR::glmQLFit.
+  - `{contrast}.DGELRT.edger.rds`: DGELRT R object following edgeR::diffSpliceDGE.
+  - `{contrast}.edger.model.txt`: The model formula.
+  - `{contrast}.*.annotated.tsv`: The same result tables with the gene name and biotype after `Geneid`, see [Gene annotation](#gene-annotation).
 
 </details>
 
-[edgeR](https://bioconductor.org/packages/release/bioc/html/edgeR.html) is a bioconductor R package typically used for differential gene expression, however, it contains numerous additional functions which make it useful for splicing analysis. In particular, edgeR can perform differential exon usage analysis, and we leverage this functionality here. As output users can retrieve `DGEList.rds`, and `DGEGLM.rds` R objects which contain the first steps of the edgeR analysis. Users can also find `DGELRT.exprs.rds` and `DGELRT.usage.rds` R objects which provide R objects following differential exon expression and differential exon usage steps respectively. Results CSV files are also output per comparison as `{contrast}.usage.usage.csv` which contain the differential exon usage results, `{contrast}.usage.gene.csv` which contain results at a gene level identified with F-tests, and `{contrast}.usage.simes.csv` which contain results at a gene level using the Simes adjustment.
-
-It was felt that users may wish to retrieve differential exon results at this point on top of differential exon usage results as edgeR is able to calculate them without difficulty. By default, this workflow will calculate all possible pairwise comparisons between conditions.
+[edgeR](https://bioconductor.org/packages/release/bioc/html/edgeR.html) is a Bioconductor R package typically used for differential gene expression, which can also test for differential exon usage. The exon counts of all samples are filtered with edgeR::filterByExpr, normalised and fitted with edgeR::glmQLFit, and edgeR::diffSpliceDGE then tests, for each contrast, every exon against the other exons of its gene. The result tables are sorted by p-value: `{contrast}.edger.diffsplice.results.tsv` at the exon level, and `{contrast}.edger.diffsplice.simes.tsv` and `{contrast}.edger.diffsplice.gene.tsv` at the gene level, with the Simes method and the F test respectively.
 
 ## Differential Bin and Junction Usage
 

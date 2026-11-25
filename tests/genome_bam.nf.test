@@ -30,9 +30,9 @@ nextflow_pipeline {
             // edgeR exon usage tables: left out of stable_content by the ignoreFile, as builds
             // of edgeR differ in the last digits, and snapshotted by their rounded values
             def edger_tables = new File("${params.outdir}/star_salmon/edger").listFiles()
-                .findAll { table -> table.name ==~ /contrast_.*\.usage\..*\.csv/ }
+                .findAll { table -> table.name ==~ /.*\.edger\.diffsplice\.(results|simes|gene)\.tsv/ }
                 .sort { table -> table.name }
-                .collectEntries { table -> [ table.name, RoundedCsv.md5(table) ] }
+                .collectEntries { table -> [ table.name, RoundedCsv.md5(table, 6, '\t') ] }
 
             assert workflow.success
 

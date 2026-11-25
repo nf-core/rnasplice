@@ -287,7 +287,7 @@ Following HTSeq quantification you can estimate the differential exon usage usin
 
 ### edgeR
 
-Following featureCounts quantification differential exon usage can also be performed with [edgeR](https://bioconductor.org/packages/release/bioc/html/edgeR.html). This can be chosen by specifying the `--aligner star` or `--aligner star_salmon` followed by the `--edger_exon` parameter. This module also produces differential exon expression results for each contrast.
+Following featureCounts quantification differential exon usage can also be performed with [edgeR](https://bioconductor.org/packages/release/bioc/html/edgeR.html). This can be chosen by specifying the `--aligner star` or `--aligner star_salmon` followed by the `--edger_exon` parameter.
 
 ## Differential Transcript Usage
 

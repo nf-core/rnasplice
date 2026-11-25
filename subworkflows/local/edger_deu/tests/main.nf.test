@@ -10,8 +10,10 @@ nextflow_workflow {
     tag "subread"
     tag "subread/flattengtf"
     tag "subread/featurecounts"
+    tag "csvtk"
+    tag "csvtk/join"
     tag "edger"
-    tag "edger/exon"
+    tag "edger/diffsplice"
 
     // The gene annotation table the annotated copies of the results tables are made from
     setup {
@@ -41,14 +43,13 @@ nextflow_workflow {
                 """
                 input[0] = channel.value(file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true))
                 input[1] = channel.of(
-                    [ [ id:'ERR188383', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
-                    [ [ id:'ERR188428', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true) ],
-                    [ [ id:'ERR188454', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454.Aligned.out.bam', checkIfExists: true) ],
-                    [ [ id:'ERR204916', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188383', condition:'GBR', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188428', condition:'GBR', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188454', condition:'YRI', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR204916', condition:'YRI', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916.Aligned.out.bam', checkIfExists: true) ],
                 )
-                input[2] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true))
-                input[3] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/contrastsheet.csv', checkIfExists: true))
-                input[4] = GENEANNOTATION_TABLES.out.gene.first()
+                input[2] = channel.of([ contrast:'GBR-YRI', treatment:'GBR', control:'YRI' ])
+                input[3] = GENEANNOTATION_TABLES.out.gene.first()
                 """
             }
         }
@@ -57,24 +58,24 @@ nextflow_workflow {
             // `SUBREAD_FEATURECOUNTS` runs once per sample, so its channels follow task
             // completion order and have to be sorted before they can be snapshotted.
             //
-            // The exon usage tables are snapshotted by the md5 of their values rounded to 6
-            // significant digits, as builds of edgeR differ in the last digits; the
-            // `EDGER_EXON` module test snapshots the rounded values themselves. The exon
-            // expression tables, the plots and the binary objects are checked by name only.
-            // Every gene of the annotated copies has a name in the test annotation
+            // The joined count table is deterministic, so its content is snapshotted. The
+            // edgeR result tables differ in the last digits between builds of edgeR, so they
+            // are snapshotted by name, header and row count, and the plots and binary objects
+            // by name. Every gene of the annotated copies has a name in the test annotation
             assertAll(
                 { assert workflow.success },
-                { assert workflow.out.edger_exon_annotated_csv.every { _meta, table -> path(table).readLines().drop(1).every { line -> line.split(',')[1] != 'NA' } } },
+                { assert workflow.out.annotated.every { _meta, table -> path(table).readLines().drop(1).every { line -> line.split('\t')[1] != 'NA' } } },
                 { assert snapshot(
                     workflow.out.featureCounts_summary.sort { summary -> summary[0].id },
                     workflow.out.featureCounts_counts.collect { meta, counts -> [ meta, file(counts).name ] }.sort { counts -> counts[0].id },
-                    workflow.out.edger_exon_csv.collect { meta, csvs -> [ meta, csvs.findAll { csv -> csv.contains('.usage.') }.collectEntries { csv -> [ file(csv).name, RoundedCsv.md5(csv) ] } ] },
-                    workflow.out.edger_exon_csv.collect { meta, csvs -> [ meta, csvs.findAll { csv -> csv.endsWith('.exprs.csv') }.collect { csv -> file(csv).name } ] },
-                    workflow.out.edger_exon_pdf.collect { meta, pdfs -> [ meta, pdfs.collect { pdf -> file(pdf).name } ] },
-                    workflow.out.edger_exon_dge.collect { meta, rds -> [ meta, file(rds).name ] },
-                    workflow.out.edger_exon_glm.collect { meta, rds -> [ meta, file(rds).name ] },
-                    workflow.out.edger_exon_lrt.collect { meta, rds -> [ meta, rds.collect { r -> file(r).name } ] },
-                    workflow.out.edger_exon_annotated_csv.collect { meta, table -> [ meta, file(table).name, path(table).readLines()[0], path(table).readLines().size() ] }.sort { csv -> csv[1] }
+                    workflow.out.counts,
+                    [ workflow.out.results, workflow.out.simes, workflow.out.gene ].collect { tables ->
+                        tables.collect { meta, table -> [ meta, file(table).name, path(table).readLines()[0], path(table).readLines().size() ] }
+                    },
+                    [ workflow.out.plots, workflow.out.bcv_plot, workflow.out.rdata, workflow.out.lrt ].collect { files ->
+                        files.collect { meta, f -> [ meta, file(f).name ] }
+                    },
+                    workflow.out.annotated.collect { meta, table -> [ meta, file(table).name, path(table).readLines()[0], path(table).readLines().size() ] }.sort { table -> table[1] }
                 ).match() }
             )
         }
@@ -90,12 +91,11 @@ nextflow_workflow {
                 """
                 input[0] = channel.value(file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true))
                 input[1] = channel.of(
-                    [ [ id:'ERR188383', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
-                    [ [ id:'ERR188428', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188383', condition:'GBR', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188428', condition:'GBR', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true) ],
                 )
-                input[2] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true))
-                input[3] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/contrastsheet.csv', checkIfExists: true))
-                input[4] = GENEANNOTATION_TABLES.out.gene.first()
+                input[2] = channel.of([ contrast:'GBR-YRI', treatment:'GBR', control:'YRI' ])
+                input[3] = GENEANNOTATION_TABLES.out.gene.first()
                 """
             }
         }
@@ -106,12 +106,15 @@ nextflow_workflow {
                 { assert snapshot(
                     workflow.out.featureCounts_counts.sort { counts -> counts[0].id },
                     workflow.out.featureCounts_summary.sort { summary -> summary[0].id },
-                    workflow.out.edger_exon_dge,
-                    workflow.out.edger_exon_glm,
-                    workflow.out.edger_exon_lrt,
-                    workflow.out.edger_exon_csv,
-                    workflow.out.edger_exon_pdf,
-                    workflow.out.edger_exon_annotated_csv.sort { csv -> file(csv[1]).name }
+                    workflow.out.counts,
+                    workflow.out.results,
+                    workflow.out.simes,
+                    workflow.out.gene,
+                    workflow.out.plots,
+                    workflow.out.bcv_plot,
+                    workflow.out.rdata,
+                    workflow.out.lrt,
+                    workflow.out.annotated.sort { table -> file(table[1]).name }
                 ).match() }
             )
         }
