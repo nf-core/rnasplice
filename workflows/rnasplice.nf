@@ -9,7 +9,7 @@ include { BEDTOOLS_GENOMECOV as BEDTOOLS_GENOMECOV_REVERSE                } from
 include { ISOFORMSWITCHANALYZER                                           } from '../modules/local/isoformswitchanalyzer'
 include { GENEANNOTATION_TABLES                                           } from '../modules/local/geneannotation/tables'
 include { GFFREAD_TX2GENE                                                 } from '../modules/local/gffread/tx2gene'
-include { ALIGN_STAR                                                      } from '../subworkflows/local/align_star'
+include { FASTQ_ALIGN_STAR                                                } from '../subworkflows/nf-core/fastq_align_star'
 include { TX2GENE_TXIMPORT as TX2GENE_TXIMPORT_SALMON                     } from '../subworkflows/local/tx2gene_tximport'
 include { TX2GENE_TXIMPORT as TX2GENE_TXIMPORT_STAR_SALMON                } from '../subworkflows/local/tx2gene_tximport'
 include { DRIMSEQ_DEXSEQ_DTU as DRIMSEQ_DEXSEQ_DTU_SALMON                 } from '../subworkflows/local/drimseq_dexseq_dtu'
@@ -270,20 +270,22 @@ workflow RNASPLICE {
     // SUBWORKFLOW: Align the reads of samples with no genome BAM file with STAR
     //
     if (input_routes.star) {
-        ALIGN_STAR(
+        FASTQ_ALIGN_STAR(
             ch_trim_reads,
             ch_star_index.map { index -> [[:], index] },
             ch_gtf.map { gtf -> [[:], gtf] },
             params.star_ignore_sjdbgtf,
             ch_fasta.map { fasta -> [[:], fasta, []] },
+            [[:], [], []],
         )
-        ch_genome_bam = ALIGN_STAR.out.bam           // [meta, bam]
-        ch_genome_bam_index = ALIGN_STAR.out.index
-        ch_transcriptome_bam_for_salmon = ALIGN_STAR.out.bam_transcript
-        ch_samtools_stats = ALIGN_STAR.out.stats
-        ch_samtools_flagstat = ALIGN_STAR.out.flagstat
-        ch_samtools_idxstats = ALIGN_STAR.out.idxstats
-        ch_star_multiqc = ALIGN_STAR.out.log_final
+        ch_genome_bam = FASTQ_ALIGN_STAR.out.bam           // [meta, bam]
+        ch_genome_bam_index = FASTQ_ALIGN_STAR.out.index
+        // Salmon's alignment mode reads the transcriptome BAM as STAR wrote it, not coordinate sorted
+        ch_transcriptome_bam_for_salmon = FASTQ_ALIGN_STAR.out.orig_bam_transcript
+        ch_samtools_stats = FASTQ_ALIGN_STAR.out.stats
+        ch_samtools_flagstat = FASTQ_ALIGN_STAR.out.flagstat
+        ch_samtools_idxstats = FASTQ_ALIGN_STAR.out.idxstats
+        ch_star_multiqc = FASTQ_ALIGN_STAR.out.log_final
     }
 
     //
