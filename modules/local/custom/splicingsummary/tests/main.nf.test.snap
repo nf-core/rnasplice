@@ -177,6 +177,47 @@
             "nextflow": "26.10.6"
         }
     },
+    "contrast condition missing from the samplesheet": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "splicing_summary"
+                        },
+                        [
+                            "differential_splicing_mqc.json:md5,03891e30e986bbce6404bbef884ad9d7",
+                            "splicing_verdict_mqc.json:md5,31fe5e3b87d2b64c5e9a0f5e40cb551d",
+                            "suppa_significant_events_mqc.json:md5,08458caed79636afa382398c2a3d19fa"
+                        ]
+                    ]
+                ],
+                "1": [
+                    "versions.yml:md5,d501bbbcae57b225d614f462f6da9784"
+                ],
+                "sections": [
+                    [
+                        {
+                            "id": "splicing_summary"
+                        },
+                        [
+                            "differential_splicing_mqc.json:md5,03891e30e986bbce6404bbef884ad9d7",
+                            "splicing_verdict_mqc.json:md5,31fe5e3b87d2b64c5e9a0f5e40cb551d",
+                            "suppa_significant_events_mqc.json:md5,08458caed79636afa382398c2a3d19fa"
+                        ]
+                    ]
+                ],
+                "versions": [
+                    "versions.yml:md5,d501bbbcae57b225d614f462f6da9784"
+                ]
+            }
+        ],
+        "timestamp": "2026-11-25T22:39:20.076662757",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
+        }
+    },
     "splicing results - stub": {
         "content": [
             {
