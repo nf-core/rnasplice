@@ -89,8 +89,7 @@ workflow RNASPLICE {
     def pass_trimmed_reads = [:]
     def ch_rseqc_txt = channel.empty()
     def ch_leafcutter_strand_summary = channel.empty()
-    def ch_splicing_multiqc = channel.empty()
-    def star_salmon_quant = params.source == 'transcriptome_bam' || (params.source == 'fastq' && !params.skip_alignment && params.aligner == 'star_salmon')
+    def ch_rmats_multiqc = channel.empty()
 
     // Branch samplesheet channel based on source type
     if (params.source == 'fastq') {
@@ -423,10 +422,9 @@ workflow RNASPLICE {
                 params.rmats_paired_stats,
             )
             // Every contrast writes a `summary.txt`, and MultiQC names it after its file
-            ch_splicing_multiqc = ch_splicing_multiqc.mix(
-                RMATS.out.read_outcomes.map { _meta, txt -> txt },
-                RMATS.out.summary.collectFile { meta, summary -> ["${meta.id}_summary.txt", summary] },
-            )
+            ch_rmats_multiqc = RMATS.out.read_outcomes
+                .map { _meta, txt -> txt }
+                .mix(RMATS.out.summary.collectFile { meta, summary -> ["${meta.id}_summary.txt", summary] })
         }
 
         if (params.sashimi_plot == true) {
@@ -453,10 +451,6 @@ workflow RNASPLICE {
                 Math.max(params.leafcutter_ds_min_samples_per_intron, params.leafcutter_ds_min_samples_per_group),
             )
             ch_leafcutter_strand_summary = LEAFCUTTER.out.strand_summary
-            ch_splicing_multiqc = ch_splicing_multiqc.mix(
-                LEAFCUTTER.out.numers.map { _meta, counts -> counts },
-                LEAFCUTTER.out.cluster_significance.map { _meta, txt -> txt },
-            )
         }
 
         if (params.aspli) {
@@ -475,7 +469,7 @@ workflow RNASPLICE {
     // TRANSCRIPT ALIGNMENT & QUANTIFICATION ENGINES (SALMON)
     // ====================================================================
 
-    if (star_salmon_quant) {
+    if (params.source == 'transcriptome_bam' || ((params.source == 'fastq' && !params.skip_alignment && params.aligner == 'star_salmon'))) {
         // Salmon detects the library type of an 'auto' transcriptome BAM itself, with
         // --libType A, unless --salmon_quant_libtype sets one for every sample. Reads given
         // as FASTQ have had theirs inferred already, so they are never 'auto' here
@@ -576,11 +570,6 @@ workflow RNASPLICE {
                 params.suppa_per_isoform,
                 ch_gene_annotation,
             )
-            ch_splicing_multiqc = ch_splicing_multiqc.mix(
-                SUPPA_STAR_SALMON.out.suppa_local_psi.map { _meta, psi -> psi },
-                SUPPA_STAR_SALMON.out.suppa_isoform_psi.map { _meta, psi -> psi },
-                prefixedForMultiqc(SUPPA_STAR_SALMON.out.dpsi_local.mix(SUPPA_STAR_SALMON.out.dpsi_isoform), 'star_salmon'),
-            )
         }
     }
 
@@ -654,17 +643,6 @@ workflow RNASPLICE {
                 params.suppa_per_isoform,
                 ch_gene_annotation,
             )
-            ch_splicing_multiqc = ch_splicing_multiqc.mix(
-                prefixedForMultiqc(SUPPA_SALMON.out.dpsi_local.mix(SUPPA_SALMON.out.dpsi_isoform), 'salmon')
-            )
-            // The PSI tables name their columns after the samples, so a sample can only
-            // be shown once: from the STAR quantification when there is one
-            if (!star_salmon_quant) {
-                ch_splicing_multiqc = ch_splicing_multiqc.mix(
-                    SUPPA_SALMON.out.suppa_local_psi.map { _meta, psi -> psi },
-                    SUPPA_SALMON.out.suppa_isoform_psi.map { _meta, psi -> psi },
-                )
-            }
         }
     }
 
@@ -760,7 +738,7 @@ workflow RNASPLICE {
         )
     }
 
-    ch_multiqc_files = ch_multiqc_files.mix(ch_splicing_multiqc)
+    ch_multiqc_files = ch_multiqc_files.mix(ch_rmats_multiqc)
 
     MULTIQC(
         ch_multiqc_files.flatten().collect().map { files ->
@@ -778,20 +756,4 @@ workflow RNASPLICE {
     )
     emit:
     multiqc_report = MULTIQC.out.report.map { _meta, report -> [report] }.toList() // channel: /path/to/multiqc_report.html
-}
-
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    FUNCTIONS
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
-
-// The STAR and Salmon quantifications write SUPPA dPSI files of the same names, and MultiQC
-// names a comparison after its file, so MultiQC gets copies prefixed with the quantification
-// they came from
-def prefixedForMultiqc(ch_files, prefix) {
-    return ch_files
-        .map { _meta, files -> files }
-        .flatten()
-        .collectFile { result_file -> ["${prefix}_${result_file.name}", result_file] }
 }

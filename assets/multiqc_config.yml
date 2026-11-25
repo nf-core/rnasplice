@@ -11,9 +11,6 @@ report_section_order:
 export_plots: true
 disable_version_detection: true
 
-# The genome-wide SUPPA PSI tables of larger cohorts exceed the 50 MB default
-log_filesize_limit: 500000000
-
 extra_fn_clean_exts:
   - "_sorted"
 
@@ -33,8 +30,6 @@ module_order:
   - samtools
   - rseqc
   - rmats
-  - leafcutter
-  - suppa
 
 custom_data:
   fail_trimmed_samples:
