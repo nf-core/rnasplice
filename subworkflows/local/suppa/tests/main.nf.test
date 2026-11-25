@@ -48,7 +48,9 @@ nextflow_workflow {
                     [ [ id:'ERR188454' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454.tar.gz', checkIfExists: true) ],
                     [ [ id:'ERR204916' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916.tar.gz', checkIfExists: true) ],
                 )
-                input[1] = GFFREAD_TX2GENE.out.tx2gene
+                input[1] = channel.value(file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true))
+                input[2] = 'gene_id'
+                input[3] = 'gene_name'
                 """
             }
         }
