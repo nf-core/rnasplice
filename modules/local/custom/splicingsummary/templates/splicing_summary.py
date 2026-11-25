@@ -11,6 +11,7 @@ import gzip
 import json
 import math
 import platform
+import re
 import shlex
 from collections import defaultdict
 
@@ -201,8 +202,7 @@ def write_differential_table(rows):
     headers = {}
     data = defaultdict(dict)
     for row in rows:
-        key = "_".join(part for part in (row["method"], row["route"], row["unit"]) if part)
-        key = "".join(char if char.isalnum() else "_" for char in key.lower())
+        key = re.sub("[^a-z0-9]+", "_", " ".join(part for part in (row["method"], row["route"], row["unit"]) if part).lower())
         route = f" ({row['route']})" if row["route"] else ""
         title = f"{row['method']} {row['unit']}{route}"
         if key not in headers:

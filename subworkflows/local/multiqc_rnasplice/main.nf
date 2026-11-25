@@ -83,15 +83,17 @@ workflow MULTIQC_RNASPLICE {
             .combine(ch_sample_merge_config.ifEmpty([]).toList())
             .map { row ->
                 def files = row[0..-2]
-                def sample_merge_config = row[-1]
+                // A path is iterable over its directories, so it is added as one item
+                def configs = [
+                    multiqc_config
+                        ? file(multiqc_config, checkIfExists: true)
+                        : file("${projectDir}/assets/multiqc_config.yml", checkIfExists: true)
+                ]
+                configs.addAll(row[-1] instanceof List ? row[-1] : [row[-1]])
                 [
                     [id: 'rnasplice'],
                     files,
-                    [
-                        multiqc_config
-                            ? file(multiqc_config, checkIfExists: true)
-                            : file("${projectDir}/assets/multiqc_config.yml", checkIfExists: true),
-                    ] + sample_merge_config,
+                    configs,
                     multiqc_logo ? file(multiqc_logo, checkIfExists: true) : [],
                     [],
                     [],

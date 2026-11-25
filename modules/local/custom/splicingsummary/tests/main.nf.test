@@ -45,15 +45,17 @@ nextflow_process {
                     'S1\t50.00\t75.00\t66.67',
                     'S2\t75.00\t50.00\t66.67',
                 ] },
-                { assert path(process.out.differential[0][1]).readLines().drop(1).collect { line -> line.split('\t')[0..7].join('\t') } == [
-                    'DEXSeq DEU | A-B | exon bins\tDEXSeq DEU\t\tA-B\texon bins\t2\t1\t50.0',
-                    'edgeR DEU | A-B | genes\tedgeR DEU\t\tA-B\tgenes\t2\t1\t50.0',
-                    'DEXSeq DTU + stageR | STAR | A-B | genes\tDEXSeq DTU + stageR\tSTAR\tA-B\tgenes\t2\t1\t50.0',
-                    'DEXSeq DTU + stageR | STAR | A-B | transcripts\tDEXSeq DTU + stageR\tSTAR\tA-B\ttranscripts\t3\t1\t33.33',
-                    'SUPPA2 | STAR | A-B | events\tSUPPA2\tSTAR\tA-B\tevents\t3\t2\t66.67',
-                    'IsoformSwitchAnalyzeR | STAR | A-B | isoforms\tIsoformSwitchAnalyzeR\tSTAR\tA-B\tisoforms\t3\t1\t33.33',
-                    'LeafCutter | A-B | clusters\tLeafCutter\t\tA-B\tclusters\t2\t1\t50.0',
-                    'ASpli | A-B | bins\tASpli\t\tA-B\tbins\t2\t1\t50.0',
+                { assert path(process.out.differential[0][1]).json.data == [
+                    'A-B': [
+                        dexseq_deu_exon_bins: 1, dexseq_deu_exon_bins_tested: 2,
+                        edger_deu_genes: 1, edger_deu_genes_tested: 2,
+                        dexseq_dtu_stager_star_genes: 1, dexseq_dtu_stager_star_genes_tested: 2,
+                        dexseq_dtu_stager_star_transcripts: 1, dexseq_dtu_stager_star_transcripts_tested: 3,
+                        suppa2_star_events: 2, suppa2_star_events_tested: 3,
+                        isoformswitchanalyzer_star_isoforms: 1, isoformswitchanalyzer_star_isoforms_tested: 3,
+                        leafcutter_clusters: 1, leafcutter_clusters_tested: 2,
+                        aspli_bins: 1, aspli_bins_tested: 2,
+                    ]
                 ] },
                 { assert snapshot(process.out).match() }
             )
