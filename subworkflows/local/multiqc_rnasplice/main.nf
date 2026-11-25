@@ -48,7 +48,8 @@ workflow MULTIQC_RNASPLICE {
             .mix(ch_leafcutter_strand_summary.map { meta, summary -> [[kind: 'leafcutter_strands', route: '', id: meta.id], summary] })
             .toSortedList { a, b -> a[0].toString() <=> b[0].toString() ?: a[1].name <=> b[1].name }
             .filter { results -> results }
-            .map { results -> [[id: 'splicing_summary'], results.collect { label, _result -> label }, results.collect { _label, result -> result }] }
+            .map { results -> [[id: 'splicing_summary'], results.collect { label, _result -> label }, results.collect { _label, result -> result }] },
+        file("${projectDir}/assets/multiqc_splicing_sections.yml", checkIfExists: true),
     )
 
     // FastQC and Trim Galore report each read of a paired-end sample apart, as `<id>_1` and

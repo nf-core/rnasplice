@@ -10,7 +10,7 @@ keywords:
   - differential splicing
 tools:
   - "custom":
-      description: "Python script that summarises the outputs of DEXSeq, edgeR,
+      description: "Python script, using pandas, that summarises the outputs of DEXSeq, edgeR,
         DRIMSeq/DEXSeq DTU with stageR, SUPPA2, IsoformSwitchAnalyzeR, LeafCutter,
         ASpli and rMATS, and the splice junctions of STAR, for MultiQC"
       licence: ["MIT"]
@@ -42,6 +42,14 @@ input:
           the gene annotation table
         pattern: "*.{txt,tsv,csv,psi,dpsi,gz,out}"
         ontologies: []
+  - section_config:
+      type: file
+      description: |
+        The text, headers, tool tables and thresholds of the sections, the pipeline's
+        assets/multiqc_splicing_sections.yml, filled in with the computed values
+      pattern: "*.{yml,yaml}"
+      ontologies:
+        - edam: http://edamontology.org/format_3750 # YAML
 output:
   sections:
     - - meta:

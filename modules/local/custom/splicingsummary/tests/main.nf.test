@@ -46,6 +46,7 @@ nextflow_process {
                     results.collect { label, _name -> label },
                     results.collect { _label, name -> file("${moduleTestDir}/\${name}", checkIfExists: true) },
                 ]
+                input[1] = file("${projectDir}/assets/multiqc_splicing_sections.yml", checkIfExists: true)
                 """
             }
         }
@@ -150,6 +151,7 @@ nextflow_process {
                     results.collect { label, _name -> label },
                     results.collect { _label, name -> file("${moduleTestDir}/\${name}", checkIfExists: true) },
                 ]
+                input[1] = file("${projectDir}/assets/multiqc_splicing_sections.yml", checkIfExists: true)
                 """
             }
         }
@@ -181,6 +183,7 @@ nextflow_process {
                     results.collect { label, _name -> label },
                     results.collect { _label, name -> file("${moduleTestDir}/\${name}", checkIfExists: true) },
                 ]
+                input[1] = file("${projectDir}/assets/multiqc_splicing_sections.yml", checkIfExists: true)
                 """
             }
         }
@@ -219,6 +222,7 @@ nextflow_process {
                     results.collect { label, _name -> label },
                     results.collect { _label, name -> file("${moduleTestDir}/\${name}", checkIfExists: true) },
                 ]
+                input[1] = file("${projectDir}/assets/multiqc_splicing_sections.yml", checkIfExists: true)
                 """
             }
         }
@@ -259,6 +263,7 @@ nextflow_process {
                     results.collect { label, _name -> label },
                     results.collect { _label, name -> file("${moduleTestDir}/\${name}", checkIfExists: true) },
                 ]
+                input[1] = file("${projectDir}/assets/multiqc_splicing_sections.yml", checkIfExists: true)
                 """
             }
         }
@@ -292,6 +297,7 @@ nextflow_process {
                     [ [ kind:'suppa_events', route:'STAR', id:'A-B' ] ],
                     [ file("${moduleTestDir}/local_A-B.dpsi", checkIfExists: true) ],
                 ]
+                input[1] = file("${projectDir}/assets/multiqc_splicing_sections.yml", checkIfExists: true)
                 """
             }
         }
