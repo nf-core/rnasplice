@@ -14,6 +14,7 @@ workflow MULTIQC_RNASPLICE {
     ch_multiqc_files             // channel: [ val(meta), path(file) or [ path(files) ] ], the outputs MultiQC modules read as they are
     ch_fail_trimming_tsv         // channel: val(tsv), the samples that failed the trimmed reads threshold
     ch_strand_check_tsv          // channel: val(tsv), the strand check of each sample
+    ch_fastq_meta                // channel: val(meta), one per sample given as FASTQ files
     ch_leafcutter_strand_summary // channel: [ val(meta), path(tsv) ], unstranded samples only
     ch_rmats_read_outcomes       // channel: [ val(meta), path(txt) ]
     ch_rmats_summary             // channel: [ val(meta), path(txt) ], meta.id is the contrast
@@ -55,6 +56,16 @@ workflow MULTIQC_RNASPLICE {
             .map { results -> [[id: 'splicing_summary'], results.collect { label, _result -> label }, results.collect { _label, result -> result }] }
     )
 
+    // FastQC and Trim Galore report each read of a paired-end sample apart, as `<id>_1` and
+    // `<id>_2`, and General Stats groups them under the sample. Only paired-end sample IDs are
+    // matched, so that a sample whose own ID ends in `_1` is not taken for a read of another
+    def ch_sample_merge_config = ch_fastq_meta
+        .filter { meta -> !meta.single_end }
+        .map { meta -> meta.id as String }
+        .toSortedList()
+        .map { ids -> multiqcSampleMergeYaml(ids) }
+        .collectFile(name: 'multiqc_sample_merge.yml')
+
     def ch_files = ch_multiqc_files
         .map { _meta, files -> files }
         .mix(ch_fail_trimming_tsv.collectFile(name: 'fail_trimmed_samples_mqc.tsv'))
@@ -68,21 +79,52 @@ workflow MULTIQC_RNASPLICE {
         .mix(ch_collated_versions)
 
     MULTIQC(
-        ch_files.flatten().collect().map { files ->
-            [
-                [id: 'rnasplice'],
-                files,
-                multiqc_config
-                    ? file(multiqc_config, checkIfExists: true)
-                    : file("${projectDir}/assets/multiqc_config.yml", checkIfExists: true),
-                multiqc_logo ? file(multiqc_logo, checkIfExists: true) : [],
-                [],
-                [],
-            ]
-        }
+        ch_files.flatten().collect()
+            .combine(ch_sample_merge_config.ifEmpty([]).toList())
+            .map { row ->
+                def files = row[0..-2]
+                def sample_merge_config = row[-1]
+                [
+                    [id: 'rnasplice'],
+                    files,
+                    [
+                        multiqc_config
+                            ? file(multiqc_config, checkIfExists: true)
+                            : file("${projectDir}/assets/multiqc_config.yml", checkIfExists: true),
+                    ] + sample_merge_config,
+                    multiqc_logo ? file(multiqc_logo, checkIfExists: true) : [],
+                    [],
+                    [],
+                ]
+            }
     )
 
     emit:
     report = MULTIQC.out.report.map { _meta, report -> [report] }.toList() // channel: [ path(multiqc_report.html) ]
     data   = MULTIQC.out.data.map { _meta, data -> data }                  // channel: path(multiqc_data)
+}
+
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    FUNCTIONS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+
+//
+// MultiQC `table_sample_merge` config that groups `<id>_1` and `<id>_2` under each paired-end
+// sample. The lookbehind is fixed-length, so each ID gets its own pattern, escaped for a
+// regex in a single-quoted YAML string
+//
+def multiqcSampleMergeYaml(ids) {
+    if (!ids) {
+        return 'table_sample_merge: {}\n'
+    }
+    def read1 = ids.collect { id -> multiqcSampleMergePattern(id, 1) }.join('\n')
+    def read2 = ids.collect { id -> multiqcSampleMergePattern(id, 2) }.join('\n')
+    return "table_sample_merge:\n  \"Read 1\":\n${read1}\n  \"Read 2\":\n${read2}\n"
+}
+
+def multiqcSampleMergePattern(id, read) {
+    def escaped = id.replaceAll(/[\\^$.|?*+()\[\]{}\/]/) { m -> "\\${m[0]}" }.replace("'", "''")
+    return "    - type: regex\n      pattern: '(?<=^${escaped})_${read}\$'"
 }

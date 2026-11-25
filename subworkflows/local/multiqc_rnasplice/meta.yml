@@ -30,6 +30,12 @@ input:
       description: |
         Table of the strand check of each sample, written to fail_strand_check_mqc.tsv
         Structure: val(tsv)
+  - ch_fastq_meta:
+      type: map
+      description: |
+        Meta map of each sample given as FASTQ files, with `id` and `single_end`. The
+        `_1` and `_2` reads of paired-end samples are grouped in the General Statistics table
+        Structure: val(meta)
   - ch_leafcutter_strand_summary:
       type: file
       description: |

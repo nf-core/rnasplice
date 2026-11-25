@@ -57,13 +57,13 @@ output:
           type: map
           description: |
             Groovy Map containing run information
-      - "differential_splicing_mqc.tsv":
+      - "differential_splicing_mqc.json":
           type: file
           description: Tested and significant features of each analysis and contrast,
             written when a result table is given
-          pattern: "differential_splicing_mqc.tsv"
+          pattern: "differential_splicing_mqc.json"
           ontologies:
-            - edam: http://edamontology.org/format_3475 # TSV
+            - edam: http://edamontology.org/format_3464 # JSON
   versions_splicingsummary:
     - versions.yml:
         type: file

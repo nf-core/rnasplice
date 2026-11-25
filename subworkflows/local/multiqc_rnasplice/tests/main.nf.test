@@ -15,22 +15,23 @@ nextflow_workflow {
         when {
             workflow {
                 """
-                input[0]  = channel.empty()
-                input[1]  = channel.of("Sample\\tReads after trimming\\nS1\\t10")
-                input[2]  = channel.empty()
-                input[3]  = channel.empty()
-                input[4]  = channel.empty()
-                input[5]  = channel.empty()
-                input[6]  = channel.of(
+                input[0] = channel.empty()
+                input[1] = channel.of("Sample\\tReads after trimming\\nS1\\t10")
+                input[2] = channel.empty()
+                input[3] = channel.of([ id:'S1', single_end:false ])
+                input[4] = channel.empty()
+                input[5] = channel.empty()
+                input[6] = channel.empty()
+                input[7] = channel.of(
                     [ [ kind:'dexseq_counts'  , route:''    , id:'S1'  ], file("${projectDir}/modules/local/custom/splicingsummary/tests/S1.count.txt", checkIfExists: true)           ],
                     [ [ kind:'dexseq_counts'  , route:''    , id:'S2'  ], file("${projectDir}/modules/local/custom/splicingsummary/tests/S2.count.txt", checkIfExists: true)           ],
                     [ [ kind:'suppa_events'   , route:'STAR', id:'A-B' ], file("${projectDir}/modules/local/custom/splicingsummary/tests/local_A-B.dpsi", checkIfExists: true)         ],
                     [ [ kind:'dexseq_deu_bins', route:''    , id:'A-B' ], file("${projectDir}/modules/local/custom/splicingsummary/tests/A-B.dexseq.results.tsv", checkIfExists: true) ],
                 )
-                input[7]  = channel.empty()
-                input[8]  = null
-                input[9]  = null
+                input[8] = channel.empty()
+                input[9] = null
                 input[10] = null
+                input[11] = null
                 """
             }
         }

@@ -94,6 +94,7 @@ workflow RNASPLICE {
     def ch_leafcutter_strand_summary = channel.empty()
     def ch_fail_trimming_tsv = channel.empty()
     def ch_strand_check_tsv = channel.empty()
+    def ch_fastq_meta = channel.empty()
     def ch_rmats_read_outcomes = channel.empty()
     def ch_rmats_summary = channel.empty()
     def ch_splicing_results = channel.empty()
@@ -171,6 +172,7 @@ workflow RNASPLICE {
     if (input_routes.fastq) {
         CAT_FASTQ(ch_fastq.multiple)
         CAT_FASTQ.out.reads.mix(ch_fastq.single).set { ch_cat_fastq }
+        ch_fastq_meta = ch_cat_fastq.map { meta, _reads -> meta }
 
         //
         // SUBWORKFLOW: Read QC and trim adapters with TrimGalore!
@@ -789,6 +791,7 @@ workflow RNASPLICE {
         ch_multiqc_files,
         ch_fail_trimming_tsv,
         ch_strand_check_tsv,
+        ch_fastq_meta,
         ch_leafcutter_strand_summary,
         ch_rmats_read_outcomes,
         ch_rmats_summary,

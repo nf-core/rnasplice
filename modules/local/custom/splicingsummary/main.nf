@@ -13,7 +13,7 @@ process CUSTOM_SPLICINGSUMMARY {
 
     output:
     tuple val(meta), path("splicing_sample_metrics_mqc.tsv"), emit: sample_metrics, optional: true
-    tuple val(meta), path("differential_splicing_mqc.tsv")  , emit: differential  , optional: true
+    tuple val(meta), path("differential_splicing_mqc.json") , emit: differential  , optional: true
     path "versions.yml"                                     , topic: versions     , emit: versions_splicingsummary
 
     when:
@@ -25,7 +25,7 @@ process CUSTOM_SPLICINGSUMMARY {
     stub:
     """
     touch splicing_sample_metrics_mqc.tsv
-    touch differential_splicing_mqc.tsv
+    touch differential_splicing_mqc.json
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

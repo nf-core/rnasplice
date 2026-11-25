@@ -17,15 +17,13 @@ from collections import defaultdict
 labels = json.loads(r"""${groovy.json.JsonOutput.toJson(labels)}""")
 staged = json.loads(r"""${groovy.json.JsonOutput.toJson((results instanceof List ? results : [results]).collect { result -> result.toString() })}""")
 GENERAL_STATS_FILE = "splicing_sample_metrics_mqc.tsv"
-TABLE_FILE = "differential_splicing_mqc.tsv"
+TABLE_FILE = "differential_splicing_mqc.json"
 
 GENERAL_STATS_COLUMNS = {
     "dexseq_counts": "dexseq_exon_bins_detected",
     "suppa_psi": "suppa_events_quantified",
     "leafcutter_numers": "leafcutter_introns_detected",
 }
-
-TABLE_COLUMNS = ["Method", "Route", "Contrast", "Unit", "Tested", "Significant", "Percent Significant", "Threshold"]
 
 METHOD_ORDER = [
     "DEXSeq DEU",
@@ -196,6 +194,38 @@ def isoformswitchanalyzer(path, contrasts_path, alpha, dif):
     return counts
 
 
+def write_differential_table(rows):
+    """One row per contrast and one column per analysis, so the analyses of a contrast read
+    across. Analyses count different features, so each column states its own in its header."""
+    rows.sort(key=lambda row: (METHOD_ORDER.index(row["method"]), ROUTE_ORDER.index(row["route"]), row["unit"], row["contrast"]))
+    headers = {}
+    data = defaultdict(dict)
+    for row in rows:
+        key = "_".join(part for part in (row["method"], row["route"], row["unit"]) if part)
+        key = "".join(char if char.isalnum() else "_" for char in key.lower())
+        route = f" ({row['route']})" if row["route"] else ""
+        title = f"{row['method']} {row['unit']}{route}"
+        if key not in headers:
+            route_text = f", from the {row['route']} quantification" if row["route"] else ""
+            headers[key] = {
+                "title": title,
+                "description": f"{row['method']}: {row['unit']} called significant ({row['threshold']}){route_text}",
+                "format": "{:,.0f}",
+                "scale": "Purples",
+            }
+            headers[f"{key}_tested"] = {
+                "title": f"{title}: tested",
+                "description": f"{row['method']}: {row['unit']} tested{route_text}",
+                "format": "{:,.0f}",
+                "scale": "Blues",
+                "hidden": True,
+            }
+        data[row["contrast"]][key] = row["significant"]
+        data[row["contrast"]][f"{key}_tested"] = row["tested"]
+    with open(TABLE_FILE, "w") as handle:
+        json.dump({"id": "differential_splicing", "headers": headers, "data": {contrast: data[contrast] for contrast in sorted(data)}}, handle, indent=4)
+
+
 def fmt(number):
     return f"{number:g}"
 
@@ -213,14 +243,13 @@ def main():
         tested, significant = counts
         rows.append(
             {
-                "Method": method,
-                "Route": route,
-                "Contrast": contrast,
-                "Unit": unit,
-                "Tested": tested,
-                "Significant": significant,
-                "Percent Significant": round(100 * significant / tested, 2) if tested else "",
-                "Threshold": threshold,
+                "method": method,
+                "route": route,
+                "contrast": contrast,
+                "unit": unit,
+                "tested": tested,
+                "significant": significant,
+                "threshold": threshold,
             }
         )
 
@@ -288,12 +317,7 @@ def main():
                 handle.write("\\t".join([sample] + cells) + "\\n")
 
     if rows:
-        rows.sort(key=lambda row: (METHOD_ORDER.index(row["Method"]), ROUTE_ORDER.index(row["Route"]), row["Contrast"], row["Unit"]))
-        with open(TABLE_FILE, "w") as handle:
-            handle.write("\\t".join(["Analysis"] + TABLE_COLUMNS) + "\\n")
-            for row in rows:
-                row_id = " | ".join(part for part in (row["Method"], row["Route"], row["Contrast"], row["Unit"]) if part)
-                handle.write("\\t".join([row_id] + [str(row[column]) for column in TABLE_COLUMNS]) + "\\n")
+        write_differential_table(rows)
 
     with open("versions.yml", "w") as handle:
         handle.write('"${task.process}":\\n')
