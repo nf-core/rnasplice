@@ -426,7 +426,7 @@ workflow RNASPLICE {
             // Every contrast writes a `summary.txt`, and MultiQC names it after its file
             ch_splicing_multiqc = ch_splicing_multiqc.mix(
                 RMATS.out.read_outcomes.map { _meta, txt -> txt },
-                RMATS.out.summary.collectFile { meta, summary -> ["${meta.id}.rmats_summary.txt", summary] },
+                RMATS.out.summary.collectFile { meta, summary -> ["${meta.id}_summary.txt", summary] },
             )
         }
 
