@@ -1,0 +1,153 @@
+nextflow_function {
+
+    name "Test Function getInputRoutes"
+    script "../main.nf"
+    function "getInputRoutes"
+
+    tag "subworkflows"
+    tag "subworkflows/utils_nfcore_rnasplice_pipeline"
+
+    test("FASTQ only - STAR and both Salmon routes") {
+
+        when {
+            params {
+                skip_alignment = false
+                aligner = 'star_salmon'
+                pseudo_aligner = 'salmon'
+            }
+            function {
+                """
+                input[0] = [ fastq: true, genome_bam: false, transcriptome_bam: false, salmon_results: false ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result.findAll { key, _value -> key != 'input_types' } == [ fastq: true, star: true, genome: true, star_salmon: true, pseudo_salmon: true, salmon_results: false ] }
+            )
+        }
+
+    }
+
+    test("FASTQ only - skip_alignment") {
+
+        when {
+            params {
+                skip_alignment = true
+                aligner = 'star_salmon'
+                pseudo_aligner = 'salmon'
+            }
+            function {
+                """
+                input[0] = [ fastq: true, genome_bam: false, transcriptome_bam: false, salmon_results: false ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result.findAll { key, _value -> key != 'input_types' } == [ fastq: true, star: false, genome: false, star_salmon: false, pseudo_salmon: true, salmon_results: false ] }
+            )
+        }
+
+    }
+
+    test("FASTQ and genome BAM - no STAR, FASTQ pseudo-aligned") {
+
+        when {
+            params {
+                skip_alignment = false
+                aligner = 'star_salmon'
+                pseudo_aligner = 'salmon'
+            }
+            function {
+                """
+                input[0] = [ fastq: true, genome_bam: true, transcriptome_bam: false, salmon_results: false ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result.findAll { key, _value -> key != 'input_types' } == [ fastq: true, star: false, genome: true, star_salmon: false, pseudo_salmon: true, salmon_results: false ] }
+            )
+        }
+
+    }
+
+    test("FASTQ, genome and transcriptome BAM - FASTQ unused") {
+
+        when {
+            params {
+                skip_alignment = false
+                aligner = 'star_salmon'
+                pseudo_aligner = 'salmon'
+            }
+            function {
+                """
+                input[0] = [ fastq: true, genome_bam: true, transcriptome_bam: true, salmon_results: false ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result.findAll { key, _value -> key != 'input_types' } == [ fastq: false, star: false, genome: true, star_salmon: true, pseudo_salmon: false, salmon_results: false ] }
+            )
+        }
+
+    }
+
+    test("FASTQ and transcriptome BAM - STAR for the genome, given BAMs for Salmon") {
+
+        when {
+            params {
+                skip_alignment = false
+                aligner = 'star_salmon'
+                pseudo_aligner = 'salmon'
+            }
+            function {
+                """
+                input[0] = [ fastq: true, genome_bam: false, transcriptome_bam: true, salmon_results: false ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result.findAll { key, _value -> key != 'input_types' } == [ fastq: true, star: true, genome: true, star_salmon: true, pseudo_salmon: false, salmon_results: false ] }
+            )
+        }
+
+    }
+
+    test("genome BAM and Salmon results") {
+
+        when {
+            params {
+                skip_alignment = false
+                aligner = 'star_salmon'
+                pseudo_aligner = 'salmon'
+            }
+            function {
+                """
+                input[0] = [ fastq: false, genome_bam: true, transcriptome_bam: false, salmon_results: true ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result.findAll { key, _value -> key != 'input_types' } == [ fastq: false, star: false, genome: true, star_salmon: false, pseudo_salmon: false, salmon_results: true ] }
+            )
+        }
+
+    }
+}

@@ -152,7 +152,7 @@ nextflow_workflow {
         then {
             // The reverse stranded versions of the GEUVADIS reads, so regtools reads the
             // strand off the read orientation. This is the stranded path, the one
-            // `--source genome_bam` depends on: the junctions reach `leafcutter-cluster`
+            // genome BAM input depends on: the junctions reach `leafcutter-cluster`
             // with a strand without any `XS` tag, and the clustering outputs come back non empty
             assertAll(
                 { assert workflow.success },
