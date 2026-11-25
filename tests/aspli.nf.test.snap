@@ -10,6 +10,9 @@
                     "bioconductor-aspli": "2.16.0",
                     "r-base": "4.4.2"
                 },
+                "CUSTOM_GTFFILTER": {
+                    "python": "3.14.5"
+                },
                 "FASTQC": {
                     "fastqc": "0.13.0"
                 },
@@ -18,9 +21,6 @@
                 },
                 "GFFREAD_TX2GENE": {
                     "gffread": "0.12.7"
-                },
-                "GTFGENEFILTER": {
-                    "python": "3.14.6"
                 },
                 "GUNZIP_FASTA": {
                     "gunzip": "1.13"
@@ -372,7 +372,7 @@
                 "ie2": "ff2117cda8354f3f04cd0a4be8c0dc7e"
             }
         ],
-        "timestamp": "2026-11-24T12:30:36.692938228",
+        "timestamp": "2026-11-25T12:26:40.714280542",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"

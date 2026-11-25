@@ -8,6 +8,9 @@
                 "CREATEBAMLIST": {
                     "sed": "4.9"
                 },
+                "CUSTOM_GTFFILTER": {
+                    "python": "3.14.5"
+                },
                 "DEXSEQ_COUNT": {
                     "bioconductor-dexseq": "1.56.0",
                     "htseq": "2.1.2"
@@ -52,9 +55,6 @@
                 },
                 "GFFREAD_TX2GENE": {
                     "gffread": "0.12.7"
-                },
-                "GTFGENEFILTER": {
-                    "python": "3.14.6"
                 },
                 "GUNZIP_FASTA": {
                     "gunzip": "1.13"
@@ -1236,7 +1236,7 @@
             ],
             [
                 "isoformswitchanalyzer_summary.csv:md5,8cb2a864dbf6d26df508842d83a25bdb",
-                "genes_chrX_genes.gff3:md5,8143d91e8c2057f1b56e8a19dfb75413",
+                "genes_chrX_genes.gff3:md5,c0467de65939b63d98ff90a803a79622",
                 "genes.gff:md5,96be13c1360e34dd9e565d9ac9a5a7bf",
                 "miso_settings.txt:md5,c092cc3e878a299674a99c508b6b2e72",
                 "local_GBR-YRI_groups.txt:md5,e9636d1c0a5cb00df8cedc61642a5d52",
@@ -1368,7 +1368,7 @@
                 "ERR204916_sorted.bam": "1f2abfcbb9697c56744ffb5fcfeb9f17"
             }
         ],
-        "timestamp": "2026-11-24T12:34:20.31346967",
+        "timestamp": "2026-11-25T12:38:30.998091491",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"

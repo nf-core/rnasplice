@@ -5,6 +5,9 @@
                 "CREATEBAMLIST": {
                     "sed": "4.9"
                 },
+                "CUSTOM_GTFFILTER": {
+                    "python": "3.14.5"
+                },
                 "DEXSEQ_COUNT": {
                     "bioconductor-dexseq": "1.56.0",
                     "htseq": "2.1.2"
@@ -38,9 +41,6 @@
                 },
                 "GFFREAD_TX2GENE": {
                     "gffread": "0.12.7"
-                },
-                "GTFGENEFILTER": {
-                    "python": "3.14.6"
                 },
                 "GUNZIP_FASTA": {
                     "gunzip": "1.13"
@@ -851,7 +851,7 @@
                 "ERR204916_sorted.bam": "484dbb84bd68ceb9ed24ecdb8f7a613a"
             }
         ],
-        "timestamp": "2026-11-24T12:42:56.452527334",
+        "timestamp": "2026-11-25T12:52:21.209763275",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"

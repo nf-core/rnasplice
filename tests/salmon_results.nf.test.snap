@@ -5,6 +5,9 @@
                 "CLUSTERGROUPS": {
                     "python": "3.14.6"
                 },
+                "CUSTOM_GTFFILTER": {
+                    "python": "3.14.5"
+                },
                 "DEXSEQ_DTU": {
                     "bioconductor-dexseq": "1.56.0",
                     "r-base": "4.5.3"
@@ -27,9 +30,6 @@
                 },
                 "GFFREAD_TX2GENE": {
                     "gffread": "0.12.7"
-                },
-                "GTFGENEFILTER": {
-                    "python": "3.14.6"
                 },
                 "GUNZIP_FASTA": {
                     "gunzip": "1.13"
@@ -309,7 +309,7 @@
                 "genes_chrX.ioi:md5,aa178a4526493cc55fbd9d6f59ed5c4f"
             ]
         ],
-        "timestamp": "2026-11-24T12:41:20.974142032",
+        "timestamp": "2026-11-25T12:50:37.868965811",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"
