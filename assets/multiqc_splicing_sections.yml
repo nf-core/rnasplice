@@ -1,6 +1,6 @@
 # Text, headers and tool tables of the splicing sections of the MultiQC report, which
 # CUSTOM_SPLICINGSUMMARY fills with the numbers it computes. {name} fields are filled in by
-# Python's str.format, so a literal brace would be written {{ or }}
+# Python's str.format, so a literal brace has to be doubled
 
 parent:
   parent_id: splicing
