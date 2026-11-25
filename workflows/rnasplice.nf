@@ -47,7 +47,7 @@ include { SALMON_QUANT as SALMON_QUANT_SALMON                             } from
 include { SALMON_QUANT as SALMON_QUANT_STAR                               } from '../modules/nf-core/salmon/quant'
 include { SALMON_QUANT as SALMON_QUANT_STAR_AUTO                          } from '../modules/nf-core/salmon/quant'
 include { MULTIQC                                                         } from '../modules/nf-core/multiqc/'
-include { EAUTILS_GTF2BED                                                 } from '../modules/nf-core/ea-utils/gtf2bed'
+include { EAUTILS_GTF2BED                                                 } from '../modules/nf-core/eautils/gtf2bed'
 include { RSEQC_INFEREXPERIMENT                                           } from '../modules/nf-core/rseqc/inferexperiment'
 include { CAT_FASTQ                                                       } from '../modules/nf-core/cat/fastq'
 include { FASTQ_FASTQC_UMITOOLS_TRIMGALORE                                } from '../subworkflows/nf-core/fastq_fastqc_umitools_trimgalore'

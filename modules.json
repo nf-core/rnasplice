@@ -20,6 +20,11 @@
                         "git_sha": "eac429d4c67ac5114ce7d4287d460d8f05fd9fab",
                         "installed_by": ["modules"]
                     },
+                    "custom/gtffilter": {
+                        "branch": "master",
+                        "git_sha": "7b3452a23773f687ededb4befd037920e5a51341",
+                        "installed_by": ["modules"]
+                    },
                     "dexseq/count": {
                         "branch": "master",
                         "git_sha": "fefdbf9dc2f108a2c9a401af1f0b5bb1c3a60754",
@@ -40,9 +45,9 @@
                         "git_sha": "5b6aacd2394742aa94443f446797c58c322c6453",
                         "installed_by": ["modules"]
                     },
-                    "ea-utils/gtf2bed": {
+                    "eautils/gtf2bed": {
                         "branch": "master",
-                        "git_sha": "1298fbd2004c2913d6682ce4a419647d97a8fc3f",
+                        "git_sha": "96862e5b8dbee826fa55a4e4646f28030fd0abdc",
                         "installed_by": ["modules"]
                     },
                     "fastqc": {
@@ -144,6 +149,11 @@
                         "branch": "master",
                         "git_sha": "9339809fcb90af8a8b7051e6cd914894d5c52002",
                         "installed_by": ["bam_stats_samtools", "modules"]
+                    },
+                    "seqkit/replace": {
+                        "branch": "master",
+                        "git_sha": "b37c02fb23e80372e4857dc6695b699d62fea612",
+                        "installed_by": ["modules"]
                     },
                     "star/align": {
                         "branch": "master",
