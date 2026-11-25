@@ -499,35 +499,72 @@ def genomeExistsError() {
 
 //
 // Citations of the tools that ran, from the versions their processes report and the
-// meta.yml files of the modules. A version names a tool by its conda package, which can
-// differ from the meta.yml name by a 'bioconductor-' or 'r-' prefix and by case, so the
-// names are matched without either. A citation can inline a description written over
-// several lines, which would end the YAML block of the MultiQC methods section, so its
-// whitespace is collapsed. Tools that report no version before the citations are built,
-// such as MultiQC, which reads them, are given as extra_tools
+// meta.yml files of the modules, given in a fixed order as the first meta.yml naming a tool
+// and the first version reported for it are the ones cited. A version names a tool by its
+// conda package, which can differ from the meta.yml name by a 'bioconductor-' or 'r-'
+// prefix, case and punctuation, so names are matched on citationToolKey. Citations are put
+// on one line, as a line break would end the YAML block of the MultiQC methods section.
+// Tools that report no version before the citations are built, such as MultiQC, which
+// reads them, are given as extra_tools
 //
 def toolCitations(version_entries, meta_yml_paths, extra_tools) {
     def yaml = new org.yaml.snakeyaml.Yaml()
-    def tool_names = meta_yml_paths
-        .collectMany { path -> (yaml.load(file(path).text)?.tools ?: []).collectMany { tool -> tool.keySet() as List } }
-        .collectEntries { tool -> [ (tool.toLowerCase()): tool ] }
+    def tool_names = [:]
+    meta_yml_paths.each { path ->
+        try {
+            def tools = yaml.load(file(path).text)?.tools
+            (tools instanceof List ? tools : [])
+                .findAll { tool -> tool instanceof Map }
+                .collectMany { tool -> tool.keySet() as List }
+                .each { name -> tool_names.putIfAbsent(citationToolKey(name), name) }
+        }
+        catch (Exception e) {
+            log.warn("The tools of ${path} could not be read for the MultiQC methods section: ${e.message}")
+        }
+    }
 
     def versions = version_entries
-        .collectMany { entry ->
-            if (!(entry instanceof Path)) {
-                return [ entry ]
-            }
-            // A module that writes a versions.yml file reports it as one entry per process
-            return yaml.load(entry.text).collectMany { process, tools -> tools.collect { tool, version -> [ process, tool, version.toString() ] } }
-        }
-        .collect { process, tool, version ->
-            def name = tool.toString().toLowerCase()
-            return [ process, tool_names[name] ?: tool_names[name.replaceFirst(/^(bioconductor|r)-/, '')] ?: tool, version ]
-        }
+        .collectMany { entry -> entry instanceof Path ? readVersionsYml(entry) : [ entry ] }
+        .findAll { _process, _tool, version -> version?.toString()?.trim() }
+        .collect { process, tool, version -> [ process.toString(), tool_names[citationToolKey(tool)] ?: tool.toString(), version.toString() ] }
+        .sort { version -> version.join('\t') }
 
     return citationsOnTheFly(versions, meta_yml_paths, extra_tools).collectEntries { tool, citation ->
-        [ (tool): citation + [ citation: citation.citation.replaceAll(/\s+/, ' ').replace(' )', ')') ] ]
+        [ (tool): citation + [ citation: oneLine(citation.citation), bibliography: oneLine(citation.bibliography) ] ]
     }
+}
+
+//
+// A tool name compared without case, punctuation or a 'bioconductor-' or 'r-' prefix
+//
+def citationToolKey(name) {
+    return name.toString().toLowerCase().replaceFirst(/^(bioconductor|r)-/, '').replaceAll(/[^a-z0-9]/, '')
+}
+
+//
+// The [ process, tool, version ] entries of a versions.yml file. The values are read as
+// written, as a YAML load would turn an unquoted version such as 1.10 into the number 1.1
+//
+def readVersionsYml(path) {
+    def root = new org.yaml.snakeyaml.Yaml().compose(new java.io.StringReader(path.text))
+    if (!(root instanceof org.yaml.snakeyaml.nodes.MappingNode)) {
+        return []
+    }
+    return root.value.collectMany { process ->
+        if (!(process.valueNode instanceof org.yaml.snakeyaml.nodes.MappingNode)) {
+            return []
+        }
+        return process.valueNode.value
+            .findAll { tool -> tool.valueNode instanceof org.yaml.snakeyaml.nodes.ScalarNode }
+            .collect { tool -> [ process.keyNode.value, tool.keyNode.value, tool.valueNode.value ] }
+    }
+}
+
+//
+// Text with its whitespace, line breaks included, collapsed to single spaces
+//
+def oneLine(text) {
+    return text?.replaceAll(/\s+/, ' ')?.replace(' )', ')')
 }
 
 //

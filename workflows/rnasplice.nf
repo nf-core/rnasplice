@@ -716,7 +716,7 @@ workflow RNASPLICE {
         : file("${projectDir}/assets/methods_description_template.yml", checkIfExists: true)
 
     // The methods section cites the tools that ran
-    def meta_yml_paths = files("${projectDir}/modules/**/meta.yml").collect { meta_yml -> meta_yml.toString() }
+    def meta_yml_paths = files("${projectDir}/modules/**/meta.yml").collect { meta_yml -> meta_yml.toString() }.sort()
     def ch_methods_description = channel.topic('versions')
         .toList()
         .map { versions -> methodsDescriptionText(ch_multiqc_custom_methods_description, toolCitations(versions, meta_yml_paths, ['multiqc'])) }
