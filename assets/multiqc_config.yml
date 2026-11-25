@@ -9,6 +9,9 @@ report_section_order:
     order: -901
   "nf-core-rnasplice-methods-description":
     order: -1000
+  # nf-core lint asks for software_versions; MultiQC orders the section by its anchor
+  software_versions:
+    order: -1001
   multiqc_software_versions:
     order: -1001
   "nf-core-rnasplice-summary":
