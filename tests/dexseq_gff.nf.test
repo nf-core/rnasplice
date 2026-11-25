@@ -23,7 +23,7 @@ nextflow_pipeline {
             // Sorted BAM files: left out of stable_content by the ignoreFile, as the conda and
             // container builds of samtools write different BAM headers, and snapshotted by the
             // md5 of their alignments instead
-            def sorted_bams = getAllFilesFromDir(params.outdir, include: ['**/*_sorted.bam'])
+            def sorted_bams = getAllFilesFromDir(params.outdir, include: ['*_sorted.bam', '**/*_sorted.bam'])
                 .collectEntries { bam_file -> [ bam_file.name, bam(bam_file.toString()).getSamLinesMD5() ] }
 
             // The annotation is supplied gzipped, so it has to be uncompressed by

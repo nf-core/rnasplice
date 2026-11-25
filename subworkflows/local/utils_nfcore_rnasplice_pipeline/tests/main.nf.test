@@ -3,6 +3,7 @@ nextflow_workflow {
     name "Test Subworkflow PIPELINE_INITIALISATION"
     script "../main.nf"
     workflow "PIPELINE_INITIALISATION"
+    config "./nextflow.config"
 
     tag "subworkflows"
     tag "subworkflows/utils_nfcore_rnasplice_pipeline"
