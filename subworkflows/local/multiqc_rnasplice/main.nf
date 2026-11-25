@@ -37,12 +37,6 @@ workflow MULTIQC_RNASPLICE {
         .value(methodsDescriptionText(ch_methods_description_template))
         .collectFile(name: 'methods_description_mqc.yaml', sort: true)
 
-    // One table row per unstranded sample, sorted by sample so the report does not
-    // depend on the order the tasks finished in
-    def ch_leafcutter_strands = ch_leafcutter_strand_summary
-        .map { _meta, summary -> summary }
-        .collectFile(name: 'leafcutter_junction_strands_mqc.tsv', keepHeader: true, skip: 1, sort: { summary -> summary.name })
-
     // Every contrast writes a `summary.txt`, and MultiQC names it after its file
     def ch_rmats = ch_rmats_read_outcomes
         .map { _meta, txt -> txt }
@@ -51,6 +45,7 @@ workflow MULTIQC_RNASPLICE {
     // Sorted so that a resumed run finds the cached task
     CUSTOM_SPLICINGSUMMARY(
         ch_splicing_results
+            .mix(ch_leafcutter_strand_summary.map { meta, summary -> [[kind: 'leafcutter_strands', route: '', id: meta.id], summary] })
             .toSortedList { a, b -> a[0].toString() <=> b[0].toString() ?: a[1].name <=> b[1].name }
             .filter { results -> results }
             .map { results -> [[id: 'splicing_summary'], results.collect { label, _result -> label }, results.collect { _label, result -> result }] }
@@ -70,7 +65,6 @@ workflow MULTIQC_RNASPLICE {
         .map { _meta, files -> files }
         .mix(ch_fail_trimming_tsv.collectFile(name: 'fail_trimmed_samples_mqc.tsv'))
         .mix(ch_strand_check_tsv.collectFile(name: 'fail_strand_check_mqc.tsv'))
-        .mix(ch_leafcutter_strands)
         .mix(ch_rmats)
         .mix(CUSTOM_SPLICINGSUMMARY.out.sample_metrics.map { _meta, tsv -> tsv })
         .mix(CUSTOM_SPLICINGSUMMARY.out.sections.map { _meta, sections -> sections })

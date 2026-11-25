@@ -42,8 +42,7 @@ nextflow_workflow {
             assertAll(
                 { assert workflow.out.report[0].flatten().collect { report -> file(report).name } == [ 'multiqc_report.html' ] },
                 { assert path("${data_dir}/multiqc_general_stats.txt").readLines()[0].contains('dexseq_reads_in_bins') },
-                { assert path("${data_dir}/multiqc_dexseq_read_assignment_plot.txt").readLines().size() == 3 },
-                { assert path("${data_dir}/multiqc_suppa_differential_splicing_table.txt").readLines().size() == 2 },
+                { assert path("${data_dir}/multiqc_suppa_significant_events_plot.txt").readLines().size() == 2 },
                 { assert path("${data_dir}/multiqc_differential_splicing_table.txt").readLines().size() == 2 },
                 { assert snapshot(
                     path("${data_dir}/multiqc_general_stats.txt"),
