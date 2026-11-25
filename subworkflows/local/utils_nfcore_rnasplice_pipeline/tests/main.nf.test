@@ -11,14 +11,9 @@ nextflow_workflow {
         def testdata = 'https://raw.githubusercontent.com/nf-core/test-datasets/rnasplice/chrX_subset/testdata/'
         def samples = [ 'ERR188383': 'GBR', 'ERR188428': 'GBR', 'ERR188454': 'YRI', 'ERR204916': 'YRI' ]
 
-        def genome_bam_defaults = new File("${launchDir}/samplesheet_genome_bam.csv")
-        genome_bam_defaults.parentFile.mkdirs()
-        genome_bam_defaults.text = "sample,condition,genome_bam\n" + samples.collect { sample, condition ->
-            "${sample},${condition},${testdata}${sample}.Aligned.out.bam\n"
-        }.join()
-
         // Quoted column names, as spreadsheet tools write them
         def genome_bam_blocking = new File("${launchDir}/samplesheet_genome_bam_blocking.csv")
+        genome_bam_blocking.parentFile.mkdirs()
         genome_bam_blocking.text = '"sample","condition","batch","genome_bam"\n' + samples.collect { sample, condition ->
             "${sample},${condition},1,${testdata}${sample}.Aligned.out.bam\n"
         }.join()
@@ -49,7 +44,7 @@ nextflow_workflow {
                 input[2] = true
                 input[3] = []
                 input[4] = "${outputDir}"
-                input[5] = "${launchDir}/samplesheet_genome_bam.csv"
+                input[5] = params.pipelines_testdata_base_path + 'samplesheet/samplesheet_bam.csv'
                 input[6] = params.pipelines_testdata_base_path + 'samplesheet/contrastsheet.csv'
                 input[7] = false
                 input[8] = false
@@ -62,8 +57,7 @@ nextflow_workflow {
             assertAll(
                 { assert workflow.success },
                 // Warnings go to the Nextflow log rather than the console
-                { assert path("${outputDir}/../meta/nextflow.log").text.contains("The '--source' parameter is deprecated and ignored") },
-                { assert workflow.out.samplesheet_file[0].toString().endsWith('samplesheet_genome_bam.csv') }
+                { assert path("${outputDir}/../meta/nextflow.log").text.contains("The '--source' parameter is deprecated and ignored") }
             )
         }
 
@@ -79,7 +73,7 @@ nextflow_workflow {
                 input[2] = true
                 input[3] = []
                 input[4] = "${outputDir}"
-                input[5] = "${launchDir}/samplesheet_genome_bam.csv"
+                input[5] = params.pipelines_testdata_base_path + 'samplesheet/samplesheet_bam.csv'
                 input[6] = "${launchDir}/contrastsheet_legacy.csv"
                 input[7] = false
                 input[8] = false
@@ -109,7 +103,7 @@ nextflow_workflow {
                 input[2] = true
                 input[3] = []
                 input[4] = "${outputDir}"
-                input[5] = "${launchDir}/samplesheet_genome_bam.csv"
+                input[5] = params.pipelines_testdata_base_path + 'samplesheet/samplesheet_bam.csv'
                 input[6] = "${launchDir}/contrastsheet_new.csv"
                 input[7] = false
                 input[8] = false
@@ -173,7 +167,7 @@ nextflow_workflow {
                 input[2] = true
                 input[3] = []
                 input[4] = "${outputDir}"
-                input[5] = "${launchDir}/samplesheet_genome_bam.csv"
+                input[5] = params.pipelines_testdata_base_path + 'samplesheet/samplesheet_bam.csv'
                 input[6] = "${launchDir}/contrastsheet_new_blocking.csv"
                 input[7] = false
                 input[8] = false
@@ -202,7 +196,7 @@ nextflow_workflow {
                 input[2] = true
                 input[3] = []
                 input[4] = "${outputDir}"
-                input[5] = "${launchDir}/samplesheet_genome_bam.csv"
+                input[5] = params.pipelines_testdata_base_path + 'samplesheet/samplesheet_bam.csv'
                 input[6] = "${launchDir}/contrastsheet_mixed.csv"
                 input[7] = false
                 input[8] = false
@@ -230,7 +224,7 @@ nextflow_workflow {
                 input[2] = true
                 input[3] = []
                 input[4] = "${outputDir}"
-                input[5] = "${launchDir}/samplesheet_genome_bam.csv"
+                input[5] = params.pipelines_testdata_base_path + 'samplesheet/samplesheet_bam.csv'
                 input[6] = "${launchDir}/contrastsheet_variable.csv"
                 input[7] = false
                 input[8] = false
@@ -258,7 +252,7 @@ nextflow_workflow {
                 input[2] = true
                 input[3] = []
                 input[4] = "${outputDir}"
-                input[5] = "${launchDir}/samplesheet_genome_bam.csv"
+                input[5] = params.pipelines_testdata_base_path + 'samplesheet/samplesheet_bam.csv'
                 input[6] = "${launchDir}/contrastsheet_missing_target.csv"
                 input[7] = false
                 input[8] = false
@@ -286,7 +280,7 @@ nextflow_workflow {
                 input[2] = true
                 input[3] = []
                 input[4] = "${outputDir}"
-                input[5] = "${launchDir}/samplesheet_genome_bam.csv"
+                input[5] = params.pipelines_testdata_base_path + 'samplesheet/samplesheet_bam.csv'
                 input[6] = "${launchDir}/contrastsheet_dup_id.csv"
                 input[7] = false
                 input[8] = false
@@ -315,7 +309,7 @@ nextflow_workflow {
                 input[2] = true
                 input[3] = []
                 input[4] = "${outputDir}"
-                input[5] = "${launchDir}/samplesheet_genome_bam.csv"
+                input[5] = params.pipelines_testdata_base_path + 'samplesheet/samplesheet_bam.csv'
                 input[6] = "${launchDir}/contrastsheet_dup_legacy.csv"
                 input[7] = false
                 input[8] = false

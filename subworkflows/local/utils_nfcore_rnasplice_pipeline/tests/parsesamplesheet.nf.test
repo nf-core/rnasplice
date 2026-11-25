@@ -7,16 +7,13 @@ nextflow_function {
     tag "subworkflows"
     tag "subworkflows/utils_nfcore_rnasplice_pipeline"
 
-    // BAM samplesheets carry optional strandedness and single_end columns, which have to
-    // reach the meta map of every sample so that the tools that need the library type and
-    // the read type get them, and which default to unstranded and paired end, see
-    // https://github.com/nf-core/rnasplice/issues/184
+    // Without FASTQ files, strandedness and single_end come from optional columns, which
+    // default to unstranded and paired end
 
     def testdata = 'https://raw.githubusercontent.com/nf-core/test-datasets/rnasplice/chrX_subset/testdata/'
     def samples = [ 'ERR188383': 'GBR', 'ERR188428': 'GBR', 'ERR188454': 'YRI', 'ERR204916': 'YRI' ]
 
-    // As written by nf-core/rnaseq with --save_align_intermeds, plus a condition column,
-    // with a second sequencing run for the first sample
+    // A row as written by nf-core/rnaseq with --save_align_intermeds, plus a condition column
     def rnaseq_row = { sample, condition, run ->
         "${sample},${testdata}${sample}_chrX_1.fastq.gz,${testdata}${sample}_chrX_2.fastq.gz,reverse,ILLUMINA,${run},${testdata}${sample}.Aligned.out.bam,95.5,${testdata}${sample}.Aligned.toTranscriptome.out.bam,${condition}\n"
     }
@@ -25,12 +22,10 @@ nextflow_function {
         'samplesheet_genome_bam_optional_columns.csv': "sample,condition,strandedness,single_end,genome_bam\n" + samples.collect { sample, condition ->
             "${sample},${condition},reverse,true,${testdata}${sample}.Aligned.out.bam\n"
         }.join(),
-        'samplesheet_genome_bam.csv': "sample,condition,genome_bam\n" + samples.collect { sample, condition ->
-            "${sample},${condition},${testdata}${sample}.Aligned.out.bam\n"
-        }.join(),
         'samplesheet_transcriptome_bam_optional_columns.csv': "sample,condition,strandedness,single_end,genome_bam,transcriptome_bam\n" + samples.collect { sample, condition ->
             "${sample},${condition},forward,true,${testdata}${sample}.Aligned.out.bam,${testdata}${sample}.Aligned.toTranscriptome.out.bam\n"
         }.join(),
+        // With a second sequencing run for the first sample
         'samplesheet_rnaseq_bams.csv': "sample,fastq_1,fastq_2,strandedness,seq_platform,seq_center,genome_bam,percent_mapped,transcriptome_bam,condition\n" +
             rnaseq_row('ERR188383', 'GBR', 'RUN2') + samples.collect { sample, condition -> rnaseq_row(sample, condition, 'RUN1') }.join(),
         'samplesheet_partial_genome_bam.csv': "sample,condition,genome_bam\n" + samples.collect { sample, condition ->
@@ -50,7 +45,7 @@ nextflow_function {
         }.join(),
     ]
 
-    // Function tests have no setup block, so each test writes the samplesheet it reads
+    // nextflow_function tests take no setup block, so each test writes the samplesheet it reads
     def writeSamplesheet = { dir, name ->
         def sheet = new File("${dir}/${name}")
         sheet.parentFile.mkdirs()
@@ -84,10 +79,9 @@ nextflow_function {
     test("genome_bam - no optional columns") {
 
         when {
-            def samplesheet = writeSamplesheet(outputDir, 'samplesheet_genome_bam.csv')
             function {
                 """
-                input[0] = "${samplesheet}"
+                input[0] = params.pipelines_testdata_base_path + 'samplesheet/samplesheet_bam.csv'
                 """
             }
         }

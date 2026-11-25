@@ -209,7 +209,6 @@ workflow NFCORE_RNASPLICE {
 
     take:
     input                 // string: path to the samplesheet
-    ch_samplesheet_file   // channel: path(samplesheet.csv), for the processes that read it
     ch_contrastsheet      // channel: [ contrast, treatment, control ], the parsed contrasts
     ch_contrastsheet_file // channel: path(contrastsheet.csv), for the processes that read it
 
@@ -217,6 +216,7 @@ workflow NFCORE_RNASPLICE {
 
     def samplesheet = parseSamplesheet(input)
     def input_routes = samplesheet.input_routes
+    def ch_samplesheet_file = channel.value(file(input, checkIfExists: true))
 
     //
     // SUBWORKFLOW: Prepare reference genome files
@@ -292,7 +292,6 @@ workflow {
     //
     NFCORE_RNASPLICE(
         params.input,
-        PIPELINE_INITIALISATION.out.samplesheet_file,
         PIPELINE_INITIALISATION.out.contrastsheet,
         PIPELINE_INITIALISATION.out.contrastsheet_file,
     )

@@ -34,7 +34,7 @@ workflow PIPELINE_INITIALISATION {
     monochrome_logs // boolean: Do not use coloured log outputs
     nextflow_cli_args //   array: List of positional nextflow CLI args
     outdir            //  string: The output directory where the results will be saved
-    input             //  string: Path to input samplesheet, parsed by `parseSamplesheet`
+    input             //  string: Path to input samplesheet, for the blocking column check
     contrasts         //  string: Path to the contrasts sheet
     help              // boolean: Display help message and exit
     help_full         // boolean: Show the full help message
@@ -113,9 +113,6 @@ workflow PIPELINE_INITIALISATION {
     //
     // Create channel from the contrasts file provided through params.contrasts
     //
-    // Read once here: the rows are emitted for the consumers that work from the values,
-    // and a canonical file for the processes that read the sheet themselves.
-    //
     // Both the id, variable, reference, target[, blocking] columns and the deprecated
     // contrast, treatment, control columns are accepted. Rows are normalised to the
     // latter, which the downstream code and the modules reading the sheet use, plus
@@ -144,12 +141,16 @@ workflow PIPELINE_INITIALISATION {
     }
 
     // Fails before any analysis when a blocking column is not in the samplesheet, as the
-    // DEXSeq modules would only find out after the alignment and counting
-    def samplesheet_columns = file(input).readLines()[0].tokenize(',').collect { column -> column.trim().replaceAll(/^"|"$/, '') }
-    contrast_rows.findAll { row -> row.blocking }.each { row ->
-        def missing_columns = row.blocking.tokenize(';') - samplesheet_columns
-        if (missing_columns) {
-            error("Contrast '${row.contrast}': blocking columns missing from the samplesheet: ${missing_columns.join(', ')}")
+    // DEXSeq modules would only find out after the alignment and counting. The header is
+    // read from the file, as the parsed samplesheet keeps only the columns of its schema
+    def blocked_contrasts = contrast_rows.findAll { row -> row.blocking }
+    if (blocked_contrasts) {
+        def samplesheet_columns = file(input).withReader { reader -> reader.readLine() }.tokenize(',').collect { column -> column.trim().replaceAll(/^"|"$/, '') }
+        blocked_contrasts.each { row ->
+            def missing_columns = row.blocking.tokenize(';') - samplesheet_columns
+            if (missing_columns) {
+                error("Contrast '${row.contrast}': blocking columns missing from the samplesheet: ${missing_columns.join(', ')}")
+            }
         }
     }
 
@@ -165,7 +166,6 @@ workflow PIPELINE_INITIALISATION {
         .first()
 
     emit:
-    samplesheet_file   = channel.value(file(input, checkIfExists: true))     // channel: path(samplesheet.csv)
     contrastsheet      = ch_contrastsheet                                    // channel: [ contrast, treatment, control, blocking (when set) ]
     contrastsheet_file = ch_contrastsheet_file                               // channel: path(contrastsheet.csv), with the contrast, treatment, control header
 }
@@ -325,12 +325,11 @@ def getSamplesheetInputTypes(samplesheet_rows) {
 }
 
 //
-// Read and check the samplesheet once, for every part of the pipeline that needs it.
-// Returns the samples and how each part of the pipeline gets its input, as plain values,
-// as the input routes decide which steps run. A sample may have one row per sequencing
-// run: its runs are merged under its id, keeping the FASTQ files of all of them for
-// concatenation, while the BAM files and Salmon results, which describe the whole
-// sample, must be the same on every row
+// The samples of the samplesheet and how each part of the pipeline gets its input. These
+// are plain values, not channels, as the input routes are tested in workflow `if`
+// conditions. A sample may have one row per sequencing run: its runs are merged under its
+// id, keeping the FASTQ files of all of them for concatenation, while the BAM files and
+// Salmon results, which describe the whole sample, must be the same on every row
 //
 def parseSamplesheet(input) {
     def samplesheet_rows = readSamplesheet(input)
@@ -340,7 +339,7 @@ def parseSamplesheet(input) {
     def samples = samplesheet_rows
         .collect { row ->
             def meta = row.meta
-            def fastqs = row.fastq_1 ? (row.fastq_2 ? [ row.fastq_1, row.fastq_2 ] : [ row.fastq_1 ]) : []
+            def fastqs = row.fastq_1 ? [ row.fastq_1, row.fastq_2 ].findAll() : []
             // A BAM file does not say whether its reads were paired, so without FASTQ
             // files that comes from the 'single_end' column
             def single_end = row.fastq_1 ? !row.fastq_2 : meta.single_end
@@ -348,10 +347,10 @@ def parseSamplesheet(input) {
             // without FASTQ files a missing value is taken as unstranded
             def strandedness = meta.strandedness ?: 'unstranded'
             def sample_meta = [ id: meta.id, condition: meta.condition, strandedness: strandedness, single_end: single_end ]
-            return [ meta.id, sample_meta, fastqs, row.genome_bam ?: null, row.transcriptome_bam ?: null, row.salmon_results ?: null ]
+            return [ meta: sample_meta, fastqs: fastqs, genome_bam: row.genome_bam ?: null, transcriptome_bam: row.transcriptome_bam ?: null, salmon_results: row.salmon_results ?: null ]
         }
-        .groupBy { run -> run[0] }
-        .collect { id, runs -> validateInputSamplesheet([ id ] + (1..5).collect { index -> runs.collect { run -> run[index] } }) }
+        .groupBy { run -> run.meta.id }
+        .collect { _id, runs -> validateInputSamplesheet(runs) }
 
     return [ samples: samples, input_routes: input_routes ]
 }
@@ -414,8 +413,9 @@ def validateInputRoutes(input_routes) {
 //
 // Validate channels from input samplesheet
 //
-def validateInputSamplesheet(input) {
-    def (metas, fastqs, genome_bams, transcriptome_bams, salmon_results) = input[1..5]
+def validateInputSamplesheet(runs) {
+    def metas = runs.collect { run -> run.meta }
+    def fastqs = runs.collect { run -> run.fastqs }
     def sample = metas[0].id
 
     // Check that multiple runs of the same sample are of the same strandedness
@@ -438,13 +438,14 @@ def validateInputSamplesheet(input) {
         error("Please check input samplesheet -> Multiple rows of a sample must all have FASTQ files or none: ${sample}")
     }
 
-    [ genome_bam: genome_bams, transcriptome_bam: transcriptome_bams, salmon_results: salmon_results ].each { column, values ->
-        if (values.collect { value -> value?.toString() }.unique().size() > 1) {
+    [ 'genome_bam', 'transcriptome_bam', 'salmon_results' ].each { column ->
+        if (runs.collect { run -> run[column]?.toString() }.unique().size() > 1) {
             error("Please check input samplesheet -> Multiple rows of a sample must give the same '${column}': ${sample}")
         }
     }
 
-    return [ metas[0], fastqs.flatten(), genome_bams[0], transcriptome_bams[0], salmon_results[0] ]
+    def first_run = runs[0]
+    return [ first_run.meta, fastqs.flatten(), first_run.genome_bam, first_run.transcriptome_bam, first_run.salmon_results ]
 }
 
 //
