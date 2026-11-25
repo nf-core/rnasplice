@@ -1,0 +1,5 @@
+geneID	txID	gene	transcript
+G1	T1	0.01	0.02
+G1	T2	0.01	0.3
+G2	T3	0.5	NA
+G3	T4	NA	NA

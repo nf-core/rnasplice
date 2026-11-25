@@ -1,0 +1,85 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "custom_splicingsummary"
+description: Summarise the result tables of the splicing analyses into MultiQC
+  custom-content tables of per-sample detection rates and per-contrast counts of
+  tested and significant features
+keywords:
+  - splicing
+  - multiqc
+  - summary
+  - differential splicing
+tools:
+  - "custom":
+      description: "Python script that summarises the outputs of DEXSeq, edgeR,
+        DRIMSeq/DEXSeq DTU with stageR, SUPPA2, IsoformSwitchAnalyzeR, LeafCutter
+        and ASpli for MultiQC"
+      licence: ["MIT"]
+      identifier: ""
+
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing run information
+          e.g. `[ id:'splicing_summary' ]`
+    - labels:
+        type: list
+        description: |
+          One map per result file, in the order of `results`, with the keys
+          `kind` (what the file is, e.g. `dexseq_counts`, `suppa_events`, `leafcutter_ds`,
+          `contrasts`), `route` (`STAR`, `Salmon` or empty) and `id` (the sample of a
+          per-sample table, the contrast of a result table, or empty)
+    - results:
+        type: file
+        description: |
+          Result tables of the splicing analyses: DEXSeq count tables, SUPPA2 PSI
+          matrices and dPSI tables, LeafCutter intron counts and cluster significance
+          tables, DEXSeq DEU and DTU results and gene q-values, edgeR exon and Simes
+          tables, stageR adjusted p-values, the IsoformSwitchAnalyzeR isoform features
+          with the contrastsheet, and ASpli bin and junction cluster tables
+        pattern: "*.{txt,tsv,csv,psi,dpsi,gz}"
+        ontologies: []
+output:
+  sample_metrics:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing run information
+      - "splicing_sample_metrics_mqc.tsv":
+          type: file
+          description: Per-sample detection rates for the MultiQC General Statistics
+            table, written when a per-sample table is given
+          pattern: "splicing_sample_metrics_mqc.tsv"
+          ontologies:
+            - edam: http://edamontology.org/format_3475 # TSV
+  differential:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing run information
+      - "differential_splicing_mqc.tsv":
+          type: file
+          description: Tested and significant features of each analysis and contrast,
+            written when a result table is given
+          pattern: "differential_splicing_mqc.tsv"
+          ontologies:
+            - edam: http://edamontology.org/format_3475 # TSV
+  versions_splicingsummary:
+    - versions.yml:
+        type: file
+        description: File containing software versions
+        pattern: "versions.yml"
+        ontologies:
+          - edam: http://edamontology.org/format_3750 # YAML
+topics:
+  versions:
+    - versions.yml:
+        type: file
+        description: File containing software versions
+        pattern: "versions.yml"
+        ontologies:
+          - edam: http://edamontology.org/format_3750 # YAML
+authors:
+  - "@pinin4fjords"
+maintainers:
+  - "@pinin4fjords"

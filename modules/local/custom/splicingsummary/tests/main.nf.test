@@ -1,0 +1,89 @@
+nextflow_process {
+
+    name "Test Process CUSTOM_SPLICINGSUMMARY"
+    script "../main.nf"
+    process "CUSTOM_SPLICINGSUMMARY"
+
+    tag "modules"
+    tag "modules_"
+    tag "custom"
+    tag "custom/splicingsummary"
+
+    test("splicing results") {
+
+        when {
+            process {
+                """
+                def results = [
+                    [ [ kind:'dexseq_counts'    , route:''    , id:'S1'  ], 'S1.count.txt'                  ],
+                    [ [ kind:'dexseq_counts'    , route:''    , id:'S2'  ], 'S2.count.txt'                  ],
+                    [ [ kind:'suppa_psi'        , route:'STAR', id:''    ], 'suppa.psi'                     ],
+                    [ [ kind:'leafcutter_numers', route:''    , id:'lc'  ], 'numers.counts'                 ],
+                    [ [ kind:'suppa_events'     , route:'STAR', id:'A-B' ], 'local_A-B.dpsi'                ],
+                    [ [ kind:'dexseq_deu_bins'  , route:''    , id:'A-B' ], 'A-B.dexseq.results.tsv'        ],
+                    [ [ kind:'leafcutter_ds'    , route:''    , id:'A-B' ], 'A-B_cluster_significance.txt'  ],
+                    [ [ kind:'edger_genes'      , route:''    , id:'A-B' ], 'contrast_A-B.usage.simes.csv'  ],
+                    [ [ kind:'stager'           , route:'STAR', id:'A-B' ], 'getAdjustedPValues.A-B.tsv'    ],
+                    [ [ kind:'isa_features'     , route:'STAR', id:''    ], 'isoformfeatures.csv'           ],
+                    [ [ kind:'contrasts'        , route:''    , id:''    ], 'contrastsheet.csv'             ],
+                    [ [ kind:'aspli_bins'       , route:''    , id:'A-B' ], 'A-B.bins_du.tsv'               ],
+                ]
+                input[0] = [
+                    [ id:'splicing_summary' ],
+                    results.collect { label, _name -> label },
+                    results.collect { _label, name -> file("${moduleTestDir}/${name}", checkIfExists: true) },
+                ]
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assertAll(
+                { assert path(process.out.sample_metrics[0][1]).readLines() == [
+                    'Sample\tdexseq_exon_bins_detected\tsuppa_events_quantified\tleafcutter_introns_detected',
+                    'S1\t50.00\t75.00\t66.67',
+                    'S2\t75.00\t50.00\t66.67',
+                ] },
+                { assert path(process.out.differential[0][1]).readLines().drop(1).collect { line -> line.split('\t')[0..7].join('\t') } == [
+                    'DEXSeq DEU | A-B | exon bins\tDEXSeq DEU\t\tA-B\texon bins\t2\t1\t50.0',
+                    'edgeR DEU | A-B | genes\tedgeR DEU\t\tA-B\tgenes\t2\t1\t50.0',
+                    'DEXSeq DTU + stageR | STAR | A-B | genes\tDEXSeq DTU + stageR\tSTAR\tA-B\tgenes\t2\t1\t50.0',
+                    'DEXSeq DTU + stageR | STAR | A-B | transcripts\tDEXSeq DTU + stageR\tSTAR\tA-B\ttranscripts\t3\t1\t33.33',
+                    'SUPPA2 | STAR | A-B | events\tSUPPA2\tSTAR\tA-B\tevents\t3\t2\t66.67',
+                    'IsoformSwitchAnalyzeR | STAR | A-B | isoforms\tIsoformSwitchAnalyzeR\tSTAR\tA-B\tisoforms\t3\t1\t33.33',
+                    'LeafCutter | A-B | clusters\tLeafCutter\t\tA-B\tclusters\t2\t1\t50.0',
+                    'ASpli | A-B | bins\tASpli\t\tA-B\tbins\t2\t1\t50.0',
+                ] },
+                { assert snapshot(process.out).match() }
+            )
+        }
+
+    }
+
+    test("splicing results - stub") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id:'splicing_summary' ],
+                    [ [ kind:'suppa_events', route:'STAR', id:'A-B' ] ],
+                    [ file("${moduleTestDir}/local_A-B.dpsi", checkIfExists: true) ],
+                ]
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assertAll(
+                { assert snapshot(process.out).match() }
+            )
+        }
+
+    }
+
+}

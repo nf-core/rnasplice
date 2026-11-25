@@ -30,6 +30,8 @@ module_order:
   - samtools
   - rseqc
   - rmats
+  - splicing_sample_metrics
+  - differential_splicing
 
 custom_data:
   fail_trimmed_samples:
@@ -121,3 +123,66 @@ custom_data:
         max: 100
         scale: "OrRd"
         suffix: "%"
+  splicing_sample_metrics:
+    plot_type: "generalstats"
+    headers:
+      dexseq_exon_bins_detected:
+        title: "Exon Bins Detected"
+        namespace: "DEXSeq"
+        description: "Percentage of the DEXSeq exon bins with at least one read in the sample, computed by the pipeline from the DEXSeq count table of the sample"
+        suffix: "%"
+        min: 0
+        max: 100
+        scale: "RdYlGn"
+      suppa_events_quantified:
+        title: "Events Quantified"
+        namespace: "SUPPA2"
+        description: "Percentage of the SUPPA2 local splicing events with a PSI value in the sample, computed by the pipeline from the SUPPA2 PSI matrix. Events without a PSI had no expression of the transcripts that define them"
+        suffix: "%"
+        min: 0
+        max: 100
+        scale: "RdYlGn"
+      leafcutter_introns_detected:
+        title: "Introns Detected"
+        namespace: "LeafCutter"
+        description: "Percentage of the introns in the LeafCutter clusters with at least one read in the sample, computed by the pipeline from the LeafCutter intron counts"
+        suffix: "%"
+        min: 0
+        max: 100
+        scale: "RdYlGn"
+  differential_splicing:
+    section_name: "Differential Splicing"
+    description: "<p>How many features each differential splicing analysis tested, and how many it called significant, for each contrast. The pipeline computes these numbers from the result table of each tool, with the threshold in the last column, which is the pipeline parameter where the tool has one. A feature is counted as tested when the tool reported a p-value or adjusted p-value for it. The route is the quantification the analysis used: STAR for the STAR and Salmon route, Salmon for Salmon pseudo-alignment or Salmon results. Analyses of the genome alignments have no route. rMATS has its own section.</p>"
+    plot_type: "table"
+    pconfig:
+      id: "differential_splicing_table"
+      title: "Differential splicing"
+      namespace: "Differential splicing"
+      col1_header: "Analysis"
+      sort_rows: false
+    headers:
+      Method:
+        description: "Tool or combination of tools that tested the features"
+      Route:
+        description: "Quantification the analysis used, if it depends on one"
+      Contrast:
+        description: "Contrast from the contrastsheet"
+      Unit:
+        description: "What the tool tests: events, transcripts, exon bins, genes, clusters or bins"
+      Tested:
+        description: "Features the tool reported a p-value or adjusted p-value for"
+        format: "{:,.0f}"
+        scale: false
+      Significant:
+        description: "Tested features that pass the threshold"
+        format: "{:,.0f}"
+        scale: "Greens"
+      Percent Significant:
+        title: "% Significant"
+        description: "Percentage of the tested features that pass the threshold"
+        suffix: "%"
+        min: 0
+        max: 100
+        scale: "Greens"
+      Threshold:
+        description: "Threshold a feature must pass to count as significant"
