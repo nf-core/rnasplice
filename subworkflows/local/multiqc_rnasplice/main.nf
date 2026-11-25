@@ -73,7 +73,7 @@ workflow MULTIQC_RNASPLICE {
         .mix(ch_leafcutter_strands)
         .mix(ch_rmats)
         .mix(CUSTOM_SPLICINGSUMMARY.out.sample_metrics.map { _meta, tsv -> tsv })
-        .mix(CUSTOM_SPLICINGSUMMARY.out.differential.map { _meta, tsv -> tsv })
+        .mix(CUSTOM_SPLICINGSUMMARY.out.sections.map { _meta, sections -> sections })
         .mix(ch_workflow_summary)
         .mix(ch_methods_description)
         .mix(ch_collated_versions)

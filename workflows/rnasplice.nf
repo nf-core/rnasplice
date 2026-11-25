@@ -288,6 +288,7 @@ workflow RNASPLICE {
         ch_samtools_flagstat = ALIGN_STAR.out.flagstat
         ch_samtools_idxstats = ALIGN_STAR.out.idxstats
         ch_star_multiqc = ALIGN_STAR.out.log_final
+        ch_splicing_results = ch_splicing_results.mix(splicingResults(ALIGN_STAR.out.log_final, 'star_log'))
     }
 
     //
@@ -462,6 +463,9 @@ workflow RNASPLICE {
             )
             ch_rmats_read_outcomes = RMATS.out.read_outcomes
             ch_rmats_summary = RMATS.out.summary
+            ch_splicing_results = ch_splicing_results
+                .mix(splicingResults(RMATS.out.summary, 'rmats_summary'))
+                .mix(splicingResults(RMATS.out.mats.transpose().filter { _meta, txt -> txt.name.endsWith('.MATS.JC.txt') }, 'rmats_jc'))
         }
 
         if (params.sashimi_plot == true) {
@@ -719,11 +723,21 @@ workflow RNASPLICE {
         )
         // The Salmon results of the Salmon route replace those of the STAR route when both run
         def isa_route = input_routes.pseudo_salmon || input_routes.salmon_results ? 'Salmon' : 'STAR'
-        // The isoform features name the conditions of each comparison, which the contrastsheet maps to its contrast
         ch_splicing_results = ch_splicing_results
             .mix(ISOFORMSWITCHANALYZER.out.isoformswitchanalyzer_isoformFeatures.map { csv -> [[kind: 'isa_features', route: isa_route, id: ''], csv] })
-            .mix(ch_contrastsheet_file.map { csv -> [[kind: 'contrasts', route: '', id: ''], csv] })
     }
+
+    // The sheets give the conditions of each contrast for the design check, and the gene
+    // annotation maps the gene names some tools report to gene IDs
+    ch_splicing_results = ch_splicing_results
+        .mix(ch_contrastsheet_file.map { csv -> [[kind: 'contrasts', route: '', id: ''], csv] })
+        .mix(
+            ch_samples
+                .map { id, condition -> "${id},${condition}" }
+                .collectFile(name: 'sample_conditions.csv', seed: 'sample,condition\n', newLine: true, sort: true)
+                .map { csv -> [[kind: 'samplesheet', route: '', id: ''], csv] }
+        )
+        .mix(splicingResults(ch_gene_annotation, 'gene_annotation'))
 
     //
     // Module: Generate stranded coverage bigWig files for visualisation in genome browsers

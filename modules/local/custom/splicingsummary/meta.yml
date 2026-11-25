@@ -1,8 +1,8 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
 name: "custom_splicingsummary"
 description: Summarise the result tables of the splicing analyses into MultiQC
-  custom-content tables of per-sample detection rates and per-contrast counts of
-  tested and significant features
+  custom content, as per-sample General Statistics columns and one report section
+  per summary, grouped under a Splicing parent section
 keywords:
   - splicing
   - multiqc
@@ -11,8 +11,8 @@ keywords:
 tools:
   - "custom":
       description: "Python script that summarises the outputs of DEXSeq, edgeR,
-        DRIMSeq/DEXSeq DTU with stageR, SUPPA2, IsoformSwitchAnalyzeR, LeafCutter
-        and ASpli for MultiQC"
+        DRIMSeq/DEXSeq DTU with stageR, SUPPA2, IsoformSwitchAnalyzeR, LeafCutter,
+        ASpli and rMATS, and the splice junctions of STAR, for MultiQC"
       licence: ["MIT"]
       identifier: ""
 
@@ -26,18 +26,21 @@ input:
         type: list
         description: |
           One map per result file, in the order of `results`, with the keys
-          `kind` (what the file is, e.g. `dexseq_counts`, `suppa_events`, `leafcutter_ds`,
-          `contrasts`), `route` (`STAR`, `Salmon` or empty) and `id` (the sample of a
-          per-sample table, the contrast of a result table, or empty)
+          `kind` (what the file is, e.g. `dexseq_counts`, `star_log`, `suppa_events`,
+          `leafcutter_ds`, `rmats_summary`, `rmats_jc`, `contrasts`, `samplesheet`,
+          `gene_annotation`), `route` (`STAR`, `Salmon` or empty) and `id` (the sample of
+          a per-sample table, the contrast of a result table, or empty)
     - results:
         type: file
         description: |
-          Result tables of the splicing analyses: DEXSeq count tables, SUPPA2 PSI
-          matrices and dPSI tables, LeafCutter intron counts and cluster significance
-          tables, DEXSeq DEU and DTU results and gene q-values, edgeR exon and Simes
-          tables, stageR adjusted p-values, the IsoformSwitchAnalyzeR isoform features
-          with the contrastsheet, and ASpli bin and junction cluster tables
-        pattern: "*.{txt,tsv,csv,psi,dpsi,gz}"
+          Result tables of the splicing analyses: DEXSeq count tables, STAR
+          `Log.final.out` files, SUPPA2 PSI matrices and dPSI tables, LeafCutter intron
+          counts and cluster significance tables, DEXSeq DEU and DTU results and gene
+          q-values, edgeR exon and Simes tables, stageR adjusted p-values, the
+          IsoformSwitchAnalyzeR isoform features, ASpli bin and junction cluster tables,
+          rMATS summaries and JC tables, the contrastsheet, a `sample,condition` CSV and
+          the gene annotation table
+        pattern: "*.{txt,tsv,csv,psi,dpsi,gz,out}"
         ontologies: []
 output:
   sample_metrics:
@@ -47,21 +50,29 @@ output:
             Groovy Map containing run information
       - "splicing_sample_metrics_mqc.tsv":
           type: file
-          description: Per-sample detection rates for the MultiQC General Statistics
-            table, written when a per-sample table is given
+          description: Per-sample columns for the MultiQC General Statistics table,
+            written when a per-sample table is given
           pattern: "splicing_sample_metrics_mqc.tsv"
           ontologies:
             - edam: http://edamontology.org/format_3475 # TSV
-  differential:
+  sections:
     - - meta:
           type: map
           description: |
             Groovy Map containing run information
-      - "differential_splicing_mqc.json":
+      - "*_mqc.json":
           type: file
-          description: Tested and significant features of each analysis and contrast,
-            written when a result table is given
-          pattern: "differential_splicing_mqc.json"
+          description: |
+            MultiQC custom-content sections under the Splicing parent section, each
+            written when its inputs are given: `differential_splicing` (significant
+            features of each analysis and contrast), `splicing_design_check`,
+            `splicing_method_agreement`, `splicing_method_agreement_heatmap`,
+            `splicing_route_agreement`, `splicing_pvalue_histograms`,
+            `dexseq_read_assignment`, `suppa_psi_quantification`,
+            `suppa_psi_concordance`, `suppa_differential_splicing`,
+            `suppa_significant_events`, `leafcutter_introns_detected` and
+            `leafcutter_cluster_test_outcomes`
+          pattern: "*_mqc.json"
           ontologies:
             - edam: http://edamontology.org/format_3464 # JSON
   versions_splicingsummary:

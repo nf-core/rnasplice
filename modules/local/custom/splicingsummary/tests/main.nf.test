@@ -17,6 +17,8 @@ nextflow_process {
                 def results = [
                     [ [ kind:'dexseq_counts'    , route:''    , id:'S1'  ], 'S1.count.txt'                  ],
                     [ [ kind:'dexseq_counts'    , route:''    , id:'S2'  ], 'S2.count.txt'                  ],
+                    [ [ kind:'star_log'         , route:''    , id:'S1'  ], 'S1.Log.final.out'              ],
+                    [ [ kind:'star_log'         , route:''    , id:'S2'  ], 'S2.Log.final.out'              ],
                     [ [ kind:'suppa_psi'        , route:'STAR', id:''    ], 'suppa.psi'                     ],
                     [ [ kind:'leafcutter_numers', route:''    , id:'lc'  ], 'numers.counts'                 ],
                     [ [ kind:'suppa_events'     , route:'STAR', id:'A-B' ], 'local_A-B.dpsi'                ],
@@ -25,8 +27,12 @@ nextflow_process {
                     [ [ kind:'edger_genes'      , route:''    , id:'A-B' ], 'contrast_A-B.usage.simes.csv'  ],
                     [ [ kind:'stager'           , route:'STAR', id:'A-B' ], 'getAdjustedPValues.A-B.tsv'    ],
                     [ [ kind:'isa_features'     , route:'STAR', id:''    ], 'isoformfeatures.csv'           ],
-                    [ [ kind:'contrasts'        , route:''    , id:''    ], 'contrastsheet.csv'             ],
                     [ [ kind:'aspli_bins'       , route:''    , id:'A-B' ], 'A-B.bins_du.tsv'               ],
+                    [ [ kind:'rmats_summary'    , route:''    , id:'A-B' ], 'A-B_summary.txt'               ],
+                    [ [ kind:'rmats_jc'         , route:''    , id:'A-B' ], 'SE.MATS.JC.txt'                ],
+                    [ [ kind:'contrasts'        , route:''    , id:''    ], 'contrastsheet.csv'             ],
+                    [ [ kind:'samplesheet'      , route:''    , id:''    ], 'sample_conditions.csv'         ],
+                    [ [ kind:'gene_annotation'  , route:''    , id:''    ], 'gene_annotation.tsv'           ],
                 ]
                 input[0] = [
                     [ id:'splicing_summary' ],
@@ -38,23 +44,72 @@ nextflow_process {
         }
 
         then {
+            def sections = { name -> path(process.out.sections[0][1].find { section -> section.toString().endsWith("/${name}_mqc.json") }).json }
             assert process.success
             assertAll(
                 { assert path(process.out.sample_metrics[0][1]).readLines() == [
-                    'Sample\tdexseq_exon_bins_detected\tsuppa_events_quantified\tleafcutter_introns_detected',
-                    'S1\t50.00\t75.00\t66.67',
-                    'S2\t75.00\t50.00\t66.67',
+                    'Sample\tstar_annotated_splices\tstar_splices\tdexseq_reads_in_bins\tleafcutter_junction_reads\tleafcutter_introns_detected',
+                    'S1\t75.00\t0.0002\t36.36\t9\t66.67',
+                    'S2\t100.00\t0.0001\t55.56\t6\t66.67',
                 ] },
-                { assert path(process.out.differential[0][1]).json.data == [
+                { assert process.out.sections[0][1].collect { section -> new File(section.toString()).name }.sort() == [
+                    'dexseq_read_assignment_mqc.json',
+                    'differential_splicing_mqc.json',
+                    'leafcutter_cluster_test_outcomes_mqc.json',
+                    'leafcutter_introns_detected_mqc.json',
+                    'splicing_design_check_mqc.json',
+                    'splicing_method_agreement_heatmap_mqc.json',
+                    'splicing_method_agreement_mqc.json',
+                    'splicing_pvalue_histograms_mqc.json',
+                    'suppa_differential_splicing_mqc.json',
+                    'suppa_psi_quantification_mqc.json',
+                    'suppa_significant_events_mqc.json',
+                ] },
+                { assert sections('differential_splicing').parent_id == 'splicing' },
+                { assert sections('differential_splicing').data == [
                     'A-B': [
                         dexseq_deu_exon_bins: 1, dexseq_deu_exon_bins_tested: 2,
                         edger_deu_genes: 1, edger_deu_genes_tested: 2,
                         dexseq_dtu_stager_star_genes: 1, dexseq_dtu_stager_star_genes_tested: 2,
-                        dexseq_dtu_stager_star_transcripts: 1, dexseq_dtu_stager_star_transcripts_tested: 3,
+                        dexseq_dtu_stager_star_transcripts: 1, dexseq_dtu_stager_star_transcripts_tested: 2,
                         suppa2_star_events: 2, suppa2_star_events_tested: 3,
+                        isoformswitchanalyzer_star_genes_with_switches: 1, isoformswitchanalyzer_star_genes_with_switches_tested: 2,
                         isoformswitchanalyzer_star_isoforms: 1, isoformswitchanalyzer_star_isoforms_tested: 3,
                         leafcutter_clusters: 1, leafcutter_clusters_tested: 2,
                         aspli_bins: 1, aspli_bins_tested: 2,
+                        rmats_jc_events: 1, rmats_jc_events_tested: 5,
+                    ]
+                ] },
+                { assert sections('dexseq_read_assignment').data == [
+                    S1: [in_bins: 8, empty: 10, ambiguous: 4],
+                    S2: [in_bins: 10, empty: 7, ambiguous: 1],
+                ] },
+                { assert sections('suppa_psi_quantification').data == [
+                    S1: [quantified: 3, not_quantified: 1],
+                    S2: [quantified: 2, not_quantified: 2],
+                ] },
+                { assert sections('suppa_differential_splicing').data['A-B local events'].subMap(['tested', 'significant', 'significant_up', 'significant_down']) == [
+                    tested: 3, significant: 2, significant_up: 2, significant_down: 0,
+                ] },
+                { assert sections('suppa_differential_splicing').description.contains('gene-corrected p < 0.05 and |dPSI| > 0.05') },
+                { assert sections('suppa_significant_events').data == [
+                    ['A-B': ['Skipped exon': 50.0, 'Retained intron': 100.0]],
+                    ['A-B': ['Skipped exon': 1, 'Retained intron': 1]],
+                ] },
+                { assert sections('leafcutter_introns_detected').data == [
+                    S1: [detected: 2, not_detected: 1],
+                    S2: [detected: 2, not_detected: 1],
+                ] },
+                { assert sections('leafcutter_cluster_test_outcomes').data == [
+                    'A-B': [significant: 1, not_significant: 1, not_enough_samples: 1],
+                ] },
+                { assert sections('splicing_design_check').data['A-B'].status.startsWith('Below minimum: no replicates') },
+                { assert sections('splicing_method_agreement').data == [
+                    'A-B: G1': [
+                        contrast: 'A-B',
+                        gene_name: 'GENE1',
+                        n_methods: 7,
+                        methods: 'edgeR DEU, DEXSeq DTU + stageR, SUPPA2, IsoformSwitchAnalyzeR, LeafCutter, ASpli, rMATS',
                     ]
                 ] },
                 { assert snapshot(process.out).match() }
