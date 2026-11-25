@@ -11,7 +11,10 @@
                     "r-base": "4.4.2"
                 },
                 "CUSTOM_SPLICINGSUMMARY": {
-                    "python": "3.12.12"
+                    "numpy": "2.5.5",
+                    "pandas": "3.1.1",
+                    "python": "3.14.6",
+                    "yaml": "6.0.3"
                 },
                 "EAUTILS_GTF2BED": {
                     "perl": "5.26.2"
@@ -462,7 +465,7 @@
                 "ie2": "ff2117cda8354f3f04cd0a4be8c0dc7e"
             }
         ],
-        "timestamp": "2026-11-25T16:25:17.840379656",
+        "timestamp": "2026-11-25T20:40:04.035913797",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"

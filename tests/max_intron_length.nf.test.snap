@@ -11,7 +11,10 @@
                     "r-base": "4.4.2"
                 },
                 "CUSTOM_SPLICINGSUMMARY": {
-                    "python": "3.12.12"
+                    "numpy": "2.5.5",
+                    "pandas": "3.1.1",
+                    "python": "3.14.6",
+                    "yaml": "6.0.3"
                 },
                 "EAUTILS_GTF2BED": {
                     "perl": "5.26.2"
@@ -88,7 +91,7 @@
             1524,
             "aspli.settings.tsv:md5,fc077b38061bf208520ce5c02069b4cd"
         ],
-        "timestamp": "2026-11-25T16:35:53.925714845",
+        "timestamp": "2026-11-25T20:50:45.987740566",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"
@@ -98,7 +101,10 @@
         "content": [
             {
                 "CUSTOM_SPLICINGSUMMARY": {
-                    "python": "3.12.12"
+                    "numpy": "2.5.5",
+                    "pandas": "3.1.1",
+                    "python": "3.14.6",
+                    "yaml": "6.0.3"
                 },
                 "EAUTILS_GTF2BED": {
                     "perl": "5.26.2"
@@ -154,7 +160,7 @@
             },
             1484
         ],
-        "timestamp": "2026-11-25T16:36:43.350011108",
+        "timestamp": "2026-11-25T20:51:35.808862725",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"

@@ -6,7 +6,10 @@
                     "sed": "4.9"
                 },
                 "CUSTOM_SPLICINGSUMMARY": {
-                    "python": "3.12.12"
+                    "numpy": "2.5.5",
+                    "pandas": "3.1.1",
+                    "python": "3.14.6",
+                    "yaml": "6.0.3"
                 },
                 "DEXSEQ_COUNT": {
                     "bioconductor-dexseq": "1.56.0",
@@ -945,7 +948,7 @@
                 "ERR204916_sorted.bam": "484dbb84bd68ceb9ed24ecdb8f7a613a"
             }
         ],
-        "timestamp": "2026-11-25T16:41:55.331167791",
+        "timestamp": "2026-11-25T20:56:58.086541753",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"
