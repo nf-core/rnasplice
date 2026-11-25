@@ -603,8 +603,8 @@ def rmatsReadError(samples) {
         .map { meta, _files -> meta.single_end }
         .unique()
         .collect()
-        .map {
-            if (it.size() > 1) {
+        .map { values ->
+            if (values.size() > 1) {
                 error("Please check input samplesheet -> Cannot run rMats with mixed single and paired end samples.")
             }
         }
@@ -618,8 +618,8 @@ def rmatsStrandednessError(samples) {
         .map { meta, _files -> meta.strandedness }
         .unique()
         .collect()
-        .map {
-            if (it.size() > 1) {
+        .map { values ->
+            if (values.size() > 1) {
                 error("Please check input samplesheet -> Cannot run rMats with mixed stranded samples.")
             }
         }
@@ -665,8 +665,8 @@ def aspliReadError(samples) {
         .map { meta, _files -> meta.single_end }
         .unique()
         .collect()
-        .map {
-            if (it.size() > 1) {
+        .map { values ->
+            if (values.size() > 1) {
                 error("Please check input samplesheet -> Cannot run ASpli with mixed single and paired end samples.")
             }
         }
