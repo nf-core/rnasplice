@@ -1,6 +1,6 @@
 nextflow_pipeline {
 
-    name "Test pipeline with --source salmon_results"
+    name "Test pipeline with Salmon results input"
     script "../main.nf"
     profile "test_salmon_results"
     tag "pipeline"

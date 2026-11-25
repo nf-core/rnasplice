@@ -1,0 +1,115 @@
+nextflow_function {
+
+    name "Test Function checkBamReferenceSequences"
+    script "../main.nf"
+    function "checkBamReferenceSequences"
+
+    tag "subworkflows"
+    tag "subworkflows/utils_nfcore_rnasplice_pipeline"
+
+    // The @SQ lines samtools splitheader writes and a FASTA index, written by each test
+
+    test("sequences in the reference - passes") {
+
+        when {
+            function {
+                """
+                def sequences = file('${outputDir}/sample_sequences.txt')
+                sequences.text = '@SQ\\tSN:X\\tLN:3400162\\n'
+                def fai = file('${outputDir}/genome.fa.fai')
+                fai.text = 'X\\t3400162\\t3\\t60\\t61\\nY\\t1000\\t3456789\\t60\\t61\\n'
+                input[0] = [ id: 'sample' ]
+                input[1] = sequences
+                input[2] = fai
+                input[3] = 'the genome FASTA'
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success }
+            )
+        }
+
+    }
+
+    test("sequence not in the reference - fails") {
+
+        when {
+            function {
+                """
+                def sequences = file('${outputDir}/sample_sequences.txt')
+                sequences.text = '@SQ\\tSN:chrX\\tLN:3400162\\n'
+                def fai = file('${outputDir}/genome.fa.fai')
+                fai.text = 'X\\t3400162\\t3\\t60\\t61\\nY\\t1000\\t3456789\\t60\\t61\\n'
+                input[0] = [ id: 'sample' ]
+                input[1] = sequences
+                input[2] = fai
+                input[3] = 'the genome FASTA'
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.failed },
+                { assert (function.stdout + function.stderr).any { line -> line.contains("1 of its 1 reference sequences are missing from genome.fa.fai or have another length, for example chrX (3400162 bp)") } }
+            )
+        }
+
+    }
+
+    test("sequence with another length - fails") {
+
+        when {
+            function {
+                """
+                def sequences = file('${outputDir}/sample_sequences.txt')
+                sequences.text = '@SQ\\tSN:X\\tLN:156040895\\n'
+                def fai = file('${outputDir}/genome.fa.fai')
+                fai.text = 'X\\t3400162\\t3\\t60\\t61\\nY\\t1000\\t3456789\\t60\\t61\\n'
+                input[0] = [ id: 'sample' ]
+                input[1] = sequences
+                input[2] = fai
+                input[3] = 'the genome FASTA'
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.failed },
+                { assert (function.stdout + function.stderr).any { line -> line.contains("was not aligned to the genome FASTA") } }
+            )
+        }
+
+    }
+
+    test("no sequences - fails") {
+
+        when {
+            function {
+                """
+                def sequences = file('${outputDir}/sample_sequences.txt')
+                sequences.text = ''
+                def fai = file('${outputDir}/genome.fa.fai')
+                fai.text = 'X\\t3400162\\t3\\t60\\t61\\nY\\t1000\\t3456789\\t60\\t61\\n'
+                input[0] = [ id: 'sample' ]
+                input[1] = sequences
+                input[2] = fai
+                input[3] = 'the genome FASTA'
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.failed },
+                { assert (function.stdout + function.stderr).any { line -> line.contains("has no @SQ lines in its header") } }
+            )
+        }
+
+    }
+
+}

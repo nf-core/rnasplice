@@ -140,6 +140,11 @@
                         "git_sha": "9339809fcb90af8a8b7051e6cd914894d5c52002",
                         "installed_by": ["bam_sort_stats_samtools"]
                     },
+                    "samtools/splitheader": {
+                        "branch": "master",
+                        "git_sha": "9804fc814f848fd7100b2203e35ff6d5321d031f",
+                        "installed_by": ["modules"]
+                    },
                     "samtools/stats": {
                         "branch": "master",
                         "git_sha": "9339809fcb90af8a8b7051e6cd914894d5c52002",

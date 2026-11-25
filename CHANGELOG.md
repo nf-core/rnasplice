@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #371 - Publish gene and transcript annotation tables of the GTF (`annotation/`) with every run, and write copies of the DEXSeq exon and DTU, stageR, edgeR and SUPPA dPSI tables with the gene name and biotype after the gene ID, as `*.annotated.tsv` (`*.annotated.csv` for edgeR). The existing tables are unchanged. Genes DEXSeq aggregates or SUPPA pools get their names joined the same way, and IDs that differ from the GTF only in their version suffix still match. Closes #365 (requested by @pinin4fjords, done by @piplus2)
 - #373 - Add `--max_intron_length` for organisms with short introns. It is passed to STAR as `--alignIntronMax` and `--alignMatesGapMax`, and is the intron limit of LeafCutter and ASpli unless `--leafcutter_max_intron_len` or the new `--aspli_max_intron_len` is set. With none of them set the limits are unchanged: STAR's own, 500 kb for LeafCutter and 50 kb for ASpli. Closes #169 (requested by @KTMD-plant, done by @piplus2)
 - #374 - Use the contrastsheet `blocking` column in DEXSeq DEU and DEXSeq DTU, as in nf-core/differentialabundance: the semicolon-separated samplesheet columns enter both DEXSeq models as interactions with exon. The other methods ignore it, with a warning, and the usage docs list which methods adjust for it. Adds the `test_blocking` profile. Part of #362 (by @pinin4fjords)
+- #375 - Take the input type of each analysis from the samplesheet columns, as in nf-core/rnaseq: `fastq_1`, `genome_bam`, `transcriptome_bam` and `salmon_results` are optional per-sample columns, each filled for every sample or for none. Genome BAM files go to the genome-based analyses and transcriptome BAM files through Salmon to DEXSeq DTU, SUPPA and IsoformSwitchAnalyzeR in the same run, and a BAM file or Salmon result given is used instead of making it from the FASTQ files. The `samplesheet_with_bams.csv` of nf-core/rnaseq is accepted with a `condition` column added. BAM headers are checked against the genome and transcript FASTA files, and several rows of a sample are merged for every input type. The `test_rnaseq_bams` profile runs on the output of an nf-core/rnaseq run. Closes #363 and #172 (by @pinin4fjords)
 - #381 - Cite the tools that ran, with their versions and references, in the Methods Description section of the MultiQC report, using the nf-core-utils plugin with the versions the processes report and the `meta.yml` of their modules (by @pinin4fjords)
 
 ### Changed
@@ -32,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated
 
 - #350 - The contrastsheet columns `contrast`, `treatment` and `control` still work but print a warning. Use `id`, `target` and `reference` instead (requested by @adomingues, done by @piplus2)
+- #375 - `--source` is ignored with a warning, as the samplesheet columns give the input type (by @pinin4fjords)
 
 ### Fixed
 

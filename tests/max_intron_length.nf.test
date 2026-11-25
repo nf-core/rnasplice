@@ -78,7 +78,7 @@ nextflow_pipeline {
     }
 
     // In the test above STAR already drops the introns over the limit, so the LeafCutter
-    // limits are tested here on their own: with `--source genome_bam` STAR does not run,
+    // limits are tested here on their own: with a genome BAM samplesheet STAR does not run,
     // and the BAM files of the test data have introns up to 1.6 Mb. As
     // `--leafcutter_max_intron_len` is not set, this also tests that LeafCutter falls back
     // to `--max_intron_length`
@@ -88,7 +88,6 @@ nextflow_pipeline {
             params {
                 outdir = "$outputDir"
                 input = 'https://raw.githubusercontent.com/nf-core/test-datasets/rnasplice/chrX_subset/samplesheet/samplesheet_bam.csv'
-                source = 'genome_bam'
                 max_intron_length = 5000
                 aspli = false
                 leafcutter = true
