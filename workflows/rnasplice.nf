@@ -304,7 +304,7 @@ workflow RNASPLICE {
             .map { _id, meta, bam -> [ meta, bam ] }
 
         if (!input_routes.genome) {
-            BAM_SORT_STATS_SAMTOOLS_TRANSCRIPTOME(ch_transcriptome_bam_for_salmon, ch_fasta.map { fasta -> [[:], fasta, []] })
+            BAM_SORT_STATS_SAMTOOLS_TRANSCRIPTOME(ch_transcriptome_bam_for_salmon, ch_transcript_fasta.map { fasta -> [[:], fasta, []] })
             ch_samtools_stats = BAM_SORT_STATS_SAMTOOLS_TRANSCRIPTOME.out.stats
             ch_samtools_flagstat = BAM_SORT_STATS_SAMTOOLS_TRANSCRIPTOME.out.flagstat
             ch_samtools_idxstats = BAM_SORT_STATS_SAMTOOLS_TRANSCRIPTOME.out.idxstats

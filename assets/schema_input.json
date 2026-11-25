@@ -72,7 +72,8 @@
             "single_end": {
                 "type": "boolean",
                 "errorMessage": "Single end must be 'true' for single end reads or 'false' for paired end reads",
-                "meta": ["single_end"]
+                "meta": ["single_end"],
+                "default": false
             },
             "condition": {
                 "type": "string",

@@ -145,14 +145,14 @@ nextflow run nf-core/rnaseq \
     -profile docker
 ```
 
-Add a `condition` column to `rnaseq_results/samplesheets/samplesheet_with_bams.csv` and give it to rnasplice with the references of the rnaseq run. nf-core/rnaseq writes the BAM paths relative to its `--outdir`, so give it an absolute path as above, or run rnasplice from the directory nf-core/rnaseq was run from.
+Add a `condition` column to `rnaseq_results/samplesheets/samplesheet_with_bams.csv` and give it to rnasplice with the references nf-core/rnaseq saved to `rnaseq_results/genome/` with `--save_reference`: its genome FASTA, GTF and transcript FASTA. nf-core/rnaseq writes the BAM paths relative to its `--outdir`, so give it an absolute path as above, or run rnasplice from the directory nf-core/rnaseq was run from.
 
 ```bash
 nextflow run nf-core/rnasplice \
     --input samplesheet_with_bams.csv \
     --contrasts contrastsheet.csv \
-    --fasta genome.fa \
-    --gtf genes.gtf \
+    --fasta rnaseq_results/genome/<genome FASTA> \
+    --gtf rnaseq_results/genome/<GTF> \
     --transcript_fasta rnaseq_results/genome/genome.transcripts.fa \
     --outdir rnasplice_results \
     -profile docker
@@ -160,7 +160,7 @@ nextflow run nf-core/rnasplice \
 
 The genome BAM files then go to the genome-based analyses and the transcriptome BAM files through Salmon to the transcript-based ones, in one run, with no second alignment. The strandedness in the samplesheet is the one nf-core/rnaseq inferred.
 
-The transcriptome BAM files are only valid against the exact transcript FASTA nf-core/rnaseq aligned them to, which `--save_reference` writes to `rnaseq_results/genome/`. Without `--transcript_fasta`, rnasplice builds its own from the genome and the GTF, which can differ, for example when nf-core/rnaseq filtered the GTF. The pipeline then stops at the BAM check above rather than quantify against the wrong transcripts. Use the same genome FASTA and GTF as the rnaseq run too.
+The transcriptome BAM files are only valid against the exact transcript FASTA nf-core/rnaseq aligned them to, which `--save_reference` writes to `rnaseq_results/genome/`. Without `--transcript_fasta`, rnasplice builds its own from the genome and the GTF, which can differ, for example when nf-core/rnaseq filtered the GTF. The pipeline then stops at the BAM check above rather than quantify against the wrong transcripts. The saved genome FASTA and GTF are the ones the BAM files were aligned to, which can differ from the ones given to nf-core/rnaseq, for example with `--additional_fasta`, which adds sequences such as ERCC spike-ins to both, and to the BAM headers. The BAM check stops the run against the original genome FASTA then.
 
 ## Contrastsheet input
 
@@ -249,7 +249,7 @@ By default STAR aligns across introns up to about 590 kb long, `(2^winBinNbits)*
 --max_intron_length 6000
 ```
 
-It is passed to STAR as `--alignIntronMax` and `--alignMatesGapMax`, and is the intron limit of LeafCutter (`--leafcutter_max_intron_len`) and ASpli (`--aspli_max_intron_len`) unless those are set. With `--source genome_bam` STAR is not run, and it only sets the LeafCutter and ASpli limits. When it is not set, STAR keeps its own limits, LeafCutter uses 500 kb and ASpli 50 kb.
+It is passed to STAR as `--alignIntronMax` and `--alignMatesGapMax`, and is the intron limit of LeafCutter (`--leafcutter_max_intron_len`) and ASpli (`--aspli_max_intron_len`) unless those are set. With genome BAM input STAR is not run, and it only sets the LeafCutter and ASpli limits. When it is not set, STAR keeps its own limits, LeafCutter uses 500 kb and ASpli 50 kb.
 
 ## Quantification options
 

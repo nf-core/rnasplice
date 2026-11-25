@@ -119,7 +119,7 @@ workflow PIPELINE_INITIALISATION {
     // and the validated path for the processes that read the sheet themselves.
     //
 
-    def samplesheet_rows = samplesheetToList(input, "${projectDir}/assets/schema_input.json")
+    def samplesheet_rows = readSamplesheet(input)
     validateInputRoutes(getInputRoutes(getSamplesheetInputTypes(samplesheet_rows)))
 
     // A sample may have one row per sequencing run. Its runs are collected under its id, and
@@ -127,16 +127,17 @@ workflow PIPELINE_INITIALISATION {
     // results, which describe the whole sample, must be the same on every row
     channel
         .fromList(samplesheet_rows)
-        .map { meta, fastq_1, fastq_2, genome_bam, transcriptome_bam, salmon_results ->
-            def fastqs = fastq_1 ? (fastq_2 ? [ fastq_1, fastq_2 ] : [ fastq_1 ]) : []
+        .map { row ->
+            def meta = row.meta
+            def fastqs = row.fastq_1 ? (row.fastq_2 ? [ row.fastq_1, row.fastq_2 ] : [ row.fastq_1 ]) : []
             // A BAM file does not say whether its reads were paired, so without FASTQ
-            // files that comes from the 'single_end' column, which defaults to paired end
-            def single_end = fastq_1 ? !fastq_2 : (meta.single_end instanceof Boolean ? meta.single_end : false)
+            // files that comes from the 'single_end' column
+            def single_end = row.fastq_1 ? !row.fastq_2 : meta.single_end
             // BAM files and Salmon results carry no strandedness to infer from their reads, so
             // without FASTQ files a missing value is taken as unstranded
             def strandedness = meta.strandedness ?: 'unstranded'
             def sample_meta = [ id: meta.id, condition: meta.condition, strandedness: strandedness, single_end: single_end ]
-            return [ meta.id, sample_meta, fastqs, genome_bam ?: null, transcriptome_bam ?: null, salmon_results ?: null ]
+            return [ meta.id, sample_meta, fastqs, row.genome_bam ?: null, row.transcriptome_bam ?: null, row.salmon_results ?: null ]
         }
         .groupTuple()
         .map { samplesheet ->
@@ -333,12 +334,11 @@ def validateInputParameters() {
 // compare the samples of a contrast, so a column is filled for every sample or for none
 //
 def getSamplesheetInputTypes(samplesheet_rows) {
-    def columns = [ fastq: [1, 'fastq_1'], genome_bam: [3, 'genome_bam'], transcriptome_bam: [4, 'transcriptome_bam'], salmon_results: [5, 'salmon_results'] ]
-    def samples = samplesheet_rows.collect { row -> row[0].id }.unique()
+    def columns = [ fastq: 'fastq_1', genome_bam: 'genome_bam', transcriptome_bam: 'transcriptome_bam', salmon_results: 'salmon_results' ]
+    def samples = samplesheet_rows.collect { row -> row.meta.id }.unique()
 
-    def input_types = columns.collectEntries { input_type, column ->
-        def (index, name) = column
-        def samples_with = samplesheet_rows.findAll { row -> row[index] }.collect { row -> row[0].id }.unique()
+    def input_types = columns.collectEntries { input_type, name ->
+        def samples_with = samplesheet_rows.findAll { row -> row[name] }.collect { row -> row.meta.id }.unique()
         def samples_without = samples - samples_with
         if (samples_with && samples_without) {
             error("Please check input samplesheet -> The '${name}' column must be filled for every sample or for none, as the samples of a contrast are compared with each other. It is empty for: ${samples_without.join(', ')}")
@@ -346,7 +346,7 @@ def getSamplesheetInputTypes(samplesheet_rows) {
         return [ (input_type): samples_with as boolean ]
     }
 
-    def fastq_samples_without_strandedness = samplesheet_rows.findAll { row -> row[1] && !row[0].strandedness }.collect { row -> row[0].id }.unique()
+    def fastq_samples_without_strandedness = samplesheet_rows.findAll { row -> row.fastq_1 && !row.meta.strandedness }.collect { row -> row.meta.id }.unique()
     if (fastq_samples_without_strandedness) {
         error("Please check input samplesheet -> The 'strandedness' column must be filled for samples with FASTQ files, use 'auto' to infer it. It is empty for: ${fastq_samples_without_strandedness.join(', ')}")
     }
@@ -366,7 +366,23 @@ def getSamplesheetInputTypes(samplesheet_rows) {
 // to decide which steps run
 //
 def samplesheetInputRoutes(input) {
-    return getInputRoutes(getSamplesheetInputTypes(samplesheetToList(input, "${projectDir}/assets/schema_input.json")))
+    return getInputRoutes(getSamplesheetInputTypes(readSamplesheet(input)))
+}
+
+//
+// The validated samplesheet rows, each as a map of the meta map and the other columns by
+// name. samplesheetToList returns the meta map, then the columns without a meta field in
+// the order of the schema, which is where their names are taken from
+//
+def readSamplesheet(input) {
+    def schema = "${projectDir}/assets/schema_input.json"
+    def path_columns = new groovy.json.JsonSlurper().parse(file(schema)).items.properties
+        .findAll { _name, property -> !property.meta }
+        .keySet()
+        .toList()
+    return samplesheetToList(input, schema).collect { row ->
+        [ meta: row[0] ] + [ path_columns, row.drop(1) ].transpose().collectEntries()
+    }
 }
 
 //
