@@ -378,7 +378,6 @@ workflow RNASPLICE {
                 ch_contrastsheet,
                 ch_gene_annotation,
             )
-            ch_splicing_multiqc = ch_splicing_multiqc.mix(DEXSEQ_DEU.out.dexseq_clean_txt.flatten())
         }
 
         if (params.edger_exon) {
