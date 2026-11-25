@@ -39,8 +39,8 @@ nextflow_workflow {
         when {
             workflow {
                 """
-                input[0] = file(params.modules_testdata_base_path + 'genomics/homo_sapiens/rnaseq_expression/chrX.transcript_counts.tsv', checkIfExists: true)
-                input[1] = file(params.modules_testdata_base_path + 'genomics/homo_sapiens/rnaseq_expression/chrX.samplesheet.csv', checkIfExists: true)
+                input[0] = channel.value(file(params.modules_testdata_base_path + 'genomics/homo_sapiens/rnaseq_expression/chrX.transcript_counts.tsv', checkIfExists: true))
+                input[1] = channel.value(file(params.modules_testdata_base_path + 'genomics/homo_sapiens/rnaseq_expression/chrX.samplesheet.csv', checkIfExists: true))
                 input[2] = channel.of(
                     [ contrast:'GBR-YRI', treatment:'GBR', control:'YRI' ],
                     [ contrast:'YRI-GBR', treatment:'YRI', control:'GBR' ],
@@ -99,8 +99,8 @@ nextflow_workflow {
         when {
             workflow {
                 """
-                input[0] = file(params.modules_testdata_base_path + 'genomics/homo_sapiens/rnaseq_expression/chrX.transcript_counts.tsv', checkIfExists: true)
-                input[1] = file(params.modules_testdata_base_path + 'genomics/homo_sapiens/rnaseq_expression/chrX.samplesheet.csv', checkIfExists: true)
+                input[0] = channel.value(file(params.modules_testdata_base_path + 'genomics/homo_sapiens/rnaseq_expression/chrX.transcript_counts.tsv', checkIfExists: true))
+                input[1] = channel.value(file(params.modules_testdata_base_path + 'genomics/homo_sapiens/rnaseq_expression/chrX.samplesheet.csv', checkIfExists: true))
                 input[2] = channel.of(
                     [ contrast:'GBR-YRI', treatment:'GBR', control:'YRI' ],
                     [ contrast:'YRI-GBR', treatment:'YRI', control:'GBR' ],
