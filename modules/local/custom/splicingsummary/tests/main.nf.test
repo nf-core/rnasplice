@@ -31,7 +31,7 @@ nextflow_process {
                 input[0] = [
                     [ id:'splicing_summary' ],
                     results.collect { label, _name -> label },
-                    results.collect { _label, name -> file("${moduleTestDir}/${name}", checkIfExists: true) },
+                    results.collect { _label, name -> file("${moduleTestDir}/\${name}", checkIfExists: true) },
                 ]
                 """
             }

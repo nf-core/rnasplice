@@ -5,6 +5,9 @@
                 "CREATEBAMLIST": {
                     "sed": "4.9"
                 },
+                "CUSTOM_SPLICINGSUMMARY": {
+                    "python": "3.12.12"
+                },
                 "DEXSEQ_COUNT": {
                     "bioconductor-dexseq": "1.56.0",
                     "htseq": "2.1.2"
@@ -371,6 +374,7 @@
                 "multiqc/multiqc_data/multiqc.parquet",
                 "multiqc/multiqc_data/multiqc_citations.txt",
                 "multiqc/multiqc_data/multiqc_data.json",
+                "multiqc/multiqc_data/multiqc_differential_splicing_table.txt",
                 "multiqc/multiqc_data/multiqc_fail_strand_check_table.txt",
                 "multiqc/multiqc_data/multiqc_featurecounts.txt",
                 "multiqc/multiqc_data/multiqc_general_stats.txt",
@@ -391,6 +395,7 @@
                 "multiqc/multiqc_data/samtools_insert_size.txt",
                 "multiqc/multiqc_plots",
                 "multiqc/multiqc_plots/pdf",
+                "multiqc/multiqc_plots/pdf/differential_splicing_table.pdf",
                 "multiqc/multiqc_plots/pdf/fail_strand_check_table.pdf",
                 "multiqc/multiqc_plots/pdf/featureCounts_assignment_plot-cnt.pdf",
                 "multiqc/multiqc_plots/pdf/featureCounts_assignment_plot-pct.pdf",
@@ -408,6 +413,7 @@
                 "multiqc/multiqc_plots/pdf/samtools_alignment_plot-pct.pdf",
                 "multiqc/multiqc_plots/pdf/samtools_insert_size.pdf",
                 "multiqc/multiqc_plots/png",
+                "multiqc/multiqc_plots/png/differential_splicing_table.png",
                 "multiqc/multiqc_plots/png/fail_strand_check_table.png",
                 "multiqc/multiqc_plots/png/featureCounts_assignment_plot-cnt.png",
                 "multiqc/multiqc_plots/png/featureCounts_assignment_plot-pct.png",
@@ -425,6 +431,7 @@
                 "multiqc/multiqc_plots/png/samtools_alignment_plot-pct.png",
                 "multiqc/multiqc_plots/png/samtools_insert_size.png",
                 "multiqc/multiqc_plots/svg",
+                "multiqc/multiqc_plots/svg/differential_splicing_table.svg",
                 "multiqc/multiqc_plots/svg/fail_strand_check_table.svg",
                 "multiqc/multiqc_plots/svg/featureCounts_assignment_plot-cnt.svg",
                 "multiqc/multiqc_plots/svg/featureCounts_assignment_plot-pct.svg",
@@ -746,7 +753,7 @@
                 "ERR204916_sorted.bam": "46024b92c7c6c2a2883ad998f41b46b9"
             }
         ],
-        "timestamp": "2026-11-24T12:36:51.649180349",
+        "timestamp": "2026-11-25T14:08:00.701342169",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"

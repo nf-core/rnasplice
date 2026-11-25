@@ -15,7 +15,6 @@ nextflow_workflow {
         when {
             workflow {
                 """
-                def results_dir = "${projectDir}/modules/local/custom/splicingsummary/tests"
                 input[0]  = channel.empty()
                 input[1]  = channel.of("Sample\\tReads after trimming\\nS1\\t10")
                 input[2]  = channel.empty()
@@ -23,10 +22,10 @@ nextflow_workflow {
                 input[4]  = channel.empty()
                 input[5]  = channel.empty()
                 input[6]  = channel.of(
-                    [ [ kind:'dexseq_counts'  , route:''    , id:'S1'  ], file("${results_dir}/S1.count.txt", checkIfExists: true)           ],
-                    [ [ kind:'dexseq_counts'  , route:''    , id:'S2'  ], file("${results_dir}/S2.count.txt", checkIfExists: true)           ],
-                    [ [ kind:'suppa_events'   , route:'STAR', id:'A-B' ], file("${results_dir}/local_A-B.dpsi", checkIfExists: true)         ],
-                    [ [ kind:'dexseq_deu_bins', route:''    , id:'A-B' ], file("${results_dir}/A-B.dexseq.results.tsv", checkIfExists: true) ],
+                    [ [ kind:'dexseq_counts'  , route:''    , id:'S1'  ], file("${projectDir}/modules/local/custom/splicingsummary/tests/S1.count.txt", checkIfExists: true)           ],
+                    [ [ kind:'dexseq_counts'  , route:''    , id:'S2'  ], file("${projectDir}/modules/local/custom/splicingsummary/tests/S2.count.txt", checkIfExists: true)           ],
+                    [ [ kind:'suppa_events'   , route:'STAR', id:'A-B' ], file("${projectDir}/modules/local/custom/splicingsummary/tests/local_A-B.dpsi", checkIfExists: true)         ],
+                    [ [ kind:'dexseq_deu_bins', route:''    , id:'A-B' ], file("${projectDir}/modules/local/custom/splicingsummary/tests/A-B.dexseq.results.tsv", checkIfExists: true) ],
                 )
                 input[7]  = channel.empty()
                 input[8]  = null
@@ -40,7 +39,7 @@ nextflow_workflow {
             assert workflow.success
             def data_dir = workflow.out.data[0]
             assertAll(
-                { assert file(workflow.out.report[0][0]).name == 'multiqc_report.html' },
+                { assert workflow.out.report[0].flatten().collect { report -> file(report).name } == [ 'multiqc_report.html' ] },
                 { assert path("${data_dir}/multiqc_general_stats.txt").readLines()[0].contains('dexseq_exon_bins_detected') },
                 { assert path("${data_dir}/multiqc_differential_splicing_table.txt").readLines().size() == 3 },
                 { assert snapshot(

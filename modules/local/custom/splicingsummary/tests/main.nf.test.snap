@@ -1,0 +1,100 @@
+{
+    "splicing results": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "splicing_summary"
+                        },
+                        "splicing_sample_metrics_mqc.tsv:md5,d0037ae6cfde35ef8af9617b08b7daec"
+                    ]
+                ],
+                "1": [
+                    [
+                        {
+                            "id": "splicing_summary"
+                        },
+                        "differential_splicing_mqc.tsv:md5,698159d9dfc393bc169941f1dd5e9db7"
+                    ]
+                ],
+                "2": [
+                    "versions.yml:md5,362be2e3e02141502a2dfa492f8b8885"
+                ],
+                "differential": [
+                    [
+                        {
+                            "id": "splicing_summary"
+                        },
+                        "differential_splicing_mqc.tsv:md5,698159d9dfc393bc169941f1dd5e9db7"
+                    ]
+                ],
+                "sample_metrics": [
+                    [
+                        {
+                            "id": "splicing_summary"
+                        },
+                        "splicing_sample_metrics_mqc.tsv:md5,d0037ae6cfde35ef8af9617b08b7daec"
+                    ]
+                ],
+                "versions_splicingsummary": [
+                    "versions.yml:md5,362be2e3e02141502a2dfa492f8b8885"
+                ]
+            }
+        ],
+        "timestamp": "2026-11-25T13:58:45.327559715",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
+        }
+    },
+    "splicing results - stub": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "splicing_summary"
+                        },
+                        "splicing_sample_metrics_mqc.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "1": [
+                    [
+                        {
+                            "id": "splicing_summary"
+                        },
+                        "differential_splicing_mqc.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "2": [
+                    "versions.yml:md5,362be2e3e02141502a2dfa492f8b8885"
+                ],
+                "differential": [
+                    [
+                        {
+                            "id": "splicing_summary"
+                        },
+                        "differential_splicing_mqc.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "sample_metrics": [
+                    [
+                        {
+                            "id": "splicing_summary"
+                        },
+                        "splicing_sample_metrics_mqc.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "versions_splicingsummary": [
+                    "versions.yml:md5,362be2e3e02141502a2dfa492f8b8885"
+                ]
+            }
+        ],
+        "timestamp": "2026-11-25T13:58:51.852800009",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
+        }
+    }
+}

@@ -10,6 +10,9 @@
                     "bioconductor-aspli": "2.16.0",
                     "r-base": "4.4.2"
                 },
+                "CUSTOM_SPLICINGSUMMARY": {
+                    "python": "3.12.12"
+                },
                 "FASTQC": {
                     "fastqc": "0.13.0"
                 },
@@ -79,7 +82,7 @@
             1524,
             "aspli.settings.tsv:md5,fc077b38061bf208520ce5c02069b4cd"
         ],
-        "timestamp": "2026-11-24T17:09:44.636853095",
+        "timestamp": "2026-11-25T14:12:05.507267654",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"
@@ -88,6 +91,9 @@
     "-profile test_aspli - max_intron_length - genome_bam": {
         "content": [
             {
+                "CUSTOM_SPLICINGSUMMARY": {
+                    "python": "3.12.12"
+                },
                 "GENEANNOTATION_TABLES": {
                     "python": "3.14.6"
                 },
@@ -140,7 +146,7 @@
             },
             1484
         ],
-        "timestamp": "2026-11-24T17:10:29.581593138",
+        "timestamp": "2026-11-25T14:12:52.94511956",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"
