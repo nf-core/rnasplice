@@ -18,8 +18,8 @@ disable_version_detection: true
 extra_fn_clean_exts:
   - "_sorted"
   - "_val"
-  - type: remove
-    pattern: "_trimmed"
+  - type: regex
+    pattern: "_trimmed$"
 
 # Order of modules
 top_modules:
