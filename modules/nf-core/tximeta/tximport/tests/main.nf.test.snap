@@ -1,0 +1,1209 @@
+{
+    "saccharomyces_cerevisiae - salmon - gtf - ignore_tx_version": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.gene_counts.tsv:md5,28b312144d974387ec28f057f8c9d747"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.gene_counts_length_scaled.tsv:md5,739e9d0a6a103c21db78cb533da2615f"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.gene_counts_scaled.tsv:md5,97614d00dbbfd3c7e27b2ddb69700efc"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.transcript_counts.tsv:md5,57de599703c294054dc959d64cf6285d"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.transcript_counts_dtu_scaled.tsv:md5,c23effda2c7224c4235ddf014553211a"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.transcript_counts_scaled.tsv:md5,23b1faec69d0c871a110273f463ace97"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.gene_lengths.tsv:md5,9d0be086ae56cc0157c9c813cc3dba41"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.transcript_lengths.tsv:md5,058407dd92a61eabb94427975df1daad"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.gene_tpm.tsv:md5,0517636400ed73ed8b76e91167af35b3"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.transcript_tpm.tsv:md5,c13f5d5da59be6592cfbd3dfe55b9567"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.tx2gene_augmented.tsv:md5,de8b002181fb85b76b03cba3599e8a1a"
+                ]
+            ],
+            [
+                "versions.yml:md5,6ff317cceddc686f84d79cb976e1e28b"
+            ]
+        ],
+        "timestamp": "2026-11-25T15:03:42.285500843",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.10.7"
+        }
+    },
+    "saccharomyces_cerevisiae - salmon - gtf - numeric_gene_ids": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.transcript_counts_dtu_scaled.tsv:md5,b28cdd50c7c1d64d7819a83a1edc5888"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.transcript_counts_scaled.tsv:md5,25d81282800e0d440db91c8d27bb8313"
+                ]
+            ],
+            [
+                "versions.yml:md5,6ff317cceddc686f84d79cb976e1e28b"
+            ]
+        ],
+        "timestamp": "2026-11-25T19:04:45.198514798",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.10.7"
+        }
+    },
+    "saccharomyces_cerevisiae - kallisto - gtf - stub": {
+        "content": [
+            {
+                "0": [
+                    [
+                        [
+                            
+                        ],
+                        "[].gene_tpm.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "1": [
+                    [
+                        [
+                            
+                        ],
+                        "[].gene_counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "10": [
+                    [
+                        [
+                            
+                        ],
+                        "[].tx2gene_augmented.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "11": [
+                    "versions.yml:md5,6ff317cceddc686f84d79cb976e1e28b"
+                ],
+                "2": [
+                    [
+                        [
+                            
+                        ],
+                        "[].gene_counts_length_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "3": [
+                    [
+                        [
+                            
+                        ],
+                        "[].gene_counts_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "4": [
+                    [
+                        [
+                            
+                        ],
+                        "[].gene_lengths.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "5": [
+                    [
+                        [
+                            
+                        ],
+                        "[].transcript_tpm.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "6": [
+                    [
+                        [
+                            
+                        ],
+                        "[].transcript_counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "7": [
+                    [
+                        [
+                            
+                        ],
+                        "[].transcript_counts_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "8": [
+                    [
+                        [
+                            
+                        ],
+                        "[].transcript_counts_dtu_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "9": [
+                    [
+                        [
+                            
+                        ],
+                        "[].transcript_lengths.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "counts_gene": [
+                    [
+                        [
+                            
+                        ],
+                        "[].gene_counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "counts_gene_length_scaled": [
+                    [
+                        [
+                            
+                        ],
+                        "[].gene_counts_length_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "counts_gene_scaled": [
+                    [
+                        [
+                            
+                        ],
+                        "[].gene_counts_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "counts_transcript": [
+                    [
+                        [
+                            
+                        ],
+                        "[].transcript_counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "counts_transcript_dtu_scaled": [
+                    [
+                        [
+                            
+                        ],
+                        "[].transcript_counts_dtu_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "counts_transcript_scaled": [
+                    [
+                        [
+                            
+                        ],
+                        "[].transcript_counts_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "lengths_gene": [
+                    [
+                        [
+                            
+                        ],
+                        "[].gene_lengths.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "lengths_transcript": [
+                    [
+                        [
+                            
+                        ],
+                        "[].transcript_lengths.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "tpm_gene": [
+                    [
+                        [
+                            
+                        ],
+                        "[].gene_tpm.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "tpm_transcript": [
+                    [
+                        [
+                            
+                        ],
+                        "[].transcript_tpm.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "tx2gene_augmented": [
+                    [
+                        [
+                            
+                        ],
+                        "[].tx2gene_augmented.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "versions": [
+                    "versions.yml:md5,6ff317cceddc686f84d79cb976e1e28b"
+                ]
+            }
+        ],
+        "timestamp": "2026-11-25T10:28:33.65626184",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.10.7"
+        }
+    },
+    "saccharomyces_cerevisiae - salmon - gtf": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.gene_counts.tsv:md5,28b312144d974387ec28f057f8c9d747"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.gene_counts_length_scaled.tsv:md5,57f6ca058633a5ce0646794724152102"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.gene_counts_scaled.tsv:md5,764b156ea839e5562bfb3817200f3ec9"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.transcript_counts.tsv:md5,ff0f5be09ca7a322672c0074ba35da17"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.transcript_counts_dtu_scaled.tsv:md5,a8aef3a6564232a3d699032c89023025"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.transcript_counts_scaled.tsv:md5,f655b12b9ede464e85b2fbb9dbbb224c"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.gene_lengths.tsv:md5,9d0be086ae56cc0157c9c813cc3dba41"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.transcript_lengths.tsv:md5,db6d8ab9f8e1123d5984fd534b4347dc"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.gene_tpm.tsv:md5,0517636400ed73ed8b76e91167af35b3"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.transcript_tpm.tsv:md5,7a334b565e1e865efb1caf615f194ef7"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.tx2gene_augmented.tsv:md5,0e2418a69d2eba45097ebffc2f700bfe"
+                ]
+            ],
+            [
+                "versions.yml:md5,6ff317cceddc686f84d79cb976e1e28b"
+            ]
+        ],
+        "timestamp": "2026-11-25T10:28:47.075027948",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.10.7"
+        }
+    },
+    "saccharomyces_cerevisiae - salmon - gtf - stub": {
+        "content": [
+            {
+                "0": [
+                    [
+                        [
+                            
+                        ],
+                        "[].gene_tpm.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "1": [
+                    [
+                        [
+                            
+                        ],
+                        "[].gene_counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "10": [
+                    [
+                        [
+                            
+                        ],
+                        "[].tx2gene_augmented.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "11": [
+                    "versions.yml:md5,6ff317cceddc686f84d79cb976e1e28b"
+                ],
+                "2": [
+                    [
+                        [
+                            
+                        ],
+                        "[].gene_counts_length_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "3": [
+                    [
+                        [
+                            
+                        ],
+                        "[].gene_counts_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "4": [
+                    [
+                        [
+                            
+                        ],
+                        "[].gene_lengths.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "5": [
+                    [
+                        [
+                            
+                        ],
+                        "[].transcript_tpm.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "6": [
+                    [
+                        [
+                            
+                        ],
+                        "[].transcript_counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "7": [
+                    [
+                        [
+                            
+                        ],
+                        "[].transcript_counts_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "8": [
+                    [
+                        [
+                            
+                        ],
+                        "[].transcript_counts_dtu_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "9": [
+                    [
+                        [
+                            
+                        ],
+                        "[].transcript_lengths.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "counts_gene": [
+                    [
+                        [
+                            
+                        ],
+                        "[].gene_counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "counts_gene_length_scaled": [
+                    [
+                        [
+                            
+                        ],
+                        "[].gene_counts_length_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "counts_gene_scaled": [
+                    [
+                        [
+                            
+                        ],
+                        "[].gene_counts_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "counts_transcript": [
+                    [
+                        [
+                            
+                        ],
+                        "[].transcript_counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "counts_transcript_dtu_scaled": [
+                    [
+                        [
+                            
+                        ],
+                        "[].transcript_counts_dtu_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "counts_transcript_scaled": [
+                    [
+                        [
+                            
+                        ],
+                        "[].transcript_counts_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "lengths_gene": [
+                    [
+                        [
+                            
+                        ],
+                        "[].gene_lengths.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "lengths_transcript": [
+                    [
+                        [
+                            
+                        ],
+                        "[].transcript_lengths.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "tpm_gene": [
+                    [
+                        [
+                            
+                        ],
+                        "[].gene_tpm.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "tpm_transcript": [
+                    [
+                        [
+                            
+                        ],
+                        "[].transcript_tpm.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "tx2gene_augmented": [
+                    [
+                        [
+                            
+                        ],
+                        "[].tx2gene_augmented.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "versions": [
+                    "versions.yml:md5,6ff317cceddc686f84d79cb976e1e28b"
+                ]
+            }
+        ],
+        "timestamp": "2026-11-25T10:29:28.237781185",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.10.7"
+        }
+    },
+    "saccharomyces_cerevisiae - rsem - gtf - stub": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test.gene_tpm.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "1": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test.gene_counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "10": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test.tx2gene_augmented.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "11": [
+                    "versions.yml:md5,6ff317cceddc686f84d79cb976e1e28b"
+                ],
+                "2": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test.gene_counts_length_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "3": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test.gene_counts_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "4": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test.gene_lengths.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "5": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test.transcript_tpm.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "6": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test.transcript_counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "7": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test.transcript_counts_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "8": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test.transcript_counts_dtu_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "9": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test.transcript_lengths.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "counts_gene": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test.gene_counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "counts_gene_length_scaled": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test.gene_counts_length_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "counts_gene_scaled": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test.gene_counts_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "counts_transcript": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test.transcript_counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "counts_transcript_dtu_scaled": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test.transcript_counts_dtu_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "counts_transcript_scaled": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test.transcript_counts_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "lengths_gene": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test.gene_lengths.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "lengths_transcript": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test.transcript_lengths.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "tpm_gene": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test.gene_tpm.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "tpm_transcript": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test.transcript_tpm.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "tx2gene_augmented": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test.tx2gene_augmented.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "versions": [
+                    "versions.yml:md5,6ff317cceddc686f84d79cb976e1e28b"
+                ]
+            }
+        ],
+        "timestamp": "2026-11-25T10:29:56.166037499",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.10.7"
+        }
+    },
+    "saccharomyces_cerevisiae - kallisto - gtf - custom_column_names": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.gene_counts.tsv:md5,46f682df2e7000bf1495efc6382252c6"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.gene_counts_length_scaled.tsv:md5,ba72a05d31a44f4f2ea0c2f96b7eec3f"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.gene_counts_scaled.tsv:md5,e4f521c2cf0f14e0d384678723a9d8c1"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.transcript_counts.tsv:md5,42e0106e75fa97c1c684c6d9060f1724"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.transcript_counts_dtu_scaled.tsv:md5,39660d573f2298593fa5fa8d0ee69f90"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.transcript_counts_scaled.tsv:md5,6eb8ba403fa7889ff7395fc5c07fb3ea"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.gene_lengths.tsv:md5,7b2d771706f5d121a7eb662cf60a9b77"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.transcript_lengths.tsv:md5,f974b52840431a5dae57bcb615badbf1"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.gene_tpm.tsv:md5,1bb0f0108a9143d711d971ee83dab877"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.transcript_tpm.tsv:md5,65862ed9d4a05abfab952e680dc0e49d"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.tx2gene_augmented.tsv:md5,3605073f7d538976ebdb61bc94081b7c"
+                ]
+            ],
+            [
+                "versions.yml:md5,6ff317cceddc686f84d79cb976e1e28b"
+            ]
+        ],
+        "timestamp": "2026-11-25T10:30:10.133870108",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.10.7"
+        }
+    },
+    "saccharomyces_cerevisiae - kallisto - gtf": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.gene_counts.tsv:md5,44b42d139074ae6a12510845249e4174"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.gene_counts_length_scaled.tsv:md5,9660d582ff373d38fc1348867d82d5c4"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.gene_counts_scaled.tsv:md5,83873315204fb3f12fe86c5f899a65c2"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.transcript_counts.tsv:md5,42e0106e75fa97c1c684c6d9060f1724"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.transcript_counts_dtu_scaled.tsv:md5,39660d573f2298593fa5fa8d0ee69f90"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.transcript_counts_scaled.tsv:md5,6eb8ba403fa7889ff7395fc5c07fb3ea"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.gene_lengths.tsv:md5,eb14addd0f6df5c70f72b2b3cba2716f"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.transcript_lengths.tsv:md5,f974b52840431a5dae57bcb615badbf1"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.gene_tpm.tsv:md5,5019a27a13c53e29627d528e86250402"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.transcript_tpm.tsv:md5,65862ed9d4a05abfab952e680dc0e49d"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.tx2gene_augmented.tsv:md5,0e2418a69d2eba45097ebffc2f700bfe"
+                ]
+            ],
+            [
+                "versions.yml:md5,6ff317cceddc686f84d79cb976e1e28b"
+            ]
+        ],
+        "timestamp": "2026-11-25T10:28:01.458873875",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.10.7"
+        }
+    },
+    "saccharomyces_cerevisiae - rsem - gtf": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.gene_counts.tsv:md5,f1381c4360646677e171d61565810ce7"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.gene_counts_length_scaled.tsv:md5,1c17309b94558ef8c716bd193b940abd"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.gene_counts_scaled.tsv:md5,4418272833ae345a5cf64f013ea64b6a"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.transcript_counts.tsv:md5,4049fc5545452e4a1e3bc9a75b060fc6"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.transcript_counts_dtu_scaled.tsv:md5,f0f1c6929c262fa83dca30699e27850e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.transcript_counts_scaled.tsv:md5,0fb4cde6f117f9e97b88b140296de663"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.gene_lengths.tsv:md5,d0fa80dacf2263e4bc2c431431789275"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.transcript_lengths.tsv:md5,d04b3ee72b6b3f93436fd6bcccd1e41a"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.gene_tpm.tsv:md5,f18b3e7ae0a5119916a11a9c65258c71"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.transcript_tpm.tsv:md5,ba50c1a86bde2987572433c055e6559b"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.tx2gene_augmented.tsv:md5,58aa7e040b0ff1a512ced6b85b9939ac"
+                ]
+            ],
+            [
+                "versions.yml:md5,6ff317cceddc686f84d79cb976e1e28b"
+            ]
+        ],
+        "timestamp": "2026-11-25T10:29:41.450367876",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.10.7"
+        }
+    },
+    "saccharomyces_cerevisiae - kallisto - gtf - extra_attributes": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.gene_counts.tsv:md5,44b42d139074ae6a12510845249e4174"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.gene_counts_length_scaled.tsv:md5,9660d582ff373d38fc1348867d82d5c4"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.gene_counts_scaled.tsv:md5,83873315204fb3f12fe86c5f899a65c2"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.transcript_counts.tsv:md5,42e0106e75fa97c1c684c6d9060f1724"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.transcript_counts_dtu_scaled.tsv:md5,39660d573f2298593fa5fa8d0ee69f90"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.transcript_counts_scaled.tsv:md5,6eb8ba403fa7889ff7395fc5c07fb3ea"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.gene_lengths.tsv:md5,eb14addd0f6df5c70f72b2b3cba2716f"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.transcript_lengths.tsv:md5,f974b52840431a5dae57bcb615badbf1"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.gene_tpm.tsv:md5,5019a27a13c53e29627d528e86250402"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.transcript_tpm.tsv:md5,65862ed9d4a05abfab952e680dc0e49d"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.tx2gene_augmented.tsv:md5,0e2418a69d2eba45097ebffc2f700bfe"
+                ]
+            ],
+            [
+                "versions.yml:md5,6ff317cceddc686f84d79cb976e1e28b"
+            ]
+        ],
+        "timestamp": "2026-11-25T10:28:16.337384637",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.10.7"
+        }
+    }
+}
