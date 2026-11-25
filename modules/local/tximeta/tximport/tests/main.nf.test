@@ -36,7 +36,7 @@ nextflow_process {
             """
             UNTAR_SALMON_QUANT.out.untar
                 .multiMap { meta, dir ->
-                    quants : [ meta, file(dir.toString() + '/ERR*', type: 'dir', checkIfExists: true) ]
+                    quants : [ meta, files(dir.toString() + '/ERR*', type: 'dir', checkIfExists: true) ]
                     tx2gene: file(dir.toString() + '/genes_chrX.tx2gene.tsv', checkIfExists: true)
                 }
                 .set { ch_salmon_quant }
@@ -72,7 +72,7 @@ nextflow_process {
             """
             UNTAR_SALMON_QUANT.out.untar
                 .multiMap { meta, dir ->
-                    quants : [ meta, file(dir.toString() + '/ERR*', type: 'dir', checkIfExists: true) ]
+                    quants : [ meta, files(dir.toString() + '/ERR*', type: 'dir', checkIfExists: true) ]
                     tx2gene: file(dir.toString() + '/genes_chrX.tx2gene.tsv', checkIfExists: true)
                 }
                 .set { ch_salmon_quant }
@@ -146,7 +146,7 @@ nextflow_process {
             """
             UNTAR_SALMON_QUANT.out.untar
                 .multiMap { meta, dir ->
-                    quants : [ meta, file(dir.toString() + '/ERR*', type: 'dir', checkIfExists: true) ]
+                    quants : [ meta, files(dir.toString() + '/ERR*', type: 'dir', checkIfExists: true) ]
                     tx2gene: file(dir.toString() + '/genes_chrX.tx2gene.tsv', checkIfExists: true)
                 }
                 .set { ch_salmon_quant }

@@ -40,6 +40,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #361 - When `--rmats_read_len` is not set, rMATS uses the median read length from the samtools stats of the genome BAM files instead of a default of 40. This changes the rMATS results of the test profile, which has 75 bp reads. Closes #358 (by @pinin4fjords)
 - #367 - Pass the workflow summary and methods description to MultiQC once instead of twice (by @pinin4fjords)
 - #368 - Fail at startup when the contrastsheet repeats an `id` (or deprecated `contrast`). Rows with the same id were merged into one rMATS run, which failed with "given 2 times in input", or overwrote each other's DEXSeq results without an error (by @pinin4fjords)
+- #377 - Clear the Nextflow warnings of the test runs, make the outdir pre-commit hook executable, and find the BAM files the pipeline tests snapshot with `getAllFilesFromDir` (by @pinin4fjords)
 
 ## v2.0.0 - Fenix Reborn - [2026-10-20]
 
