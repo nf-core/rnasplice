@@ -73,6 +73,7 @@ workflow RNASPLICE {
     ch_samplesheet // channel: [ val(meta), [ fastq ], genome_bam, transcriptome_bam, salmon_results ], the parsed samplesheet, absent inputs null
     ch_samplesheet_file // channel: file(samplesheet), for the processes that read it
     ch_contrastsheet // channel: [ contrast, treatment, control ], the parsed contrasts
+    ch_blocking_values // channel: [ sample: [ column: value ] ], the blocking variables of the contrasts
     input_routes // map: how each part of the pipeline gets its input, see `getInputRoutes`
     ch_fasta // channel: path of genome fasta
     ch_fai // channel: [ val(meta), path(fai) ], the genome fasta index
@@ -406,7 +407,7 @@ workflow RNASPLICE {
                 ch_gtf,
                 ch_genome_bam,
                 ch_contrastsheet,
-                ch_samplesheet_file,
+                ch_blocking_values,
                 ch_gene_annotation,
             )
         }
@@ -466,7 +467,7 @@ workflow RNASPLICE {
                 ch_fasta.combine(ch_fai).map { fasta, _meta, fai -> [[id: fasta.baseName], fasta, fai] }.first(),
                 ch_gtf.map { gtf -> [[id: gtf.baseName], gtf] }.first(),
                 ch_contrastsheet,
-                ch_samplesheet_file,
+                ch_blocking_values,
                 Math.max(params.leafcutter_ds_min_samples_per_intron, params.leafcutter_ds_min_samples_per_group),
             )
             ch_leafcutter_strand_summary = LEAFCUTTER.out.strand_summary

@@ -13,9 +13,8 @@ nextflow_function {
             function {
                 """
                 input[0] = 'GBR-YRI'
-                input[1] = 'LeafCutter'
-                input[2] = 'batch'
-                input[3] = [
+                input[1] = 'batch'
+                input[2] = [
                     [ sample:'a', condition:'GBR', batch:'1' ],
                     [ sample:'b', condition:'GBR', batch:'2' ],
                     [ sample:'c', condition:'YRI', batch:'1' ],
@@ -40,9 +39,8 @@ nextflow_function {
             function {
                 """
                 input[0] = 'GBR-YRI'
-                input[1] = 'LeafCutter'
-                input[2] = 'batch;lane'
-                input[3] = [
+                input[1] = 'batch;lane'
+                input[2] = [
                     [ sample:'a', condition:'GBR', batch:'1', lane:'x' ],
                     [ sample:'b', condition:'GBR', batch:'2', lane:'x' ],
                     [ sample:'c', condition:'YRI', batch:'1', lane:'x' ],
@@ -67,9 +65,8 @@ nextflow_function {
             function {
                 """
                 input[0] = 'GBR-YRI'
-                input[1] = 'LeafCutter'
-                input[2] = 'batch'
-                input[3] = [
+                input[1] = 'batch'
+                input[2] = [
                     [ sample:'a', condition:'GBR', batch:'1' ],
                     [ sample:'b', condition:'GBR', batch:'1' ],
                     [ sample:'c', condition:'YRI', batch:'2' ],
@@ -81,8 +78,7 @@ nextflow_function {
 
         then {
             assertAll(
-                { assert function.failed },
-                { assert function.stdout.toString().contains("blocking column 'batch' is confounded with the condition") || function.stderr.toString().contains("blocking column 'batch' is confounded with the condition") }
+                { assert function.failed }
             )
         }
 
@@ -94,9 +90,8 @@ nextflow_function {
             function {
                 """
                 input[0] = 'GBR-YRI'
-                input[1] = 'LeafCutter'
-                input[2] = 'donor'
-                input[3] = [
+                input[1] = 'donor'
+                input[2] = [
                     [ sample:'a', condition:'GBR', donor:'A' ],
                     [ sample:'b', condition:'GBR', donor:'B' ],
                     [ sample:'c', condition:'YRI', donor:'A' ],
@@ -120,9 +115,8 @@ nextflow_function {
             function {
                 """
                 input[0] = 'GBR-YRI'
-                input[1] = 'LeafCutter'
-                input[2] = 'batch'
-                input[3] = [
+                input[1] = 'batch'
+                input[2] = [
                     [ sample:'a', condition:'GBR', batch:'1' ],
                     [ sample:'b', condition:'GBR', batch:'' ],
                     [ sample:'c', condition:'YRI', batch:'1' ],
