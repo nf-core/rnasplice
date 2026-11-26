@@ -202,14 +202,14 @@ Only some methods can adjust for blocking variables. The others ignore them, and
 | ------------------------------------------------- | ------------------------------ |
 | DEXSeq DEU (`--dexseq_exon`)                      | Yes                            |
 | DEXSeq DTU (`--dexseq_dtu`)                       | Yes                            |
-| edgeR DEU (`--edger_exon`)                        | No                             |
+| edgeR DEU (`--edger_exon`)                        | Yes                            |
 | rMATS (`--rmats`)                                 | No                             |
 | SUPPA (`--suppa`)                                 | No                             |
 | IsoformSwitchAnalyzeR (`--isoformswitchanalyzer`) | No                             |
 | ASpli (`--aspli`)                                 | No                             |
 | LeafCutter (`--leafcutter`)                       | No                             |
 
-DEXSeq adds each blocking variable to its models as an interaction with exon, for example `~ sample + exon + batch:exon + condition:exon` against `~ sample + exon + batch:exon`. The DEXSeq log fold changes are not adjusted for the blocking variables.
+DEXSeq adds each blocking variable to its models as an interaction with exon, for example `~ sample + exon + batch:exon + condition:exon` against `~ sample + exon + batch:exon`. The DEXSeq log fold changes are not adjusted for the blocking variables. edgeR adds them to its design matrix, `~ 0 + condition + batch`.
 
 Blocking variables are always treated as categorical, so numeric donor IDs are not read as continuous values. Each blocking column must have a value for every sample, and the same value in every row of a sample with several sequencing runs. They are checked against the samples of each contrast:
 

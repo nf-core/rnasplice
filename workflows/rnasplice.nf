@@ -405,6 +405,7 @@ workflow RNASPLICE {
                 ch_gtf,
                 ch_genome_bam,
                 ch_contrastsheet,
+                ch_samplesheet_file,
                 ch_gene_annotation,
             )
         }

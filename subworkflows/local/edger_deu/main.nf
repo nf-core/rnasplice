@@ -12,7 +12,8 @@ workflow EDGER_DEU {
     take:
     gtf                // channel: path(gtf)
     ch_genome_bam      // channel: [ val(meta), path(bam) ]
-    ch_contrastsheet   // channel: [ contrast, treatment, control ], the parsed contrasts
+    ch_contrastsheet   // channel: [ contrast:, treatment:, control:, blocking: (when set) ], the parsed contrasts
+    ch_samplesheet     // channel: file(samplesheet), read for the values of the blocking variables
     ch_gene_annotation // channel: [ val(meta), path(tsv) ], the gene annotation table, as a value channel
 
     main:
@@ -45,11 +46,31 @@ workflow EDGER_DEU {
     )
 
     // featureCounts names each count column after its BAM file, so the sample sheet the
-    // model reads maps those names to the conditions
+    // model reads maps those names to the conditions and the blocking variables of all
+    // contrasts. A sample with several sequencing runs takes its first row
+    ch_blocking_columns = ch_contrastsheet
+        .flatMap { row -> row.blocking ? row.blocking.tokenize(';') : [] }
+        .unique()
+        .toSortedList()
+
+    ch_sample_rows = ch_samplesheet
+        .splitCsv(header: true)
+        .unique { row -> row.sample }
+        .toList()
+
     ch_edger_samplesheet = ch_genome_bam
-        .collectFile(name: 'edger_samplesheet.csv', seed: 'sample,condition', newLine: true, sort: true) { meta, bam ->
-            "${bam.name},${meta.condition}"
+        .toList()
+        .combine(ch_blocking_columns)
+        .combine(ch_sample_rows)
+        .map { bams, blocking_columns, rows ->
+            def rows_by_sample = rows.collectEntries { row -> [ row.sample, row ] }
+            def lines = [ (['sample', 'condition'] + blocking_columns).join(',') ]
+            bams.sort { bam_a, bam_b -> bam_a[1].name <=> bam_b[1].name }.each { meta, bam ->
+                lines << ([ bam.name, meta.condition ] + blocking_columns.collect { column -> rows_by_sample[meta.id][column] }).join(',')
+            }
+            lines.join('\n') + '\n'
         }
+        .collectFile(name: 'edger_samplesheet.csv')
         .map { samplesheet -> [[id: 'edger_exon'], samplesheet] }
 
     //
@@ -59,7 +80,7 @@ workflow EDGER_DEU {
     ch_diffsplice_input = ch_contrastsheet
         .combine(ch_edger_samplesheet.join(CSVTK_JOIN.out.out_file))
         .multiMap { row, _meta, samplesheet, counts ->
-            def meta = [id: row.contrast]
+            def meta = row.blocking ? [id: row.contrast, blocking: row.blocking] : [id: row.contrast]
             contrast: [meta, 'condition', row.control, row.treatment, '', '']
             counts: [meta, samplesheet, counts]
         }

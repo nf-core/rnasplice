@@ -40,14 +40,22 @@ nextflow_pipeline {
                 }
             }
 
+            // Models edgeR fitted, by contrast, from the model files it publishes
+            def edger_models = getAllFilesFromDir(params.outdir, include: ['**/*.edger.model.txt'])
+                .collectEntries { model_file -> [ model_file.name - '.edger.model.txt', model_file.text.trim() ] }
+
             assert workflow.success
 
             assertAll(
-                // GBR-YRI is blocked on batch and YRI-GBR is not, in the exon analysis and in
+                // GBR-YRI is blocked on batch and YRI-GBR is not, in the DEXSeq exon analysis and in
                 // the DTU analyses of the STAR and Salmon quantifications
                 { assert dexseq_models == [
                     'GBR-YRI': ['~sample + exon + batch:exon + condition:exon'] * 3,
                     'YRI-GBR': ['~sample + exon + condition:exon'] * 3
+                ] },
+                { assert edger_models == [
+                    'GBR-YRI': '~ 0 + condition+batch',
+                    'YRI-GBR': '~ 0 + condition'
                 ] },
                 { assert snapshot(
                     // Remove Nextflow version to prevent cross-version testing failures
