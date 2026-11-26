@@ -1,0 +1,137 @@
+nextflow_function {
+
+    name "Test Function resolveBlockingVariables"
+    script "../main.nf"
+    function "resolveBlockingVariables"
+
+    tag "subworkflows"
+    tag "subworkflows/utils_nfcore_rnasplice_pipeline"
+
+    test("crossed variable is kept") {
+
+        when {
+            function {
+                """
+                input[0] = 'GBR-YRI'
+                input[1] = 'batch'
+                input[2] = [
+                    [ sample:'a', condition:'GBR', batch:'1' ],
+                    [ sample:'b', condition:'GBR', batch:'2' ],
+                    [ sample:'c', condition:'YRI', batch:'1' ],
+                    [ sample:'d', condition:'YRI', batch:'2' ],
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert snapshot(function.result).match() }
+            )
+        }
+
+    }
+
+    test("variable with a single value is left out") {
+
+        when {
+            function {
+                """
+                input[0] = 'GBR-YRI'
+                input[1] = 'batch;lane'
+                input[2] = [
+                    [ sample:'a', condition:'GBR', batch:'1', lane:'x' ],
+                    [ sample:'b', condition:'GBR', batch:'2', lane:'x' ],
+                    [ sample:'c', condition:'YRI', batch:'1', lane:'x' ],
+                    [ sample:'d', condition:'YRI', batch:'2', lane:'x' ],
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert snapshot(function.result).match() }
+            )
+        }
+
+    }
+
+    test("variable confounded with the condition fails") {
+
+        when {
+            function {
+                """
+                input[0] = 'GBR-YRI'
+                input[1] = 'batch'
+                input[2] = [
+                    [ sample:'a', condition:'GBR', batch:'1' ],
+                    [ sample:'b', condition:'GBR', batch:'1' ],
+                    [ sample:'c', condition:'YRI', batch:'2' ],
+                    [ sample:'d', condition:'YRI', batch:'2' ],
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.failed }
+            )
+        }
+
+    }
+
+    test("variables with no residual degrees of freedom fail") {
+
+        when {
+            function {
+                """
+                input[0] = 'GBR-YRI'
+                input[1] = 'donor'
+                input[2] = [
+                    [ sample:'a', condition:'GBR', donor:'A' ],
+                    [ sample:'b', condition:'GBR', donor:'B' ],
+                    [ sample:'c', condition:'YRI', donor:'A' ],
+                    [ sample:'d', condition:'YRI', donor:'C' ],
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.failed }
+            )
+        }
+
+    }
+
+    test("missing value fails") {
+
+        when {
+            function {
+                """
+                input[0] = 'GBR-YRI'
+                input[1] = 'batch'
+                input[2] = [
+                    [ sample:'a', condition:'GBR', batch:'1' ],
+                    [ sample:'b', condition:'GBR', batch:'' ],
+                    [ sample:'c', condition:'YRI', batch:'1' ],
+                    [ sample:'d', condition:'YRI', batch:'2' ],
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.failed }
+            )
+        }
+
+    }
+
+}
