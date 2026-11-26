@@ -271,6 +271,74 @@
             "nextflow": "26.10.6"
         }
     },
+    "human chrX - versioned transcript IDs - ignore_tx_version": {
+        "content": [
+            {
+                "counts_transcript_dtu_scaled": [
+                    [
+                        {
+                            "id": "all_samples"
+                        },
+                        "salmon.merged.transcript_counts_dtu_scaled.tsv:md5,faa76b5ad9975d1121fb938ef00f7a7d"
+                    ]
+                ],
+                "counts_transcript_scaled": [
+                    [
+                        {
+                            "id": "all_samples"
+                        },
+                        "salmon.merged.transcript_counts_scaled.tsv:md5,94db631b5de8a4a4873daf65c07a580a"
+                    ]
+                ],
+                "salmon_results": [
+                    [
+                        {
+                            "condition": "GBR",
+                            "id": "ERR188383"
+                        },
+                        [
+                            "quant.sf"
+                        ]
+                    ],
+                    [
+                        {
+                            "condition": "GBR",
+                            "id": "ERR188428"
+                        },
+                        [
+                            "quant.sf"
+                        ]
+                    ],
+                    [
+                        {
+                            "condition": "YRI",
+                            "id": "ERR188454"
+                        },
+                        [
+                            "quant.sf"
+                        ]
+                    ],
+                    [
+                        {
+                            "condition": "YRI",
+                            "id": "ERR204916"
+                        },
+                        [
+                            "quant.sf"
+                        ]
+                    ]
+                ],
+                "suppa_tpm": [
+                    "suppa_tpm.txt:md5,c144b0264eee77c30b9dddc1cebea4e4"
+                ]
+            }
+        ],
+        "timestamp": "2026-11-26T17:20:32.921748875",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
+        }
+    },
     "human chrX - salmon tarballs - stub": {
         "content": [
             {

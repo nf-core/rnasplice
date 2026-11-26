@@ -285,7 +285,6 @@
                 "salmon/tximport/ERR204916/logs/salmon_quant.log",
                 "salmon/tximport/ERR204916/quant.genes.sf",
                 "salmon/tximport/ERR204916/quant.sf",
-                "salmon/tximport/genes_chrX.tx2gene.tsv",
                 "salmon/tximport/salmon.merged.gene.R_sessionInfo.log",
                 "salmon/tximport/salmon.merged.gene.SummarizedExperiment.rds",
                 "salmon/tximport/salmon.merged.gene_counts.tsv",
@@ -301,7 +300,8 @@
                 "salmon/tximport/salmon.merged.transcript_lengths.tsv",
                 "salmon/tximport/salmon.merged.transcript_tpm.tsv",
                 "salmon/tximport/salmon.merged.tx2gene_augmented.tsv",
-                "salmon/tximport/suppa_tpm.txt"
+                "salmon/tximport/suppa_tpm.txt",
+                "salmon/tximport/tximport.tx2gene.tsv"
             ],
             [
                 "isoformswitchanalyzer_summary.csv:md5,8cb2a864dbf6d26df508842d83a25bdb",
@@ -312,7 +312,7 @@
                 "genes_chrX.ioi:md5,aa178a4526493cc55fbd9d6f59ed5c4f"
             ]
         ],
-        "timestamp": "2026-11-26T16:46:58.253768869",
+        "timestamp": "2026-11-26T17:38:42.417593832",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"

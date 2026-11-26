@@ -827,7 +827,6 @@
                 "salmon/suppa/split_files/tpms/GBR.tpm",
                 "salmon/suppa/split_files/tpms/YRI.tpm",
                 "salmon/tximport",
-                "salmon/tximport/genes_chrX.tx2gene.tsv",
                 "salmon/tximport/salmon.merged.gene.R_sessionInfo.log",
                 "salmon/tximport/salmon.merged.gene.SummarizedExperiment.rds",
                 "salmon/tximport/salmon.merged.gene_counts.tsv",
@@ -844,6 +843,7 @@
                 "salmon/tximport/salmon.merged.transcript_tpm.tsv",
                 "salmon/tximport/salmon.merged.tx2gene_augmented.tsv",
                 "salmon/tximport/suppa_tpm.txt",
+                "salmon/tximport/tximport.tx2gene.tsv",
                 "star_salmon",
                 "star_salmon/ERR188383_sorted.bam",
                 "star_salmon/ERR188383_sorted.bam.bai",
@@ -911,6 +911,8 @@
                 "star_salmon/edger/GBR-YRI.DGELRT.edger.rds",
                 "star_salmon/edger/GBR-YRI.R_sessionInfo.log",
                 "star_salmon/edger/GBR-YRI.edger.bcv.png",
+                "star_salmon/edger/GBR-YRI.edger.diffsplice.expression.annotated.tsv",
+                "star_salmon/edger/GBR-YRI.edger.diffsplice.expression.tsv",
                 "star_salmon/edger/GBR-YRI.edger.diffsplice.gene.annotated.tsv",
                 "star_salmon/edger/GBR-YRI.edger.diffsplice.gene.tsv",
                 "star_salmon/edger/GBR-YRI.edger.diffsplice.pdf",
@@ -923,6 +925,8 @@
                 "star_salmon/edger/YRI-GBR.DGELRT.edger.rds",
                 "star_salmon/edger/YRI-GBR.R_sessionInfo.log",
                 "star_salmon/edger/YRI-GBR.edger.bcv.png",
+                "star_salmon/edger/YRI-GBR.edger.diffsplice.expression.annotated.tsv",
+                "star_salmon/edger/YRI-GBR.edger.diffsplice.expression.tsv",
                 "star_salmon/edger/YRI-GBR.edger.diffsplice.gene.annotated.tsv",
                 "star_salmon/edger/YRI-GBR.edger.diffsplice.gene.tsv",
                 "star_salmon/edger/YRI-GBR.edger.diffsplice.pdf",
@@ -1189,7 +1193,6 @@
                 "star_salmon/suppa/split_files/tpms/GBR.tpm",
                 "star_salmon/suppa/split_files/tpms/YRI.tpm",
                 "star_salmon/tximport",
-                "star_salmon/tximport/genes_chrX.tx2gene.tsv",
                 "star_salmon/tximport/salmon.merged.gene.R_sessionInfo.log",
                 "star_salmon/tximport/salmon.merged.gene.SummarizedExperiment.rds",
                 "star_salmon/tximport/salmon.merged.gene_counts.tsv",
@@ -1206,6 +1209,7 @@
                 "star_salmon/tximport/salmon.merged.transcript_tpm.tsv",
                 "star_salmon/tximport/salmon.merged.tx2gene_augmented.tsv",
                 "star_salmon/tximport/suppa_tpm.txt",
+                "star_salmon/tximport/tximport.tx2gene.tsv",
                 "star_salmon/unmapped",
                 "trimgalore",
                 "trimgalore/ERR188383_1.fastq.gz_trimming_report.txt",
@@ -1364,7 +1368,7 @@
                 "ERR204916_sorted.bam": "1f2abfcbb9697c56744ffb5fcfeb9f17"
             }
         ],
-        "timestamp": "2026-11-26T16:36:19.319106164",
+        "timestamp": "2026-11-26T17:27:06.342694926",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"

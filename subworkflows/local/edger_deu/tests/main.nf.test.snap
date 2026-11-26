@@ -91,6 +91,16 @@
                         {
                             "id": "GBR-YRI"
                         },
+                        "GBR-YRI.edger.diffsplice.expression.tsv",
+                        "Geneid\tStart\tChr\tEnd\tStrand\tLength\tlogFC\tlogCPM\tF\tPValue\tFDR",
+                        272
+                    ]
+                ],
+                [
+                    [
+                        {
+                            "id": "GBR-YRI"
+                        },
                         "GBR-YRI.edger.diffsplice.results.tsv",
                         "Geneid\tStart\tChr\tEnd\tStrand\tLength\tlogFC\texon.F\tP.Value\tFDR",
                         268
@@ -156,6 +166,14 @@
                     {
                         "id": "GBR-YRI"
                     },
+                    "GBR-YRI.edger.diffsplice.expression.annotated.tsv",
+                    "Geneid\tgene_name\tgene_biotype\tStart\tChr\tEnd\tStrand\tLength\tlogFC\tlogCPM\tF\tPValue\tFDR",
+                    272
+                ],
+                [
+                    {
+                        "id": "GBR-YRI"
+                    },
                     "GBR-YRI.edger.diffsplice.gene.annotated.tsv",
                     "Geneid\tgene_name\tgene_biotype\tChr\tStrand\tNExons\tgene.F\tP.Value\tFDR",
                     25
@@ -178,7 +196,7 @@
                 ]
             ]
         ],
-        "timestamp": "2026-11-25T23:40:48.635213643",
+        "timestamp": "2026-11-26T17:19:26.383951523",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"
@@ -232,6 +250,14 @@
                         "id": "edger_exon"
                     },
                     "edger_exon.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "GBR-YRI"
+                    },
+                    "GBR-YRI.edger.diffsplice.expression.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
                 ]
             ],
             [
@@ -295,6 +321,12 @@
                     {
                         "id": "GBR-YRI"
                     },
+                    "GBR-YRI.edger.diffsplice.expression.annotated.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "GBR-YRI"
+                    },
                     "GBR-YRI.edger.diffsplice.gene.annotated.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
                 ],
                 [
@@ -311,7 +343,7 @@
                 ]
             ]
         ],
-        "timestamp": "2026-11-25T23:40:59.473414322",
+        "timestamp": "2026-11-26T17:19:42.7231305",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"
