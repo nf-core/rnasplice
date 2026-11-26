@@ -1,8 +1,12 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
 name: "isoformswitchanalyzer"
+<<<<<<< HEAD
 description: Identify isoform switches between two conditions from Salmon quantifications
   with IsoformSwitchAnalyzeR, adjusting for covariates, predict their functional
   consequences and plot the top switching genes
+=======
+description: Identify isoform switches between conditions from Salmon quantifications with IsoformSwitchAnalyzeR, predict their functional consequences and plot the top switching genes of every contrast
+>>>>>>> 36a1aca (Add MASS to the IsoformSwitchAnalyzeR environment)
 keywords:
   - IsoformSwitchAnalyzeR
   - isoform switch
@@ -11,10 +15,7 @@ keywords:
   - salmon
 tools:
   - "IsoformSwitchAnalyzeR":
-      description: "Analysis of alternative splicing and isoform switches with predicted
-        functional consequences (e.g. gain/loss of protein domains etc.) from quantification
-        of all types of RNASeq by tools such as Kallisto, Salmon, StringTie, Cufflinks/Cuffdiff
-        etc."
+      description: "Analysis of alternative splicing and isoform switches with predicted functional consequences (e.g. gain/loss of protein domains etc.) from quantification of all types of RNASeq by tools such as Kallisto, Salmon, StringTie, Cufflinks/Cuffdiff etc."
       homepage: "https://bioconductor.org/packages/IsoformSwitchAnalyzeR"
       documentation: "https://bioconductor.org/packages/release/bioc/vignettes/IsoformSwitchAnalyzeR/inst/doc/IsoformSwitchAnalyzeR.html"
       tool_dev_url: "https://github.com/kvittingseerup/IsoformSwitchAnalyzeR"
@@ -23,6 +24,7 @@ tools:
       identifier: biotools:isoformswitchanalyzer
 
 input:
+<<<<<<< HEAD
   - - meta:
         type: map
         description: |
@@ -49,6 +51,12 @@ input:
         pattern: "*.csv"
         ontologies:
           - edam: "http://edamontology.org/format_3752" # CSV
+=======
+  - salmon_output:
+      type: directory
+      description: One Salmon quant directory per sample, each holding a `quant.sf`. The directory names must match the `sample` column of the samplesheet
+      pattern: "*"
+>>>>>>> 36a1aca (Add MASS to the IsoformSwitchAnalyzeR environment)
   - gtf:
       type: file
       description: GTF annotation the transcripts were quantified against
@@ -57,21 +65,35 @@ input:
         - edam: "http://edamontology.org/format_2306" # GTF
   - transcript_sequences:
       type: file
-      description: Nucleotide sequences of the annotated transcripts, named by
-        transcript id as in the GTF
+      description: Nucleotide sequences of the annotated transcripts, named by transcript id as in the GTF
       pattern: "*.{fa,fasta}"
       ontologies:
         - edam: "http://edamontology.org/format_1929" # FASTA
+<<<<<<< HEAD
+=======
+  - samplesheet:
+      type: file
+      description: Comma-separated sample sheet with at least `sample` and `condition` column headers
+      pattern: "*.csv"
+      ontologies:
+        - edam: "http://edamontology.org/format_3752" # CSV
+  - contrastsheet:
+      type: file
+      description: Comma-separated contrast sheet with `treatment` and `control` column headers naming the conditions to compare. Every pair of conditions is compared when the file does not exist
+      pattern: "*.csv"
+      ontologies:
+        - edam: "http://edamontology.org/format_3752" # CSV
+>>>>>>> 36a1aca (Add MASS to the IsoformSwitchAnalyzeR environment)
   - alpha:
       type: float
       description: FDR cutoff below which an isoform switch is called significant
   - dIF:
       type: float
-      description: Minimum absolute difference in isoform fraction between the two
-        conditions for an isoform switch to be called
+      description: Minimum absolute difference in isoform fraction between the two conditions for an isoform switch to be called
 
 output:
   isoformswitchanalyzer_summary:
+<<<<<<< HEAD
     - - meta:
           type: map
           description: Groovy Map with the contrast
@@ -94,6 +116,21 @@ output:
           pattern: "isoformswitchanalyzer_isoformfeatures.csv"
           ontologies:
             - edam: "http://edamontology.org/format_3752" # CSV
+=======
+    - "isoformswitchanalyzer_summary.csv":
+        type: file
+        description: Number of switching isoforms, switches and genes per contrast and combined. Holds the error message instead when no switch was found
+        pattern: "isoformswitchanalyzer_summary.csv"
+        ontologies:
+          - edam: "http://edamontology.org/format_3752" # CSV
+  isoformswitchanalyzer_isoformFeatures:
+    - "isoformswitchanalyzer_isoformfeatures.csv":
+        type: file
+        description: The `isoformFeatures` table of the switchAnalyzeRlist with the expression, isoform fraction, switch q-value and consequences of every isoform in every contrast. Empty when no switch was found
+        pattern: "isoformswitchanalyzer_isoformfeatures.csv"
+        ontologies:
+          - edam: "http://edamontology.org/format_3752" # CSV
+>>>>>>> 36a1aca (Add MASS to the IsoformSwitchAnalyzeR environment)
   switchlist_rds:
     - - meta:
           type: map
@@ -103,6 +140,7 @@ output:
           description: Serialised switchAnalyzeRlist object
           pattern: "switchlist.rds"
   results:
+<<<<<<< HEAD
     - - meta:
           type: map
           description: Groovy Map with the contrast
@@ -111,6 +149,12 @@ output:
           description: A subdirectory with a switch plot PDF per switching gene,
             plus the common switch consequences PDF
           pattern: "results"
+=======
+    - "results":
+        type: directory
+        description: One subdirectory per contrast with a switch plot PDF per switching gene, plus the common switch consequences PDF
+        pattern: "results"
+>>>>>>> 36a1aca (Add MASS to the IsoformSwitchAnalyzeR environment)
   versions_isoformswitchanalyzer:
     - "versions.yml":
         type: file
@@ -132,3 +176,27 @@ authors:
   - "@piplus2"
 maintainers:
   - "@piplus2"
+containers:
+  docker:
+    linux/amd64:
+      name: community.wave.seqera.io/library/bioconductor-isoformswitchanalyzer_r-mass:93f7b7863f699086
+      build_id: bd-93f7b7863f699086_1
+      scan_id: sc-00d4c5d01a469b1c_1
+    linux/arm64:
+      name: community.wave.seqera.io/library/bioconductor-isoformswitchanalyzer_r-mass:d198861a00a2503d
+      build_id: bd-d198861a00a2503d_1
+      scan_id: sc-52ca8a2d44eb2888_1
+  singularity:
+    linux/amd64:
+      name: oras://community.wave.seqera.io/library/bioconductor-isoformswitchanalyzer_r-mass:6ca59e328b31242e
+      build_id: bd-6ca59e328b31242e_1
+      https: https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/c5/c5dc4e54fdd4387ec788d763a80f73691870d1ba9451e5d7518f1f8d0499ffcf/data
+    linux/arm64:
+      name: oras://community.wave.seqera.io/library/bioconductor-isoformswitchanalyzer_r-mass:29340c3186940074
+      build_id: bd-29340c3186940074_1
+      https: https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/9f/9fea74b2bf01a788a11a2763cfe87534f0432b4183a3782387d3f8a2f2ec43cb/data
+  conda:
+    linux/amd64:
+      lock_file: modules/local/isoformswitchanalyzer/.conda-lock/linux_amd64-bd-93f7b7863f699086_1.txt
+    linux/arm64:
+      lock_file: modules/local/isoformswitchanalyzer/.conda-lock/linux_arm64-bd-d198861a00a2503d_1.txt

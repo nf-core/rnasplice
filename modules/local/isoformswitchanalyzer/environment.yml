@@ -1,7 +1,8 @@
----
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/environment-schema.json
 channels:
   - conda-forge
   - bioconda
 dependencies:
   - "bioconda::bioconductor-isoformswitchanalyzer=2.12.0"
+  # Only suggested by limma, but needed by the robust batch correction of importRdata
+  - "conda-forge::r-mass=7.3_66"
