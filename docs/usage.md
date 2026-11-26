@@ -39,17 +39,19 @@ The samplesheet can have as many columns as you desire, however, there is a stri
 | `transcriptome_bam` | Full path to aligned transcriptome file, derived from splicing aware mapper (STAR, HiSat, etc). File has to be in ".bam" format.                                                                                                                                               |
 | `salmon_results`    | Full path to the result folder produced by salmon quantification.                                                                                                                                                                                                              |
 
-In the case of paired differential splicing analysis (e.g., with `rMATS`), the treatment and control samples order must match:
+In the case of paired differential splicing analysis (e.g., with `rMATS`), the treatment and control samples order must match: the n-th sample of the treatment condition is paired with the n-th sample of the control condition. All samples need the same strandedness.
 
 ```csv
 sample,fastq_1,fastq_2,strandedness,condition
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz,forward,treatment
-CONTROL_REP2,AEG588A2_S2_L002_R1_001.fastq.gz,AEG588A2_S2_L002_R2_001.fastq.gz,forward,treatment
-CONTROL_REP3,AEG588A3_S3_L002_R1_001.fastq.gz,AEG588A3_S3_L002_R2_001.fastq.gz,forward,treatment
-TREATMENT_REP1,AEG588A4_S4_L003_R1_001.fastq.gz,AEG588A4_S4_L003_R2_001.fastq.gz,reverse,control
-TREATMENT_REP2,AEG588A5_S5_L003_R1_001.fastq.gz,AEG588A5_S5_L003_R2_001.fastq.gz,reverse,control
-TREATMENT_REP3,AEG588A6_S6_L003_R1_001.fastq.gz,AEG588A6_S6_L003_R2_001.fastq.gz,reverse,control
+CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz,reverse,control
+CONTROL_REP2,AEG588A2_S2_L002_R1_001.fastq.gz,AEG588A2_S2_L002_R2_001.fastq.gz,reverse,control
+CONTROL_REP3,AEG588A3_S3_L002_R1_001.fastq.gz,AEG588A3_S3_L002_R2_001.fastq.gz,reverse,control
+TREATMENT_REP1,AEG588A4_S4_L003_R1_001.fastq.gz,AEG588A4_S4_L003_R2_001.fastq.gz,reverse,treatment
+TREATMENT_REP2,AEG588A5_S5_L003_R1_001.fastq.gz,AEG588A5_S5_L003_R2_001.fastq.gz,reverse,treatment
+TREATMENT_REP3,AEG588A6_S6_L003_R1_001.fastq.gz,AEG588A6_S6_L003_R2_001.fastq.gz,reverse,treatment
 ```
+
+Here `CONTROL_REP1` is paired with `TREATMENT_REP1`, and so on. The `{contrast}_paired.samples.tsv` table of the rMATS results shows the pairs, see the [rMATS output](output.md#rmats).
 
 ### Strandedness
 

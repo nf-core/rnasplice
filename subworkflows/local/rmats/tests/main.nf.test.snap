@@ -475,6 +475,12 @@
                         "ERR204916.rmats:md5,d41d8cd98f00b204e9800998ecf8427e"
                     ]
                 ],
+                "samples": [
+                    [
+                        "GBR-YRI",
+                        "GBR-YRI.samples.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
                 "summary": [
                     [
                         {
@@ -487,10 +493,10 @@
                 ]
             }
         ],
-        "timestamp": "2026-10-29T11:54:41.912242217",
+        "timestamp": "2026-11-26T10:47:35.187058036",
         "meta": {
-            "nf-test": "0.9.5",
-            "nextflow": "26.04.3"
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
         }
     },
     "homo_sapiens - two contrasts - unpaired": {

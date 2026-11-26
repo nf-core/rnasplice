@@ -485,12 +485,41 @@ If [IsoformSwitchAnalyzeR](https://www.bioconductor.org/packages/release/bioc/ht
   - `prep/{sample}.rmats`: Splicing graph and candidate reads of each sample, the output of the rMATS prep step and the input of the post step.
   - `prep/{sample}_read_outcomes_by_bam.txt`: Number of reads of each sample used by rMATS, and how many were dropped for each reason (clipped, not paired, unexpected length and so on).
   - `bamlist/{condition}_bamlist.txt`: Comma separated list of the BAM files of each condition, as given to rMATS.
+  - `{contrast}{_paired}.samples.tsv`: Table of the samples of the contrast, naming the sample behind each value of the per-sample rMATS columns (see [Which sample is which](#which-sample-is-which)).
   - `{contrast}{_paired}/*`: Folder containing the results of differential alternative splicing of the contrast in .txt files. A suffix `_paired` is added to the folder name if the paired analysis option is used.
   - `{contrast}{_paired}.log`: Log file of the rMATS post step of the contrast.
 
 </details>
 
 [rMATS](https://github.com/Xinglab/rmats-turbo) is a tool which runs differential alternative splicing analysis on RNA-seq data. We implement the tool from BAM files after STAR alignment. The prep step reads each BAM file once, then the post step of each contrast detects and counts the splicing events from the `.rmats` files of its samples and tests them for differential splicing. Further details regarding rMATS output can be found [here](https://github.com/Xinglab/rmats-turbo/blob/v4.3.0/README.md#output), and these files are saved within the `{contrast}/` folder. With a single condition the contrast is named `{condition}_profiling` and the events are only counted, not tested.
+
+#### Which sample is which
+
+rMATS writes the per-sample values of its results as comma separated lists, and never names the samples. For example, a line of `treated_vs_control/SE.MATS.JC.txt` (columns trimmed, values illustrative):
+
+```
+GeneID           geneSymbol  IJC_SAMPLE_1  SJC_SAMPLE_1  IJC_SAMPLE_2  SJC_SAMPLE_2  IncLevel1          IncLevel2          IncLevelDifference
+ENSG00000147140  NONO        45,38,51      5,7,4         20,18,25      22,19,21      0.818,0.731,0.864  0.312,0.321,0.373  0.469
+```
+
+Two things tell you whose values these are:
+
+- Group: the target (treatment) condition of the contrast is passed to rMATS as `--b1`, so it is `SAMPLE_1` (and `IncLevel1`), and the reference (control) condition is `--b2`, so it is `SAMPLE_2` (and `IncLevel2`). `IncLevelDifference` is the average of `IncLevel1` minus the average of `IncLevel2`, so it is treatment minus control, as in the SUPPA2 and DEXSeq results. In a single condition run there is only `SAMPLE_1`.
+- Position: within each group, the values follow the order of the samples in the samplesheet, which is the order of the BAM files in `bamlist/`.
+
+`{contrast}{_paired}.samples.tsv` spells this out, one row per sample:
+
+```
+contrast            rmats_group  position  sample          condition  role       bam
+treated_vs_control  SAMPLE_1     1         TREATMENT_REP1  treatment  target     TREATMENT_REP1_sorted.bam
+treated_vs_control  SAMPLE_1     2         TREATMENT_REP2  treatment  target     TREATMENT_REP2_sorted.bam
+treated_vs_control  SAMPLE_1     3         TREATMENT_REP3  treatment  target     TREATMENT_REP3_sorted.bam
+treated_vs_control  SAMPLE_2     1         CONTROL_REP1    control    reference  CONTROL_REP1_sorted.bam
+treated_vs_control  SAMPLE_2     2         CONTROL_REP2    control    reference  CONTROL_REP2_sorted.bam
+treated_vs_control  SAMPLE_2     3         CONTROL_REP3    control    reference  CONTROL_REP3_sorted.bam
+```
+
+So the second value of `IncLevel1` above belongs to `TREATMENT_REP2`. The `role` is `profiling` in a single condition run. The table is written from the same inputs as the bam lists, so it always matches what rMATS ran on. With `--rmats_paired_stats` the rows with the same position are the pairs.
 
 ### SUPPA2
 

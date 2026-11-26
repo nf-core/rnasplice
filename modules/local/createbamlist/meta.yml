@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
 name: "createbamlist"
 description: Write the comma separated BAM file lists of the conditions of an rMATS
-  run, which rMATS reads with `--b1` and `--b2`
+  run, which rMATS reads with `--b1` and `--b2`, and a table of the samples behind them
 keywords:
   - rmats
   - alternative splicing
@@ -24,6 +24,9 @@ input:
     - cond1:
         type: string
         description: Name of the first condition, the treatment of the contrast
+    - ids1:
+        type: list
+        description: Sample ids of the first condition, in the order of its BAM files
     - bam1:
         type: file
         description: BAM files of the first condition, in the order to list them
@@ -34,6 +37,10 @@ input:
         type: string
         description: Name of the second condition, the control of the contrast. Empty
           in single condition mode
+    - ids2:
+        type: list
+        description: Sample ids of the second condition, in the order of its BAM files.
+          An empty list in single condition mode
     - bam2:
         type: file
         description: BAM files of the second condition, in the order to list them.
@@ -65,6 +72,17 @@ output:
           pattern: "*_bamlist.txt"
           ontologies:
             - edam: "http://edamontology.org/format_2330" # Textual format
+  samples:
+    - - contrast:
+          type: string
+          description: Name of the rMATS run
+      - "*.samples.tsv":
+          type: file
+          description: Table with the sample, condition, role and BAM file behind each
+            position of the rMATS `_SAMPLE_1` and `_SAMPLE_2` columns
+          pattern: "*.samples.tsv"
+          ontologies:
+            - edam: "http://edamontology.org/format_3475" # TSV
   versions_sed:
     - - ${task.process}:
           type: string

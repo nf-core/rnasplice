@@ -20,11 +20,13 @@ nextflow_process {
                 input[0] = [
                     'GBR-YRI',
                     'GBR',
+                    [ 'ERR188428', 'ERR188383' ],
                     [
                         file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true),
                         file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true),
                     ],
                     'YRI',
+                    [ 'ERR188454', 'ERR204916' ],
                     [
                         file(params.pipelines_testdata_base_path + 'testdata/ERR188454.Aligned.out.bam', checkIfExists: true),
                         file(params.pipelines_testdata_base_path + 'testdata/ERR204916.Aligned.out.bam', checkIfExists: true),
@@ -41,6 +43,14 @@ nextflow_process {
                 { assert path(process.out.bam_list1[0][1]).text == 'ERR188428.Aligned.out.bam,ERR188383.Aligned.out.bam\n' },
                 { assert file(process.out.bam_list2[0][1]).name == 'YRI_bamlist.txt' },
                 { assert path(process.out.bam_list2[0][1]).text == 'ERR188454.Aligned.out.bam,ERR204916.Aligned.out.bam\n' },
+                { assert file(process.out.samples[0][1]).name == 'GBR-YRI_paired.samples.tsv' },
+                { assert path(process.out.samples[0][1]).readLines() == [
+                    'contrast\trmats_group\tposition\tsample\tcondition\trole\tbam',
+                    'GBR-YRI\tSAMPLE_1\t1\tERR188428\tGBR\ttarget\tERR188428.Aligned.out.bam',
+                    'GBR-YRI\tSAMPLE_1\t2\tERR188383\tGBR\ttarget\tERR188383.Aligned.out.bam',
+                    'GBR-YRI\tSAMPLE_2\t1\tERR188454\tYRI\treference\tERR188454.Aligned.out.bam',
+                    'GBR-YRI\tSAMPLE_2\t2\tERR204916\tYRI\treference\tERR204916.Aligned.out.bam',
+                ] },
                 { assert snapshot(sanitizeOutput(process.out)).match() }
             )
         }
@@ -55,8 +65,10 @@ nextflow_process {
                 input[0] = [
                     'GBR_profiling',
                     'GBR',
+                    [ 'ERR188383' ],
                     file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true),
                     '',
+                    [],
                     []
                 ]
                 """
@@ -69,6 +81,10 @@ nextflow_process {
                 { assert path(process.out.bam_list1[0][1]).text == 'ERR188383.Aligned.out.bam\n' },
                 // There is no second condition, so there is no bam list 2
                 { assert process.out.bam_list2.size() == 0 },
+                { assert path(process.out.samples[0][1]).readLines() == [
+                    'contrast\trmats_group\tposition\tsample\tcondition\trole\tbam',
+                    'GBR_profiling\tSAMPLE_1\t1\tERR188383\tGBR\tprofiling\tERR188383.Aligned.out.bam',
+                ] },
                 { assert snapshot(sanitizeOutput(process.out)).match() }
             )
         }
@@ -85,11 +101,13 @@ nextflow_process {
                 input[0] = [
                     'GBR-YRI',
                     'GBR',
+                    [ 'ERR188383', 'ERR188428' ],
                     [
                         file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true),
                         file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true),
                     ],
                     'YRI',
+                    [ 'ERR188454', 'ERR204916' ],
                     [
                         file(params.pipelines_testdata_base_path + 'testdata/ERR188454.Aligned.out.bam', checkIfExists: true),
                         file(params.pipelines_testdata_base_path + 'testdata/ERR204916.Aligned.out.bam', checkIfExists: true),
@@ -118,8 +136,10 @@ nextflow_process {
                 input[0] = [
                     'GBR_profiling',
                     'GBR',
+                    [ 'ERR188383' ],
                     file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true),
                     '',
+                    [],
                     []
                 ]
                 """
