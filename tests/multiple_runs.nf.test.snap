@@ -11,6 +11,9 @@
                 "CUSTOM_GTFFILTER": {
                     "python": "3.14.5"
                 },
+                "CUSTOM_TX2GENE": {
+                    "python": "3.10.4"
+                },
                 "FASTQC": {
                     "fastqc": "0.13.0"
                 },
@@ -71,19 +74,21 @@
                     "samtools": "1.21",
                     "star": "2.7.11b"
                 },
+                "SUPPATPM": {
+                    "cut": "9.5"
+                },
                 "TRIMGALORE": {
                     "trimgalore": "2.3.0"
                 },
                 "TXIMPORT": {
-                    "bioconductor-tximeta": "1.28.2",
-                    "bioconductor-tximport": "1.38.2"
+                    "bioconductor-tximeta": "1.20.1"
                 },
                 "Workflow": {
                     "nf-core/rnasplice": "v2.0.1dev"
                 }
             }
         ],
-        "timestamp": "2026-11-25T12:49:26.986031966",
+        "timestamp": "2026-11-26T00:07:50.31669076",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"

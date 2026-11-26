@@ -8,6 +8,12 @@
                 "CREATEBAMLIST": {
                     "sed": "4.9"
                 },
+                "CSVTK_JOIN": {
+                    "csvtk": "0.37.0"
+                },
+                "CUSTOM_TX2GENE": {
+                    "python": "3.10.4"
+                },
                 "DEXSEQ_COUNT": {
                     "bioconductor-dexseq": "1.56.0",
                     "htseq": "2.1.2"
@@ -28,9 +34,10 @@
                     "bioconductor-drimseq": "1.18.0",
                     "r-base": "4.0.3"
                 },
-                "EDGER_EXON": {
-                    "bioconductor-edger": "3.36.0",
-                    "r-base": "4.1.1"
+                "EDGER_DIFFSPLICE": {
+                    "bioconductor-edger": "4.10.5",
+                    "bioconductor-limma": "3.68.5",
+                    "r-base": "4.5.3"
                 },
                 "GENEANNOTATION_ANNOTATE": {
                     "python": "3.14.6"
@@ -127,6 +134,9 @@
                 "SUBREAD_FLATTENGTF": {
                     "subread": "flattenGTF Version 2.0.1"
                 },
+                "SUPPATPM": {
+                    "cut": "9.5"
+                },
                 "SUPPA_CLUSTEREVENTS": {
                     "statsmodels": "0.14.6",
                     "suppa": "2.4"
@@ -152,8 +162,7 @@
                     "suppa": "2.4"
                 },
                 "TXIMPORT": {
-                    "bioconductor-tximeta": "1.28.2",
-                    "bioconductor-tximport": "1.38.2"
+                    "bioconductor-tximeta": "1.20.1"
                 },
                 "Workflow": {
                     "nf-core/rnasplice": "v2.0.1dev"
@@ -571,32 +580,31 @@
                 "star_salmon/dexseq_exon/results/YRI-GBR.dexseq.results.rds",
                 "star_salmon/dexseq_exon/results/YRI-GBR.dexseq.results.tsv",
                 "star_salmon/edger",
-                "star_salmon/edger/DGEGLM.rds",
-                "star_salmon/edger/DGELRT.exprs.rds",
-                "star_salmon/edger/DGELRT.usage.rds",
-                "star_salmon/edger/DGEList.rds",
-                "star_salmon/edger/contrast_GBR-YRI.exprs.annotated.csv",
-                "star_salmon/edger/contrast_GBR-YRI.exprs.csv",
-                "star_salmon/edger/contrast_GBR-YRI.usage.exon.annotated.csv",
-                "star_salmon/edger/contrast_GBR-YRI.usage.exon.csv",
-                "star_salmon/edger/contrast_GBR-YRI.usage.exon.pdf",
-                "star_salmon/edger/contrast_GBR-YRI.usage.gene.annotated.csv",
-                "star_salmon/edger/contrast_GBR-YRI.usage.gene.csv",
-                "star_salmon/edger/contrast_GBR-YRI.usage.gene.pdf",
-                "star_salmon/edger/contrast_GBR-YRI.usage.simes.annotated.csv",
-                "star_salmon/edger/contrast_GBR-YRI.usage.simes.csv",
-                "star_salmon/edger/contrast_GBR-YRI.usage.simes.pdf",
-                "star_salmon/edger/contrast_YRI-GBR.exprs.annotated.csv",
-                "star_salmon/edger/contrast_YRI-GBR.exprs.csv",
-                "star_salmon/edger/contrast_YRI-GBR.usage.exon.annotated.csv",
-                "star_salmon/edger/contrast_YRI-GBR.usage.exon.csv",
-                "star_salmon/edger/contrast_YRI-GBR.usage.exon.pdf",
-                "star_salmon/edger/contrast_YRI-GBR.usage.gene.annotated.csv",
-                "star_salmon/edger/contrast_YRI-GBR.usage.gene.csv",
-                "star_salmon/edger/contrast_YRI-GBR.usage.gene.pdf",
-                "star_salmon/edger/contrast_YRI-GBR.usage.simes.annotated.csv",
-                "star_salmon/edger/contrast_YRI-GBR.usage.simes.csv",
-                "star_salmon/edger/contrast_YRI-GBR.usage.simes.pdf",
+                "star_salmon/edger/GBR-YRI.DGEGLM.edger.rds",
+                "star_salmon/edger/GBR-YRI.DGELRT.edger.rds",
+                "star_salmon/edger/GBR-YRI.R_sessionInfo.log",
+                "star_salmon/edger/GBR-YRI.edger.bcv.png",
+                "star_salmon/edger/GBR-YRI.edger.diffsplice.gene.annotated.tsv",
+                "star_salmon/edger/GBR-YRI.edger.diffsplice.gene.tsv",
+                "star_salmon/edger/GBR-YRI.edger.diffsplice.pdf",
+                "star_salmon/edger/GBR-YRI.edger.diffsplice.results.annotated.tsv",
+                "star_salmon/edger/GBR-YRI.edger.diffsplice.results.tsv",
+                "star_salmon/edger/GBR-YRI.edger.diffsplice.simes.annotated.tsv",
+                "star_salmon/edger/GBR-YRI.edger.diffsplice.simes.tsv",
+                "star_salmon/edger/GBR-YRI.edger.model.txt",
+                "star_salmon/edger/YRI-GBR.DGEGLM.edger.rds",
+                "star_salmon/edger/YRI-GBR.DGELRT.edger.rds",
+                "star_salmon/edger/YRI-GBR.R_sessionInfo.log",
+                "star_salmon/edger/YRI-GBR.edger.bcv.png",
+                "star_salmon/edger/YRI-GBR.edger.diffsplice.gene.annotated.tsv",
+                "star_salmon/edger/YRI-GBR.edger.diffsplice.gene.tsv",
+                "star_salmon/edger/YRI-GBR.edger.diffsplice.pdf",
+                "star_salmon/edger/YRI-GBR.edger.diffsplice.results.annotated.tsv",
+                "star_salmon/edger/YRI-GBR.edger.diffsplice.results.tsv",
+                "star_salmon/edger/YRI-GBR.edger.diffsplice.simes.annotated.tsv",
+                "star_salmon/edger/YRI-GBR.edger.diffsplice.simes.tsv",
+                "star_salmon/edger/YRI-GBR.edger.model.txt",
+                "star_salmon/edger/edger_exon.tsv",
                 "star_salmon/featurecounts",
                 "star_salmon/featurecounts/ERR188383.featureCounts.tsv",
                 "star_salmon/featurecounts/ERR188383.featureCounts.tsv.summary",
@@ -837,35 +845,27 @@
                 "star_salmon/suppa/split_files/tpms/GBR.tpm",
                 "star_salmon/suppa/split_files/tpms/YRI.tpm",
                 "star_salmon/tximport",
+                "star_salmon/tximport/genes_chrX.tx2gene.tsv",
                 "star_salmon/tximport/salmon.merged.gene_counts.tsv",
                 "star_salmon/tximport/salmon.merged.gene_counts_length_scaled.tsv",
                 "star_salmon/tximport/salmon.merged.gene_counts_scaled.tsv",
+                "star_salmon/tximport/salmon.merged.gene_lengths.tsv",
                 "star_salmon/tximport/salmon.merged.gene_tpm.tsv",
-                "star_salmon/tximport/salmon.merged.gene_tpm_length_scaled.tsv",
-                "star_salmon/tximport/salmon.merged.gene_tpm_scaled.tsv",
-                "star_salmon/tximport/salmon.merged.gi.ls.rds",
-                "star_salmon/tximport/salmon.merged.gi.rds",
-                "star_salmon/tximport/salmon.merged.gi.s.rds",
                 "star_salmon/tximport/salmon.merged.transcript_counts.tsv",
                 "star_salmon/tximport/salmon.merged.transcript_counts_dtu_scaled.tsv",
-                "star_salmon/tximport/salmon.merged.transcript_counts_length_scaled.tsv",
                 "star_salmon/tximport/salmon.merged.transcript_counts_scaled.tsv",
+                "star_salmon/tximport/salmon.merged.transcript_lengths.tsv",
                 "star_salmon/tximport/salmon.merged.transcript_tpm.tsv",
-                "star_salmon/tximport/salmon.merged.transcript_tpm_dtu_scaled.tsv",
-                "star_salmon/tximport/salmon.merged.transcript_tpm_length_scaled.tsv",
-                "star_salmon/tximport/salmon.merged.transcript_tpm_scaled.tsv",
-                "star_salmon/tximport/salmon.merged.txi.dtu.rds",
-                "star_salmon/tximport/salmon.merged.txi.ls.rds",
-                "star_salmon/tximport/salmon.merged.txi.rds",
-                "star_salmon/tximport/salmon.merged.txi.s.rds",
-                "star_salmon/tximport/suppa_tpm.txt",
-                "star_salmon/tximport/tximport.tx2gene.tsv"
+                "star_salmon/tximport/salmon.merged.tx2gene_augmented.tsv",
+                "star_salmon/tximport/suppa_tpm.txt"
             ],
             [
                 "isoformswitchanalyzer_summary.csv:md5,4b2ab1b387ded8f479d7cfa96893e93b",
-                "genes_chrX_genes.gff3:md5,8143d91e8c2057f1b56e8a19dfb75413",
+                "genes_chrX_genes.gff3:md5,c0467de65939b63d98ff90a803a79622",
                 "genes.gff:md5,96be13c1360e34dd9e565d9ac9a5a7bf",
                 "miso_settings.txt:md5,c092cc3e878a299674a99c508b6b2e72",
+                "GBR-YRI.edger.model.txt:md5,4280bed61961e287d9ea1488de88160c",
+                "YRI-GBR.edger.model.txt:md5,4280bed61961e287d9ea1488de88160c",
                 "ERR188383.featureCounts.tsv.summary:md5,e380ce0b5fecd27ee8482469fcb85a42",
                 "ERR188428.featureCounts.tsv.summary:md5,5d33bad50a096a5135063c3a4756585a",
                 "ERR188454.featureCounts.tsv.summary:md5,a5f54a5725d1bc853eca2f5e6dcab218",
@@ -972,7 +972,7 @@
                 "ERR204916_sorted.bam": "d04f778c726310a919eb676fe3432716"
             }
         ],
-        "timestamp": "2026-11-24T18:25:23.206798338",
+        "timestamp": "2026-11-26T00:09:17.577078975",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"

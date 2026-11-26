@@ -1,11 +1,11 @@
 {
-    "human chrX - tximport dtuScaledTPM": {
+    "human chrX - tximport transcript counts": {
         "content": [
             [
                 "samples.tsv:md5,f6e0ec8b6224e91786128ae8c20cb90d"
             ],
             [
-                "counts.tsv:md5,9fa7a4570ec422431d4f5352b4ab3422"
+                "counts.tsv:md5,39b27aa5623eb069eca3aa9718160f76"
             ],
             [
                 "dmDSdata.rds"
@@ -59,7 +59,7 @@
                     },
                     "GBR-YRI.dexseq.results.tsv",
                     "groupID\tfeatureID\texonBaseMean\tdispersion\tstat\tpvalue\tpadj\tYRI\tGBR\tlog2fold_GBR_YRI\tcountData.1\tcountData.2\tcountData.3\tcountData.4",
-                    34
+                    56
                 ],
                 [
                     {
@@ -67,7 +67,7 @@
                     },
                     "YRI-GBR.dexseq.results.tsv",
                     "groupID\tfeatureID\texonBaseMean\tdispersion\tstat\tpvalue\tpadj\tGBR\tYRI\tlog2fold_YRI_GBR\tcountData.1\tcountData.2\tcountData.3\tcountData.4",
-                    34
+                    56
                 ]
             ],
             [
@@ -77,7 +77,7 @@
                     },
                     "GBR-YRI.dexseq.gene_qvalues.tsv",
                     "groupID\tpadj",
-                    15
+                    23
                 ],
                 [
                     {
@@ -85,7 +85,7 @@
                     },
                     "YRI-GBR.dexseq.gene_qvalues.tsv",
                     "groupID\tpadj",
-                    15
+                    23
                 ]
             ],
             [
@@ -123,7 +123,7 @@
                     },
                     "getAdjustedPValues.GBR-YRI.tsv",
                     "geneID\ttxID\tgene\ttranscript",
-                    34
+                    56
                 ],
                 [
                     {
@@ -131,7 +131,7 @@
                     },
                     "getAdjustedPValues.YRI-GBR.tsv",
                     "geneID\ttxID\tgene\ttranscript",
-                    34
+                    56
                 ]
             ],
             [
@@ -141,7 +141,7 @@
                     },
                     "GBR-YRI.dexseq.gene_qvalues.annotated.tsv",
                     "groupID\tgene_name\tgene_biotype\tpadj",
-                    15
+                    23
                 ],
                 [
                     {
@@ -149,7 +149,7 @@
                     },
                     "GBR-YRI.dexseq.results.annotated.tsv",
                     "groupID\tgene_name\tgene_biotype\tfeatureID\texonBaseMean\tdispersion\tstat\tpvalue\tpadj\tYRI\tGBR\tlog2fold_GBR_YRI\tcountData.1\tcountData.2\tcountData.3\tcountData.4",
-                    34
+                    56
                 ],
                 [
                     {
@@ -157,7 +157,7 @@
                     },
                     "YRI-GBR.dexseq.gene_qvalues.annotated.tsv",
                     "groupID\tgene_name\tgene_biotype\tpadj",
-                    15
+                    23
                 ],
                 [
                     {
@@ -165,7 +165,7 @@
                     },
                     "YRI-GBR.dexseq.results.annotated.tsv",
                     "groupID\tgene_name\tgene_biotype\tfeatureID\texonBaseMean\tdispersion\tstat\tpvalue\tpadj\tGBR\tYRI\tlog2fold_YRI_GBR\tcountData.1\tcountData.2\tcountData.3\tcountData.4",
-                    34
+                    56
                 ]
             ],
             [
@@ -175,7 +175,7 @@
                     },
                     "getAdjustedPValues.GBR-YRI.annotated.tsv",
                     "geneID\tgene_name\tgene_biotype\ttxID\tgene\ttranscript",
-                    34
+                    56
                 ],
                 [
                     {
@@ -183,17 +183,17 @@
                     },
                     "getAdjustedPValues.YRI-GBR.annotated.tsv",
                     "geneID\tgene_name\tgene_biotype\ttxID\tgene\ttranscript",
-                    34
+                    56
                 ]
             ]
         ],
-        "timestamp": "2026-11-23T08:46:21.712619749",
+        "timestamp": "2026-11-25T23:40:18.56201217",
         "meta": {
-            "nf-test": "0.9.5",
-            "nextflow": "26.04.3"
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
         }
     },
-    "human chrX - tximport dtuScaledTPM - stub": {
+    "human chrX - tximport transcript counts - stub": {
         "content": [
             [
                 "dmDSdata.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
@@ -357,10 +357,10 @@
                 ]
             ]
         ],
-        "timestamp": "2026-11-23T08:46:34.299024908",
+        "timestamp": "2026-11-25T23:40:36.466426817",
         "meta": {
-            "nf-test": "0.9.5",
-            "nextflow": "26.04.3"
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
         }
     }
 }
