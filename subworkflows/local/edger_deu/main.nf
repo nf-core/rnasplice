@@ -52,14 +52,17 @@ workflow EDGER_DEU {
         .flatMap { row -> row.blocking ? row.blocking.tokenize(';') : [] }
         .unique()
         .toSortedList()
+        .map { columns -> [columns] }
 
     ch_sample_rows = ch_samplesheet
         .splitCsv(header: true)
         .unique { row -> row.sample }
         .toList()
+        .map { rows -> [rows] }
 
     ch_edger_samplesheet = ch_genome_bam
         .toList()
+        .map { bams -> [bams] }
         .combine(ch_blocking_columns)
         .combine(ch_sample_rows)
         .map { bams, blocking_columns, rows ->
