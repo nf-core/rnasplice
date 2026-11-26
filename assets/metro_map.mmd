@@ -7,7 +7,7 @@
 %%metro font_scale: 1.6
 %%metro stroke_scale: 1.5
 %%metro x_spacing: 120
-%%metro section_x_gap: 85
+%%metro section_x_padding: 75
 %%metro file: fastq_in | FASTQ | Reads
 %%metro file: genome_bam_in | BAM | Genome
 %%metro file: transcriptome_bam_in | BAM | Transcriptome
@@ -31,7 +31,8 @@
 %%metro grid: preprocessing | 0,0,2
 %%metro grid: genome_qc | 1,0
 %%metro grid: exon_analysis | 2,0
-%%metro grid: transcript_analysis | 1,1,1,2
+%%metro grid: transcript_quant | 1,1
+%%metro grid: transcript_analysis | 2,1
 
 %% Process mappings for live progress (nf-metro serve) and nf-metro check-mapping
 %%metro process_scope: NFCORE_RNASPLICE:RNASPLICE
@@ -198,12 +199,20 @@ graph LR
         leafcutter -->|event| event_exon_out
     end
 
-    subgraph transcript_analysis [Transcript based analysis]
+    subgraph transcript_quant [Transcript quantification]
         %%metro number: 4
         transcriptome_bam_in[ ]
         salmon_in[ ]
         salmon[Salmon]
         tximport[tximport]
+
+        transcriptome_bam_in -->|event,dtu| salmon
+        salmon -->|event,dtu| tximport
+        salmon_in -->|event,dtu| tximport
+    end
+
+    subgraph transcript_analysis [Transcript based analysis]
+        %%metro number: 5
         _tx[hidden]
         suppa_events[SUPPA events]
         suppa_psi[SUPPA PSI]
@@ -216,10 +225,6 @@ graph LR
         event_tx_out[ ]
         dtu_out[ ]
 
-        transcriptome_bam_in -->|event,dtu| salmon
-        salmon -->|event,dtu| tximport
-        salmon_in -->|event,dtu| tximport
-        tximport -->|event,dtu| _tx
         _tx -->|event| suppa_events
         _tx -->|dtu| isar
         _tx -->|dtu| drimseq
@@ -238,4 +243,5 @@ graph LR
     samtools -->|qc| bedtools
     samtools -->|qc| miso
     samtools -->|event,deu| _split
+    tximport -->|event,dtu| _tx
     samtools -->|event,dtu| salmon
