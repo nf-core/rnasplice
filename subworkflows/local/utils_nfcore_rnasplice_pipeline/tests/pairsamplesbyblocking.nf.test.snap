@@ -1,0 +1,21 @@
+{
+    "donor pairs the samples, which are put in the order of the donor": {
+        "content": [
+            {
+                "ids1": [
+                    "a1",
+                    "a2"
+                ],
+                "ids2": [
+                    "b1",
+                    "b2"
+                ]
+            }
+        ],
+        "timestamp": "2026-11-26T20:06:14.634363685",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
+        }
+    }
+}
