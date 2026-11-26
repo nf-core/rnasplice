@@ -154,10 +154,10 @@
             },
             "url": [
                 "https://github.com/nf-core/rnasplice",
-                "https://nf-co.re/rnasplice/2.0.0/"
+                "https://nf-co.re/rnasplice/2.0.1/"
             ],
             "version": [
-                "2.0.0"
+                "2.0.1"
             ]
         },
         {
