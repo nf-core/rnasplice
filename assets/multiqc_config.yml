@@ -5,8 +5,12 @@ report_comment: >
 report_section_order:
   splicing:
     order: -900
-  rmats:
+  splicing_suppa2:
     order: -901
+  splicing_leafcutter:
+    order: -902
+  rmats:
+    order: -903
   "nf-core-rnasplice-methods-description":
     order: -1000
   # nf-core lint asks for software_versions; MultiQC orders the section by its anchor
@@ -20,17 +24,17 @@ report_section_order:
     order: 0
   splicing_design_check:
     order: 1
-  suppa_psi_concordance:
-    order: 2
   differential_splicing:
-    order: 3
-  leafcutter_cluster_test_outcomes:
-    order: 4
-  suppa_significant_events:
-    order: 5
+    order: 2
   splicing_method_agreement:
-    order: 6
+    order: 3
   splicing_pvalue_histograms:
+    order: 4
+  suppa_psi_concordance:
+    order: 5
+  suppa_significant_events:
+    order: 6
+  leafcutter_cluster_test_outcomes:
     order: 7
 
 export_plots: true

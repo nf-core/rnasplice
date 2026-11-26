@@ -79,6 +79,8 @@ nextflow_process {
                 { assert sections('splicing_verdict').data.contains('Design: 1 vs 1 samples per contrast. Spliced reads per sample: median 150 (range 100 to 200).') },
                 { assert sections('splicing_verdict').data.contains('Treat the calls below as exploratory.') },
                 { assert sections('differential_splicing').parent_id == 'splicing' },
+                { assert sections('suppa_significant_events').subMap(['parent_id', 'parent_name', 'section_name']) == [parent_id: 'splicing_suppa2', parent_name: 'SUPPA2', section_name: 'Significant Events'] },
+                { assert sections('leafcutter_cluster_test_outcomes').parent_id == 'splicing_leafcutter' },
                 { assert sections('differential_splicing').helptext },
                 { assert sections('differential_splicing').data == [
                     'A-B': [

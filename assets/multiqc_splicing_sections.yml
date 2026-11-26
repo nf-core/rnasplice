@@ -2,10 +2,20 @@
 # CUSTOM_SPLICINGSUMMARY fills with the numbers it computes. {name} fields are filled in by
 # Python's str.format, so a literal brace has to be doubled
 
-parent:
-  parent_id: splicing
-  parent_name: Splicing
-  parent_description: Whether the data supported the splicing analyses, what they found and whether they agree, computed by the pipeline from their result tables.
+# Sections sit under the splicing parent unless they name another
+parents:
+  splicing:
+    parent_id: splicing
+    parent_name: Splicing
+    parent_description: Whether the data supported the splicing analyses, what they found and whether they agree, computed by the pipeline from their result tables.
+  suppa2:
+    parent_id: splicing_suppa2
+    parent_name: SUPPA2
+    parent_description: SUPPA2 event and transcript PSI, computed by the pipeline from the SUPPA2 result tables.
+  leafcutter:
+    parent_id: splicing_leafcutter
+    parent_name: LeafCutter
+    parent_description: LeafCutter intron cluster testing, computed by the pipeline from the LeafCutter result tables.
 
 references: |-
   References:
@@ -436,7 +446,8 @@ sections:
       details_below: "Runs below documented guidance: {items}."
 
   suppa_psi_concordance:
-    section_name: "SUPPA2: PSI Concordance"
+    section_name: PSI Concordance
+    parent: suppa2
     plot_type: heatmap
     description: Spearman correlation of PSI between samples ({total} events quantified in every sample, mean PSI 0.05-0.95).{route}{few}
     helptext: |-
@@ -540,7 +551,8 @@ sections:
       reciprocal: " Contrasts in the Reverse of column test the same comparison in reverse, so they are not independent findings; for some tools, such as rMATS with paired statistics, their calls can differ slightly."
 
   leafcutter_cluster_test_outcomes:
-    section_name: "LeafCutter: Cluster Test Outcomes"
+    section_name: Cluster Test Outcomes
+    parent: leafcutter
     plot_type: bargraph
     description: "Outcome of the differential splicing test of each intron cluster, one bar per contrast, with leafcutter_ds run with -g {leafcutter_min_samples_per_group} (`--leafcutter_ds_min_samples_per_group`), -i {leafcutter_min_samples_per_intron} (`--leafcutter_ds_min_samples_per_intron`) and -c {leafcutter_min_coverage} (`--leafcutter_ds_min_coverage`). Significant: adjusted p < {fdr:g}. Many 'Not tested' clusters usually mean too few samples per group or too little depth, not an absence of splicing changes. Very few clusters in total means too few junction reads for clustering (see LeafCutter Junction Reads in General Statistics)."
     helptext: |-
@@ -584,7 +596,8 @@ sections:
       error: { name: "Not tested: error", color: "#262626" }
 
   suppa_significant_events:
-    section_name: "SUPPA2: Significant Events"
+    section_name: Significant Events
+    parent: suppa2
     plot_type: bargraph
     description: "Significant SUPPA2 events by type and direction ({suppa_correction} p < {suppa_alpha:g}, |dPSI| > {suppa_dpsi:g}). With few significant events, differences between types are not interpretable.{route}{without}"
     helptext: |-

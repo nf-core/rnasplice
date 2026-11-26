@@ -211,7 +211,7 @@ def emit(section_id, data, ctx=None, plot_type=None, **extra):
     helptext = section["helptext"].format_map(ctx)
     if section.get("references"):
         helptext += "\\n\\n" + CONFIG["references"]
-    content = {"id": section_id} | CONFIG["parent"]
+    content = {"id": section_id} | CONFIG["parents"][section.get("parent", "splicing")]
     content |= {
         "section_name": section["section_name"],
         "description": section["description"].format_map(ctx),
