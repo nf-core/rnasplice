@@ -23,7 +23,9 @@
 
 **nf-core/rnasplice** is a bioinformatics pipeline for alternative splicing analysis of RNA sequencing data obtained from organisms with a reference genome and annotation.
 
-![nf-core/rnasplice metro map](docs/images/nf-core-rnasplice_metro_map.svg)
+![nf-core/rnasplice metro map](docs/images/nf-core-rnasplice_metro_map_animated.svg)
+
+> In case the image above is not loading, please have a look at the [static version](docs/images/nf-core-rnasplice_metro_map_light.png).
 
 1. Merge re-sequenced FastQ files ([`cat`](http://www.linfo.org/cat.html))
 2. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))

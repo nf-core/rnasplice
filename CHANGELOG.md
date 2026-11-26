@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #371 - The `symbol` column of the ASpli tables holds the gene names of the gene annotation table, where it held the gene IDs, so it follows `--gtf_extra_attributes`. A gene with no name keeps its ID (requested by @pinin4fjords, done by @piplus2)
 - #372 - The gene annotation tables are built from the gffread transcript table tximport uses, which now runs with every run and gains `gene_biotype` and `gene_type` columns (requested by @pinin4fjords, done by @piplus2)
 - #376 - Replace the vendored `utils_nextflow_pipeline`, `utils_nfcore_pipeline` and `utils_nfschema_plugin` subworkflows with the `nf-core-utils@0.7.0` plugin, as in nf-core/rnaseq, and remove the unused `custom/dumpsoftwareversions` module. The completion email is skipped on Seqera Platform launches unless `--force_completion_email` is set (by @pinin4fjords)
+- #386 - Redraw the metro map with nf-metro 3.0.0 from `assets/metro_map.mmd`, laid out as a pre-processing trunk feeding QC and visualisation and, around it, exon and junction analysis, with transcript analysis below. It adds the strandedness inference, the RSeQC strand check and the Salmon quantification of the reads, and each samplesheet input type enters where it is first used. The README shows an animated version, with light and dark PNG copies, and `docs/dev/metro_map.md` describes how to regenerate it and check its process mappings for `nf-metro serve` (by @pinin4fjords)
 
 ### Deprecated
 
