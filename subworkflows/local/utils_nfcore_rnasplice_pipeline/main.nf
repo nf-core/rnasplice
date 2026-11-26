@@ -140,7 +140,7 @@ workflow PIPELINE_INITIALISATION {
     }
 
     if (contrast_rows.any { row -> row.blocking }) {
-        log.warn("The contrastsheet 'blocking' column is used by DEXSeq DEU (--dexseq_exon), DEXSeq DTU (--dexseq_dtu) and edgeR DEU (--edger_exon) only, the other methods ignore it")
+        log.warn("The contrastsheet 'blocking' column is used by DEXSeq DEU (--dexseq_exon), DEXSeq DTU (--dexseq_dtu), edgeR DEU (--edger_exon) and LeafCutter (--leafcutter) only, the other methods ignore it")
     }
 
     // Fails before any analysis when a blocking column is not in the samplesheet, as the
@@ -471,6 +471,39 @@ def normaliseContrastRow(meta) {
     def row = [ contrast: meta.id, treatment: meta.target, control: meta.reference ]
     // As in nf-core/differentialabundance, an NA blocking value means no blocking
     return meta.blocking && meta.blocking != 'NA' ? row + [ blocking: meta.blocking ] : row
+}
+
+//
+// The blocking variables of a contrast that go into the model of a method that fits the
+// design itself. `sample_rows` are the samplesheet rows of the contrast samples, each with
+// the sample's `condition`. A variable with one value in the contrast is left out with a
+// warning. The pipeline stops when a variable is confounded with the condition, or when the
+// variables leave no residual degrees of freedom, which the methods would only report as a
+// rank-deficient design
+//
+def resolveBlockingVariables(contrast_id, method, blocking, sample_rows) {
+    def kept = []
+    blocking.tokenize(';').each { column ->
+        def values = sample_rows.collect { row -> row[column]?.toString()?.trim() }
+        if (values.any { value -> !value }) {
+            error("${method} contrast '${contrast_id}': blocking column '${column}' has no value for every sample")
+        }
+        if (values.unique().size() == 1) {
+            log.warn("${method} contrast '${contrast_id}': blocking column '${column}' has a single value in the samples of the contrast, so it is left out of the model")
+            return
+        }
+        def conditions_by_value = sample_rows.groupBy { row -> row[column].toString().trim() }.collectEntries { value, rows -> [value, rows*.condition.unique()] }
+        if (conditions_by_value.every { _value, conditions -> conditions.size() == 1 }) {
+            error("${method} contrast '${contrast_id}': blocking column '${column}' is confounded with the condition, as every value of it occurs in one condition only")
+        }
+        kept << column
+    }
+    def n_conditions = sample_rows*.condition.unique().size()
+    def n_parameters = n_conditions + kept.sum(0) { column -> sample_rows.collect { row -> row[column].toString().trim() }.unique().size() - 1 }
+    if (kept && sample_rows.size() <= n_parameters) {
+        error("${method} contrast '${contrast_id}': the blocking columns ${kept.join(', ')} leave no residual degrees of freedom with ${sample_rows.size()} samples")
+    }
+    return kept
 }
 
 //

@@ -44,6 +44,15 @@ nextflow_pipeline {
             def edger_models = getAllFilesFromDir(params.outdir, include: ['**/*.edger.model.txt'])
                 .collectEntries { model_file -> [ model_file.name - '.edger.model.txt', model_file.text.trim() ] }
 
+            // Columns of the LeafCutter groups file of each contrast, from the files the
+            // clustering step collects in the work directory
+            def leafcutter_groups = [:]
+            new File("${launchDir}/work").eachFileRecurse { groups_file ->
+                if (groups_file.name.endsWith('_groups.txt')) {
+                    leafcutter_groups[groups_file.name - '_groups.txt'] = groups_file.readLines().collect { line -> line.split('\t') as List }
+                }
+            }
+
             assert workflow.success
 
             assertAll(
@@ -57,6 +66,8 @@ nextflow_pipeline {
                     'GBR-YRI': '~ 0 + condition+batch',
                     'YRI-GBR': '~ 0 + condition'
                 ] },
+                { assert leafcutter_groups['GBR-YRI'].every { columns -> columns.size() == 3 && columns[2] =~ /^batch_\d+$/ } },
+                { assert leafcutter_groups['YRI-GBR'].every { columns -> columns.size() == 2 } },
                 { assert snapshot(
                     // Remove Nextflow version to prevent cross-version testing failures
                     removeNextflowVersion("$outputDir/pipeline_info/nf_core_rnasplice_software_mqc_versions.yml"),
