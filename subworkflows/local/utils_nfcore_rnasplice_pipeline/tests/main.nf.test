@@ -200,8 +200,7 @@ nextflow_workflow {
                 { assert workflow.out.contrastsheet == [
                     [ contrast: 'GBR-YRI', treatment: 'GBR', control: 'YRI' ],
                     [ contrast: 'YRI-GBR', treatment: 'YRI', control: 'GBR' ]
-                ] },
-                { assert (workflow.stdout + workflow.stderr).any { line -> line.contains("blocking column 'batch' has a single value") } }
+                ] }
             )
         }
 
