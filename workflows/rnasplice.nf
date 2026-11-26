@@ -6,7 +6,7 @@
 
 include { BEDTOOLS_GENOMECOV as BEDTOOLS_GENOMECOV_FORWARD                } from '../modules/nf-core/bedtools/genomecov'
 include { BEDTOOLS_GENOMECOV as BEDTOOLS_GENOMECOV_REVERSE                } from '../modules/nf-core/bedtools/genomecov'
-include { ISOFORMSWITCHANALYZER                                           } from '../modules/local/isoformswitchanalyzer'
+include { ISOFORMSWITCHANALYZER_CONTRASTS                                } from '../subworkflows/local/isoformswitchanalyzer'
 include { GENEANNOTATION_TABLES                                           } from '../modules/local/geneannotation/tables'
 include { GFFREAD as GFFREAD_TX2GENE                                      } from '../modules/nf-core/gffread'
 include { FASTQ_ALIGN_STAR                                                } from '../subworkflows/nf-core/fastq_align_star'
@@ -73,7 +73,6 @@ workflow RNASPLICE {
     ch_samplesheet // channel: [ val(meta), [ fastq ], genome_bam, transcriptome_bam, salmon_results ], the parsed samplesheet, absent inputs null
     ch_samplesheet_file // channel: file(samplesheet), for the processes that read it
     ch_contrastsheet // channel: [ contrast, treatment, control ], the parsed contrasts
-    ch_contrastsheet_file // channel: file(contrastsheet), for the processes that read it
     input_routes // map: how each part of the pipeline gets its input, see `getInputRoutes`
     ch_fasta // channel: path of genome fasta
     ch_fai // channel: [ val(meta), path(fai) ], the genome fasta index
@@ -666,12 +665,12 @@ workflow RNASPLICE {
     // With both Salmon routes, the pseudo-aligned results replace the STAR ones above, so
     // IsoformSwitchAnalyzeR reads those
     if (params.isoformswitchanalyzer && (input_routes.star_salmon || input_routes.pseudo_salmon || input_routes.salmon_results)) {
-        ISOFORMSWITCHANALYZER(
-            ch_salmon_results.collect { it -> it[1] },
+        ISOFORMSWITCHANALYZER_CONTRASTS(
+            ch_salmon_results,
+            ch_samplesheet_file,
+            ch_contrastsheet,
             ch_gtf,
             ch_transcript_fasta,
-            ch_samplesheet_file,
-            ch_contrastsheet_file,
             params.isoformswitchanalyzer_alpha,
             params.isoformswitchanalyzer_dIF,
         )

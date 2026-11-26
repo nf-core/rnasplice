@@ -7,19 +7,17 @@ process ISOFORMSWITCHANALYZER {
         : 'biocontainers/bioconductor-isoformswitchanalyzer:2.12.0--r45hd2fad28_0'}"
 
     input:
-    path salmon_output          // path: one Salmon quant directory per sample
+    tuple val(meta), path(salmon_output), path(samplesheet), path(contrastsheet)
     path gtf                    // path: /path/to/genes.gtf
     path transcript_sequences   // path: /path/to/transcripts.fa (isoform nucleotide sequences)
-    path samplesheet            // path: /path/to/samplesheet.csv
-    path contrastsheet          // path: /path/to/contrastsheet.csv
     val  alpha                  // val:  FDR cutoff for the isoform switch test
     val  dIF                    // val:  minimum absolute difference in isoform fraction
 
     output:
-    path "isoformswitchanalyzer_summary.csv"        , emit: isoformswitchanalyzer_summary
-    path "isoformswitchanalyzer_isoformfeatures.csv", emit: isoformswitchanalyzer_isoformFeatures
-    path "switchlist.rds"                           , emit: switchlist_rds
-    path "results"                                  , emit: results
+    tuple val(meta), path("isoformswitchanalyzer_summary.csv")        , emit: isoformswitchanalyzer_summary
+    tuple val(meta), path("isoformswitchanalyzer_isoformfeatures.csv"), emit: isoformswitchanalyzer_isoformFeatures
+    tuple val(meta), path("switchlist.rds")                           , emit: switchlist_rds
+    tuple val(meta), path("results")                                  , emit: results
     path "versions.yml"                             , topic: versions, emit: versions_isoformswitchanalyzer
 
     when:

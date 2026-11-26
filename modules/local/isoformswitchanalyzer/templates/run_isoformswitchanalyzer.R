@@ -266,17 +266,16 @@ salmonQuant <- importIsoformExpression(
 )
 
 
-# Build desing data frame
+# Build design data frame. The samplesheet of the contrast holds the sample, the condition
+# and then any blocking variables, which IsoformSwitchAnalyzeR takes as covariates
 
-design <- read.csv(samplesheet, check.names = FALSE)
-
-design <- design[, c("sample", "condition"), drop = FALSE]
+design <- read.csv(samplesheet, check.names = FALSE, colClasses = "character")
 
 # A sample sequenced in several runs has one samplesheet row per run
 
 design <- design[!duplicated(design[["sample"]]), , drop = FALSE]
 
-colnames(design) <- c("sampleID", "condition")
+colnames(design)[1:2] <- c("sampleID", "condition")
 
 
 # Build contrasts data frame

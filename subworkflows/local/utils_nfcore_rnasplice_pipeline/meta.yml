@@ -78,13 +78,6 @@ output:
         PIPELINE_INITIALISATION: channel with the contrasts, normalised to the contrast,
         treatment and control columns, plus blocking when it is set
         Structure: [ contrast, treatment, control, blocking ]
-  - contrastsheet_file:
-      type: file
-      description: |
-        PIPELINE_INITIALISATION: value channel with the contrasts sheet, written with the
-        contrast, treatment and control header
-        Structure: path(contrastsheet.csv)
-      pattern: "*.csv"
 authors:
   - "@piplus2"
 maintainers:

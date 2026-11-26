@@ -88,7 +88,6 @@ nextflow_workflow {
                 { assert workflow.success },
                 { assert workflow.out.contrastsheet.size() == 1 },
                 { assert workflow.out.contrastsheet[0] == [ contrast: 'GBR-YRI', treatment: 'GBR', control: 'YRI' ] },
-                { assert new File(workflow.out.contrastsheet_file[0].toString()).readLines() == [ 'contrast,treatment,control', 'GBR-YRI,GBR,YRI' ] }
             )
         }
 
@@ -120,7 +119,6 @@ nextflow_workflow {
                 // reference is the control and target the treatment, so the contrast is GBR over YRI
                 { assert workflow.out.contrastsheet[0] == [ contrast: 'GBR-YRI', treatment: 'GBR', control: 'YRI' ] },
                 // The modules reading the sheet get the legacy header
-                { assert new File(workflow.out.contrastsheet_file[0].toString()).readLines() == [ 'contrast,treatment,control', 'GBR-YRI,GBR,YRI' ] }
             )
         }
 

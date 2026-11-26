@@ -457,17 +457,12 @@ Finally, this portion of the pipeline will run [stageR](https://bioconductor.org
 <details markdown="1">
 <summary>Output files</summary>
 
-- `isoformswitchanalyzer/`
+- `isoformswitchanalyzer/{contrast}/`
   - `results/`
-    - `Condition1_vs_Condition2/`
+    - `Control_vs_Treatment/`
       - `01_switch_plot_gene1.pdf`
       - `02_switch_plot_gene2.pdf`
       - `03_switch_plot_gene3.pdf`
-    - `Condition2_vs_Condition3/`
-      - `01_switch_plot_gene4.pdf`
-      - `02_switch_plot_gene5.pdf`
-      - `03_switch_plot_gene6.pdf`
-    - `...`
     - `common_switch_consequences.pdf`
   - `isoformswitchanalyzer_isoformfeatures.csv`
   - `isoformswitchanalyzer_summary.csv`
@@ -475,7 +470,7 @@ Finally, this portion of the pipeline will run [stageR](https://bioconductor.org
 
 </details>
 
-If [IsoformSwitchAnalyzeR](https://www.bioconductor.org/packages/release/bioc/html/IsoformSwitchAnalyzeR.html) finds genes with isoform switches, it produces plots visualizing these switches. A separate set of switch plots is created for each contrast if that contrast contains significant switches, in a folder named `{control}_vs_{treatment}`, and `common_switch_consequences.pdf` summarises the consequences of the switches across all contrasts. Further two .csv files are created, a summary and the main results. In the main results, `condition_1` is the control and `condition_2` the treatment, so `dIF` and the log2 fold changes are treatment minus control. The .rds of the main R list is also returned.
+If [IsoformSwitchAnalyzeR](https://www.bioconductor.org/packages/release/bioc/html/IsoformSwitchAnalyzeR.html) finds genes with isoform switches, it produces plots visualizing these switches. IsoformSwitchAnalyzeR runs once per contrast, in `isoformswitchanalyzer/{contrast}/`, so that the blocking variables of the contrast can enter the switch test as covariates. The switch plots are in a folder named `{control}_vs_{treatment}` if the contrast contains significant switches, and `common_switch_consequences.pdf` summarises the consequences of its switches. Further two .csv files are created, a summary and the main results. In the main results, `condition_1` is the control and `condition_2` the treatment, so `dIF` and the log2 fold changes are treatment minus control. The .rds of the main R list is also returned.
 
 ## Event-based analysis
 
