@@ -74,6 +74,7 @@ workflow RNASPLICE {
     ch_samplesheet_file // channel: file(samplesheet), for the processes that read it
     ch_contrastsheet // channel: [ contrast, treatment, control ], the parsed contrasts
     ch_contrastsheet_file // channel: file(contrastsheet), for the processes that read it
+    ch_blocking_values // channel: [ sample: [ column: value ] ], the blocking variables of the contrasts
     input_routes // map: how each part of the pipeline gets its input, see `getInputRoutes`
     ch_fasta // channel: path of genome fasta
     ch_fai // channel: [ val(meta), path(fai) ], the genome fasta index
@@ -407,6 +408,7 @@ workflow RNASPLICE {
                 ch_gtf,
                 ch_genome_bam,
                 ch_contrastsheet,
+                ch_blocking_values,
                 ch_gene_annotation,
             )
         }

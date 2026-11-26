@@ -12,7 +12,8 @@ workflow EDGER_DEU {
     take:
     gtf                // channel: path(gtf)
     ch_genome_bam      // channel: [ val(meta), path(bam) ]
-    ch_contrastsheet   // channel: [ contrast, treatment, control ], the parsed contrasts
+    ch_contrastsheet   // channel: [ contrast:, treatment:, control:, blocking: (when set) ], the parsed contrasts
+    ch_blocking_values // channel: [ sample: [ column: value ] ], the blocking variables of the contrasts
     ch_gene_annotation // channel: [ val(meta), path(tsv) ], the gene annotation table, as a value channel
 
     main:
@@ -45,11 +46,21 @@ workflow EDGER_DEU {
     )
 
     // featureCounts names each count column after its BAM file, so the sample sheet the
-    // model reads maps those names to the conditions
+    // model reads maps those names to the conditions and the blocking variables of all
+    // contrasts
     ch_edger_samplesheet = ch_genome_bam
-        .collectFile(name: 'edger_samplesheet.csv', seed: 'sample,condition', newLine: true, sort: true) { meta, bam ->
-            "${bam.name},${meta.condition}"
+        .toSortedList { a, b -> a[0].id <=> b[0].id }
+        .map { bams -> [bams] }
+        .combine(ch_blocking_values)
+        .map { bams, blocking_values ->
+            def columns = blocking_values.values().collectMany { values -> values.keySet() }.unique()
+            def lines = [(['sample', 'condition'] + columns).join(',')]
+            bams.each { meta, bam ->
+                lines << ([bam.name, meta.condition] + columns.collect { column -> blocking_values[meta.id][column] }).join(',')
+            }
+            lines.join('\n') + '\n'
         }
+        .collectFile(name: 'edger_samplesheet.csv')
         .map { samplesheet -> [[id: 'edger_exon'], samplesheet] }
 
     //
@@ -59,7 +70,7 @@ workflow EDGER_DEU {
     ch_diffsplice_input = ch_contrastsheet
         .combine(ch_edger_samplesheet.join(CSVTK_JOIN.out.out_file))
         .multiMap { row, _meta, samplesheet, counts ->
-            def meta = [id: row.contrast]
+            def meta = row.blocking ? [id: row.contrast, blocking: row.blocking] : [id: row.contrast]
             contrast: [meta, 'condition', row.control, row.treatment, '', '']
             counts: [meta, samplesheet, counts]
         }

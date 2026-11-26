@@ -1,0 +1,26 @@
+{
+    "variable with a single value is left out": {
+        "content": [
+            [
+                "batch"
+            ]
+        ],
+        "timestamp": "2026-11-26T19:47:22.807362362",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
+        }
+    },
+    "crossed variable is kept": {
+        "content": [
+            [
+                "batch"
+            ]
+        ],
+        "timestamp": "2026-11-26T19:47:16.559415982",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
+        }
+    }
+}

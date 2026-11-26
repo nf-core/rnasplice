@@ -52,7 +52,7 @@
                     },
                     "edger/diffsplice": {
                         "branch": "master",
-                        "git_sha": "e5fe77c7ab318e6d8465173117785c2ffc99512e",
+                        "git_sha": "99b282295c775f06644a38d828deb6bd23d6da8a",
                         "installed_by": ["modules"]
                     },
                     "fastqc": {

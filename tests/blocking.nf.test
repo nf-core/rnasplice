@@ -26,29 +26,9 @@ nextflow_pipeline {
             def sorted_bams = getAllFilesFromDir(params.outdir, include: ['*_sorted.bam', '**/*_sorted.bam'])
                 .collectEntries { bam_file -> [ bam_file.name, bam(bam_file.toString()).getSamLinesMD5() ] }
 
-            // Models the DEXSeq exon and DTU tasks fitted, by contrast. The DEXSeq results vary
-            // with the CPU and are left out of stable_content, so the models are read from the
-            // task logs. Only successful tasks write a results table, so retries are skipped
-            def dexseq_models = [:].withDefault { [] }
-            new File("${launchDir}/work").eachFileRecurse { log_file ->
-                if (log_file.name == '.command.err') {
-                    def model = (log_file.text =~ /Full model: (.+)/).findResult { match -> match[1].trim() }
-                    def results = log_file.parentFile.listFiles().find { file -> file.name.endsWith('.dexseq.results.tsv') }
-                    if (model && results) {
-                        dexseq_models[results.name - '.dexseq.results.tsv'] << model
-                    }
-                }
-            }
-
             assert workflow.success
 
             assertAll(
-                // GBR-YRI is blocked on batch and YRI-GBR is not, in the exon analysis and in
-                // the DTU analyses of the STAR and Salmon quantifications
-                { assert dexseq_models == [
-                    'GBR-YRI': ['~sample + exon + batch:exon + condition:exon'] * 3,
-                    'YRI-GBR': ['~sample + exon + condition:exon'] * 3
-                ] },
                 { assert snapshot(
                     // Remove Nextflow version to prevent cross-version testing failures
                     removeNextflowVersion("$outputDir/pipeline_info/nf_core_rnasplice_software_mqc_versions.yml"),

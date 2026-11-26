@@ -140,12 +140,16 @@ workflow PIPELINE_INITIALISATION {
     }
 
     if (contrast_rows.any { row -> row.blocking }) {
-        log.warn("The contrastsheet 'blocking' column is used by DEXSeq DEU (--dexseq_exon) and DEXSeq DTU (--dexseq_dtu) only, the other methods ignore it")
+        log.warn("The contrastsheet 'blocking' column is used by DEXSeq DEU (--dexseq_exon), DEXSeq DTU (--dexseq_dtu) and edgeR DEU (--edger_exon) only, the other methods ignore it")
     }
 
-    // Fails before any analysis when a blocking column is not in the samplesheet, as the
-    // DEXSeq modules would only find out after the alignment and counting. The header is
+    // Blocking variables are checked here, before any process runs. A column missing from
+    // the samplesheet, a variable without a value for every sample of a contrast, one
+    // confounded with the condition and variables that leave no residual degrees of freedom
+    // stop the pipeline. A variable with a single value in a contrast is left out of it, so
+    // the contrast rows leave here with the variables the methods can fit. The header is
     // read from the file, as the parsed samplesheet keeps only the columns of its schema
+    def blocking_lookup = [:]
     def blocked_contrasts = contrast_rows.findAll { row -> row.blocking }
     if (blocked_contrasts) {
         def samplesheet_columns = file(input).withReader { reader -> reader.readLine() }.tokenize(',').collect { column -> column.trim().replaceAll(/^"|"$/, '') }
@@ -155,7 +159,27 @@ workflow PIPELINE_INITIALISATION {
                 error("Contrast '${row.contrast}': blocking columns missing from the samplesheet: ${missing_columns.join(', ')}")
             }
         }
+
+        def rows_by_sample = readSampleRows(input, blocked_contrasts.collectMany { row -> row.blocking.tokenize(';') }.unique())
+        contrast_rows = contrast_rows.collect { row ->
+            if (!row.blocking) {
+                return row
+            }
+            def sample_rows = rows_by_sample.values().findAll { sample_row -> sample_row.condition in [row.treatment, row.control] }
+            def kept = resolveBlockingVariables(row.contrast, row.blocking, sample_rows)
+            def resolved = row.findAll { key, _value -> key != 'blocking' }
+            return kept ? resolved + [blocking: kept.join(';')] : resolved
+        }
+
+        // The values of the variables the contrasts use, by sample, with commas and
+        // whitespace replaced so that the methods can write them to delimited files
+        def kept_columns = contrast_rows.collectMany { row -> row.blocking ? row.blocking.tokenize(';') : [] }.unique()
+        blocking_lookup = rows_by_sample.collectEntries { sample, sample_row ->
+            [sample, kept_columns.collectEntries { column -> [column, sample_row[column] ? sample_row[column].replaceAll(/[\s,]+/, '_') : '']}]
+        }
     }
+
+    ch_blocking_values = channel.value(blocking_lookup)
 
     ch_contrastsheet = channel.fromList(contrast_rows)
 
@@ -170,6 +194,7 @@ workflow PIPELINE_INITIALISATION {
 
     emit:
     contrastsheet      = ch_contrastsheet                                    // channel: [ contrast, treatment, control, blocking (when set) ]
+    blocking_values    = ch_blocking_values                                  // channel: [ sample: [ column: value ] ], the blocking variables of the contrasts
     contrastsheet_file = ch_contrastsheet_file                               // channel: path(contrastsheet.csv), with the contrast, treatment, control header
 }
 
@@ -471,6 +496,57 @@ def normaliseContrastRow(meta) {
     def row = [ contrast: meta.id, treatment: meta.target, control: meta.reference ]
     // As in nf-core/differentialabundance, an NA blocking value means no blocking
     return meta.blocking && meta.blocking != 'NA' ? row + [ blocking: meta.blocking ] : row
+}
+
+//
+// The samplesheet row of each sample, by sample id, with the condition and the given
+// columns, read from the file as the parsed samplesheet keeps only the columns of its
+// schema. The runs of a sample must agree on these values
+//
+def readSampleRows(input, columns) {
+    def rows_by_sample = [:]
+    file(input).splitCsv(header: true, quote: '"').each { row ->
+        def values = ['condition'] + columns
+        def sample_row = values.collectEntries { column -> [column, row[column]?.toString()?.trim()] } + [sample: row.sample]
+        if (rows_by_sample.containsKey(row.sample) && rows_by_sample[row.sample] != sample_row) {
+            error("Sample '${row.sample}' has different values of ${values.join(', ')} in its rows")
+        }
+        rows_by_sample[row.sample] = sample_row
+    }
+    return rows_by_sample
+}
+
+//
+// The blocking variables of a contrast the methods can fit. `sample_rows` are the
+// samplesheet rows of the contrast samples, each with the sample's `condition`. A variable
+// with one value in the contrast is left out with a warning. The pipeline stops when a
+// variable has no value for a sample, is confounded with the condition, or when the
+// variables leave no residual degrees of freedom, which the methods would only report as
+// a rank-deficient design
+//
+def resolveBlockingVariables(contrast_id, blocking, sample_rows) {
+    def kept = []
+    def conditions = sample_rows.collect { row -> row.condition }.unique()
+    blocking.tokenize(';').each { column ->
+        def values = sample_rows.collect { row -> row[column] }
+        if (values.any { value -> !value }) {
+            error("Contrast '${contrast_id}': blocking column '${column}' has no value for every sample")
+        }
+        if (values.unique().size() == 1) {
+            log.warn("Contrast '${contrast_id}': blocking column '${column}' has a single value in the samples of the contrast, so it is left out of the models")
+            return
+        }
+        def conditions_by_value = sample_rows.groupBy { row -> row[column] }.collectEntries { value, rows -> [value, rows.collect { row -> row.condition }.unique()] }
+        if (conditions_by_value.every { _value, value_conditions -> value_conditions.size() == 1 }) {
+            error("Contrast '${contrast_id}': blocking column '${column}' is confounded with the condition, as every value of it occurs in one condition only")
+        }
+        kept << column
+    }
+    def n_parameters = conditions.size() + kept.sum(0) { column -> sample_rows.collect { row -> row[column] }.unique().size() - 1 }
+    if (kept && sample_rows.size() <= n_parameters) {
+        error("Contrast '${contrast_id}': the blocking columns ${kept.join(', ')} leave no residual degrees of freedom with ${sample_rows.size()} samples")
+    }
+    return kept
 }
 
 //
