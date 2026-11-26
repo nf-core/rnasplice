@@ -8,11 +8,11 @@
                 "CREATEBAMLIST": {
                     "sed": "4.9"
                 },
-                "CSVTK_JOIN": {
-                    "csvtk": "0.37.0"
-                },
-                "CUSTOM_TX2GENE": {
-                    "python": "3.10.4"
+                "CUSTOM_SPLICINGSUMMARY": {
+                    "numpy": "2.5.5",
+                    "pandas": "3.1.1",
+                    "python": "3.14.6",
+                    "yaml": "6.0.3"
                 },
                 "DEXSEQ_COUNT": {
                     "bioconductor-dexseq": "1.56.0",
@@ -34,10 +34,12 @@
                     "bioconductor-drimseq": "1.18.0",
                     "r-base": "4.0.3"
                 },
-                "EDGER_DIFFSPLICE": {
-                    "bioconductor-edger": "4.10.5",
-                    "bioconductor-limma": "3.68.5",
-                    "r-base": "4.5.3"
+                "EAUTILS_GTF2BED": {
+                    "perl": "5.26.2"
+                },
+                "EDGER_EXON": {
+                    "bioconductor-edger": "3.36.0",
+                    "r-base": "4.1.1"
                 },
                 "GENEANNOTATION_ANNOTATE": {
                     "python": "3.14.6"
@@ -52,10 +54,10 @@
                     "python": "3.14.6"
                 },
                 "GFFREAD_GTF2GFF3": {
-                    "gffread": "0.12.9"
+                    "gffread": "0.12.7"
                 },
                 "GFFREAD_TX2GENE": {
-                    "gffread": "0.12.9"
+                    "gffread": "0.12.7"
                 },
                 "GUNZIP_FASTA": {
                     "gunzip": "1.13"
@@ -89,6 +91,9 @@
                 "RMATS_PREP": {
                     "rmats": "4.3.0"
                 },
+                "RSEQC_JUNCTIONSATURATION": {
+                    "rseqc": "5.0.4"
+                },
                 "SALMON_QUANT_STAR": {
                     "salmon": "1.10.3"
                 },
@@ -119,12 +124,6 @@
                 "SAMTOOLS_STATS": {
                     "samtools": "1.24"
                 },
-                "SE_GENE_UNIFIED": {
-                    "bioconductor-summarizedexperiment": "1.42.0"
-                },
-                "SE_TRANSCRIPT_UNIFIED": {
-                    "bioconductor-summarizedexperiment": "1.42.0"
-                },
                 "SPLITFILES_PSI": {
                     "r-base": "4.6.1"
                 },
@@ -139,9 +138,6 @@
                 },
                 "SUBREAD_FLATTENGTF": {
                     "subread": "flattenGTF Version 2.0.1"
-                },
-                "SUPPATPM": {
-                    "coreutils": "9.5"
                 },
                 "SUPPA_CLUSTEREVENTS": {
                     "statsmodels": "0.14.6",
@@ -167,9 +163,9 @@
                     "statsmodels": "0.14.6",
                     "suppa": "2.4"
                 },
-                "TXIMETA_TXIMPORT": {
-                    "bioconductor-tximeta": "1.20.1",
-                    "bioconductor-tximport": "1.30.0"
+                "TXIMPORT": {
+                    "bioconductor-tximeta": "1.28.2",
+                    "bioconductor-tximport": "1.38.2"
                 },
                 "Workflow": {
                     "nf-core/rnasplice": "v2.0.1dev"
@@ -455,11 +451,14 @@
                 "multiqc",
                 "multiqc/multiqc_data",
                 "multiqc/multiqc_data/featureCounts_assignment_plot.txt",
+                "multiqc/multiqc_data/junction_saturation_known.txt",
+                "multiqc/multiqc_data/junction_saturation_novel.txt",
                 "multiqc/multiqc_data/llms-full.txt",
                 "multiqc/multiqc_data/multiqc.log",
                 "multiqc/multiqc_data/multiqc.parquet",
                 "multiqc/multiqc_data/multiqc_citations.txt",
                 "multiqc/multiqc_data/multiqc_data.json",
+                "multiqc/multiqc_data/multiqc_differential_splicing_table.txt",
                 "multiqc/multiqc_data/multiqc_featurecounts.txt",
                 "multiqc/multiqc_data/multiqc_general_stats.txt",
                 "multiqc/multiqc_data/multiqc_samtools_flagstat.txt",
@@ -467,6 +466,16 @@
                 "multiqc/multiqc_data/multiqc_samtools_stats.txt",
                 "multiqc/multiqc_data/multiqc_software_versions.txt",
                 "multiqc/multiqc_data/multiqc_sources.txt",
+                "multiqc/multiqc_data/multiqc_splicing_design_check_table.txt",
+                "multiqc/multiqc_data/multiqc_splicing_method_agreement_table.txt",
+                "multiqc/multiqc_data/multiqc_splicing_pvalue_histograms_plot.txt",
+                "multiqc/multiqc_data/multiqc_splicing_pvalue_histograms_plot_1.txt",
+                "multiqc/multiqc_data/multiqc_suppa_psi_concordance_plot.txt",
+                "multiqc/multiqc_data/multiqc_suppa_significant_events_plot.txt",
+                "multiqc/multiqc_data/rseqc_junction_saturation_all.txt",
+                "multiqc/multiqc_data/rseqc_junction_saturation_plot_All_Junctions.txt",
+                "multiqc/multiqc_data/rseqc_junction_saturation_plot_Known_Junctions.txt",
+                "multiqc/multiqc_data/rseqc_junction_saturation_plot_Novel_Junctions.txt",
                 "multiqc/multiqc_data/samtools-flagstat-pct-table.txt",
                 "multiqc/multiqc_data/samtools-flagstat-table.txt",
                 "multiqc/multiqc_data/samtools-idxstats-mapped-reads-plot_Normalised_Counts.txt",
@@ -477,8 +486,12 @@
                 "multiqc/multiqc_data/samtools_insert_size.txt",
                 "multiqc/multiqc_plots",
                 "multiqc/multiqc_plots/pdf",
+                "multiqc/multiqc_plots/pdf/differential_splicing_table.pdf",
                 "multiqc/multiqc_plots/pdf/featureCounts_assignment_plot-cnt.pdf",
                 "multiqc/multiqc_plots/pdf/featureCounts_assignment_plot-pct.pdf",
+                "multiqc/multiqc_plots/pdf/rseqc_junction_saturation_plot_All_Junctions.pdf",
+                "multiqc/multiqc_plots/pdf/rseqc_junction_saturation_plot_Known_Junctions.pdf",
+                "multiqc/multiqc_plots/pdf/rseqc_junction_saturation_plot_Novel_Junctions.pdf",
                 "multiqc/multiqc_plots/pdf/samtools-flagstat-pct-table.pdf",
                 "multiqc/multiqc_plots/pdf/samtools-flagstat-table.pdf",
                 "multiqc/multiqc_plots/pdf/samtools-idxstats-mapped-reads-plot_Normalised_Counts-cnt.pdf",
@@ -491,9 +504,19 @@
                 "multiqc/multiqc_plots/pdf/samtools_alignment_plot-cnt.pdf",
                 "multiqc/multiqc_plots/pdf/samtools_alignment_plot-pct.pdf",
                 "multiqc/multiqc_plots/pdf/samtools_insert_size.pdf",
+                "multiqc/multiqc_plots/pdf/splicing_design_check_table.pdf",
+                "multiqc/multiqc_plots/pdf/splicing_method_agreement_table.pdf",
+                "multiqc/multiqc_plots/pdf/splicing_pvalue_histograms_plot_GBR-YRI.pdf",
+                "multiqc/multiqc_plots/pdf/splicing_pvalue_histograms_plot_YRI-GBR_reverse_of_GBR-YRI_.pdf",
+                "multiqc/multiqc_plots/pdf/suppa_psi_concordance_plot.pdf",
+                "multiqc/multiqc_plots/pdf/suppa_significant_events_plot.pdf",
                 "multiqc/multiqc_plots/png",
+                "multiqc/multiqc_plots/png/differential_splicing_table.png",
                 "multiqc/multiqc_plots/png/featureCounts_assignment_plot-cnt.png",
                 "multiqc/multiqc_plots/png/featureCounts_assignment_plot-pct.png",
+                "multiqc/multiqc_plots/png/rseqc_junction_saturation_plot_All_Junctions.png",
+                "multiqc/multiqc_plots/png/rseqc_junction_saturation_plot_Known_Junctions.png",
+                "multiqc/multiqc_plots/png/rseqc_junction_saturation_plot_Novel_Junctions.png",
                 "multiqc/multiqc_plots/png/samtools-flagstat-pct-table.png",
                 "multiqc/multiqc_plots/png/samtools-flagstat-table.png",
                 "multiqc/multiqc_plots/png/samtools-idxstats-mapped-reads-plot_Normalised_Counts-cnt.png",
@@ -506,9 +529,19 @@
                 "multiqc/multiqc_plots/png/samtools_alignment_plot-cnt.png",
                 "multiqc/multiqc_plots/png/samtools_alignment_plot-pct.png",
                 "multiqc/multiqc_plots/png/samtools_insert_size.png",
+                "multiqc/multiqc_plots/png/splicing_design_check_table.png",
+                "multiqc/multiqc_plots/png/splicing_method_agreement_table.png",
+                "multiqc/multiqc_plots/png/splicing_pvalue_histograms_plot_GBR-YRI.png",
+                "multiqc/multiqc_plots/png/splicing_pvalue_histograms_plot_YRI-GBR_reverse_of_GBR-YRI_.png",
+                "multiqc/multiqc_plots/png/suppa_psi_concordance_plot.png",
+                "multiqc/multiqc_plots/png/suppa_significant_events_plot.png",
                 "multiqc/multiqc_plots/svg",
+                "multiqc/multiqc_plots/svg/differential_splicing_table.svg",
                 "multiqc/multiqc_plots/svg/featureCounts_assignment_plot-cnt.svg",
                 "multiqc/multiqc_plots/svg/featureCounts_assignment_plot-pct.svg",
+                "multiqc/multiqc_plots/svg/rseqc_junction_saturation_plot_All_Junctions.svg",
+                "multiqc/multiqc_plots/svg/rseqc_junction_saturation_plot_Known_Junctions.svg",
+                "multiqc/multiqc_plots/svg/rseqc_junction_saturation_plot_Novel_Junctions.svg",
                 "multiqc/multiqc_plots/svg/samtools-flagstat-pct-table.svg",
                 "multiqc/multiqc_plots/svg/samtools-flagstat-table.svg",
                 "multiqc/multiqc_plots/svg/samtools-idxstats-mapped-reads-plot_Normalised_Counts-cnt.svg",
@@ -521,6 +554,12 @@
                 "multiqc/multiqc_plots/svg/samtools_alignment_plot-cnt.svg",
                 "multiqc/multiqc_plots/svg/samtools_alignment_plot-pct.svg",
                 "multiqc/multiqc_plots/svg/samtools_insert_size.svg",
+                "multiqc/multiqc_plots/svg/splicing_design_check_table.svg",
+                "multiqc/multiqc_plots/svg/splicing_method_agreement_table.svg",
+                "multiqc/multiqc_plots/svg/splicing_pvalue_histograms_plot_GBR-YRI.svg",
+                "multiqc/multiqc_plots/svg/splicing_pvalue_histograms_plot_YRI-GBR_reverse_of_GBR-YRI_.svg",
+                "multiqc/multiqc_plots/svg/suppa_psi_concordance_plot.svg",
+                "multiqc/multiqc_plots/svg/suppa_significant_events_plot.svg",
                 "multiqc/multiqc_report.html",
                 "pipeline_info",
                 "pipeline_info/nf_core_rnasplice_software_mqc_versions.yml",
@@ -587,43 +626,32 @@
                 "star_salmon/dexseq_exon/results/YRI-GBR.dexseq.results.rds",
                 "star_salmon/dexseq_exon/results/YRI-GBR.dexseq.results.tsv",
                 "star_salmon/edger",
-                "star_salmon/edger/GBR-YRI.DGEGLM.edger.rds",
-                "star_salmon/edger/GBR-YRI.DGELRT.edger.rds",
-                "star_salmon/edger/GBR-YRI.DGELRT.expression.edger.rds",
-                "star_salmon/edger/GBR-YRI.DGEList.edger.rds",
-                "star_salmon/edger/GBR-YRI.R_sessionInfo.log",
-                "star_salmon/edger/GBR-YRI.edger.bcv.png",
-                "star_salmon/edger/GBR-YRI.edger.diffsplice.expression.annotated.tsv",
-                "star_salmon/edger/GBR-YRI.edger.diffsplice.expression.tsv",
-                "star_salmon/edger/GBR-YRI.edger.diffsplice.gene.annotated.tsv",
-                "star_salmon/edger/GBR-YRI.edger.diffsplice.gene.pdf",
-                "star_salmon/edger/GBR-YRI.edger.diffsplice.gene.tsv",
-                "star_salmon/edger/GBR-YRI.edger.diffsplice.results.annotated.tsv",
-                "star_salmon/edger/GBR-YRI.edger.diffsplice.results.pdf",
-                "star_salmon/edger/GBR-YRI.edger.diffsplice.results.tsv",
-                "star_salmon/edger/GBR-YRI.edger.diffsplice.simes.annotated.tsv",
-                "star_salmon/edger/GBR-YRI.edger.diffsplice.simes.pdf",
-                "star_salmon/edger/GBR-YRI.edger.diffsplice.simes.tsv",
-                "star_salmon/edger/GBR-YRI.edger.model.txt",
-                "star_salmon/edger/YRI-GBR.DGEGLM.edger.rds",
-                "star_salmon/edger/YRI-GBR.DGELRT.edger.rds",
-                "star_salmon/edger/YRI-GBR.DGELRT.expression.edger.rds",
-                "star_salmon/edger/YRI-GBR.DGEList.edger.rds",
-                "star_salmon/edger/YRI-GBR.R_sessionInfo.log",
-                "star_salmon/edger/YRI-GBR.edger.bcv.png",
-                "star_salmon/edger/YRI-GBR.edger.diffsplice.expression.annotated.tsv",
-                "star_salmon/edger/YRI-GBR.edger.diffsplice.expression.tsv",
-                "star_salmon/edger/YRI-GBR.edger.diffsplice.gene.annotated.tsv",
-                "star_salmon/edger/YRI-GBR.edger.diffsplice.gene.pdf",
-                "star_salmon/edger/YRI-GBR.edger.diffsplice.gene.tsv",
-                "star_salmon/edger/YRI-GBR.edger.diffsplice.results.annotated.tsv",
-                "star_salmon/edger/YRI-GBR.edger.diffsplice.results.pdf",
-                "star_salmon/edger/YRI-GBR.edger.diffsplice.results.tsv",
-                "star_salmon/edger/YRI-GBR.edger.diffsplice.simes.annotated.tsv",
-                "star_salmon/edger/YRI-GBR.edger.diffsplice.simes.pdf",
-                "star_salmon/edger/YRI-GBR.edger.diffsplice.simes.tsv",
-                "star_salmon/edger/YRI-GBR.edger.model.txt",
-                "star_salmon/edger/edger_exon.tsv",
+                "star_salmon/edger/DGEGLM.rds",
+                "star_salmon/edger/DGELRT.exprs.rds",
+                "star_salmon/edger/DGELRT.usage.rds",
+                "star_salmon/edger/DGEList.rds",
+                "star_salmon/edger/contrast_GBR-YRI.exprs.annotated.csv",
+                "star_salmon/edger/contrast_GBR-YRI.exprs.csv",
+                "star_salmon/edger/contrast_GBR-YRI.usage.exon.annotated.csv",
+                "star_salmon/edger/contrast_GBR-YRI.usage.exon.csv",
+                "star_salmon/edger/contrast_GBR-YRI.usage.exon.pdf",
+                "star_salmon/edger/contrast_GBR-YRI.usage.gene.annotated.csv",
+                "star_salmon/edger/contrast_GBR-YRI.usage.gene.csv",
+                "star_salmon/edger/contrast_GBR-YRI.usage.gene.pdf",
+                "star_salmon/edger/contrast_GBR-YRI.usage.simes.annotated.csv",
+                "star_salmon/edger/contrast_GBR-YRI.usage.simes.csv",
+                "star_salmon/edger/contrast_GBR-YRI.usage.simes.pdf",
+                "star_salmon/edger/contrast_YRI-GBR.exprs.annotated.csv",
+                "star_salmon/edger/contrast_YRI-GBR.exprs.csv",
+                "star_salmon/edger/contrast_YRI-GBR.usage.exon.annotated.csv",
+                "star_salmon/edger/contrast_YRI-GBR.usage.exon.csv",
+                "star_salmon/edger/contrast_YRI-GBR.usage.exon.pdf",
+                "star_salmon/edger/contrast_YRI-GBR.usage.gene.annotated.csv",
+                "star_salmon/edger/contrast_YRI-GBR.usage.gene.csv",
+                "star_salmon/edger/contrast_YRI-GBR.usage.gene.pdf",
+                "star_salmon/edger/contrast_YRI-GBR.usage.simes.annotated.csv",
+                "star_salmon/edger/contrast_YRI-GBR.usage.simes.csv",
+                "star_salmon/edger/contrast_YRI-GBR.usage.simes.pdf",
                 "star_salmon/featurecounts",
                 "star_salmon/featurecounts/ERR188383.featureCounts.tsv",
                 "star_salmon/featurecounts/ERR188383.featureCounts.tsv.summary",
@@ -723,6 +751,16 @@
                 "star_salmon/rmats/prep/ERR188454_read_outcomes_by_bam.txt",
                 "star_salmon/rmats/prep/ERR204916.rmats",
                 "star_salmon/rmats/prep/ERR204916_read_outcomes_by_bam.txt",
+                "star_salmon/rseqc",
+                "star_salmon/rseqc/junction_saturation",
+                "star_salmon/rseqc/junction_saturation/ERR188383.junctionSaturation_plot.pdf",
+                "star_salmon/rseqc/junction_saturation/ERR188383.junctionSaturation_plot.r",
+                "star_salmon/rseqc/junction_saturation/ERR188428.junctionSaturation_plot.pdf",
+                "star_salmon/rseqc/junction_saturation/ERR188428.junctionSaturation_plot.r",
+                "star_salmon/rseqc/junction_saturation/ERR188454.junctionSaturation_plot.pdf",
+                "star_salmon/rseqc/junction_saturation/ERR188454.junctionSaturation_plot.r",
+                "star_salmon/rseqc/junction_saturation/ERR204916.junctionSaturation_plot.pdf",
+                "star_salmon/rseqc/junction_saturation/ERR204916.junctionSaturation_plot.r",
                 "star_salmon/salmon",
                 "star_salmon/salmon/ERR188383",
                 "star_salmon/salmon/ERR188383/aux_info",
@@ -864,31 +902,35 @@
                 "star_salmon/suppa/split_files/tpms/GBR.tpm",
                 "star_salmon/suppa/split_files/tpms/YRI.tpm",
                 "star_salmon/tximport",
-                "star_salmon/tximport/salmon.merged.gene.R_sessionInfo.log",
-                "star_salmon/tximport/salmon.merged.gene.SummarizedExperiment.rds",
                 "star_salmon/tximport/salmon.merged.gene_counts.tsv",
                 "star_salmon/tximport/salmon.merged.gene_counts_length_scaled.tsv",
                 "star_salmon/tximport/salmon.merged.gene_counts_scaled.tsv",
-                "star_salmon/tximport/salmon.merged.gene_lengths.tsv",
                 "star_salmon/tximport/salmon.merged.gene_tpm.tsv",
-                "star_salmon/tximport/salmon.merged.transcript.R_sessionInfo.log",
-                "star_salmon/tximport/salmon.merged.transcript.SummarizedExperiment.rds",
+                "star_salmon/tximport/salmon.merged.gene_tpm_length_scaled.tsv",
+                "star_salmon/tximport/salmon.merged.gene_tpm_scaled.tsv",
+                "star_salmon/tximport/salmon.merged.gi.ls.rds",
+                "star_salmon/tximport/salmon.merged.gi.rds",
+                "star_salmon/tximport/salmon.merged.gi.s.rds",
                 "star_salmon/tximport/salmon.merged.transcript_counts.tsv",
                 "star_salmon/tximport/salmon.merged.transcript_counts_dtu_scaled.tsv",
+                "star_salmon/tximport/salmon.merged.transcript_counts_length_scaled.tsv",
                 "star_salmon/tximport/salmon.merged.transcript_counts_scaled.tsv",
-                "star_salmon/tximport/salmon.merged.transcript_lengths.tsv",
                 "star_salmon/tximport/salmon.merged.transcript_tpm.tsv",
-                "star_salmon/tximport/salmon.merged.tx2gene_augmented.tsv",
+                "star_salmon/tximport/salmon.merged.transcript_tpm_dtu_scaled.tsv",
+                "star_salmon/tximport/salmon.merged.transcript_tpm_length_scaled.tsv",
+                "star_salmon/tximport/salmon.merged.transcript_tpm_scaled.tsv",
+                "star_salmon/tximport/salmon.merged.txi.dtu.rds",
+                "star_salmon/tximport/salmon.merged.txi.ls.rds",
+                "star_salmon/tximport/salmon.merged.txi.rds",
+                "star_salmon/tximport/salmon.merged.txi.s.rds",
                 "star_salmon/tximport/suppa_tpm.txt",
                 "star_salmon/tximport/tximport.tx2gene.tsv"
             ],
             [
                 "isoformswitchanalyzer_summary.csv:md5,4b2ab1b387ded8f479d7cfa96893e93b",
-                "genes_chrX_genes.gff3:md5,c10571e49275f25f0a51f664a161f811",
+                "genes_chrX_genes.gff3:md5,8143d91e8c2057f1b56e8a19dfb75413",
                 "genes.gff:md5,96be13c1360e34dd9e565d9ac9a5a7bf",
                 "miso_settings.txt:md5,c092cc3e878a299674a99c508b6b2e72",
-                "GBR-YRI.edger.model.txt:md5,4280bed61961e287d9ea1488de88160c",
-                "YRI-GBR.edger.model.txt:md5,4280bed61961e287d9ea1488de88160c",
                 "ERR188383.featureCounts.tsv.summary:md5,e380ce0b5fecd27ee8482469fcb85a42",
                 "ERR188428.featureCounts.tsv.summary:md5,5d33bad50a096a5135063c3a4756585a",
                 "ERR188454.featureCounts.tsv.summary:md5,a5f54a5725d1bc853eca2f5e6dcab218",
@@ -995,7 +1037,7 @@
                 "ERR204916_sorted.bam": "d04f778c726310a919eb676fe3432716"
             }
         ],
-        "timestamp": "2026-11-26T18:36:11.667194662",
+        "timestamp": "2026-11-25T20:54:07.630131303",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"

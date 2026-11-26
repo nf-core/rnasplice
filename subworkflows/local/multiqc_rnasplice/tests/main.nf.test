@@ -1,0 +1,63 @@
+nextflow_workflow {
+
+    name "Test Subworkflow MULTIQC_RNASPLICE"
+    script "../main.nf"
+    workflow "MULTIQC_RNASPLICE"
+
+    tag "subworkflows"
+    tag "subworkflows_"
+    tag "subworkflows/multiqc_rnasplice"
+    tag "custom/splicingsummary"
+    tag "multiqc"
+
+    test("splicing results, custom content and a custom config") {
+
+        when {
+            workflow {
+                """
+                input[0] = channel.empty()
+                input[1] = channel.of("Sample\\tReads after trimming\\nS1\\t10")
+                input[2] = channel.empty()
+                input[3] = channel.of([ id:'S1', single_end:false ])
+                input[4] = channel.empty()
+                input[5] = channel.empty()
+                input[6] = channel.empty()
+                input[7] = channel.of(
+                    [ [ kind:'dexseq_counts'  , route:''    , id:'S1'  ], file("${projectDir}/modules/local/custom/splicingsummary/tests/S1.count.txt", checkIfExists: true)           ],
+                    [ [ kind:'dexseq_counts'  , route:''    , id:'S2'  ], file("${projectDir}/modules/local/custom/splicingsummary/tests/S2.count.txt", checkIfExists: true)           ],
+                    [ [ kind:'suppa_events'   , route:'STAR', id:'A-B' ], file("${projectDir}/modules/local/custom/splicingsummary/tests/local_A-B.dpsi", checkIfExists: true)         ],
+                    [ [ kind:'dexseq_deu_bins', route:''    , id:'A-B' ], file("${projectDir}/modules/local/custom/splicingsummary/tests/A-B.dexseq.results.tsv", checkIfExists: true) ],
+                )
+                input[8] = channel.empty()
+                input[9] = "${projectDir}/subworkflows/local/multiqc_rnasplice/tests/custom_multiqc_config.yml"
+                input[10] = null
+                input[11] = null
+                """
+            }
+        }
+
+        then {
+            assert workflow.success
+            def data_dir = workflow.out.data[0]
+            def report_data = path("${data_dir}/multiqc_data.json").json
+            def multiqc_log = path("${data_dir}/multiqc.log").text
+            assertAll(
+                { assert workflow.out.report[0].flatten().collect { report -> file(report).name } == [ 'multiqc_report.html' ] },
+                { assert path("${data_dir}/multiqc_general_stats.txt").readLines()[0].contains('dexseq_reads_in_bins') },
+                { assert report_data.config_subtitle == 'Custom subtitle' },
+                { assert report_data.config_report_comment.contains('nf-core/rnasplice') },
+                { assert multiqc_log.contains("'Read 1': [{'type': 'regex', 'pattern': '(?<=^S1)_1\$'}]") },
+                { assert multiqc_log.contains("'Read 2': [{'type': 'regex', 'pattern': '(?<=^S1)_2\$'}]") },
+                { assert path("${data_dir}/multiqc_suppa_significant_events_plot.txt").readLines().size() == 2 },
+                { assert path("${data_dir}/multiqc_differential_splicing_table.txt").readLines().size() == 2 },
+                { assert snapshot(
+                    path("${data_dir}/multiqc_general_stats.txt"),
+                    path("${data_dir}/multiqc_differential_splicing_table.txt"),
+                    path("${data_dir}/multiqc_fail_trimmed_samples_table.txt"),
+                ).match() }
+            )
+        }
+
+    }
+
+}

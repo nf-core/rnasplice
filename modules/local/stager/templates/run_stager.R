@@ -138,7 +138,7 @@ read.DRIMSeq <- function(gene, feature) {
 # Set defaults and parse the options provided via `task.ext.args`
 
 opt <- list(
-    alpha                  = 0.05,
+    alpha                  = ${alpha},
     method                 = "dtu",
     allow_na               = TRUE,
     only_significant_genes = FALSE,

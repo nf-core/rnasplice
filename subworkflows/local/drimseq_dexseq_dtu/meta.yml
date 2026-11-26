@@ -41,6 +41,10 @@ input:
         as a value channel, that the annotated copies of the results tables are made from
         Structure: [ val(meta), path(tsv) ]
       pattern: "*.gene_annotation.tsv"
+  - stager_alpha:
+      type: float
+      description: |
+        Target overall false discovery rate of the stageR stage-wise adjustment
 output:
   - drimseq_dataset_rds:
       type: file

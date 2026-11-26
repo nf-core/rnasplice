@@ -14,6 +14,7 @@ workflow DRIMSEQ_DEXSEQ_DTU {
     samplesheet // path: /path/to/samplesheet.csv
     ch_contrastsheet // channel: [ contrast:, treatment:, control:, blocking: (when set) ]
     ch_gene_annotation // channel: [ val(meta), path(tsv) ], the gene annotation table, as a value channel
+    stager_alpha // float: target overall false discovery rate of stageR
 
     main:
 
@@ -59,6 +60,7 @@ workflow DRIMSEQ_DEXSEQ_DTU {
     STAGER(
         ch_dexseq_feature_gene_tsv,
         analysis_type,
+        stager_alpha,
     )
 
     //

@@ -49,6 +49,10 @@ input:
         the ASpli tables is named from
         Structure: [ val(meta), path(tsv) ]
       pattern: "*.gene_annotation.tsv"
+  - bin_fdr:
+      type: float
+      description: |
+        Adjusted p-value cutoff for differential bin usage
 output:
   - features:
       type: file

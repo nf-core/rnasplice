@@ -34,9 +34,22 @@ nextflow_pipeline {
                 .sort { table -> table.name }
                 .collectEntries { table -> [ table.name, RoundedCsv.md5(table, 6, '\t') ] }
 
+            def differential_splicing = new File("${params.outdir}/multiqc/multiqc_data/multiqc_differential_splicing_table.txt").readLines().collect { line -> line.split('\t', -1) }
+
             assert workflow.success
 
             assertAll(
+                { assert differential_splicing.drop(1).collect { row -> row[0] } == [ 'GBR-YRI', 'YRI-GBR' ] },
+                { assert differential_splicing[0].toList().containsAll([
+                    'dexseq_deu_genes',
+                    'edger_deu_genes',
+                    'dexseq_dtu_stager_star_genes',
+                    'dexseq_dtu_stager_salmon_genes',
+                    'suppa2_star_events',
+                    'suppa2_salmon_events',
+                    'isoformswitchanalyzer_salmon_genes_with_switches',
+                    'rmats_jc_events',
+                ]) },
                 // Inferred from the 75 bp test reads
                 { assert RmatsReadLength.fromWorkDir("${launchDir}/work") == [ prep: [ '75' ], post: [ '75' ] ] },
                 { assert snapshot(

@@ -32,10 +32,8 @@ include { rmatsStrandednessError                                          } from
 include { getSamtoolsStatsMedianReadLength                                } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
 include { aspliReadError                                                  } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
 include { multiqcTsvFromList                                              } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
+include { MULTIQC_RNASPLICE                                               } from '../subworkflows/local/multiqc_rnasplice'
 include { checkBamReferenceSequences                                      } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
-include { paramsSummaryMultiqc                                            } from 'plugin/nf-core-utils'
-include { toolCitations                                                   } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
-include { methodsDescriptionText                                          } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
 
 
 /*
@@ -48,9 +46,9 @@ include { FASTQC                                                          } from
 include { SALMON_QUANT as SALMON_QUANT_SALMON                             } from '../modules/nf-core/salmon/quant'
 include { SALMON_QUANT as SALMON_QUANT_STAR                               } from '../modules/nf-core/salmon/quant'
 include { SALMON_QUANT as SALMON_QUANT_STAR_AUTO                          } from '../modules/nf-core/salmon/quant'
-include { MULTIQC                                                         } from '../modules/nf-core/multiqc/'
 include { GFFREAD as GFFREAD_GTF2BED                                      } from '../modules/nf-core/gffread'
 include { RSEQC_INFEREXPERIMENT                                           } from '../modules/nf-core/rseqc/inferexperiment'
+include { RSEQC_JUNCTIONSATURATION                                        } from '../modules/nf-core/rseqc/junctionsaturation'
 include { CAT_FASTQ                                                       } from '../modules/nf-core/cat/fastq'
 include { SAMTOOLS_SPLITHEADER as SAMTOOLS_SPLITHEADER_GENOME             } from '../modules/nf-core/samtools/splitheader'
 include { SAMTOOLS_SPLITHEADER as SAMTOOLS_SPLITHEADER_TRANSCRIPTOME      } from '../modules/nf-core/samtools/splitheader'
@@ -60,7 +58,6 @@ include { BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG as BEDGRAPH_TO_BIGWIG_REVERSE } from
 include { BAM_SORT_STATS_SAMTOOLS                                         } from '../subworkflows/nf-core/bam_sort_stats_samtools/main'
 include { BAM_SORT_STATS_SAMTOOLS as BAM_SORT_STATS_SAMTOOLS_TRANSCRIPTOME } from '../subworkflows/nf-core/bam_sort_stats_samtools/main'
 include { collectVersions                                                 } from 'plugin/nf-core-utils'
-include { paramsSummaryMap                                                } from 'plugin/nf-schema'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -95,7 +92,14 @@ workflow RNASPLICE {
     def ch_multiqc_files = channel.empty()
     def pass_trimmed_reads = [:]
     def ch_rseqc_txt = channel.empty()
+    def ch_junction_saturation = channel.empty()
     def ch_leafcutter_strand_summary = channel.empty()
+    def ch_fail_trimming_tsv = channel.empty()
+    def ch_strand_check_tsv = channel.empty()
+    def ch_fastq_meta = channel.empty()
+    def ch_rmats_read_outcomes = channel.empty()
+    def ch_rmats_summary = channel.empty()
+    def ch_splicing_results = channel.empty()
 
     // Each input the samplesheet gives a sample, for the steps that read it
     ch_input_fastq = ch_samplesheet
@@ -169,6 +173,7 @@ workflow RNASPLICE {
     if (input_routes.fastq) {
         CAT_FASTQ(ch_fastq.multiple)
         CAT_FASTQ.out.reads.mix(ch_fastq.single).set { ch_cat_fastq }
+        ch_fastq_meta = ch_cat_fastq.map { meta, _reads -> meta }
 
         //
         // SUBWORKFLOW: Read QC and trim adapters with TrimGalore!
@@ -219,12 +224,13 @@ workflow RNASPLICE {
     }
 
     //
-    // MODULE: BED12 annotation for RSeQC, made for the strand check, or for a genome BAM
-    // samplesheet with an 'auto' sample
+    // MODULE: BED12 annotation for RSeQC, made for the strand check and the junction
+    // saturation of the genome BAM files, or for a genome BAM samplesheet with an 'auto' sample
     //
     def strand_check_genome_bam = params.strand_check && input_routes.genome
-    if (strand_check_genome_bam || input_routes.input_types.genome_bam) {
-        ch_gtf_for_bed = strand_check_genome_bam
+    def rseqc_genome_bam = strand_check_genome_bam || (!params.skip_junction_saturation && input_routes.genome)
+    if (rseqc_genome_bam || input_routes.input_types.genome_bam) {
+        ch_gtf_for_bed = rseqc_genome_bam
             ? ch_gtf
             : ch_gtf
                 .combine(ch_input_genome_bam.filter { meta, _bam -> meta.strandedness == 'auto' })
@@ -286,6 +292,7 @@ workflow RNASPLICE {
         ch_samtools_flagstat = FASTQ_ALIGN_STAR.out.flagstat
         ch_samtools_idxstats = FASTQ_ALIGN_STAR.out.idxstats
         ch_star_multiqc = FASTQ_ALIGN_STAR.out.log_final
+        ch_splicing_results = ch_splicing_results.mix(splicingResults(FASTQ_ALIGN_STAR.out.log_final, 'star_log'))
     }
 
     //
@@ -319,6 +326,17 @@ workflow RNASPLICE {
 
 
     if (input_routes.genome) {
+        //
+        // MODULE: Splice junctions RSeQC finds in growing subsets of the reads of each genome BAM
+        //
+        if (!params.skip_junction_saturation) {
+            RSEQC_JUNCTIONSATURATION(
+                ch_genome_bam.join(ch_genome_bam_index),
+                ch_gene_bed,
+            )
+            ch_junction_saturation = RSEQC_JUNCTIONSATURATION.out.rscript
+        }
+
         //
         // MODULE: Check the strandedness used against the one RSeQC infers from the genome BAM
         //
@@ -400,6 +418,10 @@ workflow RNASPLICE {
                 ch_contrastsheet,
                 ch_gene_annotation,
             )
+            ch_splicing_results = ch_splicing_results
+                .mix(splicingResults(DEXSEQ_DEU.out.counts, 'dexseq_counts'))
+                .mix(splicingResults(DEXSEQ_DEU.out.dexseq_exon_results_tsv, 'dexseq_deu_bins'))
+                .mix(splicingResults(DEXSEQ_DEU.out.dexseq_gene_results_tsv, 'dexseq_deu_genes'))
         }
 
         if (params.edger_exon) {
@@ -409,6 +431,9 @@ workflow RNASPLICE {
                 ch_contrastsheet,
                 ch_gene_annotation,
             )
+            ch_splicing_results = ch_splicing_results
+                .mix(splicingResults(EDGER_DEU.out.results, 'edger_exons'))
+                .mix(splicingResults(EDGER_DEU.out.simes, 'edger_genes'))
         }
 
         if (params.rmats) {
@@ -443,6 +468,11 @@ workflow RNASPLICE {
                 ch_rmats_read_len,
                 params.rmats_paired_stats,
             )
+            ch_rmats_read_outcomes = RMATS.out.read_outcomes
+            ch_rmats_summary = RMATS.out.summary
+            ch_splicing_results = ch_splicing_results
+                .mix(splicingResults(RMATS.out.summary, 'rmats_summary'))
+                .mix(splicingResults(RMATS.out.mats.transpose().filter { _meta, txt -> txt.name.endsWith('.MATS.JC.txt') }, 'rmats_jc'))
         }
 
         if (params.sashimi_plot == true) {
@@ -469,6 +499,9 @@ workflow RNASPLICE {
                 Math.max(params.leafcutter_ds_min_samples_per_intron, params.leafcutter_ds_min_samples_per_group),
             )
             ch_leafcutter_strand_summary = LEAFCUTTER.out.strand_summary
+            ch_splicing_results = ch_splicing_results
+                .mix(splicingResults(LEAFCUTTER.out.numers, 'leafcutter_numers'))
+                .mix(splicingResults(LEAFCUTTER.out.cluster_significance, 'leafcutter_ds'))
         }
 
         if (params.aspli) {
@@ -479,7 +512,11 @@ workflow RNASPLICE {
                 ch_contrastsheet,
                 params.aspli_read_len ?: 0,
                 ch_gene_annotation,
+                params.aspli_bin_fdr,
             )
+            ch_splicing_results = ch_splicing_results
+                .mix(splicingResults(ASPLI.out.gb_du.transpose().filter { _meta, tsv -> tsv.name.endsWith('.bins_du.tsv') }, 'aspli_bins'))
+                .mix(splicingResults(ASPLI.out.j_du.transpose().filter { _meta, tsv -> tsv.name.endsWith('.locale_clusters.tsv') }, 'aspli_clusters'))
         }
     }
 
@@ -546,7 +583,12 @@ workflow RNASPLICE {
                 ch_samplesheet_file,
                 ch_contrastsheet,
                 ch_gene_annotation,
+                params.stager_alpha,
             )
+            ch_splicing_results = ch_splicing_results
+                .mix(splicingResults(DRIMSEQ_DEXSEQ_DTU_STAR_SALMON.out.dexseq_exon_results_tsv, 'dexseq_dtu_transcripts', 'STAR'))
+                .mix(splicingResults(DRIMSEQ_DEXSEQ_DTU_STAR_SALMON.out.dexseq_gene_results_tsv, 'dexseq_dtu_genes', 'STAR'))
+                .mix(splicingResults(DRIMSEQ_DEXSEQ_DTU_STAR_SALMON.out.stager_padj_tsv, 'stager', 'STAR'))
         }
 
         if (params.suppa) {
@@ -586,6 +628,10 @@ workflow RNASPLICE {
                 params.suppa_per_isoform,
                 ch_gene_annotation,
             )
+            ch_splicing_results = ch_splicing_results
+                .mix(splicingResults(SUPPA_STAR_SALMON.out.suppa_local_psi, 'suppa_psi', 'STAR'))
+                .mix(suppaContrastResults(SUPPA_STAR_SALMON.out.dpsi_local, ch_contrastsheet, 'suppa_events', 'STAR'))
+                .mix(suppaContrastResults(SUPPA_STAR_SALMON.out.dpsi_isoform, ch_contrastsheet, 'suppa_isoforms', 'STAR'))
         }
     }
 
@@ -620,7 +666,12 @@ workflow RNASPLICE {
                 ch_samplesheet_file,
                 ch_contrastsheet,
                 ch_gene_annotation,
+                params.stager_alpha,
             )
+            ch_splicing_results = ch_splicing_results
+                .mix(splicingResults(DRIMSEQ_DEXSEQ_DTU_SALMON.out.dexseq_exon_results_tsv, 'dexseq_dtu_transcripts', 'Salmon'))
+                .mix(splicingResults(DRIMSEQ_DEXSEQ_DTU_SALMON.out.dexseq_gene_results_tsv, 'dexseq_dtu_genes', 'Salmon'))
+                .mix(splicingResults(DRIMSEQ_DEXSEQ_DTU_SALMON.out.stager_padj_tsv, 'stager', 'Salmon'))
         }
 
         if (params.suppa) {
@@ -660,6 +711,10 @@ workflow RNASPLICE {
                 params.suppa_per_isoform,
                 ch_gene_annotation,
             )
+            ch_splicing_results = ch_splicing_results
+                .mix(splicingResults(SUPPA_SALMON.out.suppa_local_psi, 'suppa_psi', 'Salmon'))
+                .mix(suppaContrastResults(SUPPA_SALMON.out.dpsi_local, ch_contrastsheet, 'suppa_events', 'Salmon'))
+                .mix(suppaContrastResults(SUPPA_SALMON.out.dpsi_isoform, ch_contrastsheet, 'suppa_isoforms', 'Salmon'))
         }
     }
 
@@ -675,7 +730,23 @@ workflow RNASPLICE {
             params.isoformswitchanalyzer_alpha,
             params.isoformswitchanalyzer_dIF,
         )
+        // The Salmon results of the Salmon route replace those of the STAR route when both run
+        def isa_route = input_routes.pseudo_salmon || input_routes.salmon_results ? 'Salmon' : 'STAR'
+        ch_splicing_results = ch_splicing_results
+            .mix(ISOFORMSWITCHANALYZER.out.isoformswitchanalyzer_isoformFeatures.map { csv -> [[kind: 'isa_features', route: isa_route, id: ''], csv] })
     }
+
+    // The sheets give the conditions of each contrast for the design check, and the gene
+    // annotation maps the gene names some tools report to gene IDs
+    ch_splicing_results = ch_splicing_results
+        .mix(ch_contrastsheet_file.map { csv -> [[kind: 'contrasts', route: '', id: ''], csv] })
+        .mix(
+            ch_samples
+                .map { id, condition -> "${id},${condition}" }
+                .collectFile(name: 'sample_conditions.csv', seed: 'sample,condition\n', newLine: true, sort: true)
+                .map { csv -> [[kind: 'samplesheet', route: '', id: ''], csv] }
+        )
+        .mix(splicingResults(ch_gene_annotation, 'gene_annotation'))
 
     //
     // Module: Generate stranded coverage bigWig files for visualisation in genome browsers
@@ -707,75 +778,80 @@ workflow RNASPLICE {
             newLine: true
         )
 
-    def ch_summary_params = paramsSummaryMap(workflow, parameters_schema: "nextflow_schema.json")
-    def ch_workflow_summary = channel.value(paramsSummaryMultiqc(ch_summary_params))
-    ch_multiqc_files = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
-    def ch_multiqc_custom_methods_description = multiqc_methods_description
-        ? file(multiqc_methods_description, checkIfExists: true)
-        : file("${projectDir}/assets/methods_description_template.yml", checkIfExists: true)
-
-    // The methods section cites the tools that ran
-    def meta_yml_paths = files("${projectDir}/modules/**/meta.yml").collect { meta_yml -> meta_yml.toString() }.sort()
-    def ch_methods_description = channel.topic('versions')
-        .toList()
-        .map { versions -> methodsDescriptionText(ch_multiqc_custom_methods_description, toolCitations(versions, meta_yml_paths, ['multiqc'])) }
-    ch_multiqc_files = ch_multiqc_files.mix(ch_methods_description.collectFile(name: 'methods_description_mqc.yaml'))
-
-    // Blend final channel maps
-    ch_multiqc_files = ch_multiqc_files.mix(ch_collated_versions)
-
     if (input_routes.fastq) {
-        ch_multiqc_files = ch_multiqc_files.mix(FASTQ_FASTQC_UMITOOLS_TRIMGALORE.out.fastqc_zip.collect { it -> it[1] }.ifEmpty([]))
-        ch_multiqc_files = ch_multiqc_files.mix(FASTQ_FASTQC_UMITOOLS_TRIMGALORE.out.trim_zip.collect { it -> it[1] }.ifEmpty([]))
-        ch_multiqc_files = ch_multiqc_files.mix(FASTQ_FASTQC_UMITOOLS_TRIMGALORE.out.trim_log.collect { it -> it[1] }.ifEmpty([]))
-        ch_multiqc_files = ch_multiqc_files.mix(ch_fail_trimming_multiqc.collectFile(name: 'fail_trimmed_samples_mqc.tsv').ifEmpty([]))
+        ch_multiqc_files = ch_multiqc_files
+            .mix(FASTQ_FASTQC_UMITOOLS_TRIMGALORE.out.fastqc_zip)
+            .mix(FASTQ_FASTQC_UMITOOLS_TRIMGALORE.out.trim_zip)
+            .mix(FASTQ_FASTQC_UMITOOLS_TRIMGALORE.out.trim_log)
+        ch_fail_trimming_tsv = ch_fail_trimming_multiqc
     }
 
     if (input_routes.pseudo_salmon) {
-        ch_multiqc_files = ch_multiqc_files.mix(ch_salmon_results.collect { it -> it[1] }.ifEmpty([]))
+        ch_multiqc_files = ch_multiqc_files.mix(ch_salmon_results)
     }
 
     if (input_routes.star) {
-        ch_multiqc_files = ch_multiqc_files.mix(ch_star_multiqc.collect { it -> it[1] }.ifEmpty([]))
+        ch_multiqc_files = ch_multiqc_files.mix(ch_star_multiqc)
     }
 
     if (input_routes.genome || input_routes.input_types.transcriptome_bam) {
-        ch_multiqc_files = ch_multiqc_files.mix(ch_samtools_stats.collect { it -> it[1] }.ifEmpty([]))
-        ch_multiqc_files = ch_multiqc_files.mix(ch_samtools_flagstat.collect { it -> it[1] }.ifEmpty([]))
-        ch_multiqc_files = ch_multiqc_files.mix(ch_samtools_idxstats.collect { it -> it[1] }.ifEmpty([]))
+        ch_multiqc_files = ch_multiqc_files
+            .mix(ch_samtools_stats)
+            .mix(ch_samtools_flagstat)
+            .mix(ch_samtools_idxstats)
+            .mix(ch_rseqc_txt)
+            .mix(ch_junction_saturation)
 
         if (params.edger_exon && input_routes.genome) {
-            ch_multiqc_files = ch_multiqc_files.mix(EDGER_DEU.out.featureCounts_summary.collect { it -> it[1] }.ifEmpty([]))
+            ch_multiqc_files = ch_multiqc_files.mix(EDGER_DEU.out.featureCounts_summary)
         }
 
-        ch_multiqc_files = ch_multiqc_files.mix(ch_rseqc_txt.collect { it -> it[1] }.ifEmpty([]))
         if (strand_check_genome_bam) {
-            ch_multiqc_files = ch_multiqc_files.mix(ch_strand_check_multiqc.collectFile(name: 'fail_strand_check_mqc.tsv'))
+            ch_strand_check_tsv = ch_strand_check_multiqc
         }
-
-        // One table row per unstranded sample, sorted by sample so the report does not
-        // depend on the order the tasks finished in
-        ch_multiqc_files = ch_multiqc_files.mix(
-            ch_leafcutter_strand_summary
-                .map { _meta, summary -> summary }
-                .collectFile(name: 'leafcutter_junction_strands_mqc.tsv', keepHeader: true, skip: 1, sort: { summary -> summary.name })
-        )
     }
 
-    MULTIQC(
-        ch_multiqc_files.flatten().collect().map { files ->
-            [
-                [id: 'rnasplice'],
-                files,
-                multiqc_config
-                    ? file(multiqc_config, checkIfExists: true)
-                    : file("${projectDir}/assets/multiqc_config.yml", checkIfExists: true),
-                multiqc_logo ? file(multiqc_logo, checkIfExists: true) : [],
-                [],
-                [],
-            ]
-        }
+    MULTIQC_RNASPLICE(
+        ch_multiqc_files,
+        ch_fail_trimming_tsv,
+        ch_strand_check_tsv,
+        ch_fastq_meta,
+        ch_leafcutter_strand_summary,
+        ch_rmats_read_outcomes,
+        ch_rmats_summary,
+        ch_splicing_results,
+        ch_collated_versions,
+        multiqc_config,
+        multiqc_logo,
+        multiqc_methods_description,
     )
+
     emit:
-    multiqc_report = MULTIQC.out.report.map { _meta, report -> [report] }.toList() // channel: /path/to/multiqc_report.html
+    multiqc_report = MULTIQC_RNASPLICE.out.report // channel: /path/to/multiqc_report.html
+}
+
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    FUNCTIONS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+
+//
+// Label the result tables of a splicing analysis for CUSTOM_SPLICINGSUMMARY, by their
+// meta.id, which is the sample or the contrast
+//
+def splicingResults(ch_results, kind, route = '') {
+    return ch_results.map { meta, result -> [[kind: kind, route: route, id: meta.id], result] }
+}
+
+//
+// SUPPA2 names its contrasts after their conditions, so the contrastsheet gives their names.
+// SUPPA2 and IsoformSwitchAnalyzeR ignore blocking, so contrasts with the same conditions
+// share their results
+//
+def suppaContrastResults(ch_dpsi, ch_contrastsheet, kind, route) {
+    return ch_dpsi
+        .map { meta, dpsi -> [meta.treatment, meta.control, dpsi] }
+        .combine(ch_contrastsheet.map { row -> [row.treatment, row.control, row.contrast] }, by: [0, 1])
+        .map { _treatment, _control, dpsi, contrast -> [[kind: kind, route: route, id: contrast], dpsi] }
 }

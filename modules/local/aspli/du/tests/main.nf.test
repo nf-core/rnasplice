@@ -76,6 +76,7 @@ nextflow_process {
                     .join(ASPLI_COUNTS.out.gbcounts)
                     .join(ASPLI_COUNTS.out.jcounts)
                     .map { _meta, features, gbcounts, jcounts -> [ [ id:'GBR-YRI', treatment:'GBR', control:'YRI' ], features, gbcounts, jcounts ] }
+                input[1] = 0.05
                 """
             }
         }
@@ -127,6 +128,7 @@ nextflow_process {
                     .join(ASPLI_COUNTS.out.gbcounts)
                     .join(ASPLI_COUNTS.out.jcounts)
                     .map { _meta, features, gbcounts, jcounts -> [ [ id:'GBR-YRI', treatment:'GBR', control:'YRI' ], features, gbcounts, jcounts ] }
+                input[1] = 0.05
                 """
             }
         }

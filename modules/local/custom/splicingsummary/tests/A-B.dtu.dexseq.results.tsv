@@ -1,0 +1,4 @@
+groupID	featureID	pvalue	padj
+G1	T1	0.001	0.01
+G1	T2	0.5	0.7
+G2	T3	NA	NA

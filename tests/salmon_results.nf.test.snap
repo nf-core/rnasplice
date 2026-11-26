@@ -5,8 +5,11 @@
                 "CLUSTERGROUPS": {
                     "python": "3.14.6"
                 },
-                "CUSTOM_TX2GENE": {
-                    "python": "3.10.4"
+                "CUSTOM_SPLICINGSUMMARY": {
+                    "numpy": "2.5.5",
+                    "pandas": "3.1.1",
+                    "python": "3.14.6",
+                    "yaml": "6.0.3"
                 },
                 "DEXSEQ_DTU": {
                     "bioconductor-dexseq": "1.56.0",
@@ -29,7 +32,10 @@
                     "python": "3.14.6"
                 },
                 "GFFREAD_TX2GENE": {
-                    "gffread": "0.12.9"
+                    "gffread": "0.12.7"
+                },
+                "GTFGENEFILTER": {
+                    "python": "3.14.6"
                 },
                 "GUNZIP_FASTA": {
                     "gunzip": "1.13"
@@ -48,12 +54,6 @@
                 "SAMTOOLS_FAIDX": {
                     "samtools": "1.24"
                 },
-                "SE_GENE_UNIFIED": {
-                    "bioconductor-summarizedexperiment": "1.42.0"
-                },
-                "SE_TRANSCRIPT_UNIFIED": {
-                    "bioconductor-summarizedexperiment": "1.42.0"
-                },
                 "SPLITFILES_PSI": {
                     "r-base": "4.6.1"
                 },
@@ -62,9 +62,6 @@
                 },
                 "STAGER": {
                     "stageR": "1.32.0"
-                },
-                "SUPPATPM": {
-                    "coreutils": "9.5"
                 },
                 "SUPPA_CLUSTEREVENTS": {
                     "statsmodels": "0.14.6",
@@ -90,9 +87,9 @@
                     "statsmodels": "0.14.6",
                     "suppa": "2.4"
                 },
-                "TXIMETA_TXIMPORT": {
-                    "bioconductor-tximeta": "1.20.1",
-                    "bioconductor-tximport": "1.30.0"
+                "TXIMPORT": {
+                    "bioconductor-tximeta": "1.28.2",
+                    "bioconductor-tximport": "1.38.2"
                 },
                 "UNTAR": {
                     "untar": "1.34"
@@ -123,8 +120,29 @@
                 "multiqc/multiqc_data/multiqc.parquet",
                 "multiqc/multiqc_data/multiqc_citations.txt",
                 "multiqc/multiqc_data/multiqc_data.json",
+                "multiqc/multiqc_data/multiqc_differential_splicing_table.txt",
+                "multiqc/multiqc_data/multiqc_general_stats.txt",
                 "multiqc/multiqc_data/multiqc_software_versions.txt",
                 "multiqc/multiqc_data/multiqc_sources.txt",
+                "multiqc/multiqc_data/multiqc_splicing_design_check_table.txt",
+                "multiqc/multiqc_data/multiqc_suppa_psi_concordance_plot.txt",
+                "multiqc/multiqc_data/multiqc_suppa_significant_events_plot.txt",
+                "multiqc/multiqc_plots",
+                "multiqc/multiqc_plots/pdf",
+                "multiqc/multiqc_plots/pdf/differential_splicing_table.pdf",
+                "multiqc/multiqc_plots/pdf/splicing_design_check_table.pdf",
+                "multiqc/multiqc_plots/pdf/suppa_psi_concordance_plot.pdf",
+                "multiqc/multiqc_plots/pdf/suppa_significant_events_plot.pdf",
+                "multiqc/multiqc_plots/png",
+                "multiqc/multiqc_plots/png/differential_splicing_table.png",
+                "multiqc/multiqc_plots/png/splicing_design_check_table.png",
+                "multiqc/multiqc_plots/png/suppa_psi_concordance_plot.png",
+                "multiqc/multiqc_plots/png/suppa_significant_events_plot.png",
+                "multiqc/multiqc_plots/svg",
+                "multiqc/multiqc_plots/svg/differential_splicing_table.svg",
+                "multiqc/multiqc_plots/svg/splicing_design_check_table.svg",
+                "multiqc/multiqc_plots/svg/suppa_psi_concordance_plot.svg",
+                "multiqc/multiqc_plots/svg/suppa_significant_events_plot.svg",
                 "multiqc/multiqc_report.html",
                 "pipeline_info",
                 "pipeline_info/nf_core_rnasplice_software_mqc_versions.yml",
@@ -285,21 +303,27 @@
                 "salmon/tximport/ERR204916/logs/salmon_quant.log",
                 "salmon/tximport/ERR204916/quant.genes.sf",
                 "salmon/tximport/ERR204916/quant.sf",
-                "salmon/tximport/salmon.merged.gene.R_sessionInfo.log",
-                "salmon/tximport/salmon.merged.gene.SummarizedExperiment.rds",
                 "salmon/tximport/salmon.merged.gene_counts.tsv",
                 "salmon/tximport/salmon.merged.gene_counts_length_scaled.tsv",
                 "salmon/tximport/salmon.merged.gene_counts_scaled.tsv",
-                "salmon/tximport/salmon.merged.gene_lengths.tsv",
                 "salmon/tximport/salmon.merged.gene_tpm.tsv",
-                "salmon/tximport/salmon.merged.transcript.R_sessionInfo.log",
-                "salmon/tximport/salmon.merged.transcript.SummarizedExperiment.rds",
+                "salmon/tximport/salmon.merged.gene_tpm_length_scaled.tsv",
+                "salmon/tximport/salmon.merged.gene_tpm_scaled.tsv",
+                "salmon/tximport/salmon.merged.gi.ls.rds",
+                "salmon/tximport/salmon.merged.gi.rds",
+                "salmon/tximport/salmon.merged.gi.s.rds",
                 "salmon/tximport/salmon.merged.transcript_counts.tsv",
                 "salmon/tximport/salmon.merged.transcript_counts_dtu_scaled.tsv",
+                "salmon/tximport/salmon.merged.transcript_counts_length_scaled.tsv",
                 "salmon/tximport/salmon.merged.transcript_counts_scaled.tsv",
-                "salmon/tximport/salmon.merged.transcript_lengths.tsv",
                 "salmon/tximport/salmon.merged.transcript_tpm.tsv",
-                "salmon/tximport/salmon.merged.tx2gene_augmented.tsv",
+                "salmon/tximport/salmon.merged.transcript_tpm_dtu_scaled.tsv",
+                "salmon/tximport/salmon.merged.transcript_tpm_length_scaled.tsv",
+                "salmon/tximport/salmon.merged.transcript_tpm_scaled.tsv",
+                "salmon/tximport/salmon.merged.txi.dtu.rds",
+                "salmon/tximport/salmon.merged.txi.ls.rds",
+                "salmon/tximport/salmon.merged.txi.rds",
+                "salmon/tximport/salmon.merged.txi.s.rds",
                 "salmon/tximport/suppa_tpm.txt",
                 "salmon/tximport/tximport.tx2gene.tsv"
             ],
@@ -312,7 +336,7 @@
                 "genes_chrX.ioi:md5,aa178a4526493cc55fbd9d6f59ed5c4f"
             ]
         ],
-        "timestamp": "2026-11-26T17:38:42.417593832",
+        "timestamp": "2026-11-25T20:55:23.285700544",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"

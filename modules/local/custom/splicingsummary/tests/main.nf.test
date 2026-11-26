@@ -1,0 +1,365 @@
+nextflow_process {
+
+    name "Test Process CUSTOM_SPLICINGSUMMARY"
+    script "../main.nf"
+    process "CUSTOM_SPLICINGSUMMARY"
+
+    tag "modules"
+    tag "modules_"
+    tag "custom"
+    tag "custom/splicingsummary"
+
+    test("splicing results") {
+
+        when {
+            process {
+                """
+                def results = [
+                    [ [ kind:'dexseq_counts'         , route:''    , id:'S1'  ], 'S1.count.txt'                  ],
+                    [ [ kind:'dexseq_counts'         , route:''    , id:'S2'  ], 'S2.count.txt'                  ],
+                    [ [ kind:'star_log'              , route:''    , id:'S1'  ], 'S1.Log.final.out'              ],
+                    [ [ kind:'star_log'              , route:''    , id:'S2'  ], 'S2.Log.final.out'              ],
+                    [ [ kind:'suppa_psi'             , route:'STAR', id:''    ], 'suppa.psi'                     ],
+                    [ [ kind:'leafcutter_numers'     , route:''    , id:'lc'  ], 'numers.counts'                 ],
+                    [ [ kind:'leafcutter_strands'    , route:''    , id:'S1'  ], 'S1.strand_summary.tsv'         ],
+                    [ [ kind:'suppa_events'          , route:'STAR', id:'A-B' ], 'local_A-B.dpsi'                ],
+                    [ [ kind:'suppa_isoforms'        , route:'STAR', id:'A-B' ], 'transcript_A-B.dpsi'           ],
+                    [ [ kind:'dexseq_deu_bins'       , route:''    , id:'A-B' ], 'A-B.dexseq.results.tsv'        ],
+                    [ [ kind:'dexseq_deu_genes'      , route:''    , id:'A-B' ], 'A-B.dexseq.gene_qvalues.tsv'   ],
+                    [ [ kind:'edger_exons'           , route:''    , id:'A-B' ], 'A-B.edger.diffsplice.results.tsv'   ],
+                    [ [ kind:'edger_genes'           , route:''    , id:'A-B' ], 'A-B.edger.diffsplice.simes.tsv'  ],
+                    [ [ kind:'dexseq_dtu_transcripts', route:'STAR', id:'A-B' ], 'A-B.dtu.dexseq.results.tsv'    ],
+                    [ [ kind:'dexseq_dtu_genes'      , route:'STAR', id:'A-B' ], 'A-B.dtu.gene_qvalues.tsv'      ],
+                    [ [ kind:'stager'                , route:'STAR', id:'A-B' ], 'getAdjustedPValues.A-B.tsv'    ],
+                    [ [ kind:'isa_features'          , route:'STAR', id:''    ], 'isoformfeatures.csv'           ],
+                    [ [ kind:'leafcutter_ds'         , route:''    , id:'A-B' ], 'A-B_cluster_significance.txt'  ],
+                    [ [ kind:'aspli_bins'            , route:''    , id:'A-B' ], 'A-B.bins_du.tsv'               ],
+                    [ [ kind:'aspli_clusters'        , route:''    , id:'A-B' ], 'A-B.locale_clusters.tsv'       ],
+                    [ [ kind:'rmats_summary'         , route:''    , id:'A-B' ], 'A-B_summary.txt'               ],
+                    [ [ kind:'rmats_jc'              , route:''    , id:'A-B' ], 'SE.MATS.JC.txt'                ],
+                    [ [ kind:'contrasts'             , route:''    , id:''    ], 'contrastsheet.csv'             ],
+                    [ [ kind:'samplesheet'           , route:''    , id:''    ], 'sample_conditions.csv'         ],
+                    [ [ kind:'gene_annotation'       , route:''    , id:''    ], 'gene_annotation.tsv'           ],
+                ]
+                input[0] = [
+                    [ id:'splicing_summary' ],
+                    results.collect { label, _name -> label },
+                    results.collect { _label, name -> file("${moduleTestDir}/\${name}", checkIfExists: true) },
+                ]
+                input[1] = file("${projectDir}/assets/multiqc_splicing_sections.yml", checkIfExists: true)
+                """
+            }
+        }
+
+        then {
+            def sections = { name -> path(process.out.sections[0][1].find { section -> section.toString().endsWith("/${name}_mqc.json") }).json }
+            assert process.success
+            assertAll(
+                { assert process.out.sections[0][1].collect { section -> new File(section.toString()).name }.sort() == [
+                    'differential_splicing_mqc.json',
+                    'leafcutter_cluster_test_outcomes_mqc.json',
+                    'splicing_design_check_mqc.json',
+                    'splicing_method_agreement_mqc.json',
+                    'splicing_pvalue_histograms_mqc.json',
+                    'splicing_sample_metrics_mqc.json',
+                    'splicing_verdict_mqc.json',
+                    'suppa_significant_events_mqc.json',
+                ] },
+                { assert sections('splicing_sample_metrics').plot_type == 'generalstats' },
+                { assert sections('splicing_sample_metrics').headers.keySet() == [
+                    'star_annotated_splices', 'star_splices', 'dexseq_reads_in_bins', 'suppa_events_quantified',
+                    'leafcutter_junction_reads', 'leafcutter_introns_detected', 'leafcutter_reads_strandless',
+                ] as Set },
+                { assert sections('splicing_sample_metrics').data.S1.subMap(['star_annotated_splices', 'suppa_events_quantified', 'leafcutter_junction_reads', 'leafcutter_reads_strandless']) == [
+                    star_annotated_splices: 75.0, suppa_events_quantified: 75.0, leafcutter_junction_reads: 9, leafcutter_reads_strandless: 8.0,
+                ] },
+                { assert sections('splicing_sample_metrics').data.S2.subMap(['star_annotated_splices', 'suppa_events_quantified', 'leafcutter_junction_reads']) == [
+                    star_annotated_splices: 100.0, suppa_events_quantified: 50.0, leafcutter_junction_reads: 6,
+                ] },
+                { assert sections('splicing_verdict').data.contains('Design: 1 vs 1 samples per contrast. Spliced reads per sample: median 150 (range 100 to 200).') },
+                { assert sections('splicing_verdict').data.contains('Treat the calls below as exploratory.') },
+                { assert sections('differential_splicing').parent_id == 'splicing' },
+                { assert sections('suppa_significant_events').subMap(['parent_id', 'parent_name', 'section_name']) == [parent_id: 'splicing_suppa2', parent_name: 'SUPPA2', section_name: 'Significant Events'] },
+                { assert sections('leafcutter_cluster_test_outcomes').parent_id == 'splicing_leafcutter' },
+                { assert sections('differential_splicing').helptext },
+                { assert sections('differential_splicing').data == [
+                    'A-B': [
+                        dexseq_deu_exon_bins: 1, dexseq_deu_exon_bins_tested: 2,
+                        dexseq_deu_genes: 1, dexseq_deu_genes_tested: 2,
+                        edger_deu_exons: 1, edger_deu_exons_tested: 2, edger_deu_exons_effect: 2.0,
+                        edger_deu_genes: 1, edger_deu_genes_tested: 2,
+                        dexseq_dtu_star_genes: 1, dexseq_dtu_star_genes_tested: 1,
+                        dexseq_dtu_star_transcripts: 1, dexseq_dtu_star_transcripts_tested: 2,
+                        dexseq_dtu_stager_star_genes: 1, dexseq_dtu_stager_star_genes_tested: 2,
+                        dexseq_dtu_stager_star_transcripts: 1, dexseq_dtu_stager_star_transcripts_tested: 2,
+                        suppa2_star_events: 2, suppa2_star_events_tested: 3, suppa2_star_events_effect: 0.4,
+                        suppa2_star_transcripts: 1, suppa2_star_transcripts_tested: 2,
+                        isoformswitchanalyzer_star_genes_with_switches: 1, isoformswitchanalyzer_star_genes_with_switches_tested: 2, isoformswitchanalyzer_star_genes_with_switches_effect: 0.3,
+                        isoformswitchanalyzer_star_isoforms: 1, isoformswitchanalyzer_star_isoforms_tested: 3,
+                        leafcutter_clusters: 1, leafcutter_clusters_tested: 2,
+                        aspli_bins: 1, aspli_bins_tested: 2, aspli_bins_effect: 1.2,
+                        aspli_junction_clusters: 1, aspli_junction_clusters_tested: 2,
+                        rmats_jc_events: 1, rmats_jc_events_tested: 5, rmats_jc_events_effect: 0.3,
+                    ]
+                ] },
+                { assert sections('differential_splicing').headers.findAll { _key, header -> !header.hidden }.collect { _key, header -> header.title } == [
+                    'DEXSeq DEU genes',
+                    'edgeR DEU genes',
+                    'DEXSeq DTU + stageR genes (STAR + Salmon)',
+                    'SUPPA2 events (STAR + Salmon)',
+                    'IsoformSwitchAnalyzeR genes with switches (STAR + Salmon)',
+                    'LeafCutter clusters',
+                    'ASpli bins',
+                    'rMATS JC events',
+                ] },
+                { assert sections('suppa_significant_events').description.contains('gene-corrected p < 0.05, |dPSI| > 0.05') },
+                { assert sections('suppa_significant_events').data == [
+                    'A-B': ['Skipped exon: higher in treatment': 1, 'Retained intron: higher in treatment': 1],
+                ] },
+                { assert sections('leafcutter_cluster_test_outcomes').data == [
+                    'A-B': [significant: 1, not_significant: 1, not_enough_samples: 1],
+                ] },
+                { assert sections('leafcutter_cluster_test_outcomes').description.contains('-g 3') },
+                { assert sections('splicing_design_check').data.keySet().toList() == [
+                    'A-B | DEXSeq DEU', 'A-B | edgeR DEU', 'A-B | DEXSeq DTU + stageR', 'A-B | SUPPA2',
+                    'A-B | IsoformSwitchAnalyzeR', 'A-B | LeafCutter', 'A-B | ASpli', 'A-B | rMATS',
+                ] },
+                { assert sections('splicing_design_check').data['A-B | SUPPA2'].subMap(['status', 'details']) == [
+                    status: 'Cannot run', details: 'Cannot run: needs replicates to estimate variance (1 and 1 samples).',
+                ] },
+                { assert sections('splicing_design_check').data['A-B | IsoformSwitchAnalyzeR'].status == 'Runs below documented guidance' },
+                { assert sections('splicing_design_check').data['A-B | IsoformSwitchAnalyzeR'].evidence.contains('Love et al. 2018') },
+                { assert sections('splicing_design_check').data['A-B | ASpli'].status == 'Meets tool requirements' },
+                { assert sections('differential_splicing').description.contains('(MultiQC/MultiQC#3749)') },
+                { assert sections('splicing_pvalue_histograms').plot_type == 'html' },
+                { assert sections('splicing_pvalue_histograms').data.contains('Not shown: SUPPA2 (gene-corrected p-values are not uniform under the null); too few tested features (under 100): DEXSeq DEU exon bins with 2,') },
+                { assert sections('splicing_method_agreement').data == [
+                    'GENE1 (A-B)': [
+                        gene_id: 'G1',
+                        n_families: 4,
+                        n_methods: 8,
+                        families: 'ASpli, Exon counts, Junction reads, Transcript abundances',
+                        methods: 'DEXSeq DEU, edgeR DEU, DEXSeq DTU + stageR, SUPPA2, IsoformSwitchAnalyzeR, LeafCutter, ASpli, rMATS',
+                    ]
+                ] },
+                { assert snapshot(process.out).match() }
+            )
+        }
+
+    }
+
+    test("leafcutter contrast below the samples per condition the pipeline needs") {
+
+        when {
+            process {
+                """
+                def results = [
+                    [ [ kind:'leafcutter_numers', route:'', id:'lc'  ], 'numers.counts'                ],
+                    [ [ kind:'leafcutter_ds'    , route:'', id:'A-B' ], 'A-B_cluster_significance.txt' ],
+                    [ [ kind:'contrasts'        , route:'', id:''    ], 'contrastsheet.csv'            ],
+                    [ [ kind:'samplesheet'      , route:'', id:''    ], 'sample_conditions_4v4.csv'    ],
+                ]
+                input[0] = [
+                    [ id:'splicing_summary' ],
+                    results.collect { label, _name -> label },
+                    results.collect { _label, name -> file("${moduleTestDir}/\${name}", checkIfExists: true) },
+                ]
+                input[1] = file("${projectDir}/assets/multiqc_splicing_sections.yml", checkIfExists: true)
+                """
+            }
+        }
+
+        then {
+            def design = path(process.out.sections[0][1].find { section -> section.toString().endsWith('/splicing_design_check_mqc.json') }).json.data['A-B | LeafCutter']
+            assert process.success
+            assertAll(
+                { assert design.subMap(['n_treatment', 'n_control', 'status']) == [n_treatment: 4, n_control: 4, status: 'Cannot run'] },
+                { assert design.details == 'Cannot run: the pipeline tests a LeafCutter contrast only with at least 5 samples per condition, the larger of -g and -i (4 and 4) (lower --leafcutter_ds_min_samples_per_group and --leafcutter_ds_min_samples_per_intron or add replicates).' },
+                { assert snapshot(process.out).match() }
+            )
+        }
+
+    }
+
+    test("p-value distribution and PSI concordance") {
+
+        when {
+            process {
+                """
+                def results = [
+                    [ [ kind:'edger_exons', route:''    , id:'A-B' ], 'pvalues_A-B.edger.diffsplice.results.tsv'        ],
+                    [ [ kind:'suppa_psi'  , route:'STAR', id:''    ], 'concordance.psi'                   ],
+                    [ [ kind:'samplesheet', route:''    , id:''    ], 'sample_conditions_concordance.csv' ],
+                ]
+                input[0] = [
+                    [ id:'splicing_summary' ],
+                    results.collect { label, _name -> label },
+                    results.collect { _label, name -> file("${moduleTestDir}/\${name}", checkIfExists: true) },
+                ]
+                input[1] = file("${projectDir}/assets/multiqc_splicing_sections.yml", checkIfExists: true)
+                """
+            }
+        }
+
+        then {
+            def sections = { name -> path(process.out.sections[0][1].find { section -> section.toString().endsWith("/${name}_mqc.json") }).json }
+            assert process.success
+            assertAll(
+                { assert sections('splicing_pvalue_histograms').data.size() == 1 },
+                { assert sections('splicing_pvalue_histograms').data[0].keySet() == ['edgeR DEU exons'] as Set },
+                { assert sections('splicing_pvalue_histograms').data[0]['edgeR DEU exons'].size() == 20 },
+                { assert sections('splicing_pvalue_histograms').data[0]['edgeR DEU exons'].values().every { percent -> percent == 5.0 } },
+                { assert sections('suppa_psi_concordance').description.startsWith('Spearman correlation of PSI between samples (60 events quantified in every sample, mean PSI 0.05-0.95).') },
+                { assert sections('suppa_psi_concordance').xcats == ['S1 (A)', 'S2 (A)', 'S3 (B)'] },
+                { assert sections('suppa_psi_concordance').data == [
+                    'S1 (A)': ['S1 (A)': 1.0, 'S2 (A)': 1.0, 'S3 (B)': -1.0],
+                    'S2 (A)': ['S1 (A)': 1.0, 'S2 (A)': 1.0, 'S3 (B)': -1.0],
+                    'S3 (B)': ['S1 (A)': -1.0, 'S2 (A)': -1.0, 'S3 (B)': 1.0],
+                ] },
+                { assert snapshot(process.out).match() }
+            )
+        }
+
+    }
+
+    test("malformed table") {
+
+        when {
+            process {
+                """
+                def results = [
+                    [ [ kind:'rmats_summary', route:''    , id:'A-B' ], 'A-B_bad_summary.txt'   ],
+                    [ [ kind:'suppa_events' , route:'STAR', id:'A-B' ], 'local_A-B.dpsi'        ],
+                    [ [ kind:'suppa_psi'    , route:'STAR', id:''    ], 'empty.psi'             ],
+                    [ [ kind:'contrasts'    , route:''    , id:''    ], 'contrastsheet.csv'     ],
+                    [ [ kind:'samplesheet'  , route:''    , id:''    ], 'sample_conditions.csv' ],
+                ]
+                input[0] = [
+                    [ id:'splicing_summary' ],
+                    results.collect { label, _name -> label },
+                    results.collect { _label, name -> file("${moduleTestDir}/\${name}", checkIfExists: true) },
+                ]
+                input[1] = file("${projectDir}/assets/multiqc_splicing_sections.yml", checkIfExists: true)
+                """
+            }
+        }
+
+        then {
+            def sections = { name -> path(process.out.sections[0][1].find { section -> section.toString().endsWith("/${name}_mqc.json") }).json }
+            assert process.success
+            assertAll(
+                { assert process.out.sections[0][1].collect { section -> new File(section.toString()).name }.sort() == [
+                    'differential_splicing_mqc.json',
+                    'splicing_design_check_mqc.json',
+                    'splicing_pvalue_histograms_mqc.json',
+                    'splicing_verdict_mqc.json',
+                    'suppa_significant_events_mqc.json',
+                ] },
+                { assert sections('splicing_verdict').data.contains('Could not summarise rMATS summary (A-B_bad_summary.txt): KeyError: &#x27;TotalEventsJC&#x27;. Its results are left out of this report.') },
+                { assert sections('differential_splicing').data == [
+                    'A-B': [suppa2_star_events: 2, suppa2_star_events_tested: 3, suppa2_star_events_effect: 0.4],
+                ] },
+                { assert snapshot(process.out).match() }
+            )
+        }
+
+    }
+
+    test("contrasts sharing their conditions") {
+
+        when {
+            process {
+                """
+                def results = [
+                    [ [ kind:'isa_features' , route:'STAR', id:''          ], 'isoformfeatures_shared.csv'   ],
+                    [ [ kind:'leafcutter_ds', route:''    , id:'treated'   ], 'A-B_cluster_significance.txt' ],
+                    [ [ kind:'leafcutter_ds', route:''    , id:'a_reverse' ], 'A-B_cluster_significance.txt' ],
+                    [ [ kind:'contrasts'    , route:''    , id:''          ], 'contrastsheet_shared.csv'     ],
+                ]
+                input[0] = [
+                    [ id:'splicing_summary' ],
+                    results.collect { label, _name -> label },
+                    results.collect { _label, name -> file("${moduleTestDir}/\${name}", checkIfExists: true) },
+                ]
+                input[1] = file("${projectDir}/assets/multiqc_splicing_sections.yml", checkIfExists: true)
+                """
+            }
+        }
+
+        then {
+            def sections = { name -> path(process.out.sections[0][1].find { section -> section.toString().endsWith("/${name}_mqc.json") }).json }
+            def isoforms = { contrast -> sections('differential_splicing').data[contrast].subMap(['isoformswitchanalyzer_star_isoforms', 'isoformswitchanalyzer_star_isoforms_tested']) }
+            assert process.success
+            assertAll(
+                { assert sections('differential_splicing').data.keySet() == ['a_reverse', 'treated', 'treated_batch'] as Set },
+                { assert isoforms('treated') == [isoformswitchanalyzer_star_isoforms: 1, isoformswitchanalyzer_star_isoforms_tested: 2] },
+                { assert isoforms('treated_batch') == [isoformswitchanalyzer_star_isoforms: 1, isoformswitchanalyzer_star_isoforms_tested: 2] },
+                { assert isoforms('a_reverse') == [isoformswitchanalyzer_star_isoforms: 1, isoformswitchanalyzer_star_isoforms_tested: 1] },
+                { assert sections('differential_splicing').data['a_reverse'].reciprocal == 'treated' },
+                { assert sections('leafcutter_cluster_test_outcomes').data.keySet() == ['treated', 'a_reverse (reverse of treated)'] as Set },
+                { assert snapshot(process.out).match() }
+            )
+        }
+
+    }
+
+    test("contrast condition missing from the samplesheet") {
+
+        when {
+            process {
+                """
+                // In the order the pipeline stages them, the contrastsheet before the samplesheet
+                def results = [
+                    [ [ kind:'contrasts'   , route:''    , id:''    ], 'contrastsheet_missing.csv' ],
+                    [ [ kind:'samplesheet' , route:''    , id:''    ], 'sample_conditions.csv'     ],
+                    [ [ kind:'suppa_events', route:'STAR', id:'A-B' ], 'local_A-B.dpsi'            ],
+                ]
+                input[0] = [
+                    [ id:'splicing_summary' ],
+                    results.collect { label, _name -> label },
+                    results.collect { _label, name -> file("${moduleTestDir}/\${name}", checkIfExists: true) },
+                ]
+                input[1] = file("${projectDir}/assets/multiqc_splicing_sections.yml", checkIfExists: true)
+                """
+            }
+        }
+
+        then {
+            def verdict = path(process.out.sections[0][1].find { section -> section.toString().endsWith('/splicing_verdict_mqc.json') }).json
+            assert process.success
+            assertAll(
+                { assert verdict.data == '<div class="alert alert-warning">Could not summarise the contrastsheet (contrastsheet_missing.csv): ValueError: condition &#x27;C&#x27; of contrast &#x27;C-B&#x27; has no sample in the samplesheet. Its results are left out of this report.</div>' },
+                { assert !process.out.sections[0][1].any { section -> section.toString().endsWith('/splicing_design_check_mqc.json') } },
+                { assert snapshot(process.out).match() }
+            )
+        }
+
+    }
+
+    test("splicing results - stub") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id:'splicing_summary' ],
+                    [ [ kind:'suppa_events', route:'STAR', id:'A-B' ] ],
+                    [ file("${moduleTestDir}/local_A-B.dpsi", checkIfExists: true) ],
+                ]
+                input[1] = file("${projectDir}/assets/multiqc_splicing_sections.yml", checkIfExists: true)
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assertAll(
+                { assert snapshot(process.out).match() }
+            )
+        }
+
+    }
+
+}
