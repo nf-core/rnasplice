@@ -116,7 +116,7 @@
                     "subread": "flattenGTF Version 2.0.1"
                 },
                 "SUPPATPM": {
-                    "cut": "9.5"
+                    "coreutils": "9.5"
                 },
                 "TRIMGALORE": {
                     "trimgalore": "2.3.0"
@@ -832,7 +832,7 @@
                 "ERR204916_sorted.bam": "484dbb84bd68ceb9ed24ecdb8f7a613a"
             }
         ],
-        "timestamp": "2026-11-26T10:49:19.791715743",
+        "timestamp": "2026-11-26T13:51:37.53693777",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"

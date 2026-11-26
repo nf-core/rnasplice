@@ -135,7 +135,7 @@
                     "subread": "flattenGTF Version 2.0.1"
                 },
                 "SUPPATPM": {
-                    "cut": "9.5"
+                    "coreutils": "9.5"
                 },
                 "SUPPA_CLUSTEREVENTS": {
                     "statsmodels": "0.14.6",
@@ -972,7 +972,7 @@
                 "ERR204916_sorted.bam": "d04f778c726310a919eb676fe3432716"
             }
         ],
-        "timestamp": "2026-11-26T10:46:25.679640757",
+        "timestamp": "2026-11-26T13:49:06.690954839",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"

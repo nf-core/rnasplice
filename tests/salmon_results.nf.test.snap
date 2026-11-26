@@ -58,7 +58,7 @@
                     "stageR": "1.32.0"
                 },
                 "SUPPATPM": {
-                    "cut": "9.5"
+                    "coreutils": "9.5"
                 },
                 "SUPPA_CLUSTEREVENTS": {
                     "statsmodels": "0.14.6",
@@ -301,7 +301,7 @@
                 "genes_chrX.ioi:md5,aa178a4526493cc55fbd9d6f59ed5c4f"
             ]
         ],
-        "timestamp": "2026-11-26T10:47:37.732316224",
+        "timestamp": "2026-11-26T13:50:12.351713457",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"

@@ -72,7 +72,7 @@
                     "star": "2.7.11b"
                 },
                 "SUPPATPM": {
-                    "cut": "9.5"
+                    "coreutils": "9.5"
                 },
                 "TRIMGALORE": {
                     "trimgalore": "2.3.0"
@@ -85,7 +85,7 @@
                 }
             }
         ],
-        "timestamp": "2026-11-26T10:44:50.028087233",
+        "timestamp": "2026-11-26T13:47:35.449915917",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"
