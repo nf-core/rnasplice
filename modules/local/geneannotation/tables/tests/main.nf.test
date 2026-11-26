@@ -54,7 +54,7 @@ nextflow_process {
         when {
             process {
                 """
-                input[0] = GFFREAD_TX2GENE.out.table.map { _meta, table -> [ [ id:'genes' ], table ] }
+                input[0] = GFFREAD_TX2GENE.out.tsv.map { _meta, table -> [ [ id:'genes' ], table ] }
                 """
             }
         }
@@ -86,7 +86,7 @@ nextflow_process {
         when {
             process {
                 """
-                input[0] = GFFREAD_TX2GENE_CHRX.out.table.map { _meta, table -> [ [ id:'genes_chrX' ], table ] }
+                input[0] = GFFREAD_TX2GENE_CHRX.out.tsv.map { _meta, table -> [ [ id:'genes_chrX' ], table ] }
                 """
             }
         }
@@ -107,7 +107,7 @@ nextflow_process {
         when {
             process {
                 """
-                input[0] = GFFREAD_TX2GENE.out.table.map { _meta, table -> [ [ id:'genes' ], table ] }
+                input[0] = GFFREAD_TX2GENE.out.tsv.map { _meta, table -> [ [ id:'genes' ], table ] }
                 """
             }
         }

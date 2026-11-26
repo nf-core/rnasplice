@@ -158,7 +158,7 @@ workflow RNASPLICE {
     //
     // Made for every run, as a reference of the gene names, and used to write copies of
     // the results tables with the gene name next to each gene ID
-    GENEANNOTATION_TABLES(GFFREAD_TX2GENE.out.table)
+    GENEANNOTATION_TABLES(GFFREAD_TX2GENE.out.tsv)
     ch_gene_annotation = GENEANNOTATION_TABLES.out.gene.first()
 
     //

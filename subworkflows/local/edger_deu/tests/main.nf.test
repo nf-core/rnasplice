@@ -31,7 +31,7 @@ nextflow_workflow {
             script '../../../../modules/local/geneannotation/tables/main.nf'
             process {
             """
-            input[0] = GFFREAD_TX2GENE.out.table.map { _meta, table -> [ [ id:'genes_chrX' ], table ] }
+            input[0] = GFFREAD_TX2GENE.out.tsv.map { _meta, table -> [ [ id:'genes_chrX' ], table ] }
             """
             }
         }
