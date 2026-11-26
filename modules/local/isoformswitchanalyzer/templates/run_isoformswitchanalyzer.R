@@ -23,7 +23,11 @@ transcript_sequences <- '$transcript_sequences'
 
 samplesheet <- '$samplesheet'
 
-contrastsheet <- '$contrastsheet'
+reference <- '$reference'
+
+target <- '$target'
+
+blocking <- '${meta.blocking ?: ''}'
 
 alpha <- as.numeric('$alpha') # Must be >= 0 and <= 1
 
@@ -257,7 +261,50 @@ isoformSwitchAnalysisCombined <- function(
 dir.create(pathToOutput, showWarnings = FALSE)
 
 
-# Load Salmon output
+# Build the design data frame of the samples of the two conditions. The samplesheet
+# holds the sample and the condition and then any blocking variables, which
+# IsoformSwitchAnalyzeR takes as covariates
+
+design <- read.csv(samplesheet, check.names = FALSE, colClasses = "character")
+
+blocking_columns <- if (nchar(blocking) > 0) strsplit(blocking, ";")[[1]] else character(0)
+
+missing_columns <- setdiff(blocking_columns, colnames(design))
+
+if (length(missing_columns) > 0) {
+
+    stop(paste0("Blocking columns missing from the samplesheet: ", paste(missing_columns, collapse = ", ")))
+
+}
+
+# A sample sequenced in several runs has one samplesheet row per run
+
+design <- design[!duplicated(design[["sample"]]), c("sample", "condition", blocking_columns), drop = FALSE]
+
+design <- design[design[["condition"]] %in% c(reference, target), , drop = FALSE]
+
+for (condition in c(reference, target)) {
+
+    if (!any(design[["condition"]] == condition)) {
+
+        stop(paste0("Condition '", condition, "' has no sample in the samplesheet"))
+
+    }
+
+}
+
+# Prefix the values with the column name, as numeric values would be read as continuous
+
+for (column in blocking_columns) {
+
+    design[[column]] <- paste0(column, "_", gsub("[[:space:],]+", "_", trimws(design[[column]])))
+
+}
+
+colnames(design)[1] <- "sampleID"
+
+
+# Load the Salmon output of the samples of the contrast
 
 salmonQuant <- importIsoformExpression(
     parentDir = salmon_output,
@@ -265,37 +312,23 @@ salmonQuant <- importIsoformExpression(
     quiet = TRUE
 )
 
+missing_samples <- setdiff(design[["sampleID"]], colnames(salmonQuant\$counts))
 
-# Build design data frame. The samplesheet of the contrast holds the sample, the condition
-# and then any blocking variables, which IsoformSwitchAnalyzeR takes as covariates
+if (length(missing_samples) > 0) {
 
-design <- read.csv(samplesheet, check.names = FALSE, colClasses = "character")
-
-# A sample sequenced in several runs has one samplesheet row per run
-
-design <- design[!duplicated(design[["sample"]]), , drop = FALSE]
-
-colnames(design)[1:2] <- c("sampleID", "condition")
-
-
-# Build contrasts data frame
-
-if (file.exists(contrastsheet)) {
-
-    contrasts <- read.csv(contrastsheet, check.names = FALSE)
-
-    # IsoformSwitchAnalyzeR reports condition_2 minus condition_1, so the control goes
-    # first to give treatment minus control
-
-    contrasts <- contrasts[, c("control", "treatment"), drop = FALSE]
-
-    colnames(contrasts) <- c("condition_1", "condition_2")
-
-} else {
-
-    contrasts <- NULL
+    stop(paste0("Samples with no Salmon quantification: ", paste(missing_samples, collapse = ", ")))
 
 }
+
+salmonQuant\$counts <- salmonQuant\$counts[, c("isoform_id", design[["sampleID"]])]
+
+salmonQuant\$abundance <- salmonQuant\$abundance[, c("isoform_id", design[["sampleID"]])]
+
+
+# IsoformSwitchAnalyzeR reports condition_2 minus condition_1, so the reference goes
+# first to give target minus reference
+
+contrasts <- data.frame(condition_1 = reference, condition_2 = target)
 
 
 # Build swtich list
