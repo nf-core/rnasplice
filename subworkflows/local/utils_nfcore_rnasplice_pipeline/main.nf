@@ -140,7 +140,7 @@ workflow PIPELINE_INITIALISATION {
     }
 
     if (contrast_rows.any { row -> row.blocking }) {
-        log.warn("The contrastsheet 'blocking' column is used by DEXSeq DEU (--dexseq_exon), DEXSeq DTU (--dexseq_dtu), edgeR DEU (--edger_exon), LeafCutter (--leafcutter) and IsoformSwitchAnalyzeR (--isoformswitchanalyzer) only, the other methods ignore it")
+        log.warn("The contrastsheet 'blocking' column is used by DEXSeq DEU (--dexseq_exon), DEXSeq DTU (--dexseq_dtu), edgeR DEU (--edger_exon), LeafCutter (--leafcutter) and IsoformSwitchAnalyzeR (--isoformswitchanalyzer), and by rMATS (--rmats) for the contrasts it pairs, the other methods ignore it")
     }
 
     // Blocking variables are checked here, before any process runs. A column missing from
@@ -537,6 +537,32 @@ def resolveBlockingVariables(contrast_id, blocking, sample_rows) {
         error("Contrast '${contrast_id}': the blocking columns ${kept.join(', ')} leave no residual degrees of freedom with ${sample_rows.size()} samples")
     }
     return kept
+}
+
+//
+// The samples of a contrast in the order that pairs them, when its blocking variable is a
+// paired design: a single variable that matches every sample of the first condition with
+// one sample of the second, such as a donor. Returns the sample ids of the two conditions
+// sorted by that variable, or null when the blocking variables are not a pairing
+//
+def pairSamplesByBlocking(blocking, ids1, ids2, blocking_values) {
+    def columns = blocking.tokenize(';')
+    if (columns.size() != 1) {
+        return null
+    }
+    def values1 = ids1.collect { id -> blocking_values[id]?.get(columns[0]) }
+    def values2 = ids2.collect { id -> blocking_values[id]?.get(columns[0]) }
+    def one_to_one = !(values1 + values2).any { value -> !value } &&
+        values1.toSet().size() == ids1.size() &&
+        values2.toSet().size() == ids2.size() &&
+        values1.toSet() == values2.toSet()
+    if (!one_to_one) {
+        return null
+    }
+    return [
+        ids1: [ids1, values1].transpose().sort { pair -> pair[1] }.collect { pair -> pair[0] },
+        ids2: [ids2, values2].transpose().sort { pair -> pair[1] }.collect { pair -> pair[0] },
+    ]
 }
 
 //

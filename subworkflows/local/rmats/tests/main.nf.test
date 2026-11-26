@@ -33,15 +33,16 @@ nextflow_workflow {
                     [ contrast:'GBR-YRI', treatment:'GBR', control:'YRI' ],
                     [ contrast:'YRI-GBR', treatment:'YRI', control:'GBR' ],
                 )
-                input[2] = channel.of(
+                input[2] = channel.value([:])
+                input[3] = channel.of(
                     [ [ id:'ERR188383', condition:'GBR', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
                     [ [ id:'ERR188428', condition:'GBR', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true) ],
                     [ [ id:'ERR188454', condition:'YRI', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454.Aligned.out.bam', checkIfExists: true) ],
                     [ [ id:'ERR204916', condition:'YRI', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916.Aligned.out.bam', checkIfExists: true) ],
                 )
-                input[3] = [ [ id:'genome' ], file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true) ]
-                input[4] = 40
-                input[5] = false
+                input[4] = [ [ id:'genome' ], file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true) ]
+                input[5] = 40
+                input[6] = false
                 """
             }
         }
@@ -83,15 +84,16 @@ nextflow_workflow {
                 input[1] = channel.of(
                     [ contrast:'GBR-YRI', treatment:'GBR', control:'YRI' ],
                 )
-                input[2] = channel.of(
+                input[2] = channel.value([:])
+                input[3] = channel.of(
                     [ [ id:'ERR188383', condition:'GBR', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
                     [ [ id:'ERR188428', condition:'GBR', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true) ],
                     [ [ id:'ERR188454', condition:'YRI', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454.Aligned.out.bam', checkIfExists: true) ],
                     [ [ id:'ERR204916', condition:'YRI', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916.Aligned.out.bam', checkIfExists: true) ],
                 )
-                input[3] = [ [ id:'genome' ], file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true) ]
-                input[4] = 40
-                input[5] = true
+                input[4] = [ [ id:'genome' ], file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true) ]
+                input[5] = 40
+                input[6] = true
                 """
             }
         }
@@ -114,6 +116,53 @@ nextflow_workflow {
 
     }
 
+    test("homo_sapiens - one contrast - paired by blocking variable") {
+
+        // The samplesheet lists the samples of each condition in an order that does not
+        // pair them. The blocking variable `batch` pairs them, so the bam lists follow
+        // its order and the contrast is tested with the paired model
+        when {
+            params {
+                rmats_paired_stats = false
+            }
+            workflow {
+                """
+                input[0] = channel.of(
+                    [ 'ERR188428', 'GBR' ],
+                    [ 'ERR188383', 'GBR' ],
+                    [ 'ERR188454', 'YRI' ],
+                    [ 'ERR204916', 'YRI' ],
+                )
+                input[1] = channel.of(
+                    [ contrast:'GBR-YRI', treatment:'GBR', control:'YRI', blocking:'batch' ],
+                )
+                input[2] = channel.value([ ERR188383: [ batch:'1' ], ERR188428: [ batch:'2' ], ERR188454: [ batch:'1' ], ERR204916: [ batch:'2' ] ])
+                input[3] = channel.of(
+                    [ [ id:'ERR188383', condition:'GBR', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188428', condition:'GBR', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188454', condition:'YRI', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR204916', condition:'YRI', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916.Aligned.out.bam', checkIfExists: true) ],
+                )
+                input[4] = [ [ id:'genome' ], file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true) ]
+                input[5] = 40
+                input[6] = false
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert snapshot(
+                    workflow.out.bam_list1,
+                    workflow.out.bam_list2,
+                    workflow.out.summary.collect { meta, summary -> [ meta, file(summary).name ] }
+                ).match() }
+            )
+        }
+
+    }
+
     test("homo_sapiens - single condition") {
 
         when {
@@ -129,13 +178,14 @@ nextflow_workflow {
                 input[1] = channel.of(
                     [ contrast:'GBR-YRI', treatment:'GBR', control:'YRI' ],
                 )
-                input[2] = channel.of(
+                input[2] = channel.value([:])
+                input[3] = channel.of(
                     [ [ id:'ERR188383', condition:'GBR', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
                     [ [ id:'ERR188428', condition:'GBR', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true) ],
                 )
-                input[3] = [ [ id:'genome' ], file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true) ]
-                input[4] = 40
-                input[5] = false
+                input[4] = [ [ id:'genome' ], file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true) ]
+                input[5] = 40
+                input[6] = false
                 """
             }
         }
@@ -175,14 +225,15 @@ nextflow_workflow {
                 input[1] = channel.of(
                     [ contrast:'GBR-YRI', treatment:'GBR', control:'YRI' ],
                 )
-                input[2] = channel.of(
+                input[2] = channel.value([:])
+                input[3] = channel.of(
                     [ [ id:'ERR188383', condition:'GBR', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
                     [ [ id:'ERR188428', condition:'GBR', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true) ],
                     [ [ id:'ERR188454', condition:'YRI', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454.Aligned.out.bam', checkIfExists: true) ],
                 )
-                input[3] = [ [ id:'genome' ], file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true) ]
-                input[4] = 40
-                input[5] = true
+                input[4] = [ [ id:'genome' ], file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true) ]
+                input[5] = 40
+                input[6] = true
                 """
             }
         }
@@ -216,15 +267,16 @@ nextflow_workflow {
                 input[1] = channel.of(
                     [ contrast:'GBR-YRI', treatment:'GBR', control:'YRI' ],
                 )
-                input[2] = channel.of(
+                input[2] = channel.value([:])
+                input[3] = channel.of(
                     [ [ id:'ERR188383', condition:'GBR', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
                     [ [ id:'ERR188428', condition:'GBR', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true) ],
                     [ [ id:'ERR188454', condition:'YRI', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454.Aligned.out.bam', checkIfExists: true) ],
                     [ [ id:'ERR204916', condition:'YRI', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916.Aligned.out.bam', checkIfExists: true) ],
                 )
-                input[3] = [ [ id:'genome' ], file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true) ]
-                input[4] = 40
-                input[5] = false
+                input[4] = [ [ id:'genome' ], file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true) ]
+                input[5] = 40
+                input[6] = false
                 """
             }
         }
