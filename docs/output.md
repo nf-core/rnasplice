@@ -326,6 +326,7 @@ As described by the [nf-core/rnaseq](https://github.com/nf-core/rnaseq) pipeline
   - `*.strand_summary.tsv`: for an unstranded library only, the number of junctions, and of the reads spanning them, that were already stranded by an `XS` tag, were stranded from the splice motif or the annotation, or were left without a strand, which the clustering discards. The same numbers are shown per sample in the "LeafCutter Junction Strands" table of the MultiQC report.
   - `*numers.counts.gz`: Each column corresponds to a different sample (original bam file) and each row to an intron, which are identified as chromosome:intron_start:intron_end:cluster_id. This is the file to use for downstream analysis.
   - `*counts.gz`: Same than before but with the ratio of that event.
+  - `{contrast}_groups.txt`: the groups file of the contrast, one sample per line with its condition and, when the contrast has blocking variables, their values as further columns, which leafcutter-ds takes as confounders.
   - `{contrast}_cluster_significance.txt`: one row per cluster with the result of the differential splicing test between the two conditions of the contrast: `status` (`Success` or the reason the cluster was not tested), the log likelihood ratio, degrees of freedom, p-value, Benjamini-Hochberg adjusted p-value, and the genes whose exons the cluster overlaps.
   - `{contrast}_effect_sizes.txt`: one row per intron with its effect size (`logef_{treatment}`), its estimated PSI in each condition, and `deltapsi_{treatment}`, the PSI of the treatment minus that of the control.
 
