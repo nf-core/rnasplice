@@ -54,7 +54,8 @@
                 [
                     {
                         "id": "GBR_profiling",
-                        "treatment": "GBR"
+                        "treatment": "GBR",
+                        "paired": false
                     },
                     [
                         "A3SS.MATS.JC.txt:md5,3dccb3104e08d6922a45e69493bbe39e",
@@ -74,7 +75,8 @@
                 [
                     {
                         "id": "GBR_profiling",
-                        "treatment": "GBR"
+                        "treatment": "GBR",
+                        "paired": false
                     },
                     [
                         "fromGTF.A3SS.txt:md5,0c792da2d79960043a26fdebb27e3d5a",
@@ -99,7 +101,8 @@
                 [
                     {
                         "id": "GBR_profiling",
-                        "treatment": "GBR"
+                        "treatment": "GBR",
+                        "paired": false
                     },
                     [
                         "JC.raw.input.A3SS.txt:md5,ee81ee561a12956a698b4da8854c7485",
@@ -119,16 +122,17 @@
                 [
                     {
                         "id": "GBR_profiling",
-                        "treatment": "GBR"
+                        "treatment": "GBR",
+                        "paired": false
                     },
                     "summary.txt:md5,63a6bd33b6f67cac0effa504c894b333"
                 ]
             ]
         ],
-        "timestamp": "2026-10-23T12:06:28.089573082",
+        "timestamp": "2026-11-26T16:28:37.237539162",
         "meta": {
-            "nf-test": "0.9.5",
-            "nextflow": "26.04.3"
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
         }
     },
     "homo_sapiens - one contrast - paired": {
@@ -226,7 +230,8 @@
                     {
                         "id": "GBR-YRI",
                         "treatment": "GBR",
-                        "control": "YRI"
+                        "control": "YRI",
+                        "paired": true
                     },
                     [
                         "A3SS.MATS.JC.txt:md5,8fe4b1bf9d5af9afb9d80e4c6a696bf7",
@@ -247,7 +252,8 @@
                     {
                         "id": "GBR-YRI",
                         "treatment": "GBR",
-                        "control": "YRI"
+                        "control": "YRI",
+                        "paired": true
                     },
                     [
                         "fromGTF.A3SS.txt:md5,0c792da2d79960043a26fdebb27e3d5a",
@@ -273,7 +279,8 @@
                     {
                         "id": "GBR-YRI",
                         "treatment": "GBR",
-                        "control": "YRI"
+                        "control": "YRI",
+                        "paired": true
                     },
                     [
                         "JC.raw.input.A3SS.txt:md5,35dfe1596e654116e17fce6d3b11565a",
@@ -294,16 +301,17 @@
                     {
                         "id": "GBR-YRI",
                         "treatment": "GBR",
-                        "control": "YRI"
+                        "control": "YRI",
+                        "paired": true
                     },
                     "summary.txt:md5,e5192ccea029446588601e15a0d223f3"
                 ]
             ]
         ],
-        "timestamp": "2026-10-23T12:06:22.292928345",
+        "timestamp": "2026-11-26T16:28:16.662554952",
         "meta": {
-            "nf-test": "0.9.5",
-            "nextflow": "26.04.3"
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
         }
     },
     "homo_sapiens - one contrast - unpaired - stub": {
@@ -326,6 +334,7 @@
                         {
                             "control": "YRI",
                             "id": "GBR-YRI",
+                            "paired": false,
                             "treatment": "GBR"
                         },
                         [
@@ -352,6 +361,7 @@
                         {
                             "control": "YRI",
                             "id": "GBR-YRI",
+                            "paired": false,
                             "treatment": "GBR"
                         },
                         [
@@ -373,6 +383,7 @@
                         {
                             "control": "YRI",
                             "id": "GBR-YRI",
+                            "paired": false,
                             "treatment": "GBR"
                         },
                         "GBR-YRI.log:md5,d41d8cd98f00b204e9800998ecf8427e"
@@ -383,6 +394,7 @@
                         {
                             "control": "YRI",
                             "id": "GBR-YRI",
+                            "paired": false,
                             "treatment": "GBR"
                         },
                         [
@@ -480,6 +492,7 @@
                         {
                             "control": "YRI",
                             "id": "GBR-YRI",
+                            "paired": false,
                             "treatment": "GBR"
                         },
                         "summary.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
@@ -487,10 +500,10 @@
                 ]
             }
         ],
-        "timestamp": "2026-10-29T11:54:41.912242217",
+        "timestamp": "2026-11-26T16:28:54.378774279",
         "meta": {
-            "nf-test": "0.9.5",
-            "nextflow": "26.04.3"
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
         }
     },
     "homo_sapiens - two contrasts - unpaired": {
@@ -596,7 +609,8 @@
                     {
                         "id": "GBR-YRI",
                         "treatment": "GBR",
-                        "control": "YRI"
+                        "control": "YRI",
+                        "paired": false
                     },
                     [
                         "A3SS.MATS.JC.txt:md5,0fd4da821d6e4d0977b8b5cbdfdf323c",
@@ -615,7 +629,8 @@
                     {
                         "id": "YRI-GBR",
                         "treatment": "YRI",
-                        "control": "GBR"
+                        "control": "GBR",
+                        "paired": false
                     },
                     [
                         "A3SS.MATS.JC.txt:md5,3f633a3e964b1441b47f1dbe9172e881",
@@ -636,7 +651,8 @@
                     {
                         "id": "GBR-YRI",
                         "treatment": "GBR",
-                        "control": "YRI"
+                        "control": "YRI",
+                        "paired": false
                     },
                     [
                         "fromGTF.A3SS.txt:md5,0c792da2d79960043a26fdebb27e3d5a",
@@ -660,7 +676,8 @@
                     {
                         "id": "YRI-GBR",
                         "treatment": "YRI",
-                        "control": "GBR"
+                        "control": "GBR",
+                        "paired": false
                     },
                     [
                         "fromGTF.A3SS.txt:md5,0c792da2d79960043a26fdebb27e3d5a",
@@ -686,7 +703,8 @@
                     {
                         "id": "GBR-YRI",
                         "treatment": "GBR",
-                        "control": "YRI"
+                        "control": "YRI",
+                        "paired": false
                     },
                     [
                         "JC.raw.input.A3SS.txt:md5,35dfe1596e654116e17fce6d3b11565a",
@@ -705,7 +723,8 @@
                     {
                         "id": "YRI-GBR",
                         "treatment": "YRI",
-                        "control": "GBR"
+                        "control": "GBR",
+                        "paired": false
                     },
                     [
                         "JC.raw.input.A3SS.txt:md5,850a06317236b29fb5e09f1c0c97ecd0",
@@ -726,7 +745,8 @@
                     {
                         "id": "GBR-YRI",
                         "treatment": "GBR",
-                        "control": "YRI"
+                        "control": "YRI",
+                        "paired": false
                     },
                     "summary.txt:md5,abd16f0f974923e39a2711df10682cf2"
                 ],
@@ -734,16 +754,17 @@
                     {
                         "id": "YRI-GBR",
                         "treatment": "YRI",
-                        "control": "GBR"
+                        "control": "GBR",
+                        "paired": false
                     },
                     "summary.txt:md5,abd16f0f974923e39a2711df10682cf2"
                 ]
             ]
         ],
-        "timestamp": "2026-10-23T12:06:07.187977367",
+        "timestamp": "2026-11-26T16:27:49.452211367",
         "meta": {
-            "nf-test": "0.9.5",
-            "nextflow": "26.04.3"
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
         }
     }
 }
