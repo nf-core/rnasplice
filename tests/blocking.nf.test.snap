@@ -2,9 +2,6 @@
     "-profile test_blocking": {
         "content": [
             {
-                "CUSTOM_GTFFILTER": {
-                    "python": "3.14.5"
-                },
                 "CUSTOM_TX2GENE": {
                     "python": "3.10.4"
                 },
@@ -44,7 +41,7 @@
                     "python": "3.14.6"
                 },
                 "GFFREAD_TX2GENE": {
-                    "gffread": "0.12.7"
+                    "gffread": "0.12.9"
                 },
                 "GUNZIP_FASTA": {
                     "gunzip": "1.13"
@@ -606,7 +603,7 @@
                 "ERR204916_sorted.bam": "1f2abfcbb9697c56744ffb5fcfeb9f17"
             }
         ],
-        "timestamp": "2026-11-25T23:57:40.763223733",
+        "timestamp": "2026-11-26T10:34:32.788741931",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"

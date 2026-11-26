@@ -20,9 +20,6 @@
                     "bioconductor-dexseq": "1.56.0",
                     "htseq": "2.1.2"
                 },
-                "EAUTILS_GTF2BED": {
-                    "perl": "5.26.2"
-                },
                 "EDGER_DIFFSPLICE": {
                     "bioconductor-edger": "4.10.5",
                     "bioconductor-limma": "3.68.5",
@@ -34,11 +31,14 @@
                 "GENEANNOTATION_TABLES": {
                     "python": "3.14.6"
                 },
+                "GFFREAD_GTF2BED": {
+                    "gffread": "0.12.9"
+                },
                 "GFFREAD_GTF2GFF3": {
-                    "gffread": "0.12.7"
+                    "gffread": "0.12.9"
                 },
                 "GFFREAD_TX2GENE": {
-                    "gffread": "0.12.7"
+                    "gffread": "0.12.9"
                 },
                 "GUNZIP_FASTA": {
                     "gunzip": "1.13"
@@ -623,7 +623,7 @@
                 "star_salmon/samtools_stats/ERR204916.stats"
             ],
             [
-                "genes_chrX_genes.gff3:md5,c0467de65939b63d98ff90a803a79622",
+                "genes_chrX_genes.gff3:md5,c10571e49275f25f0a51f664a161f811",
                 "genes.gff:md5,96be13c1360e34dd9e565d9ac9a5a7bf",
                 "miso_settings.txt:md5,c092cc3e878a299674a99c508b6b2e72",
                 "GBR-YRI.edger.model.txt:md5,4280bed61961e287d9ea1488de88160c",
@@ -741,7 +741,7 @@
                 "ERR204916_sorted.bam": "46024b92c7c6c2a2883ad998f41b46b9"
             }
         ],
-        "timestamp": "2026-11-26T00:02:05.326855922",
+        "timestamp": "2026-11-26T10:39:00.893082528",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"

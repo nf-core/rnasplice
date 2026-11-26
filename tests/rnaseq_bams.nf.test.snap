@@ -52,10 +52,10 @@
                     "python": "3.14.6"
                 },
                 "GFFREAD_GTF2GFF3": {
-                    "gffread": "0.12.7"
+                    "gffread": "0.12.9"
                 },
                 "GFFREAD_TX2GENE": {
-                    "gffread": "0.12.7"
+                    "gffread": "0.12.9"
                 },
                 "GUNZIP_FASTA": {
                     "gunzip": "1.13"
@@ -861,7 +861,7 @@
             ],
             [
                 "isoformswitchanalyzer_summary.csv:md5,4b2ab1b387ded8f479d7cfa96893e93b",
-                "genes_chrX_genes.gff3:md5,c0467de65939b63d98ff90a803a79622",
+                "genes_chrX_genes.gff3:md5,c10571e49275f25f0a51f664a161f811",
                 "genes.gff:md5,96be13c1360e34dd9e565d9ac9a5a7bf",
                 "miso_settings.txt:md5,c092cc3e878a299674a99c508b6b2e72",
                 "GBR-YRI.edger.model.txt:md5,4280bed61961e287d9ea1488de88160c",
@@ -972,7 +972,7 @@
                 "ERR204916_sorted.bam": "d04f778c726310a919eb676fe3432716"
             }
         ],
-        "timestamp": "2026-11-26T00:09:17.577078975",
+        "timestamp": "2026-11-26T10:46:25.679640757",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"

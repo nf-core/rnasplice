@@ -8,9 +8,6 @@
                 "CREATEBAMLIST": {
                     "sed": "4.9"
                 },
-                "CUSTOM_GTFFILTER": {
-                    "python": "3.14.5"
-                },
                 "CUSTOM_TX2GENE": {
                     "python": "3.10.4"
                 },
@@ -21,7 +18,7 @@
                     "python": "3.14.6"
                 },
                 "GFFREAD_TX2GENE": {
-                    "gffread": "0.12.7"
+                    "gffread": "0.12.9"
                 },
                 "GUNZIP_FASTA": {
                     "gunzip": "1.13"
@@ -88,7 +85,7 @@
                 }
             }
         ],
-        "timestamp": "2026-11-26T00:07:50.31669076",
+        "timestamp": "2026-11-26T10:44:50.028087233",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"

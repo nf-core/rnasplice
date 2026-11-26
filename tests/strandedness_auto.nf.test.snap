@@ -8,9 +8,6 @@
                 "CSVTK_JOIN": {
                     "csvtk": "0.37.0"
                 },
-                "CUSTOM_GTFFILTER": {
-                    "python": "3.14.5"
-                },
                 "CUSTOM_TX2GENE": {
                     "python": "3.10.4"
                 },
@@ -25,9 +22,6 @@
                 "DEXSEQ_PREPAREANNOTATION": {
                     "bioconductor-dexseq": "1.56.0",
                     "htseq": "2.1.2"
-                },
-                "EAUTILS_GTF2BED": {
-                    "perl": "5.26.2"
                 },
                 "EDGER_DIFFSPLICE": {
                     "bioconductor-edger": "4.10.5",
@@ -46,8 +40,11 @@
                 "GENEANNOTATION_TABLES": {
                     "python": "3.14.6"
                 },
+                "GFFREAD_GTF2BED": {
+                    "gffread": "0.12.9"
+                },
                 "GFFREAD_TX2GENE": {
-                    "gffread": "0.12.7"
+                    "gffread": "0.12.9"
                 },
                 "GUNZIP_FASTA": {
                     "gunzip": "1.13"
@@ -835,7 +832,7 @@
                 "ERR204916_sorted.bam": "484dbb84bd68ceb9ed24ecdb8f7a613a"
             }
         ],
-        "timestamp": "2026-11-26T00:13:26.29823616",
+        "timestamp": "2026-11-26T10:49:19.791715743",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"

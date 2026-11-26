@@ -5,9 +5,6 @@
                 "CLUSTERGROUPS": {
                     "python": "3.14.6"
                 },
-                "CUSTOM_GTFFILTER": {
-                    "python": "3.14.5"
-                },
                 "CUSTOM_TX2GENE": {
                     "python": "3.10.4"
                 },
@@ -32,7 +29,7 @@
                     "python": "3.14.6"
                 },
                 "GFFREAD_TX2GENE": {
-                    "gffread": "0.12.7"
+                    "gffread": "0.12.9"
                 },
                 "GUNZIP_FASTA": {
                     "gunzip": "1.13"
@@ -304,7 +301,7 @@
                 "genes_chrX.ioi:md5,aa178a4526493cc55fbd9d6f59ed5c4f"
             ]
         ],
-        "timestamp": "2026-11-26T00:10:24.015218644",
+        "timestamp": "2026-11-26T10:47:37.732316224",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"
