@@ -14,6 +14,9 @@ include { paramsSummaryMap          } from 'plugin/nf-schema'
 include { samplesheetToList         } from 'plugin/nf-schema'
 include { validateParameters        } from 'plugin/nf-schema'
 include { checkCondaChannels        } from 'plugin/nf-core-utils'
+include { citationsOnTheFly         } from 'plugin/nf-core-utils'
+include { toolCitationText          } from 'plugin/nf-core-utils'
+include { toolBibliographyText      } from 'plugin/nf-core-utils'
 include { checkConfigProvided       } from 'plugin/nf-core-utils'
 include { checkProfileProvided      } from 'plugin/nf-core-utils'
 include { completionEmail           } from 'plugin/nf-core-utils'
@@ -495,21 +498,79 @@ def genomeExistsError() {
 }
 
 //
-// Generate methods description for MultiQC
+// Citations of the tools that ran, from the versions their processes report and the
+// meta.yml files of the modules, given in a fixed order as the first meta.yml naming a tool
+// and the first version reported for it are the ones cited. A version names a tool by its
+// conda package, which can differ from the meta.yml name by a 'bioconductor-' or 'r-'
+// prefix, case and punctuation, so names are matched on citationToolKey. Citations are put
+// on one line, as a line break would end the YAML block of the MultiQC methods section.
+// Tools that report no version before the citations are built, such as MultiQC, which
+// reads them, are given as extra_tools
 //
-def toolCitationText() {
-    def citation_text = ["Tools used in the workflow included:", "FastQC (Andrews 2010),", "MultiQC (Ewels et al. 2016)", "."].join(' ').trim()
+def toolCitations(version_entries, meta_yml_paths, extra_tools) {
+    def yaml = new org.yaml.snakeyaml.Yaml()
+    def tool_names = [:]
+    meta_yml_paths.each { path ->
+        try {
+            def tools = yaml.load(file(path).text)?.tools
+            (tools instanceof List ? tools : [])
+                .findAll { tool -> tool instanceof Map }
+                .collectMany { tool -> tool.keySet() as List }
+                .each { name -> tool_names.putIfAbsent(citationToolKey(name), name) }
+        }
+        catch (Exception e) {
+            log.warn("The tools of ${path} could not be read for the MultiQC methods section: ${e.message}")
+        }
+    }
 
-    return citation_text
+    def versions = version_entries
+        .collectMany { entry -> entry instanceof Path ? readVersionsYml(entry) : [ entry ] }
+        .findAll { _process, _tool, version -> version?.toString()?.trim() }
+        .collect { process, tool, version -> [ process.toString(), tool_names[citationToolKey(tool)] ?: tool.toString(), version.toString() ] }
+        .sort { version -> version.join('\t') }
+
+    return citationsOnTheFly(versions, meta_yml_paths, extra_tools).collectEntries { tool, citation ->
+        [ (tool): citation + [ citation: oneLine(citation.citation), bibliography: oneLine(citation.bibliography) ] ]
+    }
 }
 
-def toolBibliographyText() {
-    def reference_text = ["<li>Andrews S, (2010) FastQC, URL: https://www.bioinformatics.babraham.ac.uk/projects/fastqc/).</li>", "<li>Ewels, P., Magnusson, M., Lundin, S., & Käller, M. (2016). MultiQC: summarize analysis results for multiple tools and samples in a single report. Bioinformatics , 32(19), 3047–3048. doi: /10.1093/bioinformatics/btw354</li>"].join(' ').trim()
-
-    return reference_text
+//
+// A tool name compared without case, punctuation or a 'bioconductor-' or 'r-' prefix
+//
+def citationToolKey(name) {
+    return name.toString().toLowerCase().replaceFirst(/^(bioconductor|r)-/, '').replaceAll(/[^a-z0-9]/, '')
 }
 
-def methodsDescriptionText(mqc_methods_yaml) {
+//
+// The [ process, tool, version ] entries of a versions.yml file. The values are read as
+// written, as a YAML load would turn an unquoted version such as 1.10 into the number 1.1
+//
+def readVersionsYml(path) {
+    def root = new org.yaml.snakeyaml.Yaml().compose(new java.io.StringReader(path.text))
+    if (!(root instanceof org.yaml.snakeyaml.nodes.MappingNode)) {
+        return []
+    }
+    return root.value.collectMany { process ->
+        if (!(process.valueNode instanceof org.yaml.snakeyaml.nodes.MappingNode)) {
+            return []
+        }
+        return process.valueNode.value
+            .findAll { tool -> tool.valueNode instanceof org.yaml.snakeyaml.nodes.ScalarNode }
+            .collect { tool -> [ process.keyNode.value, tool.keyNode.value, tool.valueNode.value ] }
+    }
+}
+
+//
+// Text with its whitespace, line breaks included, collapsed to single spaces
+//
+def oneLine(text) {
+    return text?.replaceAll(/\s+/, ' ')?.replace(' )', ')')
+}
+
+//
+// MultiQC methods section, citing the given tools
+//
+def methodsDescriptionText(mqc_methods_yaml, citations) {
     def meta = [:]
     meta.workflow = workflow.toMap()
     meta["manifest_map"] = workflow.manifest.toMap()
@@ -527,8 +588,8 @@ def methodsDescriptionText(mqc_methods_yaml) {
     }
     meta["nodoi_text"] = meta.manifest_map.doi ? "" : "<li>If available, make sure to update the text to include the Zenodo DOI of version of the pipeline used. </li>"
 
-    meta["tool_citations"] = ""
-    meta["tool_bibliography"] = ""
+    meta["tool_citations"] = toolCitationText(citations)
+    meta["tool_bibliography"] = toolBibliographyText(citations)
 
     def methods_text = mqc_methods_yaml.text
     def engine = new groovy.text.SimpleTemplateEngine()
@@ -641,8 +702,8 @@ def rmatsReadError(samples) {
         .map { row -> row[0].single_end }
         .unique()
         .collect()
-        .map {
-            if (it.size() > 1) {
+        .map { values ->
+            if (values.size() > 1) {
                 error("Please check input samplesheet -> Cannot run rMats with mixed single and paired end samples.")
             }
         }
@@ -656,8 +717,8 @@ def rmatsStrandednessError(samples) {
         .map { row -> row[0].strandedness }
         .unique()
         .collect()
-        .map {
-            if (it.size() > 1) {
+        .map { values ->
+            if (values.size() > 1) {
                 error("Please check input samplesheet -> Cannot run rMats with mixed stranded samples.")
             }
         }
@@ -738,8 +799,8 @@ def aspliReadError(samples) {
         .map { row -> row[0].single_end }
         .unique()
         .collect()
-        .map {
-            if (it.size() > 1) {
+        .map { values ->
+            if (values.size() > 1) {
                 error("Please check input samplesheet -> Cannot run ASpli with mixed single and paired end samples.")
             }
         }

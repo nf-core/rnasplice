@@ -7,6 +7,7 @@ include { MULTIQC                } from '../../../modules/nf-core/multiqc'
 include { paramsSummaryMap       } from 'plugin/nf-schema'
 include { paramsSummaryMultiqc   } from 'plugin/nf-core-utils'
 include { methodsDescriptionText } from '../utils_nfcore_rnasplice_pipeline'
+include { toolCitations          } from '../utils_nfcore_rnasplice_pipeline'
 
 workflow MULTIQC_RNASPLICE {
 
@@ -33,8 +34,11 @@ workflow MULTIQC_RNASPLICE {
     def ch_methods_description_template = multiqc_methods_description
         ? file(multiqc_methods_description, checkIfExists: true)
         : file("${projectDir}/assets/methods_description_template.yml", checkIfExists: true)
-    def ch_methods_description = channel
-        .value(methodsDescriptionText(ch_methods_description_template))
+    // The methods section cites the tools that ran
+    def meta_yml_paths = files("${projectDir}/modules/**/meta.yml").collect { meta_yml -> meta_yml.toString() }.sort()
+    def ch_methods_description = channel.topic('versions')
+        .toList()
+        .map { versions -> methodsDescriptionText(ch_methods_description_template, toolCitations(versions, meta_yml_paths, ['multiqc'])) }
         .collectFile(name: 'methods_description_mqc.yaml', sort: true)
 
     // Every contrast writes a `summary.txt`, and MultiQC names it after its file

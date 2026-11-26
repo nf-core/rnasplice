@@ -62,7 +62,7 @@ nextflow_process {
             process {
                 """
                 input[0] = UNTAR_SALMON_QUANT.out.untar
-                    .map { _meta, dir -> file(dir.toString() + '/ERR*', type: 'dir', checkIfExists: true) }
+                    .map { _meta, dir -> files(dir.toString() + '/ERR*', type: 'dir', checkIfExists: true) }
                 input[1] = file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
                 input[2] = GFFREAD.out.gffread_fasta.map { _meta, fasta -> fasta }
                 input[3] = file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true)
@@ -109,7 +109,7 @@ nextflow_process {
             process {
                 """
                 input[0] = UNTAR_SALMON_QUANT.out.untar
-                    .map { _meta, dir -> file(dir.toString() + '/ERR*', type: 'dir', checkIfExists: true) }
+                    .map { _meta, dir -> files(dir.toString() + '/ERR*', type: 'dir', checkIfExists: true) }
                 input[1] = file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
                 input[2] = GFFREAD.out.gffread_fasta.map { _meta, fasta -> fasta }
                 input[3] = file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true)
@@ -143,7 +143,7 @@ nextflow_process {
             process {
                 """
                 input[0] = UNTAR_SALMON_QUANT.out.untar
-                    .map { _meta, dir -> file(dir.toString() + '/ERR*', type: 'dir', checkIfExists: true) }
+                    .map { _meta, dir -> files(dir.toString() + '/ERR*', type: 'dir', checkIfExists: true) }
                 input[1] = file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
                 input[2] = GFFREAD.out.gffread_fasta.map { _meta, fasta -> fasta }
                 input[3] = file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true)
@@ -179,7 +179,7 @@ nextflow_process {
             process {
                 """
                 input[0] = UNTAR_SALMON_QUANT.out.untar
-                    .map { _meta, dir -> file(dir.toString() + '/ERR*', type: 'dir', checkIfExists: true) }
+                    .map { _meta, dir -> files(dir.toString() + '/ERR*', type: 'dir', checkIfExists: true) }
                 input[1] = file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
                 input[2] = GFFREAD.out.gffread_fasta.map { _meta, fasta -> fasta }
                 input[3] = file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true)

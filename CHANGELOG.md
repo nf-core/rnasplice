@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #380 - Pass the rMATS read outcomes of each BAM and the summary of each contrast to MultiQC, for its new rMATS module, and summarise the other splicing analyses in a Splicing section of the MultiQC report, after the QC sections: STAR annotated splices and spliced reads, DEXSeq reads in exon bins and LeafCutter junction reads in General Statistics, where the LeafCutter junction strand table of #370 also became a hidden column; the samples, settings and spliced reads behind the calls with the published evidence that applies to them; a design check of each contrast against the requirements and documented guidance of each tool; a table of what each analysis called significant per contrast, including rMATS, with the median effect sizes; the genes independent lines of evidence agree on; and p-value distributions. SUPPA2 PSI concordance between samples and significant events by type and direction, and LeafCutter cluster test outcomes, are in SUPPA2 and LeafCutter sections after the Splicing section. A `MULTIQC_RNASPLICE` subworkflow assembles the report. Closes #379 (by @pinin4fjords)
 - #380 - Add `--stager_alpha` and `--aspli_bin_fdr` for the stageR target OFDR and the ASpli bin FDR cutoff, both 0.05 as before, so that the MultiQC splicing summary counts significant features with the thresholds the tools ran with (by @pinin4fjords)
 - #380 - Run RSeQC junction_saturation.py on the genome BAM files and show its saturation curves in the MultiQC report. This adds one RSeQC run per BAM file, and so some runtime, which `--skip_junction_saturation` skips (by @pinin4fjords)
+- #381 - Cite the tools that ran, with their versions and references, in the Methods Description section of the MultiQC report, using the nf-core-utils plugin with the versions the processes report and the `meta.yml` of their modules (by @pinin4fjords)
 
 ### Changed
 
@@ -43,6 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #361 - When `--rmats_read_len` is not set, rMATS uses the median read length from the samtools stats of the genome BAM files instead of a default of 40. This changes the rMATS results of the test profile, which has 75 bp reads. Closes #358 (by @pinin4fjords)
 - #367 - Pass the workflow summary and methods description to MultiQC once instead of twice (by @pinin4fjords)
 - #368 - Fail at startup when the contrastsheet repeats an `id` (or deprecated `contrast`). Rows with the same id were merged into one rMATS run, which failed with "given 2 times in input", or overwrote each other's DEXSeq results without an error (by @pinin4fjords)
+- #377 - Clear the Nextflow warnings of the test runs, make the outdir pre-commit hook executable, and find the BAM files the pipeline tests snapshot with `getAllFilesFromDir` (by @pinin4fjords)
 
 ## v2.0.0 - Fenix Reborn - [2026-10-20]
 
