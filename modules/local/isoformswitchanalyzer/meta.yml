@@ -1,12 +1,8 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
 name: "isoformswitchanalyzer"
-<<<<<<< HEAD
 description: Identify isoform switches between two conditions from Salmon quantifications
   with IsoformSwitchAnalyzeR, adjusting for covariates, predict their functional
   consequences and plot the top switching genes
-=======
-description: Identify isoform switches between conditions from Salmon quantifications with IsoformSwitchAnalyzeR, predict their functional consequences and plot the top switching genes of every contrast
->>>>>>> 36a1aca (Add MASS to the IsoformSwitchAnalyzeR environment)
 keywords:
   - IsoformSwitchAnalyzeR
   - isoform switch
@@ -24,7 +20,6 @@ tools:
       identifier: biotools:isoformswitchanalyzer
 
 input:
-<<<<<<< HEAD
   - - meta:
         type: map
         description: |
@@ -51,12 +46,6 @@ input:
         pattern: "*.csv"
         ontologies:
           - edam: "http://edamontology.org/format_3752" # CSV
-=======
-  - salmon_output:
-      type: directory
-      description: One Salmon quant directory per sample, each holding a `quant.sf`. The directory names must match the `sample` column of the samplesheet
-      pattern: "*"
->>>>>>> 36a1aca (Add MASS to the IsoformSwitchAnalyzeR environment)
   - gtf:
       type: file
       description: GTF annotation the transcripts were quantified against
@@ -69,21 +58,6 @@ input:
       pattern: "*.{fa,fasta}"
       ontologies:
         - edam: "http://edamontology.org/format_1929" # FASTA
-<<<<<<< HEAD
-=======
-  - samplesheet:
-      type: file
-      description: Comma-separated sample sheet with at least `sample` and `condition` column headers
-      pattern: "*.csv"
-      ontologies:
-        - edam: "http://edamontology.org/format_3752" # CSV
-  - contrastsheet:
-      type: file
-      description: Comma-separated contrast sheet with `treatment` and `control` column headers naming the conditions to compare. Every pair of conditions is compared when the file does not exist
-      pattern: "*.csv"
-      ontologies:
-        - edam: "http://edamontology.org/format_3752" # CSV
->>>>>>> 36a1aca (Add MASS to the IsoformSwitchAnalyzeR environment)
   - alpha:
       type: float
       description: FDR cutoff below which an isoform switch is called significant
@@ -93,7 +67,6 @@ input:
 
 output:
   isoformswitchanalyzer_summary:
-<<<<<<< HEAD
     - - meta:
           type: map
           description: Groovy Map with the contrast
@@ -116,21 +89,6 @@ output:
           pattern: "isoformswitchanalyzer_isoformfeatures.csv"
           ontologies:
             - edam: "http://edamontology.org/format_3752" # CSV
-=======
-    - "isoformswitchanalyzer_summary.csv":
-        type: file
-        description: Number of switching isoforms, switches and genes per contrast and combined. Holds the error message instead when no switch was found
-        pattern: "isoformswitchanalyzer_summary.csv"
-        ontologies:
-          - edam: "http://edamontology.org/format_3752" # CSV
-  isoformswitchanalyzer_isoformFeatures:
-    - "isoformswitchanalyzer_isoformfeatures.csv":
-        type: file
-        description: The `isoformFeatures` table of the switchAnalyzeRlist with the expression, isoform fraction, switch q-value and consequences of every isoform in every contrast. Empty when no switch was found
-        pattern: "isoformswitchanalyzer_isoformfeatures.csv"
-        ontologies:
-          - edam: "http://edamontology.org/format_3752" # CSV
->>>>>>> 36a1aca (Add MASS to the IsoformSwitchAnalyzeR environment)
   switchlist_rds:
     - - meta:
           type: map
@@ -140,7 +98,6 @@ output:
           description: Serialised switchAnalyzeRlist object
           pattern: "switchlist.rds"
   results:
-<<<<<<< HEAD
     - - meta:
           type: map
           description: Groovy Map with the contrast
@@ -149,12 +106,6 @@ output:
           description: A subdirectory with a switch plot PDF per switching gene,
             plus the common switch consequences PDF
           pattern: "results"
-=======
-    - "results":
-        type: directory
-        description: One subdirectory per contrast with a switch plot PDF per switching gene, plus the common switch consequences PDF
-        pattern: "results"
->>>>>>> 36a1aca (Add MASS to the IsoformSwitchAnalyzeR environment)
   versions_isoformswitchanalyzer:
     - "versions.yml":
         type: file
