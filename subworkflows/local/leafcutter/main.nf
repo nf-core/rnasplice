@@ -9,6 +9,7 @@ include { LEAFCUTTER_CLUSTERREGTOOLS } from '../../../modules/nf-core/leafcutter
 include { LEAFCUTTER_DIFFERENTIALSPLICING } from '../../../modules/nf-core/leafcutter/differentialsplicing/main'
 include { LEAFCUTTER_GTFTOEXONS } from '../../../modules/local/leafcutter/gtftoexons/main'
 include { STRANDJUNCTIONS } from '../../../modules/local/strandjunctions/main'
+include { LEAFCUTTER_GROUPS } from '../../../modules/local/leafcutter/groups/main'
 
 workflow LEAFCUTTER {
     take:
@@ -16,7 +17,8 @@ workflow LEAFCUTTER {
     ch_genome_bam_index // channel: [ val(meta), path(bai) ]
     ch_fasta // channel: [ val(meta), path(fasta), path(fai) ]
     ch_gtf // channel: [ val(meta), path(gtf) ]
-    ch_contrastsheet // channel: [ contrast:, treatment:, control: ]
+    ch_contrastsheet // channel: [ contrast:, treatment:, control:, blocking: (when set) ]
+    ch_blocking_values // channel: [ sample: [ column: value ] ], the blocking variables of the contrasts
     min_samples_per_condition // integer: fewest samples each condition of a contrast needs for leafcutter-ds to test it
 
     main:
@@ -95,17 +97,24 @@ workflow LEAFCUTTER {
     // clustered, so such a contrast is left out with a warning rather than failing the run
     ch_ds_contrasts = ch_contrastsheet
         .combine(ch_condition_samples)
-        .map { row, samples ->
+        .combine(ch_blocking_values)
+        .map { row, samples, blocking_values ->
             [row.treatment, row.control].each { condition ->
                 if (!samples.containsKey(condition)) {
                     error("LeafCutter contrast '${row.contrast}': condition '${condition}' has no sample in the samplesheet")
                 }
             }
-            def meta = [id: row.contrast, treatment: row.treatment, control: row.control]
             def groups = [row.treatment, row.control].collectEntries { condition -> [condition, samples[condition]] }
-            return [meta, groups]
+            // The blocking variables go into the groups file as extra columns, which
+            // leafcutter-ds takes as confounders. Values are prefixed with the column name,
+            // as leafcutter-ds reads numeric values as continuous
+            def blocking = row.blocking ? row.blocking.tokenize(';') : []
+            def sample_lines = groups.collectMany { condition, ids ->
+                ids.collect { id -> [id, condition] + blocking.collect { column -> "${column}_${blocking_values[id][column]}".toString() } }
+            }
+            return [[id: row.contrast, treatment: row.treatment, control: row.control], groups, sample_lines]
         }
-        .filter { meta, groups ->
+        .filter { meta, groups, _sample_lines ->
             def too_small = groups.findAll { _condition, ids -> ids.size() < min_samples_per_condition }
             if (too_small) {
                 def counts = too_small.collect { condition, ids -> "'${condition}' has ${ids.size()}" }.join(', ')
@@ -114,20 +123,18 @@ workflow LEAFCUTTER {
             return !too_small
         }
 
-    // The groups file of each contrast, one sample per line followed by its condition
-    ch_groups = ch_ds_contrasts
-        .collectFile { meta, groups ->
-            def lines = groups.collectMany { condition, ids -> ids.collect { id -> "${id}\t${condition}\n" } }
-            ["${meta.id}_groups.txt", lines.join('')]
-        }
-        .map { groups_file -> [groups_file.name.replaceFirst(/_groups\.txt$/, ''), groups_file] }
+    //
+    // MODULE: LEAFCUTTER_GROUPS
+    //
+
+    // The groups file of each contrast, one sample per line followed by its condition and
+    // its blocking variables
+    LEAFCUTTER_GROUPS(ch_ds_contrasts.map { meta, _groups, sample_lines -> [meta, sample_lines] })
 
     // `leafcutter-ds` reads the counts of each intron, which is the numerators table
-    ch_ds_input = ch_ds_contrasts
-        .map { meta, _groups -> [meta.id, meta] }
-        .join(ch_groups, failOnDuplicate: true, failOnMismatch: true)
+    ch_ds_input = LEAFCUTTER_GROUPS.out.groups
         .combine(LEAFCUTTER_CLUSTERREGTOOLS.out.numers)
-        .map { _id, meta, groups_file, _meta_lc, numers -> [meta, numers, groups_file] }
+        .map { meta, groups_file, _meta_lc, numers -> [meta, numers, groups_file] }
 
     LEAFCUTTER_DIFFERENTIALSPLICING(ch_ds_input, ch_exons)
 
@@ -136,6 +143,7 @@ workflow LEAFCUTTER {
     strand_summary = STRANDJUNCTIONS.out.summary // channel: [ val(meta), path(tsv) ], unstranded samples only
     counts = LEAFCUTTER_CLUSTERREGTOOLS.out.counts // channel: [ val(meta), path(counts) ]
     numers = LEAFCUTTER_CLUSTERREGTOOLS.out.numers // channel: [ val(meta), path(numers) ]
+    groups = LEAFCUTTER_GROUPS.out.groups // channel: [ val(meta), path(txt) ], the groups file of each tested contrast, with its blocking variables
     pooled = LEAFCUTTER_CLUSTERREGTOOLS.out.pooled // channel: [ val(meta), path(pooled) ]
     refined = LEAFCUTTER_CLUSTERREGTOOLS.out.refined // channel: [ val(meta), path(refined) ]
     sortedlibs = LEAFCUTTER_CLUSTERREGTOOLS.out.sortedlibs // channel: [ val(meta), path(sortedlibs) ]

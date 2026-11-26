@@ -69,6 +69,14 @@ output:
         Channel containing the intron excision numerators per cluster and sample, across samples
         Structure: [ val(meta), path(numers) ]
       pattern: "*_perind_numers*.counts.gz"
+  - groups:
+      type: file
+      description: |
+        Channel containing the groups file of each contrast tested for differential splicing,
+        one sample per line with its condition and, when the contrast sets `blocking`, its
+        blocking variables as further columns
+        Structure: [ val(contrast), path(txt) ]
+      pattern: "*_groups.txt"
   - pooled:
       type: file
       description: |

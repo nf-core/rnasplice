@@ -140,7 +140,7 @@ workflow PIPELINE_INITIALISATION {
     }
 
     if (contrast_rows.any { row -> row.blocking }) {
-        log.warn("The contrastsheet 'blocking' column is used by DEXSeq DEU (--dexseq_exon), DEXSeq DTU (--dexseq_dtu) and edgeR DEU (--edger_exon) only, the other methods ignore it")
+        log.warn("The contrastsheet 'blocking' column is used by DEXSeq DEU (--dexseq_exon), DEXSeq DTU (--dexseq_dtu), edgeR DEU (--edger_exon) and LeafCutter (--leafcutter) only, the other methods ignore it")
     }
 
     // Blocking variables are checked here, before any process runs. A column missing from
