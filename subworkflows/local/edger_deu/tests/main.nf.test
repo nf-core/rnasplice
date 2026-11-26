@@ -73,7 +73,8 @@ nextflow_workflow {
                     [ workflow.out.expression, workflow.out.results, workflow.out.simes, workflow.out.gene ].collect { tables ->
                         tables.collect { meta, table -> [ meta, file(table).name, path(table).readLines()[0], path(table).readLines().size() ] }
                     },
-                    [ workflow.out.plots, workflow.out.bcv_plot, workflow.out.rdata, workflow.out.lrt ].collect { files ->
+                    workflow.out.plots.collect { meta, pdfs -> [ meta, pdfs.collect { pdf -> file(pdf).name }.sort() ] },
+                    [ workflow.out.bcv_plot, workflow.out.rdata, workflow.out.lrt ].collect { files ->
                         files.collect { meta, f -> [ meta, file(f).name ] }
                     },
                     workflow.out.annotated.collect { meta, table -> [ meta, file(table).name, path(table).readLines()[0], path(table).readLines().size() ] }.sort { table -> table[1] }

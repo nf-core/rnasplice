@@ -129,13 +129,17 @@
             ],
             [
                 [
+                    {
+                        "id": "GBR-YRI"
+                    },
                     [
-                        {
-                            "id": "GBR-YRI"
-                        },
-                        "GBR-YRI.edger.diffsplice.pdf"
+                        "GBR-YRI.edger.diffsplice.gene.pdf",
+                        "GBR-YRI.edger.diffsplice.results.pdf",
+                        "GBR-YRI.edger.diffsplice.simes.pdf"
                     ]
-                ],
+                ]
+            ],
+            [
                 [
                     [
                         {
@@ -196,7 +200,7 @@
                 ]
             ]
         ],
-        "timestamp": "2026-11-26T17:19:26.383951523",
+        "timestamp": "2026-11-26T18:44:29.771261092",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"
@@ -289,7 +293,11 @@
                     {
                         "id": "GBR-YRI"
                     },
-                    "GBR-YRI.edger.diffsplice.pdf:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    [
+                        "GBR-YRI.edger.diffsplice.gene.pdf:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "GBR-YRI.edger.diffsplice.results.pdf:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "GBR-YRI.edger.diffsplice.simes.pdf:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
                 ]
             ],
             [
@@ -343,7 +351,7 @@
                 ]
             ]
         ],
-        "timestamp": "2026-11-26T17:19:42.7231305",
+        "timestamp": "2026-11-26T18:18:57.866320454",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"
