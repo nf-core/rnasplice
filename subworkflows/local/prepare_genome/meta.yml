@@ -17,7 +17,6 @@ components:
   - star/genomegenerate
   - salmon/index
   - rsem/preparereference
-  - custom/gtffilter
   - seqkit/replace
   - genomeparamsupgrade
 input:

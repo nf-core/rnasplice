@@ -19,7 +19,6 @@ include { STAR_GENOMEGENERATE } from '../../../modules/nf-core/star/genomegenera
 include { SALMON_INDEX } from '../../../modules/nf-core/salmon/index'
 include { RSEM_PREPAREREFERENCE as MAKE_TRANSCRIPTS_FASTA } from '../../../modules/nf-core/rsem/preparereference'
 
-include { CUSTOM_GTFFILTER } from '../../../modules/nf-core/custom/gtffilter'
 include { SEQKIT_REPLACE } from '../../../modules/nf-core/seqkit/replace'
 include { GENOMEPARAMSUPGRADE } from '../../../modules/local/genomeparamsupgrade'
 
@@ -74,7 +73,7 @@ workflow PREPARE_GENOME {
     }
 
     //
-    // MODULE: GUNZIP_TRANSCRIPT_FASTA, SEQKIT_REPLACE, CUSTOM_GTFFILTER and MAKE_TRANSCRIPTS_FASTA
+    // MODULE: GUNZIP_TRANSCRIPT_FASTA, SEQKIT_REPLACE and MAKE_TRANSCRIPTS_FASTA
     //
 
     // Without a transcript FASTA, one is built from the genome and the annotation, keeping
@@ -97,13 +96,9 @@ workflow PREPARE_GENOME {
             }
         }
         else {
-            ch_filter_gtf = CUSTOM_GTFFILTER(
-                ch_gtf.map { _meta, gtf_file -> [[id: gtf_file.baseName], gtf_file] },
-                ch_fasta,
-            ).gtf
             ch_transcript_fasta = MAKE_TRANSCRIPTS_FASTA(
                 ch_fasta.map { _meta, fa -> fa },
-                ch_filter_gtf.map { _meta, filter_gtf -> filter_gtf },
+                ch_gtf.map { _meta, gtf_file -> gtf_file },
             ).transcript_fasta.map { fa -> [[:], fa] }
         }
     }

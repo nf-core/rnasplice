@@ -18,7 +18,6 @@ nextflow_workflow {
     tag "salmon/index"
     tag "rsem"
     tag "rsem/preparereference"
-    tag "custom/gtffilter"
     tag "seqkit/replace"
     tag "genomeparamsupgrade"
 

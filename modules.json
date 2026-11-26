@@ -25,11 +25,6 @@
                         "git_sha": "eac429d4c67ac5114ce7d4287d460d8f05fd9fab",
                         "installed_by": ["modules"]
                     },
-                    "custom/gtffilter": {
-                        "branch": "master",
-                        "git_sha": "7b3452a23773f687ededb4befd037920e5a51341",
-                        "installed_by": ["modules"]
-                    },
                     "custom/tx2gene": {
                         "branch": "master",
                         "git_sha": "3553e8966a3a0575481e215ca21765f68b940cf3",
