@@ -2,11 +2,11 @@
 // Visualise splicing events with MISO sashimi plots
 //
 
-include { GFFREAD_GTF2GFF3   } from '../../../modules/local/gffread/gtf2gff3/main'
-include { MISOPY_INDEX       } from '../../../modules/nf-core/misopy/index/main'
-include { MISOPY_RUN         } from '../../../modules/local/misopy/run/main'
-include { MISOPY_SASHIMIPLOT } from '../../../modules/local/misopy/sashimiplot/main'
-include { MISOPY_SETTINGS    } from '../../../modules/local/misopysettings/main'
+include { GFFREAD as GFFREAD_GTF2GFF3 } from '../../../modules/nf-core/gffread/main'
+include { MISOPY_INDEX                } from '../../../modules/nf-core/misopy/index/main'
+include { MISOPY_RUN                  } from '../../../modules/local/misopy/run/main'
+include { MISOPY_SASHIMIPLOT          } from '../../../modules/local/misopy/sashimiplot/main'
+include { MISOPY_SETTINGS             } from '../../../modules/local/misopysettings/main'
 
 workflow VISUALISE_MISO {
 
@@ -25,13 +25,13 @@ workflow VISUALISE_MISO {
     // MODULE: GFFREAD_GTF2GFF3
     //
 
-    GFFREAD_GTF2GFF3(gtf.map { annotation -> [[id: annotation.baseName], annotation] })
+    GFFREAD_GTF2GFF3(gtf.map { annotation -> [[id: annotation.baseName], annotation] }, [])
 
     //
     // MODULE: MISOPY_INDEX
     //
 
-    MISOPY_INDEX(GFFREAD_GTF2GFF3.out.gff3)
+    MISOPY_INDEX(GFFREAD_GTF2GFF3.out.gffread_gff)
 
     //
     // MODULE: MISOPY_RUN
@@ -125,7 +125,7 @@ workflow VISUALISE_MISO {
     )
 
     emit:
-    gff3          = GFFREAD_GTF2GFF3.out.gff3          // channel: [ val(meta), path(*.gff3) ]
+    gff3          = GFFREAD_GTF2GFF3.out.gffread_gff   // channel: [ val(meta), path(*.gff3) ]
     miso_index    = ch_miso_index                      // channel: [ val(meta), path(index) ]
     miso_data     = ch_miso_data                       // channel: [ val(meta), path(miso_data/*) ]
     miso_settings = MISOPY_SETTINGS.out.miso_settings  // channel: [ val(meta), path(miso_settings.txt) ]

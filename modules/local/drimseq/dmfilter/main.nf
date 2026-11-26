@@ -7,8 +7,7 @@ process DRIMSEQ_DMFILTER {
         'biocontainers/bioconductor-drimseq:1.18.0--r40_0' }"
 
     input:
-    path txi               // path: *.txi*.rds (either txi.s.rds or txi.dtu.rds)
-    path tximport_tx2gene  // path: tximport.tx2gene.tsv
+    path counts            // path: transcript counts from tximeta/tximport (transcript_counts_dtu_scaled.tsv or transcript_counts_scaled.tsv)
     path samplesheet       // path: /path/to/samplesheet.csv
 
     output:

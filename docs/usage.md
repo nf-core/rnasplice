@@ -291,7 +291,7 @@ Following HTSeq quantification you can estimate the differential exon usage usin
 
 ### edgeR
 
-Following featureCounts quantification differential exon usage can also be performed with [edgeR](https://bioconductor.org/packages/release/bioc/html/edgeR.html). This can be chosen by specifying the `--aligner star` or `--aligner star_salmon` followed by the `--edger_exon` parameter. This module also produces differential exon expression results for each contrast.
+Following featureCounts quantification differential exon usage can also be performed with [edgeR](https://bioconductor.org/packages/release/bioc/html/edgeR.html). This can be chosen by specifying the `--aligner star` or `--aligner star_salmon` followed by the `--edger_exon` parameter.
 
 ## Differential Transcript Usage
 
@@ -561,11 +561,11 @@ Whilst the default requirements set within the pipeline will hopefully work for 
 For example, if the nf-core/rnaseq pipeline is failing after multiple re-submissions of the `STAR_ALIGN` process due to an exit code of `137` this would indicate that there is an out of memory issue:
 
 ```console
-[62/149eb0] NOTE: Process `NFCORE_RNASPLICE:RNASPLICE:ALIGN_STAR:STAR_ALIGN (WT_REP1)` terminated with an error exit status (137) -- Execution is retried (1)
-Error executing process > 'NFCORE_RNASPLICE:RNASPLICE:ALIGN_STAR:STAR_ALIGN (WT_REP1)'
+[62/149eb0] NOTE: Process `NFCORE_RNASPLICE:RNASPLICE:FASTQ_ALIGN_STAR:STAR_ALIGN (WT_REP1)` terminated with an error exit status (137) -- Execution is retried (1)
+Error executing process > 'NFCORE_RNASPLICE:RNASPLICE:FASTQ_ALIGN_STAR:STAR_ALIGN (WT_REP1)'
 
 Caused by:
-    Process `NFCORE_RNASPLICE:RNASPLICE:ALIGN_STAR:STAR_ALIGN (WT_REP1)` terminated with an error exit status (137)
+    Process `NFCORE_RNASPLICE:RNASPLICE:FASTQ_ALIGN_STAR:STAR_ALIGN (WT_REP1)` terminated with an error exit status (137)
 
 Command executed:
     STAR \
@@ -605,14 +605,14 @@ The custom config below can then be provided to the pipeline via the [`-c`](#-c)
 
 ```nextflow
 process {
-    withName: 'NFCORE_RNASPLICE:RNASPLICE:ALIGN_STAR:STAR_ALIGN' {
+    withName: 'NFCORE_RNASPLICE:RNASPLICE:FASTQ_ALIGN_STAR:STAR_ALIGN' {
         memory = 100.GB
     }
 }
 ```
 
 :::note
-We specify the full process name i.e. `NFCORE_RNASPLICE:RNASPLICE:ALIGN_STAR:STAR_ALIGN` in the config file because this takes priority over the short name (`STAR_ALIGN`) and allows existing configuration using the full process name to be correctly overridden.
+We specify the full process name i.e. `NFCORE_RNASPLICE:RNASPLICE:FASTQ_ALIGN_STAR:STAR_ALIGN` in the config file because this takes priority over the short name (`STAR_ALIGN`) and allows existing configuration using the full process name to be correctly overridden.
 
 If you get a warning suggesting that the process selector isn't recognised check that the process name has been specified correctly.
 :::

@@ -8,7 +8,7 @@ keywords:
   - visualisation
   - gff3
 components:
-  - gffread/gtf2gff3
+  - gffread
   - misopy/index
   - misopy/run
   - misopy/sashimiplot

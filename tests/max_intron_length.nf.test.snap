@@ -16,20 +16,17 @@
                     "python": "3.14.6",
                     "yaml": "6.0.3"
                 },
-                "EAUTILS_GTF2BED": {
-                    "perl": "5.26.2"
-                },
                 "FASTQC": {
                     "fastqc": "0.13.0"
                 },
                 "GENEANNOTATION_TABLES": {
                     "python": "3.14.6"
                 },
-                "GFFREAD_TX2GENE": {
-                    "gffread": "0.12.7"
+                "GFFREAD_GTF2BED": {
+                    "gffread": "0.12.9"
                 },
-                "GTFGENEFILTER": {
-                    "python": "3.14.6"
+                "GFFREAD_TX2GENE": {
+                    "gffread": "0.12.9"
                 },
                 "GUNZIP_FASTA": {
                     "gunzip": "1.13"
@@ -91,7 +88,7 @@
             1524,
             "aspli.settings.tsv:md5,fc077b38061bf208520ce5c02069b4cd"
         ],
-        "timestamp": "2026-11-25T20:50:45.987740566",
+        "timestamp": "2026-11-26T20:55:49.251459863",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"
@@ -106,14 +103,14 @@
                     "python": "3.14.6",
                     "yaml": "6.0.3"
                 },
-                "EAUTILS_GTF2BED": {
-                    "perl": "5.26.2"
-                },
                 "GENEANNOTATION_TABLES": {
                     "python": "3.14.6"
                 },
+                "GFFREAD_GTF2BED": {
+                    "gffread": "0.12.9"
+                },
                 "GFFREAD_TX2GENE": {
-                    "gffread": "0.12.7"
+                    "gffread": "0.12.9"
                 },
                 "GUNZIP_FASTA": {
                     "gunzip": "1.13"
@@ -160,7 +157,7 @@
             },
             1484
         ],
-        "timestamp": "2026-11-25T20:51:35.808862725",
+        "timestamp": "2026-11-26T20:56:39.432046798",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"

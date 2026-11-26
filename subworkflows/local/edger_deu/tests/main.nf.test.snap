@@ -5,6 +5,7 @@
                 [
                     {
                         "id": "ERR188383",
+                        "condition": "GBR",
                         "single_end": false,
                         "strandedness": "unstranded"
                     },
@@ -13,6 +14,7 @@
                 [
                     {
                         "id": "ERR188428",
+                        "condition": "GBR",
                         "single_end": false,
                         "strandedness": "unstranded"
                     },
@@ -21,6 +23,7 @@
                 [
                     {
                         "id": "ERR188454",
+                        "condition": "YRI",
                         "single_end": false,
                         "strandedness": "unstranded"
                     },
@@ -29,6 +32,7 @@
                 [
                     {
                         "id": "ERR204916",
+                        "condition": "YRI",
                         "single_end": false,
                         "strandedness": "unstranded"
                     },
@@ -39,6 +43,7 @@
                 [
                     {
                         "id": "ERR188383",
+                        "condition": "GBR",
                         "single_end": false,
                         "strandedness": "unstranded"
                     },
@@ -47,6 +52,7 @@
                 [
                     {
                         "id": "ERR188428",
+                        "condition": "GBR",
                         "single_end": false,
                         "strandedness": "unstranded"
                     },
@@ -55,6 +61,7 @@
                 [
                     {
                         "id": "ERR188454",
+                        "condition": "YRI",
                         "single_end": false,
                         "strandedness": "unstranded"
                     },
@@ -63,6 +70,7 @@
                 [
                     {
                         "id": "ERR204916",
+                        "condition": "YRI",
                         "single_end": false,
                         "strandedness": "unstranded"
                     },
@@ -74,140 +82,128 @@
                     {
                         "id": "edger_exon"
                     },
-                    {
-                        "contrast_GBR-YRI.usage.exon.csv": "f571c2283540db2ba88bfdf1c1e819fe",
-                        "contrast_GBR-YRI.usage.gene.csv": "32159f56a22eeb6be5df765fbf203d16",
-                        "contrast_GBR-YRI.usage.simes.csv": "6a0c43ba4345451e5b99c792cee21bc8",
-                        "contrast_YRI-GBR.usage.exon.csv": "f3855a14dfdca97fa16c5042b8ea115d",
-                        "contrast_YRI-GBR.usage.gene.csv": "32159f56a22eeb6be5df765fbf203d16",
-                        "contrast_YRI-GBR.usage.simes.csv": "6a0c43ba4345451e5b99c792cee21bc8"
-                    }
+                    "edger_exon.tsv:md5,ed14565891a4e2171c7d6f9b07476a0c"
                 ]
             ],
             [
                 [
-                    {
-                        "id": "edger_exon"
-                    },
                     [
-                        "contrast_GBR-YRI.exprs.csv",
-                        "contrast_YRI-GBR.exprs.csv"
+                        {
+                            "id": "GBR-YRI"
+                        },
+                        "GBR-YRI.edger.diffsplice.expression.tsv",
+                        "Geneid\tStart\tChr\tEnd\tStrand\tLength\tlogFC\tlogCPM\tF\tPValue\tFDR",
+                        272
+                    ]
+                ],
+                [
+                    [
+                        {
+                            "id": "GBR-YRI"
+                        },
+                        "GBR-YRI.edger.diffsplice.results.tsv",
+                        "Geneid\tStart\tChr\tEnd\tStrand\tLength\tlogFC\texon.F\tP.Value\tFDR",
+                        268
+                    ]
+                ],
+                [
+                    [
+                        {
+                            "id": "GBR-YRI"
+                        },
+                        "GBR-YRI.edger.diffsplice.simes.tsv",
+                        "Geneid\tChr\tStrand\tNExons\tP.Value\tFDR",
+                        25
+                    ]
+                ],
+                [
+                    [
+                        {
+                            "id": "GBR-YRI"
+                        },
+                        "GBR-YRI.edger.diffsplice.gene.tsv",
+                        "Geneid\tChr\tStrand\tNExons\tgene.F\tP.Value\tFDR",
+                        25
                     ]
                 ]
             ],
             [
                 [
                     {
-                        "id": "edger_exon"
+                        "id": "GBR-YRI"
                     },
                     [
-                        "contrast_GBR-YRI.usage.exon.pdf",
-                        "contrast_GBR-YRI.usage.gene.pdf",
-                        "contrast_GBR-YRI.usage.simes.pdf",
-                        "contrast_YRI-GBR.usage.exon.pdf",
-                        "contrast_YRI-GBR.usage.gene.pdf",
-                        "contrast_YRI-GBR.usage.simes.pdf"
+                        "GBR-YRI.edger.diffsplice.gene.pdf",
+                        "GBR-YRI.edger.diffsplice.results.pdf",
+                        "GBR-YRI.edger.diffsplice.simes.pdf"
+                    ]
+                ]
+            ],
+            [
+                [
+                    [
+                        {
+                            "id": "GBR-YRI"
+                        },
+                        "GBR-YRI.edger.bcv.png"
+                    ]
+                ],
+                [
+                    [
+                        {
+                            "id": "GBR-YRI"
+                        },
+                        "GBR-YRI.DGEGLM.edger.rds"
+                    ]
+                ],
+                [
+                    [
+                        {
+                            "id": "GBR-YRI"
+                        },
+                        "GBR-YRI.DGELRT.edger.rds"
                     ]
                 ]
             ],
             [
                 [
                     {
-                        "id": "edger_exon"
+                        "id": "GBR-YRI"
                     },
-                    "DGEList.rds"
-                ]
-            ],
-            [
-                [
-                    {
-                        "id": "edger_exon"
-                    },
-                    "DGEGLM.rds"
-                ]
-            ],
-            [
-                [
-                    {
-                        "id": "edger_exon"
-                    },
-                    [
-                        "DGELRT.exprs.rds",
-                        "DGELRT.usage.rds"
-                    ]
-                ]
-            ],
-            [
-                [
-                    {
-                        "id": "edger_exon"
-                    },
-                    "contrast_GBR-YRI.exprs.annotated.csv",
-                    "Geneid,gene_name,gene_biotype,Chr,Start,End,Strand,Length,logFC,logCPM,F,PValue,FDR",
+                    "GBR-YRI.edger.diffsplice.expression.annotated.tsv",
+                    "Geneid\tgene_name\tgene_biotype\tStart\tChr\tEnd\tStrand\tLength\tlogFC\tlogCPM\tF\tPValue\tFDR",
                     272
                 ],
                 [
                     {
-                        "id": "edger_exon"
+                        "id": "GBR-YRI"
                     },
-                    "contrast_GBR-YRI.usage.exon.annotated.csv",
-                    "Geneid,gene_name,gene_biotype,Chr,Start,End,Strand,Length,logFC,exon.F,P.Value,FDR",
+                    "GBR-YRI.edger.diffsplice.gene.annotated.tsv",
+                    "Geneid\tgene_name\tgene_biotype\tChr\tStrand\tNExons\tgene.F\tP.Value\tFDR",
+                    25
+                ],
+                [
+                    {
+                        "id": "GBR-YRI"
+                    },
+                    "GBR-YRI.edger.diffsplice.results.annotated.tsv",
+                    "Geneid\tgene_name\tgene_biotype\tStart\tChr\tEnd\tStrand\tLength\tlogFC\texon.F\tP.Value\tFDR",
                     268
                 ],
                 [
                     {
-                        "id": "edger_exon"
+                        "id": "GBR-YRI"
                     },
-                    "contrast_GBR-YRI.usage.gene.annotated.csv",
-                    "Geneid,gene_name,gene_biotype,Chr,Strand,NExons,gene.F,P.Value,FDR",
-                    25
-                ],
-                [
-                    {
-                        "id": "edger_exon"
-                    },
-                    "contrast_GBR-YRI.usage.simes.annotated.csv",
-                    "Geneid,gene_name,gene_biotype,Chr,Strand,NExons,P.Value,FDR",
-                    25
-                ],
-                [
-                    {
-                        "id": "edger_exon"
-                    },
-                    "contrast_YRI-GBR.exprs.annotated.csv",
-                    "Geneid,gene_name,gene_biotype,Chr,Start,End,Strand,Length,logFC,logCPM,F,PValue,FDR",
-                    272
-                ],
-                [
-                    {
-                        "id": "edger_exon"
-                    },
-                    "contrast_YRI-GBR.usage.exon.annotated.csv",
-                    "Geneid,gene_name,gene_biotype,Chr,Start,End,Strand,Length,logFC,exon.F,P.Value,FDR",
-                    268
-                ],
-                [
-                    {
-                        "id": "edger_exon"
-                    },
-                    "contrast_YRI-GBR.usage.gene.annotated.csv",
-                    "Geneid,gene_name,gene_biotype,Chr,Strand,NExons,gene.F,P.Value,FDR",
-                    25
-                ],
-                [
-                    {
-                        "id": "edger_exon"
-                    },
-                    "contrast_YRI-GBR.usage.simes.annotated.csv",
-                    "Geneid,gene_name,gene_biotype,Chr,Strand,NExons,P.Value,FDR",
+                    "GBR-YRI.edger.diffsplice.simes.annotated.tsv",
+                    "Geneid\tgene_name\tgene_biotype\tChr\tStrand\tNExons\tP.Value\tFDR",
                     25
                 ]
             ]
         ],
-        "timestamp": "2026-11-23T08:46:42.695230818",
+        "timestamp": "2026-11-26T18:44:29.771261092",
         "meta": {
-            "nf-test": "0.9.5",
-            "nextflow": "26.04.3"
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
         }
     },
     "human chrX - stub": {
@@ -216,6 +212,7 @@
                 [
                     {
                         "id": "ERR188383",
+                        "condition": "GBR",
                         "single_end": false,
                         "strandedness": "unstranded"
                     },
@@ -224,6 +221,7 @@
                 [
                     {
                         "id": "ERR188428",
+                        "condition": "GBR",
                         "single_end": false,
                         "strandedness": "unstranded"
                     },
@@ -234,6 +232,7 @@
                 [
                     {
                         "id": "ERR188383",
+                        "condition": "GBR",
                         "single_end": false,
                         "strandedness": "unstranded"
                     },
@@ -242,6 +241,7 @@
                 [
                     {
                         "id": "ERR188428",
+                        "condition": "GBR",
                         "single_end": false,
                         "strandedness": "unstranded"
                     },
@@ -253,115 +253,108 @@
                     {
                         "id": "edger_exon"
                     },
-                    "DGEList.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    "edger_exon.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
                 ]
             ],
             [
                 [
                     {
-                        "id": "edger_exon"
+                        "id": "GBR-YRI"
                     },
-                    "DGEGLM.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    "GBR-YRI.edger.diffsplice.expression.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
                 ]
             ],
             [
                 [
                     {
-                        "id": "edger_exon"
+                        "id": "GBR-YRI"
+                    },
+                    "GBR-YRI.edger.diffsplice.results.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "GBR-YRI"
+                    },
+                    "GBR-YRI.edger.diffsplice.simes.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "GBR-YRI"
+                    },
+                    "GBR-YRI.edger.diffsplice.gene.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "GBR-YRI"
                     },
                     [
-                        "DGELRT.exprs.rds:md5,d41d8cd98f00b204e9800998ecf8427e",
-                        "DGELRT.usage.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        "GBR-YRI.edger.diffsplice.gene.pdf:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "GBR-YRI.edger.diffsplice.results.pdf:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "GBR-YRI.edger.diffsplice.simes.pdf:md5,d41d8cd98f00b204e9800998ecf8427e"
                     ]
                 ]
             ],
             [
                 [
                     {
-                        "id": "edger_exon"
+                        "id": "GBR-YRI"
                     },
-                    [
-                        "contrast_GBR-YRI.exprs.csv:md5,d41d8cd98f00b204e9800998ecf8427e",
-                        "contrast_GBR-YRI.usage.exon.csv:md5,d41d8cd98f00b204e9800998ecf8427e",
-                        "contrast_GBR-YRI.usage.gene.csv:md5,d41d8cd98f00b204e9800998ecf8427e",
-                        "contrast_GBR-YRI.usage.simes.csv:md5,d41d8cd98f00b204e9800998ecf8427e",
-                        "contrast_YRI-GBR.exprs.csv:md5,d41d8cd98f00b204e9800998ecf8427e",
-                        "contrast_YRI-GBR.usage.exon.csv:md5,d41d8cd98f00b204e9800998ecf8427e",
-                        "contrast_YRI-GBR.usage.gene.csv:md5,d41d8cd98f00b204e9800998ecf8427e",
-                        "contrast_YRI-GBR.usage.simes.csv:md5,d41d8cd98f00b204e9800998ecf8427e"
-                    ]
+                    "GBR-YRI.edger.bcv.png:md5,d41d8cd98f00b204e9800998ecf8427e"
                 ]
             ],
             [
                 [
                     {
-                        "id": "edger_exon"
+                        "id": "GBR-YRI"
                     },
-                    [
-                        "contrast_GBR-YRI.usage.exon.pdf:md5,d41d8cd98f00b204e9800998ecf8427e",
-                        "contrast_GBR-YRI.usage.gene.pdf:md5,d41d8cd98f00b204e9800998ecf8427e",
-                        "contrast_GBR-YRI.usage.simes.pdf:md5,d41d8cd98f00b204e9800998ecf8427e",
-                        "contrast_YRI-GBR.usage.exon.pdf:md5,d41d8cd98f00b204e9800998ecf8427e",
-                        "contrast_YRI-GBR.usage.gene.pdf:md5,d41d8cd98f00b204e9800998ecf8427e",
-                        "contrast_YRI-GBR.usage.simes.pdf:md5,d41d8cd98f00b204e9800998ecf8427e"
-                    ]
+                    "GBR-YRI.DGEGLM.edger.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
                 ]
             ],
             [
                 [
                     {
-                        "id": "edger_exon"
+                        "id": "GBR-YRI"
                     },
-                    "contrast_GBR-YRI.exprs.annotated.csv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    "GBR-YRI.DGELRT.edger.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "GBR-YRI"
+                    },
+                    "GBR-YRI.edger.diffsplice.expression.annotated.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
                 ],
                 [
                     {
-                        "id": "edger_exon"
+                        "id": "GBR-YRI"
                     },
-                    "contrast_GBR-YRI.usage.exon.annotated.csv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    "GBR-YRI.edger.diffsplice.gene.annotated.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
                 ],
                 [
                     {
-                        "id": "edger_exon"
+                        "id": "GBR-YRI"
                     },
-                    "contrast_GBR-YRI.usage.gene.annotated.csv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    "GBR-YRI.edger.diffsplice.results.annotated.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
                 ],
                 [
                     {
-                        "id": "edger_exon"
+                        "id": "GBR-YRI"
                     },
-                    "contrast_GBR-YRI.usage.simes.annotated.csv:md5,d41d8cd98f00b204e9800998ecf8427e"
-                ],
-                [
-                    {
-                        "id": "edger_exon"
-                    },
-                    "contrast_YRI-GBR.exprs.annotated.csv:md5,d41d8cd98f00b204e9800998ecf8427e"
-                ],
-                [
-                    {
-                        "id": "edger_exon"
-                    },
-                    "contrast_YRI-GBR.usage.exon.annotated.csv:md5,d41d8cd98f00b204e9800998ecf8427e"
-                ],
-                [
-                    {
-                        "id": "edger_exon"
-                    },
-                    "contrast_YRI-GBR.usage.gene.annotated.csv:md5,d41d8cd98f00b204e9800998ecf8427e"
-                ],
-                [
-                    {
-                        "id": "edger_exon"
-                    },
-                    "contrast_YRI-GBR.usage.simes.annotated.csv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    "GBR-YRI.edger.diffsplice.simes.annotated.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
                 ]
             ]
         ],
-        "timestamp": "2026-11-23T08:46:51.393947822",
+        "timestamp": "2026-11-26T18:18:57.866320454",
         "meta": {
-            "nf-test": "0.9.5",
-            "nextflow": "26.04.3"
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
         }
     }
 }

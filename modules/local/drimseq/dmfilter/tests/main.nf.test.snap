@@ -1,5 +1,28 @@
 {
-    "tximport dtuScaledTPM - rds - stub": {
+    "tximport transcript counts - no filtering": {
+        "content": [
+            [
+                "samples.tsv:md5,f6e0ec8b6224e91786128ae8c20cb90d"
+            ],
+            [
+                "counts.tsv:md5,8ce4be0c42e6c80ed35aac7360241079"
+            ],
+            [
+                "dmDSdata.rds"
+            ],
+            {
+                "versions_drimseq": [
+                    "versions.yml:md5,d36936058d0c71c1345ecf5b50b53604"
+                ]
+            }
+        ],
+        "timestamp": "2026-11-25T23:28:09.323107792",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
+        }
+    },
+    "tximport transcript counts - stub": {
         "content": [
             {
                 "0": [
@@ -28,19 +51,19 @@
                 ]
             }
         ],
-        "timestamp": "2026-08-27T12:37:45.550732536",
+        "timestamp": "2026-11-25T23:28:19.509723263",
         "meta": {
-            "nf-test": "0.9.5",
-            "nextflow": "26.04.3"
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
         }
     },
-    "tximport dtuScaledTPM - rds": {
+    "tximport transcript counts": {
         "content": [
             [
                 "samples.tsv:md5,f6e0ec8b6224e91786128ae8c20cb90d"
             ],
             [
-                "counts.tsv:md5,9fa7a4570ec422431d4f5352b4ab3422"
+                "counts.tsv:md5,39b27aa5623eb069eca3aa9718160f76"
             ],
             [
                 "dmDSdata.rds"
@@ -51,33 +74,10 @@
                 ]
             }
         ],
-        "timestamp": "2026-10-23T11:20:06.200328892",
+        "timestamp": "2026-11-25T23:27:59.203977001",
         "meta": {
-            "nf-test": "0.9.5",
-            "nextflow": "26.04.3"
-        }
-    },
-    "tximport dtuScaledTPM - rds - no filtering": {
-        "content": [
-            [
-                "samples.tsv:md5,f6e0ec8b6224e91786128ae8c20cb90d"
-            ],
-            [
-                "counts.tsv:md5,b9ea2ca20f0dadf4bf977281ea508679"
-            ],
-            [
-                "dmDSdata.rds"
-            ],
-            {
-                "versions_drimseq": [
-                    "versions.yml:md5,d36936058d0c71c1345ecf5b50b53604"
-                ]
-            }
-        ],
-        "timestamp": "2026-10-23T11:20:13.561648293",
-        "meta": {
-            "nf-test": "0.9.5",
-            "nextflow": "26.04.3"
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
         }
     }
 }

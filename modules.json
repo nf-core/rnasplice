@@ -15,10 +15,20 @@
                         "git_sha": "6d46786420b4d7bc88eba026eb389c0c5535d120",
                         "installed_by": ["modules"]
                     },
+                    "csvtk/join": {
+                        "branch": "master",
+                        "git_sha": "7b3452a23773f687ededb4befd037920e5a51341",
+                        "installed_by": ["modules"]
+                    },
                     "custom/getchromsizes": {
                         "branch": "master",
                         "git_sha": "eac429d4c67ac5114ce7d4287d460d8f05fd9fab",
                         "installed_by": ["modules"]
+                    },
+                    "custom/tx2gene": {
+                        "branch": "master",
+                        "git_sha": "3553e8966a3a0575481e215ca21765f68b940cf3",
+                        "installed_by": ["modules", "quant_tximport_summarizedexperiment"]
                     },
                     "dexseq/count": {
                         "branch": "master",
@@ -40,9 +50,9 @@
                         "git_sha": "5b6aacd2394742aa94443f446797c58c322c6453",
                         "installed_by": ["modules"]
                     },
-                    "ea-utils/gtf2bed": {
+                    "edger/diffsplice": {
                         "branch": "master",
-                        "git_sha": "1298fbd2004c2913d6682ce4a419647d97a8fc3f",
+                        "git_sha": "e5fe77c7ab318e6d8465173117785c2ffc99512e",
                         "installed_by": ["modules"]
                     },
                     "fastqc": {
@@ -57,7 +67,7 @@
                     },
                     "gffread": {
                         "branch": "master",
-                        "git_sha": "c9ad4d691aa339e478a77847e3ef854ccd21778b",
+                        "git_sha": "78824064a3699eb7b79c1108425edcf3fb07a993",
                         "installed_by": ["modules"]
                     },
                     "gunzip": {
@@ -155,10 +165,15 @@
                         "git_sha": "9339809fcb90af8a8b7051e6cd914894d5c52002",
                         "installed_by": ["bam_stats_samtools", "modules"]
                     },
+                    "seqkit/replace": {
+                        "branch": "master",
+                        "git_sha": "b37c02fb23e80372e4857dc6695b699d62fea612",
+                        "installed_by": ["modules"]
+                    },
                     "star/align": {
                         "branch": "master",
                         "git_sha": "6d46786420b4d7bc88eba026eb389c0c5535d120",
-                        "installed_by": ["modules"]
+                        "installed_by": ["fastq_align_star", "modules"]
                     },
                     "star/genomegenerate": {
                         "branch": "master",
@@ -169,6 +184,11 @@
                         "branch": "master",
                         "git_sha": "6d46786420b4d7bc88eba026eb389c0c5535d120",
                         "installed_by": ["modules"]
+                    },
+                    "summarizedexperiment/summarizedexperiment": {
+                        "branch": "master",
+                        "git_sha": "3553e8966a3a0575481e215ca21765f68b940cf3",
+                        "installed_by": ["quant_tximport_summarizedexperiment"]
                     },
                     "suppa/clusterevents": {
                         "branch": "master",
@@ -200,6 +220,11 @@
                         "git_sha": "2a30bfb6a1b4667692d734e33e000a3bd1d74a0d",
                         "installed_by": ["fastq_fastqc_umitools_trimgalore", "modules"]
                     },
+                    "tximeta/tximport": {
+                        "branch": "master",
+                        "git_sha": "fd7666afa7a12f6350ecaf12f105ff088b987971",
+                        "installed_by": ["modules", "quant_tximport_summarizedexperiment"]
+                    },
                     "ucsc/bedclip": {
                         "branch": "master",
                         "git_sha": "6d46786420b4d7bc88eba026eb389c0c5535d120",
@@ -227,7 +252,7 @@
                     "bam_sort_stats_samtools": {
                         "branch": "master",
                         "git_sha": "9339809fcb90af8a8b7051e6cd914894d5c52002",
-                        "installed_by": ["subworkflows"]
+                        "installed_by": ["fastq_align_star", "subworkflows"]
                     },
                     "bam_stats_samtools": {
                         "branch": "master",
@@ -239,6 +264,11 @@
                         "git_sha": "51f2b493a7ff28b40a9f99faca64245521f2bb24",
                         "installed_by": ["subworkflows"]
                     },
+                    "fastq_align_star": {
+                        "branch": "master",
+                        "git_sha": "7b3452a23773f687ededb4befd037920e5a51341",
+                        "installed_by": ["subworkflows"]
+                    },
                     "fastq_fastqc_umitools_trimgalore": {
                         "branch": "master",
                         "git_sha": "e5777ea46cc591b519b9bb931e952e4a149cb47d",
@@ -247,6 +277,11 @@
                     "fastq_subsample_fq_salmon": {
                         "branch": "master",
                         "git_sha": "b1d01480e4306e33851d936d065b70b469dad352",
+                        "installed_by": ["subworkflows"]
+                    },
+                    "quant_tximport_summarizedexperiment": {
+                        "branch": "master",
+                        "git_sha": "49d0ca7a887eeb1b85cfb68ab18c8039753bd1de",
                         "installed_by": ["subworkflows"]
                     }
                 }

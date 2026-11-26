@@ -26,8 +26,8 @@ nextflow_process {
                     [ [ kind:'suppa_isoforms'        , route:'STAR', id:'A-B' ], 'transcript_A-B.dpsi'           ],
                     [ [ kind:'dexseq_deu_bins'       , route:''    , id:'A-B' ], 'A-B.dexseq.results.tsv'        ],
                     [ [ kind:'dexseq_deu_genes'      , route:''    , id:'A-B' ], 'A-B.dexseq.gene_qvalues.tsv'   ],
-                    [ [ kind:'edger_exons'           , route:''    , id:'A-B' ], 'contrast_A-B.usage.exon.csv'   ],
-                    [ [ kind:'edger_genes'           , route:''    , id:'A-B' ], 'contrast_A-B.usage.simes.csv'  ],
+                    [ [ kind:'edger_exons'           , route:''    , id:'A-B' ], 'A-B.edger.diffsplice.results.tsv'   ],
+                    [ [ kind:'edger_genes'           , route:''    , id:'A-B' ], 'A-B.edger.diffsplice.simes.tsv'  ],
                     [ [ kind:'dexseq_dtu_transcripts', route:'STAR', id:'A-B' ], 'A-B.dtu.dexseq.results.tsv'    ],
                     [ [ kind:'dexseq_dtu_genes'      , route:'STAR', id:'A-B' ], 'A-B.dtu.gene_qvalues.tsv'      ],
                     [ [ kind:'stager'                , route:'STAR', id:'A-B' ], 'getAdjustedPValues.A-B.tsv'    ],
@@ -187,7 +187,7 @@ nextflow_process {
             process {
                 """
                 def results = [
-                    [ [ kind:'edger_exons', route:''    , id:'A-B' ], 'pvalues_A-B.usage.exon.csv'        ],
+                    [ [ kind:'edger_exons', route:''    , id:'A-B' ], 'pvalues_A-B.edger.diffsplice.results.tsv'        ],
                     [ [ kind:'suppa_psi'  , route:'STAR', id:''    ], 'concordance.psi'                   ],
                     [ [ kind:'samplesheet', route:''    , id:''    ], 'sample_conditions_concordance.csv' ],
                 ]

@@ -171,7 +171,7 @@
                 "genes_chrX.gtf:md5,e0de60b724d78ec513a01dceddfa4f6e"
             ],
             [
-                "transcriptome.fixed.fa:md5,4e04341f8781429444f53f69beb31392"
+                "transcriptome.fixed.fasta:md5,c005d3b23109a4907fa9c5ad066dcb9d"
             ],
             [
                 [
@@ -203,10 +203,10 @@
                 "quant.tpm:md5,d606cb7c509c0f2d4287cd83243201d9"
             ]
         ],
-        "timestamp": "2026-10-23T11:30:01.4732445",
+        "timestamp": "2026-11-25T12:21:26.742486767",
         "meta": {
-            "nf-test": "0.9.5",
-            "nextflow": "26.04.3"
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
         }
     },
     "homo_sapiens - genome and transcriptome BAM input - gzipped gtf - no indices": {

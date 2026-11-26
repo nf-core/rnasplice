@@ -17,8 +17,7 @@ components:
   - star/genomegenerate
   - salmon/index
   - rsem/preparereference
-  - gtfgenefilter
-  - preprocess_transcripts_fasta_gencode
+  - seqkit/replace
   - genomeparamsupgrade
 input:
   - fasta:

@@ -10,7 +10,6 @@ nextflow_workflow {
     tag "subworkflows_"
     tag "subworkflows/visualise_miso"
     tag "gffread"
-    tag "gffread/gtf2gff3"
     tag "misopy"
     tag "misopy/index"
     tag "misopy/run"

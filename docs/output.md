@@ -310,25 +310,18 @@ The rMATS read outcomes of each BAM file and the summary of each contrast are pa
   - `salmon.merged.gene_tpm.tsv`: Matrix of gene-level TPM values across all samples.
   - `salmon.merged.gene_counts_scaled.tsv`: Matrix of gene-level scaled counts across all samples.
   - `salmon.merged.gene_counts_length_scaled.tsv`: Matrix of gene-level length-scaled counts across all samples.
-  - `salmon.merged.gene_tpm_scaled.tsv`: Matrix of gene-level scaled TPM across all samples.
-  - `salmon.merged.gene_tpm_length_scaled.tsv`: Matrix of gene-level length-scaled TPM across all samples.
+  - `salmon.merged.gene_lengths.tsv`: Matrix of gene-level effective lengths across all samples.
   - `salmon.merged.transcript_counts.tsv`: Matrix of isoform-level raw counts across all samples.
   - `salmon.merged.transcript_tpm.tsv`: Matrix of isoform-level TPM values across all samples.
-  - `salmon.merged.transcript_counts_scaled.tsv`: Matrix of isoform-level scaled raw counts across all samples.
-  - `salmon.merged.transcript_counts_length_scaled.tsv`: Matrix of isoform-level length-scaled raw counts across all samples.
-  - `salmon.merged.transcript_counts_dtu_scaled.tsv`: Matrix of isoform-level dtu scaled raw counts across all samples.
-  - `salmon.merged.transcript_tpm_scaled.tsv`: Matrix of isoform-level scaled TPM values across all samples.
-  - `salmon.merged.transcript_tpm_length_scaled.tsv`: Matrix of isoform-level length-scaled TPM values across all samples.
-  - `salmon.merged.transcript_tpm_dtu_scaled.tsv`: Matrix of isoform-level dtu scaled TPM values across all samples.
-  - `salmon.merged.gi.rds`: Tximport R object following tximport::summarizeToGene with countsFromAbundance = "no"
-  - `salmon.merged.gi.s.rds`: Tximport R object following tximport::summarizeToGene with countsFromAbundance = "scaledTPM"
-  - `salmon.merged.gi.ls.rds`: Tximport R object following tximport::summarizeToGene with countsFromAbundance = "lengthScaledTPM"
-  - `salmon.merged.txi.rds`: Tximport R object following tximport::tximport with countsFromAbundance = "no"
-  - `salmon.merged.txi.s.rds`: Tximport R object following tximport::tximport with countsFromAbundance = "scaledTPM"
-  - `salmon.merged.txi.ls.rds`: Tximport R object following tximport::tximport with countsFromAbundance = "lengthScaledTPM"
-  - `salmon.merged.txi.dtu.rds`: Tximport R object following tximport::tximport with countsFromAbundance = "dtuScaledTPM"
-  - `tximport.tx2gene.tsv`: Filtered Tab-delimited file containing gene to transcripts ids mappings.
-  - `suppa_tpm.txt`: Tab-delimited file containing TPM normalised counts formatted for SUPPA downstream analysis
+  - `salmon.merged.transcript_counts_scaled.tsv`: Matrix of isoform-level scaled counts (scaledTPM) across all samples.
+  - `salmon.merged.transcript_counts_dtu_scaled.tsv`: Matrix of isoform-level dtu-scaled counts (dtuScaledTPM) across all samples.
+  - `salmon.merged.transcript_lengths.tsv`: Matrix of isoform-level effective lengths across all samples.
+  - `salmon.merged.gene.SummarizedExperiment.rds`: SummarizedExperiment object of the gene-level counts, scaled counts, length-scaled counts, lengths and TPM, with the samplesheet as colData.
+  - `salmon.merged.transcript.SummarizedExperiment.rds`: SummarizedExperiment object of the isoform-level counts, scaled counts, dtu-scaled counts, lengths and TPM, with the samplesheet as colData.
+  - `salmon.merged.tx2gene_augmented.tsv`: Transcript to gene table tximport used, with any quantified transcripts missing from the annotation added as their own genes.
+  - `tximport.tx2gene.tsv`: Transcript to gene table built from the GTF, using the attribute that matches the Salmon transcript IDs.
+  - `salmon.merged.{gene,transcript}.R_sessionInfo.log`: R session information of the SummarizedExperiment steps.
+  - `suppa_tpm.txt`: Tab-delimited file containing TPM normalised counts formatted for SUPPA downstream analysis.
 - `salmon/<SAMPLE>/`
   - `aux_info/`: Auxiliary info e.g. versions and number of mapped reads.
   - `cmd_info.json`: Information about the Salmon quantification command, version and options.
@@ -342,9 +335,9 @@ The rMATS read outcomes of each BAM file and the summary of each contrast are pa
 
 As described in the [STAR and Salmon section](https://github.com/nf-core/rnasplice/blob/master/docs/output.md#star-and-salmon), you can choose to pseudo-align and quantify your data with [Salmon](https://salmon.readthedocs.io/en/latest/salmon.html) by providing the `--pseudo_aligner salmon` parameter.
 
-To summarise Salmon results and produce gene and transcript level counts and normalised (TPM) values we use the [tximport](https://bioconductor.org/packages/release/bioc/html/tximport.html) R package. Like the [nf-core/rnaseq](https://github.com/nf-core/rnaseq) pipeline this workflow produces counts, as well as TPM normalised values at gene and transcript level, however it also provides scaled, length-scaled, and dtu-scaled values which may be used for downstream splicing analysis. In particular, scaled, and dtu-scaled TPMs (see the `--dtu_txi dtuScaledTPM` or `--dtu_txi scaledTPM` parameter) can be chosen by users for DTU analysis with DRIMSeq filtering and DEXSeq as seen in this [workflow](https://f1000research.com/articles/7-952). These files can be accessed as TSVs or as their original R object for ease of use with additional downstream R analysis.
+To summarise Salmon results and produce gene and transcript level counts and normalised (TPM) values we use the [tximport](https://bioconductor.org/packages/release/bioc/html/tximport.html) R package. Like the [nf-core/rnaseq](https://github.com/nf-core/rnaseq) pipeline this workflow produces counts, as well as TPM normalised values at gene and transcript level, however it also provides scaled and dtu-scaled transcript counts which may be used for downstream splicing analysis. In particular, scaled, and dtu-scaled TPMs (see the `--dtu_txi dtuScaledTPM` or `--dtu_txi scaledTPM` parameter) can be chosen by users for DTU analysis with DRIMSeq filtering and DEXSeq as seen in this [workflow](https://f1000research.com/articles/7-952). Transcripts that are quantified but missing from the annotation are left out of the DRIMSeq input.
 
-Although this workflow does not deal in differential gene expression we also produce gene level summarisations in TSV format, as well as R objects following tximport::summarizeToGene if users wish to progress to differential gene expression independently. Furthermore, the pipeline will produce a `tximport.tx2gene.tsv` file which has been filtered and matched with the incoming Salmon quant.sf files which can be used for any additional downstream analysis.
+Although this workflow does not deal in differential gene expression we also produce gene level summarisations in TSV format and as a SummarizedExperiment object if users wish to progress to differential gene expression independently. The transcript to gene table tximport used is written as `salmon.merged.tx2gene_augmented.tsv`.
 
 This workflow will also produce a `suppa_tpm.txt` which is a tab delimitated text file of TPM normalised counts formatted for SUPPA analysis.
 
@@ -388,6 +381,7 @@ The differential splicing outputs are written for each contrast in which both co
   - `{contrast}.dexseq.results.tsv`: TSV results table of DEXSeq DEU analysis featuring log2foldchanges and p-values etc.
   - `{contrast}.dexseq.gene_qvalues.rds`: DEXSeq R Object following DEXSeq::perGeneQValue containing q-values per gene.
   - `{contrast}.dexseq.gene_qvalues.tsv`: TSV file of the q-values in `{contrast}.dexseq.gene_qvalues.rds`.
+  - `{contrast}.dexseq.model.txt`: The full and reduced models DEXSeq fitted, including any blocking variables.
   - `{contrast}.dexseq.plots.pdf` : PDF file of top _N_ genes from DEXSeq results.
   - `{contrast}.dexseq.{results,gene_qvalues}.annotated.tsv`: The same two tables with the gene name and biotype after `groupID`, see [Gene annotation](#gene-annotation).
 - `dexseq_exon/annotation/`
@@ -409,21 +403,24 @@ Finally, as discussed above in the DEXSeq count section, users can inspect count
 <summary>Output files</summary>
 
 - `edger/`
-  - `DGEList.rds`: DGEList R object following filtering, normalisation, and dispersion estimation.
-  - `DGEGLM.rds`: DGEGLM R object following edgeR::glmQLFit
-  - `DGELRT.exprs.rds`: DGELRT R object following differential exon expression analysis with edgeR::glmQLFTest
-  - `DGELRT.usage.rds`: DGELRT R object following differential exon usage analysis with edgeR::diffSpliceDGE
-  - `{contrast}.usage.usage.csv`: CSV file output of differential exon usage results per pairwise condition for top spliced results at the exon level.
-  - `{contrast}.usage.gene.csv`: CSV file output of differential exon usage results per pairwise condition for top spliced genes identified with F-tests.
-  - `{contrast}.usage.simes.csv`: CSV file output of differential exon usage results per pairwise condition for top spliced genes identified with the Simes method.
-  - `{contrast}.exprs.csv`: CSV file output of differential exon expression results per pairwise condition.
-  - `{contrast}.*.annotated.csv`: The same CSV files with the gene name and biotype after `Geneid`, see [Gene annotation](#gene-annotation).
+  - `edger_exon.tsv`: Exonic feature counts of all samples, joined from the per sample featureCounts tables.
+  - `{contrast}.edger.diffsplice.expression.tsv`: Differential exon expression results, each exon tested on its own with the same model and contrast (edgeR::glmQLFTest).
+  - `{contrast}.edger.diffsplice.results.tsv`: Differential exon usage results at the exon level, each exon tested against the other exons of its gene with edgeR::diffSpliceDGE.
+  - `{contrast}.edger.diffsplice.simes.tsv`: Gene-level results, combining the exon-level p-values with the Simes method.
+  - `{contrast}.edger.diffsplice.gene.tsv`: Gene-level results of the F (or likelihood ratio) test.
+  - `{contrast}.edger.diffsplice.{results,simes,gene}.pdf`: edgeR::plotSpliceDGE plots of the top genes (`--n_edger_plot`) of each results table.
+  - `{contrast}.edger.bcv.png`: Biological coefficient of variation plot of the estimated dispersions.
+  - `{contrast}.DGEList.edger.rds`: DGEList R object after filtering, normalisation and dispersion estimation.
+  - `{contrast}.DGEGLM.edger.rds`: DGEGLM R object following edgeR::glmQLFit.
+  - `{contrast}.DGELRT.expression.edger.rds`: DGELRT R object following edgeR::glmQLFTest.
+  - `{contrast}.DGELRT.edger.rds`: DGELRT R object following edgeR::diffSpliceDGE.
+  - `{contrast}.edger.model.txt`: The model formula.
+  - `{contrast}.R_sessionInfo.log`: R session information.
+  - `{contrast}.*.annotated.tsv`: The same result tables with the gene name and biotype after `Geneid`, see [Gene annotation](#gene-annotation).
 
 </details>
 
-[edgeR](https://bioconductor.org/packages/release/bioc/html/edgeR.html) is a bioconductor R package typically used for differential gene expression, however, it contains numerous additional functions which make it useful for splicing analysis. In particular, edgeR can perform differential exon usage analysis, and we leverage this functionality here. As output users can retrieve `DGEList.rds`, and `DGEGLM.rds` R objects which contain the first steps of the edgeR analysis. Users can also find `DGELRT.exprs.rds` and `DGELRT.usage.rds` R objects which provide R objects following differential exon expression and differential exon usage steps respectively. Results CSV files are also output per comparison as `{contrast}.usage.usage.csv` which contain the differential exon usage results, `{contrast}.usage.gene.csv` which contain results at a gene level identified with F-tests, and `{contrast}.usage.simes.csv` which contain results at a gene level using the Simes adjustment.
-
-It was felt that users may wish to retrieve differential exon results at this point on top of differential exon usage results as edgeR is able to calculate them without difficulty. By default, this workflow will calculate all possible pairwise comparisons between conditions.
+[edgeR](https://bioconductor.org/packages/release/bioc/html/edgeR.html) is a Bioconductor R package typically used for differential gene expression, which can also test for differential exon usage. The exon counts of all samples are filtered with edgeR::filterByExpr, normalised and fitted with edgeR::glmQLFit, and for each contrast edgeR::glmQLFTest tests every exon for differential expression, while edgeR::diffSpliceDGE tests every exon against the other exons of its gene. The result tables are sorted by p-value: `{contrast}.edger.diffsplice.expression.tsv` and `{contrast}.edger.diffsplice.results.tsv` at the exon level, and `{contrast}.edger.diffsplice.simes.tsv` and `{contrast}.edger.diffsplice.gene.tsv` at the gene level, with the Simes method and the F test respectively.
 
 ## Differential Bin and Junction Usage
 
@@ -482,6 +479,7 @@ The `symbol` column of the ASpli tables holds the gene name of each gene, from t
     - `{contrast}.dexseq.results.tsv`: TSV results table of DEXSeq DTU analysis featuring log2foldchanges and p-values etc.
     - `{contrast}.dexseq.gene_qvalues.rds`: DEXSeq R Object following DEXSeq::perGeneQValue containing q-values per gene.
     - `{contrast}.dexseq.gene_qvalues.tsv`: TSV file of the q-values in `{contrast}.dexseq.gene_qvalues.rds`.
+    - `{contrast}.dexseq.model.txt`: The full and reduced models DEXSeq fitted, including any blocking variables.
     - `{contrast}.dexseq.{results,gene_qvalues}.annotated.tsv`: The same two tables with the gene name and biotype after `groupID`, see [Gene annotation](#gene-annotation).
   - `stager/`
     - `stageRTx.{contrast}.rds`: stageRTx R object.
@@ -585,7 +583,7 @@ If [IsoformSwitchAnalyzeR](https://www.bioconductor.org/packages/release/bioc/ht
 
 </details>
 
-Most results tables identify genes by their ID only. The pipeline writes the gene name and biotype of every gene of the GTF to `annotation/` on every run, and writes a copy of the DEXSeq (DEU and DTU), stageR, edgeR and SUPPA dPSI tables with the gene name and biotype right after the gene ID column. These copies end in `.annotated.tsv`, or `.annotated.csv` for the edgeR tables, and sit next to the tables they are made from, which are left as they are. The count, TPM and PSI matrices are not annotated, so that they keep one ID column.
+Most results tables identify genes by their ID only. The pipeline writes the gene name and biotype of every gene of the GTF to `annotation/` on every run, and writes a copy of the DEXSeq (DEU and DTU), stageR, edgeR and SUPPA dPSI tables with the gene name and biotype right after the gene ID column. These copies end in `.annotated.tsv` and sit next to the tables they are made from, which are left as they are. The count, TPM and PSI matrices are not annotated, so that they keep one ID column.
 
 The tables are made from the gffread transcript table of the GTF, the same one tximport uses. A gene with no `gene_name` in the GTF is named by its gene ID, and the biotype is read from `gene_biotype` (Ensembl) or `gene_type` (GENCODE). The attributes the gene ID and name are read from follow `--gtf_group_features` and `--gtf_extra_attributes`. In the annotated copies:
 
@@ -601,7 +599,7 @@ The rMATS, LeafCutter and IsoformSwitchAnalyzeR tables already have gene names, 
 <summary>Output files</summary>
 
 - `genome/`
-  - `*.fa`, `*.gtf`, `*.gff`: If the `--save_reference` parameter is provided then all of the genome reference files will be placed in this directory.
+  - `*.fa`, `*.fasta`, `*.gtf`, `*.gff`: If the `--save_reference` parameter is provided then all of the genome reference files will be placed in this directory.
   - `*.bed`: If the `--save_reference` parameter is provided together with `--strand_check`, or with a genome BAM samplesheet that has an `auto` sample, the BED12 gene model RSeQC reads, made from the GTF. It is also made for the junction saturation unless `--skip_junction_saturation` is specified.
 - `genome/index/`
   - `star/`: Directory containing STAR indices.

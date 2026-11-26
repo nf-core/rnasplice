@@ -14,7 +14,7 @@
 
   > Quinlan AR, Hall IM. BEDTools: a flexible suite of utilities for comparing genomic features. Bioinformatics. 2010 Mar 15;26(6):841-2. doi: 10.1093/bioinformatics/btq033. Epub 2010 Jan 28. PubMed PMID: 20110278; PubMed Central PMCID: PMC2832824.
 
-- [ea-utils](https://github.com/ExpressionAnalysis/ea-utils)
+- [csvtk](https://github.com/shenwei356/csvtk)
 
 - [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
 
@@ -68,6 +68,10 @@
 
   > Li H, Handsaker B, Wysoker A, Fennell T, Ruan J, Homer N, Marth G, Abecasis G, Durbin R; 1000 Genome Project Data Processing Subgroup. The Sequence Alignment/Map format and SAMtools. Bioinformatics. 2009 Aug 15;25(16):2078-9. doi: 10.1093/bioinformatics/btp352. Epub 2009 Jun 8. PubMed PMID: 19505943; PubMed Central PMCID: PMC2723002.
 
+- [SeqKit](https://pubmed.ncbi.nlm.nih.gov/27706213/)
+
+  > Shen W, Le S, Li Y, Hu F. SeqKit: A Cross-Platform and Ultrafast Toolkit for FASTA/Q File Manipulation. PLoS One. 2016 Oct 5;11(10):e0163962. doi: 10.1371/journal.pone.0163962. PMID: 27706213; PMCID: PMC5051824.
+
 - [STAR](https://pubmed.ncbi.nlm.nih.gov/23104886/)
 
   > Dobin A, Davis CA, Schlesinger F, Drenkow J, Zaleski C, Jha S, Batut P, Chaisson M, Gingeras TR. STAR: ultrafast universal RNA-seq aligner Bioinformatics. 2013 Jan 1;29(1):15-21. doi: 10.1093/bioinformatics/bts635. Epub 2012 Oct 25. PubMed PMID: 23104886; PubMed Central PMCID: PMC3530905.
@@ -120,6 +124,10 @@
 - [tximport](https://bioconductor.org/packages/release/bioc/html/tximport.html)
 
   > Soneson C, Love MI, Robinson MD (2015). “Differential analyses for RNA-seq: transcript-level estimates improve gene-level inferences.” F1000Research, 4. doi: 10.12688/f1000research.7563.1.
+
+- [SummarizedExperiment](https://bioconductor.org/packages/release/bioc/html/SummarizedExperiment.html)
+
+  > Morgan M, Obenchain V, Hester J, Pagès H (2025). SummarizedExperiment: A container (S4 class) for matrix-like assays. Bioconductor. doi: 10.18129/B9.bioc.SummarizedExperiment.
 
 ## Software packaging/containerisation tools
 

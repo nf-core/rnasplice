@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
 name: "edger_deu"
-description: Flatten a GTF annotation into exonic features, count reads per feature in each sample and test for differential exon usage and expression with edgeR
+description: Flatten a GTF annotation into exonic features, count reads per feature in each sample, join the counts of all samples and test for differential exon usage with edgeR for each contrast
 keywords:
   - edger
   - deu
@@ -10,34 +10,28 @@ keywords:
 components:
   - subread/flattengtf
   - subread/featurecounts
-  - edger/exon
+  - csvtk/join
+  - edger/diffsplice
   - geneannotation/annotate
 input:
   - gtf:
       type: file
       description: |
         The input channel containing the GTF annotation to flatten into exonic features
-        Structure: [ path(gtf) ]
+        Structure: path(gtf)
       pattern: "*.gtf"
   - ch_genome_bam:
       type: file
       description: |
-        The input channel containing the genome BAM files to count reads from. The `strandedness`
-        and `single_end` keys of the meta map determine how `SUBREAD_FEATURECOUNTS` counts them
+        The input channel containing the genome BAM files to count reads from. The `condition` key of the meta map
+        assigns each sample to a condition, and the `strandedness` and `single_end` keys determine how `SUBREAD_FEATURECOUNTS` counts it
         Structure: [ val(meta), path(bam) ]
       pattern: "*.bam"
-  - ch_samplesheet:
-      type: file
-      description: |
-        The input channel containing the samplesheet, which assigns each sample to a condition
-        Structure: [ path(samplesheet) ]
-      pattern: "*.csv"
   - ch_contrastsheet:
-      type: file
+      type: map
       description: |
-        The input channel containing the contrastsheet, which lists the conditions to compare
-        Structure: [ path(contrastsheet) ]
-      pattern: "*.csv"
+        The input channel containing the parsed contrasts, one per item
+        Structure: [ contrast, treatment, control ]
   - ch_gene_annotation:
       type: file
       description: |
@@ -59,44 +53,66 @@ output:
         collected for MultiQC
         Structure: [ val(meta), path(summary) ]
       pattern: "*.featureCounts.tsv.summary"
-  - edger_exon_dge:
+  - counts:
       type: file
       description: |
-        Channel containing the `DGEList` object holding the counts of every sample
-        Structure: [ val(meta), path(rds) ]
-      pattern: "DGEList.rds"
-  - edger_exon_glm:
+        Channel containing the exonic feature counts of all samples, joined into one table
+        Structure: [ val(meta), path(tsv) ]
+      pattern: "edger_exon.tsv"
+  - expression:
       type: file
       description: |
-        Channel containing the `DGEGLM` object holding the fitted model
-        Structure: [ val(meta), path(rds) ]
-      pattern: "DGEGLM.rds"
-  - edger_exon_lrt:
+        Channel containing the differential expression test of each exon, per contrast
+        Structure: [ val(meta), path(tsv) ]
+      pattern: "*.edger.diffsplice.expression.tsv"
+  - results:
       type: file
       description: |
-        Channel containing the `DGELRT` objects of the exon expression and exon usage tests
-        Structure: [ val(meta), path(rds) ]
-      pattern: "DGELRT.*.rds"
-  - edger_exon_csv:
+        Channel containing the feature-level differential exon usage results of each contrast
+        Structure: [ val(meta), path(tsv) ]
+      pattern: "*.edger.diffsplice.results.tsv"
+  - simes:
       type: file
       description: |
-        Channel containing the exon expression results and the exon usage results per contrast,
-        the latter at simes, gene and exon level
-        Structure: [ val(meta), path(csv) ]
-      pattern: "contrast_*.csv"
-  - edger_exon_pdf:
+        Channel containing the gene-level results of each contrast, combined with Simes' method
+        Structure: [ val(meta), path(tsv) ]
+      pattern: "*.edger.diffsplice.simes.tsv"
+  - gene:
       type: file
       description: |
-        Channel containing the exon usage plots of the top significant genes per contrast
+        Channel containing the gene-level F or likelihood ratio test results of each contrast
+        Structure: [ val(meta), path(tsv) ]
+      pattern: "*.edger.diffsplice.gene.tsv"
+  - plots:
+      type: file
+      description: |
+        Channel containing the plotSpliceDGE plots of the top genes of each contrast
         Structure: [ val(meta), path(pdf) ]
-      pattern: "contrast_*.pdf"
-  - edger_exon_annotated_csv:
+      pattern: "*.edger.diffsplice.pdf"
+  - bcv_plot:
       type: file
       description: |
-        Channel containing copies of the edgeR tables with the gene name and biotype after
-        `Geneid`, one table per item
-        Structure: [ val(meta), path(csv) ]
-      pattern: "contrast_*.annotated.csv"
+        Channel containing the biological coefficient of variation plot of each contrast
+        Structure: [ val(meta), path(png) ]
+      pattern: "*.edger.bcv.png"
+  - rdata:
+      type: file
+      description: |
+        Channel containing the fitted DGEGLM object of each contrast
+        Structure: [ val(meta), path(rds) ]
+      pattern: "*.DGEGLM.edger.rds"
+  - lrt:
+      type: file
+      description: |
+        Channel containing the DGELRT object of diffSpliceDGE of each contrast
+        Structure: [ val(meta), path(rds) ]
+      pattern: "*.DGELRT.edger.rds"
+  - annotated:
+      type: file
+      description: |
+        Channel containing copies of the results tables with the gene name and biotype after the gene ID, one table per item
+        Structure: [ val(meta), path(tsv) ]
+      pattern: "*.annotated.tsv"
 authors:
   - "@bensouthgate"
   - "@jma1991"

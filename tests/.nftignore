@@ -88,10 +88,6 @@ trimgalore/*fastq.gz_trimming_report.txt
 */salmon/*/quant.sf
 **/*_trimming_report.txt
 
-# EdgeR
-{salmon,star_salmon}/edger/*.exprs.csv
-{salmon,star_salmon}/edger/*.exprs.annotated.csv
-
 # DEXSeq
 {salmon,star_salmon}/dexseq_exon/counts/*.count.txt
 {salmon,star_salmon}/dexseq_exon/results/*.dexseq.{results,gene_qvalues}.{rds,tsv}
@@ -129,9 +125,6 @@ trimgalore/*fastq.gz_trimming_report.txt
 
 # IsoformSwitchAnalyzeR
 isoformswitchanalyzer/isoformswitchanalyzer_isoformfeatures.csv
-
-# edgeR tables differ in the last digits between builds, the tests snapshot them rounded
-**/edger/contrast_*.usage.*.csv
 
 # leafcutter-ds statistics differ between machines, the tests snapshot their stable columns
 **/leafcutter/*_{cluster_significance,effect_sizes}.txt

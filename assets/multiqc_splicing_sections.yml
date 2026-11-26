@@ -193,18 +193,8 @@ kinds:
   dexseq_deu_genes:
     { name: DEXSeq DEU genes, analysis: DEXSeq DEU, method: DEXSeq DEU, unit: genes, q: padj, gene: groupID }
   edger_exons:
-    {
-      name: edgeR DEU exons,
-      analysis: edgeR DEU,
-      method: edgeR DEU,
-      unit: exons,
-      sep: ",",
-      q: FDR,
-      p: P.Value,
-      effect: logFC,
-    }
-  edger_genes:
-    { name: edgeR DEU genes, analysis: edgeR DEU, method: edgeR DEU, unit: genes, sep: ",", q: FDR, gene: Geneid }
+    { name: edgeR DEU exons, analysis: edgeR DEU, method: edgeR DEU, unit: exons, q: FDR, p: P.Value, effect: logFC }
+  edger_genes: { name: edgeR DEU genes, analysis: edgeR DEU, method: edgeR DEU, unit: genes, q: FDR, gene: Geneid }
   dexseq_dtu_transcripts:
     { name: DEXSeq DTU transcripts, analysis: DRIMSeq, method: DEXSeq DTU, unit: transcripts, q: padj, p: pvalue }
   dexseq_dtu_genes:

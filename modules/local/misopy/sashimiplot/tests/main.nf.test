@@ -14,18 +14,18 @@ nextflow_process {
     tag "misopysettings"
     tag "misopy/index"
     tag "gffread"
-    tag "gffread/gtf2gff3"
 
     // MISO records the index path in its run output, so run and plot must share the index MISOPY_INDEX writes
     setup {
-        run("GFFREAD_GTF2GFF3") {
-            script "../../../gffread/gtf2gff3/main.nf"
+        run("GFFREAD", alias: "GFFREAD_GTF2GFF3") {
+            script "../../../../nf-core/gffread/main.nf"
             process {
                 """
                 input[0] = [
                     [ id:'genes_chrX' ],
                     file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
                 ]
+                input[1] = []
                 """
             }
         }
@@ -34,7 +34,7 @@ nextflow_process {
             script "../../../../nf-core/misopy/index/main.nf"
             process {
                 """
-                input[0] = GFFREAD_GTF2GFF3.out.gff3
+                input[0] = GFFREAD_GTF2GFF3.out.gffread_gff
                 """
             }
         }

@@ -8,10 +8,13 @@ include { BEDTOOLS_GENOMECOV as BEDTOOLS_GENOMECOV_FORWARD                } from
 include { BEDTOOLS_GENOMECOV as BEDTOOLS_GENOMECOV_REVERSE                } from '../modules/nf-core/bedtools/genomecov'
 include { ISOFORMSWITCHANALYZER                                           } from '../modules/local/isoformswitchanalyzer'
 include { GENEANNOTATION_TABLES                                           } from '../modules/local/geneannotation/tables'
-include { GFFREAD_TX2GENE                                                 } from '../modules/local/gffread/tx2gene'
-include { ALIGN_STAR                                                      } from '../subworkflows/local/align_star'
-include { TX2GENE_TXIMPORT as TX2GENE_TXIMPORT_SALMON                     } from '../subworkflows/local/tx2gene_tximport'
-include { TX2GENE_TXIMPORT as TX2GENE_TXIMPORT_STAR_SALMON                } from '../subworkflows/local/tx2gene_tximport'
+include { GFFREAD as GFFREAD_TX2GENE                                      } from '../modules/nf-core/gffread'
+include { FASTQ_ALIGN_STAR                                                } from '../subworkflows/nf-core/fastq_align_star'
+include { QUANT_TXIMPORT_SUMMARIZEDEXPERIMENT as QUANT_TXIMPORT_SALMON      } from '../subworkflows/nf-core/quant_tximport_summarizedexperiment'
+include { QUANT_TXIMPORT_SUMMARIZEDEXPERIMENT as QUANT_TXIMPORT_STAR_SALMON } from '../subworkflows/nf-core/quant_tximport_summarizedexperiment'
+include { SUPPATPM as SUPPATPM_SALMON                                     } from '../modules/local/suppatpm'
+include { SUPPATPM as SUPPATPM_STAR_SALMON                                } from '../modules/local/suppatpm'
+include { UNTAR as UNTAR_SALMON_RESULTS                                   } from '../modules/nf-core/untar'
 include { DRIMSEQ_DEXSEQ_DTU as DRIMSEQ_DEXSEQ_DTU_SALMON                 } from '../subworkflows/local/drimseq_dexseq_dtu'
 include { DRIMSEQ_DEXSEQ_DTU as DRIMSEQ_DEXSEQ_DTU_STAR_SALMON            } from '../subworkflows/local/drimseq_dexseq_dtu'
 include { RMATS                                                           } from '../subworkflows/local/rmats'
@@ -46,7 +49,7 @@ include { FASTQC                                                          } from
 include { SALMON_QUANT as SALMON_QUANT_SALMON                             } from '../modules/nf-core/salmon/quant'
 include { SALMON_QUANT as SALMON_QUANT_STAR                               } from '../modules/nf-core/salmon/quant'
 include { SALMON_QUANT as SALMON_QUANT_STAR_AUTO                          } from '../modules/nf-core/salmon/quant'
-include { EAUTILS_GTF2BED                                                 } from '../modules/nf-core/ea-utils/gtf2bed'
+include { GFFREAD as GFFREAD_GTF2BED                                      } from '../modules/nf-core/gffread'
 include { RSEQC_INFEREXPERIMENT                                           } from '../modules/nf-core/rseqc/inferexperiment'
 include { RSEQC_JUNCTIONSATURATION                                        } from '../modules/nf-core/rseqc/junctionsaturation'
 include { CAT_FASTQ                                                       } from '../modules/nf-core/cat/fastq'
@@ -135,6 +138,8 @@ workflow RNASPLICE {
     //
     ch_samples = ch_samplesheet.map { row -> [ row[0].id, row[0].condition ] }
 
+    ch_samplesheet_tuple = ch_samplesheet_file.map { samplesheet -> [ [ id: 'samplesheet' ], samplesheet ] }
+
     // rMATS takes the read type and the library type from the first sample of a
     // contrast, so every sample has to agree on both. The library type of an 'auto'
     // sample is only known once it has been inferred, so it is checked again on the
@@ -154,18 +159,15 @@ workflow RNASPLICE {
     // MODULE: Transcript table of the GTF
     //
     // One gffread table with the gene ID, name and biotype of each transcript, which
-    // tximport and the annotation tables both read
-    GFFREAD_TX2GENE(ch_gtf)
-    ch_tx2gene = GFFREAD_TX2GENE.out.tx2gene
+    // the annotation tables read
+    GFFREAD_TX2GENE(ch_gtf.map { gtf -> [[id: gtf.baseName], gtf] }, [])
 
     //
     // MODULE: Gene and transcript annotation tables of the GTF
     //
     // Made for every run, as a reference of the gene names, and used to write copies of
     // the results tables with the gene name next to each gene ID
-    GENEANNOTATION_TABLES(
-        ch_gtf.combine(ch_tx2gene).map { gtf, tx2gene -> [[id: gtf.baseName], tx2gene] }
-    )
+    GENEANNOTATION_TABLES(GFFREAD_TX2GENE.out.tsv)
     ch_gene_annotation = GENEANNOTATION_TABLES.out.gene.first()
 
     //
@@ -237,8 +239,8 @@ workflow RNASPLICE {
                 .combine(ch_input_genome_bam.filter { meta, _bam -> meta.strandedness == 'auto' })
                 .map { items -> items.first() }
                 .first()
-        EAUTILS_GTF2BED(ch_gtf_for_bed.map { gtf -> [[id: gtf.baseName], gtf] })
-        ch_gene_bed = EAUTILS_GTF2BED.out.bed.map { _meta, bed -> bed }
+        GFFREAD_GTF2BED(ch_gtf_for_bed.map { gtf -> [[id: gtf.baseName], gtf] }, [])
+        ch_gene_bed = GFFREAD_GTF2BED.out.bed.map { _meta, bed -> bed }
     }
 
     //
@@ -277,21 +279,23 @@ workflow RNASPLICE {
     // SUBWORKFLOW: Align the reads of samples with no genome BAM file with STAR
     //
     if (input_routes.star) {
-        ALIGN_STAR(
+        FASTQ_ALIGN_STAR(
             ch_trim_reads,
             ch_star_index.map { index -> [[:], index] },
             ch_gtf.map { gtf -> [[:], gtf] },
             params.star_ignore_sjdbgtf,
             ch_fasta.map { fasta -> [[:], fasta, []] },
+            [[:], [], []],
         )
-        ch_genome_bam = ALIGN_STAR.out.bam           // [meta, bam]
-        ch_genome_bam_index = ALIGN_STAR.out.index
-        ch_transcriptome_bam_for_salmon = ALIGN_STAR.out.bam_transcript
-        ch_samtools_stats = ALIGN_STAR.out.stats
-        ch_samtools_flagstat = ALIGN_STAR.out.flagstat
-        ch_samtools_idxstats = ALIGN_STAR.out.idxstats
-        ch_star_multiqc = ALIGN_STAR.out.log_final
-        ch_splicing_results = ch_splicing_results.mix(splicingResults(ALIGN_STAR.out.log_final, 'star_log'))
+        ch_genome_bam = FASTQ_ALIGN_STAR.out.bam           // [meta, bam]
+        ch_genome_bam_index = FASTQ_ALIGN_STAR.out.index
+        // Salmon's alignment mode reads the transcriptome BAM as STAR wrote it, not coordinate sorted
+        ch_transcriptome_bam_for_salmon = FASTQ_ALIGN_STAR.out.orig_bam_transcript
+        ch_samtools_stats = FASTQ_ALIGN_STAR.out.stats
+        ch_samtools_flagstat = FASTQ_ALIGN_STAR.out.flagstat
+        ch_samtools_idxstats = FASTQ_ALIGN_STAR.out.idxstats
+        ch_star_multiqc = FASTQ_ALIGN_STAR.out.log_final
+        ch_splicing_results = ch_splicing_results.mix(splicingResults(FASTQ_ALIGN_STAR.out.log_final, 'star_log'))
     }
 
     //
@@ -427,20 +431,12 @@ workflow RNASPLICE {
             EDGER_DEU(
                 ch_gtf,
                 ch_genome_bam,
-                ch_samplesheet_file,
-                ch_contrastsheet_file,
+                ch_contrastsheet,
                 ch_gene_annotation,
             )
-            // One table of each kind per contrast, named contrast_<contrast>.usage.<kind>.csv
-            ch_splicing_results = ch_splicing_results.mix(
-                EDGER_DEU.out.edger_exon_csv
-                    .transpose()
-                    .filter { _meta, csv -> csv.name ==~ /contrast_.+\.usage\.(exon|simes)\.csv/ }
-                    .map { _meta, csv ->
-                        def (contrast, table) = (csv.name =~ /contrast_(.+)\.usage\.(exon|simes)\.csv/)[0][1..2]
-                        [[kind: table == 'exon' ? 'edger_exons' : 'edger_genes', route: '', id: contrast], csv]
-                    }
-            )
+            ch_splicing_results = ch_splicing_results
+                .mix(splicingResults(EDGER_DEU.out.results, 'edger_exons'))
+                .mix(splicingResults(EDGER_DEU.out.simes, 'edger_genes'))
         }
 
         if (params.rmats) {
@@ -578,17 +574,23 @@ workflow RNASPLICE {
             .mix(SALMON_QUANT_STAR.out.results)
             .set { ch_salmon_results }
 
-        TX2GENE_TXIMPORT_STAR_SALMON(ch_salmon_results, ch_tx2gene)
-        ch_tximport_tx2gene = TX2GENE_TXIMPORT_STAR_SALMON.out.tximport_tx2gene
-        ch_txi_s = TX2GENE_TXIMPORT_STAR_SALMON.out.txi_s
-        ch_txi_dtu = TX2GENE_TXIMPORT_STAR_SALMON.out.txi_dtu
-        ch_txi_suppa_tpm = TX2GENE_TXIMPORT_STAR_SALMON.out.suppa_tpm
+        QUANT_TXIMPORT_STAR_SALMON(
+            ch_samplesheet_tuple,
+            ch_salmon_results,
+            ch_gtf,
+            params.gtf_group_features,
+            params.gtf_extra_attributes,
+            'salmon',
+            false,
+        )
+        SUPPATPM_STAR_SALMON(QUANT_TXIMPORT_STAR_SALMON.out.tpm_transcript.map { _meta, tpm -> [[id: 'suppa_tpm'], tpm] })
 
         if (params.dexseq_dtu) {
-            ch_txi = (params.dtu_txi == "dtuScaledTPM") ? ch_txi_dtu : ch_txi_s
+            ch_dtu_counts = (params.dtu_txi == "dtuScaledTPM")
+                ? QUANT_TXIMPORT_STAR_SALMON.out.counts_transcript_dtu_scaled
+                : QUANT_TXIMPORT_STAR_SALMON.out.counts_transcript_scaled
             DRIMSEQ_DEXSEQ_DTU_STAR_SALMON(
-                ch_txi,
-                ch_tximport_tx2gene,
+                ch_dtu_counts.map { _meta, counts -> counts },
                 ch_samplesheet_file,
                 ch_contrastsheet,
                 ch_gene_annotation,
@@ -601,7 +603,7 @@ workflow RNASPLICE {
         }
 
         if (params.suppa) {
-            ch_suppa_tpm = params.suppa_tpm ? ch_suppa_tpm : ch_txi_suppa_tpm
+            ch_suppa_tpm = params.suppa_tpm ? ch_suppa_tpm : SUPPATPM_STAR_SALMON.out.tpm.map { _meta, tpm -> tpm }
             SUPPA_STAR_SALMON(
                 ch_gtf.map { gtf -> [[ id: gtf.baseName ], gtf] },
                 ch_suppa_tpm.map { tpm_psi -> [[ id: tpm_psi.baseName ], tpm_psi] },
@@ -654,23 +656,38 @@ workflow RNASPLICE {
             params.salmon_quant_libtype ?: '',
         )
         ch_salmon_results = SALMON_QUANT_SALMON.out.results
-
-        TX2GENE_TXIMPORT_SALMON(ch_salmon_results, ch_tx2gene)
     }
     else if (input_routes.salmon_results) {
-        TX2GENE_TXIMPORT_SALMON(ch_input_salmon_results, ch_tx2gene)
-
-        // The samplesheet may point at tarballs, which TX2GENE_TXIMPORT extracts.
-        // Consumers downstream need the extracted directories, not the archives
-        ch_salmon_results = TX2GENE_TXIMPORT_SALMON.out.salmon_results
+        // Salmon results in the samplesheet can be tarballs, and every step that reads them
+        // needs the extracted directories
+        ch_input_salmon_results
+            .branch { _meta, results ->
+                tar: results.name.endsWith('.tar.gz')
+                dir: true
+            }
+            .set { ch_salmon_results_input }
+        UNTAR_SALMON_RESULTS(ch_salmon_results_input.tar)
+        ch_salmon_results = ch_salmon_results_input.dir.mix(UNTAR_SALMON_RESULTS.out.untar)
     }
 
     if (input_routes.pseudo_salmon || input_routes.salmon_results) {
+        QUANT_TXIMPORT_SALMON(
+            ch_samplesheet_tuple,
+            ch_salmon_results,
+            ch_gtf,
+            params.gtf_group_features,
+            params.gtf_extra_attributes,
+            'salmon',
+            false,
+        )
+        SUPPATPM_SALMON(QUANT_TXIMPORT_SALMON.out.tpm_transcript.map { _meta, tpm -> [[id: 'suppa_tpm'], tpm] })
+
         if (params.dexseq_dtu) {
-            ch_txi = (params.dtu_txi == "dtuScaledTPM") ? TX2GENE_TXIMPORT_SALMON.out.txi_dtu : TX2GENE_TXIMPORT_SALMON.out.txi_s
+            ch_dtu_counts = (params.dtu_txi == "dtuScaledTPM")
+                ? QUANT_TXIMPORT_SALMON.out.counts_transcript_dtu_scaled
+                : QUANT_TXIMPORT_SALMON.out.counts_transcript_scaled
             DRIMSEQ_DEXSEQ_DTU_SALMON(
-                ch_txi,
-                TX2GENE_TXIMPORT_SALMON.out.tximport_tx2gene,
+                ch_dtu_counts.map { _meta, counts -> counts },
                 ch_samplesheet_file,
                 ch_contrastsheet,
                 ch_gene_annotation,
@@ -683,7 +700,7 @@ workflow RNASPLICE {
         }
 
         if (params.suppa) {
-            ch_suppa_tpm = params.suppa_tpm ? ch_suppa_tpm : TX2GENE_TXIMPORT_SALMON.out.suppa_tpm
+            ch_suppa_tpm = params.suppa_tpm ? ch_suppa_tpm : SUPPATPM_SALMON.out.tpm.map { _meta, tpm -> tpm }
             SUPPA_SALMON(
                 ch_gtf.map { gtf -> [ [ id: gtf.baseName ] , gtf] },
                 ch_suppa_tpm.map { tpm_psi -> [ [ id: tpm_psi.baseName ] , tpm_psi] },
