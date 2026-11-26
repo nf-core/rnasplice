@@ -16,7 +16,7 @@ nextflow_workflow {
         def genome_bam_blocking = new File("${launchDir}/samplesheet_genome_bam_blocking.csv")
         genome_bam_blocking.parentFile.mkdirs()
         genome_bam_blocking.text = '"sample","condition","batch","genome_bam"\n' + samples.collect { sample, condition ->
-            "${sample},${condition},${sample in ['ERR188383', 'ERR188454'] ? 'b 1' : 'b,2'},${testdata}${sample}.Aligned.out.bam\n"
+            "${sample},${condition},\"${sample in ['ERR188383', 'ERR188454'] ? 'b 1' : 'b,2'}\",${testdata}${sample}.Aligned.out.bam\n"
         }.join()
 
         // Every sample has the same batch, and a batch that is the condition
