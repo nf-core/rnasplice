@@ -48,6 +48,12 @@
                 "SAMTOOLS_FAIDX": {
                     "samtools": "1.24"
                 },
+                "SE_GENE_UNIFIED": {
+                    "bioconductor-summarizedexperiment": "1.42.0"
+                },
+                "SE_TRANSCRIPT_UNIFIED": {
+                    "bioconductor-summarizedexperiment": "1.42.0"
+                },
                 "SPLITFILES_PSI": {
                     "r-base": "4.6.1"
                 },
@@ -84,7 +90,7 @@
                     "statsmodels": "0.14.6",
                     "suppa": "2.4"
                 },
-                "TXIMPORT": {
+                "TXIMETA_TXIMPORT": {
                     "bioconductor-tximeta": "1.20.1",
                     "bioconductor-tximport": "1.30.0"
                 },
@@ -287,11 +293,15 @@
                 "salmon/tximport/ERR204916/quant.genes.sf",
                 "salmon/tximport/ERR204916/quant.sf",
                 "salmon/tximport/genes_chrX.tx2gene.tsv",
+                "salmon/tximport/salmon.merged.gene.R_sessionInfo.log",
+                "salmon/tximport/salmon.merged.gene.SummarizedExperiment.rds",
                 "salmon/tximport/salmon.merged.gene_counts.tsv",
                 "salmon/tximport/salmon.merged.gene_counts_length_scaled.tsv",
                 "salmon/tximport/salmon.merged.gene_counts_scaled.tsv",
                 "salmon/tximport/salmon.merged.gene_lengths.tsv",
                 "salmon/tximport/salmon.merged.gene_tpm.tsv",
+                "salmon/tximport/salmon.merged.transcript.R_sessionInfo.log",
+                "salmon/tximport/salmon.merged.transcript.SummarizedExperiment.rds",
                 "salmon/tximport/salmon.merged.transcript_counts.tsv",
                 "salmon/tximport/salmon.merged.transcript_counts_dtu_scaled.tsv",
                 "salmon/tximport/salmon.merged.transcript_counts_scaled.tsv",
@@ -310,7 +320,7 @@
                 "genes_chrX.ioi:md5,aa178a4526493cc55fbd9d6f59ed5c4f"
             ]
         ],
-        "timestamp": "2026-11-26T16:10:04.253026866",
+        "timestamp": "2026-11-26T17:09:46.167863918",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"
