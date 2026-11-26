@@ -12,7 +12,7 @@ process SUPPATPM {
 
     output:
     tuple val(meta), path("${prefix}.txt"), emit: tpm
-    tuple val("${task.process}"), val('cut'), eval('cut --version 2>&1 | head -1 | sed "s/^.*coreutils) //"'), topic: versions, emit: versions_cut
+    tuple val("${task.process}"), val('coreutils'), eval('cut --version 2>&1 | head -1 | sed "s/^.*coreutils) //"'), topic: versions, emit: versions_coreutils
 
     when:
     task.ext.when == null || task.ext.when

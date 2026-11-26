@@ -34,6 +34,7 @@ include { aspliReadError                                                  } from
 include { multiqcTsvFromList                                              } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
 include { checkBamReferenceSequences                                      } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
 include { paramsSummaryMultiqc                                            } from 'plugin/nf-core-utils'
+include { toolCitations                                                   } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
 include { methodsDescriptionText                                          } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
 
 
@@ -710,8 +711,13 @@ workflow RNASPLICE {
     def ch_multiqc_custom_methods_description = multiqc_methods_description
         ? file(multiqc_methods_description, checkIfExists: true)
         : file("${projectDir}/assets/methods_description_template.yml", checkIfExists: true)
-    def ch_methods_description = channel.value(methodsDescriptionText(ch_multiqc_custom_methods_description))
-    ch_multiqc_files = ch_multiqc_files.mix(ch_methods_description.collectFile(name: 'methods_description_mqc.yaml', sort: true))
+
+    // The methods section cites the tools that ran
+    def meta_yml_paths = files("${projectDir}/modules/**/meta.yml").collect { meta_yml -> meta_yml.toString() }.sort()
+    def ch_methods_description = channel.topic('versions')
+        .toList()
+        .map { versions -> methodsDescriptionText(ch_multiqc_custom_methods_description, toolCitations(versions, meta_yml_paths, ['multiqc'])) }
+    ch_multiqc_files = ch_multiqc_files.mix(ch_methods_description.collectFile(name: 'methods_description_mqc.yaml'))
 
     // Blend final channel maps
     ch_multiqc_files = ch_multiqc_files.mix(ch_collated_versions)
