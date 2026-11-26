@@ -121,7 +121,7 @@ trimgalore/*fastq.gz_trimming_report.txt
 **/*.shelve.*
 
 # IsoformSwitchAnalyzeR
-isoformswitchanalyzer/isoformswitchanalyzer_isoformfeatures.csv
+isoformswitchanalyzer/*/isoformswitchanalyzer_isoformfeatures.csv
 
 # leafcutter-ds statistics differ between machines, the tests snapshot their stable columns
 **/leafcutter/*_{cluster_significance,effect_sizes}.txt

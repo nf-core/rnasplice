@@ -210,7 +210,6 @@ workflow NFCORE_RNASPLICE {
     take:
     input                 // string: path to the samplesheet
     ch_contrastsheet      // channel: [ contrast, treatment, control ], the parsed contrasts
-    ch_contrastsheet_file // channel: path(contrastsheet.csv), for the processes that read it
     ch_blocking_values    // channel: [ sample: [ column: value ] ], the blocking variables of the contrasts
 
     main:
@@ -243,7 +242,6 @@ workflow NFCORE_RNASPLICE {
         channel.fromList(samplesheet.samples),
         ch_samplesheet_file,
         ch_contrastsheet,
-        ch_contrastsheet_file,
         ch_blocking_values,
         input_routes,
         PREPARE_GENOME.out.fasta,
@@ -295,7 +293,6 @@ workflow {
     NFCORE_RNASPLICE(
         params.input,
         PIPELINE_INITIALISATION.out.contrastsheet,
-        PIPELINE_INITIALISATION.out.contrastsheet_file,
         PIPELINE_INITIALISATION.out.blocking_values,
     )
 

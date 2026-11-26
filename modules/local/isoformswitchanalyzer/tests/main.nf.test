@@ -58,37 +58,44 @@ nextflow_process {
 
     test("human chrX - salmon quant") {
 
+        // The switch summary only holds counts, so it is snapshotted by content.
+        // The isoform features table carries the DEXSeq statistics, which are not
+        // reproducible across machines, so it is snapshotted by shape: header and
+        // row count. The plots are listed by name, one per switching gene, and the
+        // binary object only by name. Target minus reference puts the reference, YRI,
+        // first in the table
         when {
             process {
                 """
-                input[0] = UNTAR_SALMON_QUANT.out.untar
-                    .map { _meta, dir -> files(dir.toString() + '/ERR*', type: 'dir', checkIfExists: true) }
-                input[1] = file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
-                input[2] = GFFREAD.out.gffread_fasta.map { _meta, fasta -> fasta }
-                input[3] = file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true)
-                input[4] = file(params.pipelines_testdata_base_path + 'samplesheet/contrastsheet.csv', checkIfExists: true)
-                input[5] = 0.05
-                input[6] = 0.1
+                input[0] = channel.of([ [ id: 'GBR-YRI' ], 'YRI', 'GBR' ])
+                input[1] = UNTAR_SALMON_QUANT.out.untar
+                    .map { _meta, dir -> [ [ id: 'samples' ], file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true), files(dir.toString() + '/ERR*', type: 'dir', checkIfExists: true) ] }
+                input[2] = file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
+                input[3] = GFFREAD.out.gffread_fasta.map { _meta, fasta -> fasta }
+                input[4] = 0.05
+                input[5] = 0.1
                 """
             }
         }
 
         then {
-            // The switch summary only holds counts, so it is snapshotted by content.
-            // The isoform features table carries the DEXSeq statistics, which are not
-            // reproducible across machines, so it is snapshotted by shape: header and
-            // row count. The plots are listed by name, one per switching gene and
-            // contrast, and the binary object only by name
             assert process.success
+            def lines = path(process.out.isoformswitchanalyzer_isoformFeatures[0][1]).readLines()
+            def header = lines[0].split(',').collect { it.replace('"', '') }
+            def pairs = lines.drop(1).collect { line ->
+                def fields = line.split(',').collect { it.replace('"', '') }
+                [ fields[header.indexOf('condition_1')], fields[header.indexOf('condition_2')] ]
+            }.unique()
             assertAll(
+                { assert pairs == [ [ 'YRI', 'GBR' ] ] },
                 { assert snapshot(
                     process.out.isoformswitchanalyzer_summary,
-                    process.out.isoformswitchanalyzer_isoformFeatures.collect { csv ->
-                        def lines = path(csv).readLines()
-                        [ file(csv).name, lines[0], lines.size() ]
+                    process.out.isoformswitchanalyzer_isoformFeatures.collect { meta, csv ->
+                        def csv_lines = path(csv).readLines()
+                        [ meta, file(csv).name, csv_lines[0], csv_lines.size() ]
                     },
-                    process.out.switchlist_rds.collect { rds -> file(rds).name },
-                    process.out.results.collect { dir ->
+                    process.out.switchlist_rds.collect { meta, rds -> [ meta, file(rds).name ] },
+                    process.out.results.collect { _meta, dir ->
                         getAllFilesFromDir(dir, relative: true)
                     },
                     process.out.findAll { key, _val -> key.startsWith('versions') }
@@ -98,38 +105,56 @@ nextflow_process {
 
     }
 
-    test("human chrX - salmon quant - one contrast, control is condition_1") {
+    test("human chrX - salmon quant - blocking variable as covariate") {
 
-        // The test contrastsheet holds both GBR-YRI and YRI-GBR, so a swap of the two
-        // conditions cannot show. With GBR-YRI alone, treatment minus control puts the
-        // control, YRI, first
+        // A batch column crossed with condition goes into the switch test as a covariate
         when {
-            def contrastsheet = File.createTempFile('contrastsheet', '.csv')
-            contrastsheet.text = 'contrast,treatment,control\nGBR-YRI,GBR,YRI\n'
             process {
                 """
-                input[0] = UNTAR_SALMON_QUANT.out.untar
-                    .map { _meta, dir -> files(dir.toString() + '/ERR*', type: 'dir', checkIfExists: true) }
-                input[1] = file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
-                input[2] = GFFREAD.out.gffread_fasta.map { _meta, fasta -> fasta }
-                input[3] = file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true)
-                input[4] = file('${contrastsheet.absolutePath}', checkIfExists: true)
-                input[5] = 0.05
-                input[6] = 0.1
+                input[0] = channel.of([ [ id: 'GBR-YRI', blocking: 'batch' ], 'YRI', 'GBR' ])
+                input[1] = UNTAR_SALMON_QUANT.out.untar
+                    .map { _meta, dir -> [ [ id: 'samples' ], file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet_blocking.csv', checkIfExists: true), files(dir.toString() + '/ERR*', type: 'dir', checkIfExists: true) ] }
+                input[2] = file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
+                input[3] = GFFREAD.out.gffread_fasta.map { _meta, fasta -> fasta }
+                input[4] = 0.05
+                input[5] = 0.1
                 """
             }
         }
 
         then {
             assert process.success
-            def lines = path(process.out.isoformswitchanalyzer_isoformFeatures[0]).readLines()
-            def header = lines[0].split(',').collect { it.replace('"', '') }
-            def pairs = lines.drop(1).collect { line ->
-                def fields = line.split(',').collect { it.replace('"', '') }
-                [ fields[header.indexOf('condition_1')], fields[header.indexOf('condition_2')] ]
-            }.unique()
             assertAll(
-                { assert pairs == [ [ 'YRI', 'GBR' ] ] }
+                { assert snapshot(
+                    process.out.isoformswitchanalyzer_isoformFeatures.collect { meta, csv ->
+                        def csv_lines = path(csv).readLines()
+                        [ meta, file(csv).name, csv_lines[0], csv_lines.size() ]
+                    },
+                ).match() }
+            )
+        }
+
+    }
+
+    test("human chrX - salmon quant - condition without samples fails") {
+
+        when {
+            process {
+                """
+                input[0] = channel.of([ [ id: 'GBR-ABC' ], 'ABC', 'GBR' ])
+                input[1] = UNTAR_SALMON_QUANT.out.untar
+                    .map { _meta, dir -> [ [ id: 'samples' ], file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true), files(dir.toString() + '/ERR*', type: 'dir', checkIfExists: true) ] }
+                input[2] = file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
+                input[3] = GFFREAD.out.gffread_fasta.map { _meta, fasta -> fasta }
+                input[4] = 0.05
+                input[5] = 0.1
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.failed }
             )
         }
 
@@ -142,14 +167,13 @@ nextflow_process {
         when {
             process {
                 """
-                input[0] = UNTAR_SALMON_QUANT.out.untar
-                    .map { _meta, dir -> files(dir.toString() + '/ERR*', type: 'dir', checkIfExists: true) }
-                input[1] = file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
-                input[2] = GFFREAD.out.gffread_fasta.map { _meta, fasta -> fasta }
-                input[3] = file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true)
-                input[4] = file(params.pipelines_testdata_base_path + 'samplesheet/contrastsheet.csv', checkIfExists: true)
-                input[5] = 0.05
-                input[6] = 0.99
+                input[0] = channel.of([ [ id: 'GBR-YRI' ], 'YRI', 'GBR' ])
+                input[1] = UNTAR_SALMON_QUANT.out.untar
+                    .map { _meta, dir -> [ [ id: 'samples' ], file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true), files(dir.toString() + '/ERR*', type: 'dir', checkIfExists: true) ] }
+                input[2] = file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
+                input[3] = GFFREAD.out.gffread_fasta.map { _meta, fasta -> fasta }
+                input[4] = 0.05
+                input[5] = 0.99
                 """
             }
         }
@@ -160,8 +184,8 @@ nextflow_process {
                 { assert snapshot(
                     process.out.isoformswitchanalyzer_summary,
                     process.out.isoformswitchanalyzer_isoformFeatures,
-                    process.out.switchlist_rds.collect { rds -> file(rds).name },
-                    process.out.results.collect { dir ->
+                    process.out.switchlist_rds.collect { meta, rds -> [ meta, file(rds).name ] },
+                    process.out.results.collect { _meta, dir ->
                         getAllFilesFromDir(dir, relative: true)
                     },
                     process.out.findAll { key, _val -> key.startsWith('versions') }
@@ -178,14 +202,13 @@ nextflow_process {
         when {
             process {
                 """
-                input[0] = UNTAR_SALMON_QUANT.out.untar
-                    .map { _meta, dir -> files(dir.toString() + '/ERR*', type: 'dir', checkIfExists: true) }
-                input[1] = file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
-                input[2] = GFFREAD.out.gffread_fasta.map { _meta, fasta -> fasta }
-                input[3] = file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true)
-                input[4] = file(params.pipelines_testdata_base_path + 'samplesheet/contrastsheet.csv', checkIfExists: true)
-                input[5] = 0.05
-                input[6] = 0.1
+                input[0] = channel.of([ [ id: 'GBR-YRI' ], 'YRI', 'GBR' ])
+                input[1] = UNTAR_SALMON_QUANT.out.untar
+                    .map { _meta, dir -> [ [ id: 'samples' ], file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true), files(dir.toString() + '/ERR*', type: 'dir', checkIfExists: true) ] }
+                input[2] = file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
+                input[3] = GFFREAD.out.gffread_fasta.map { _meta, fasta -> fasta }
+                input[4] = 0.05
+                input[5] = 0.1
                 """
             }
         }

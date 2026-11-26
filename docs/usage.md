@@ -205,11 +205,11 @@ Only some methods can adjust for blocking variables. The others ignore them, and
 | edgeR DEU (`--edger_exon`)                        | Yes                            |
 | rMATS (`--rmats`)                                 | No                             |
 | SUPPA (`--suppa`)                                 | No                             |
-| IsoformSwitchAnalyzeR (`--isoformswitchanalyzer`) | No                             |
+| IsoformSwitchAnalyzeR (`--isoformswitchanalyzer`) | Yes                            |
 | ASpli (`--aspli`)                                 | No                             |
 | LeafCutter (`--leafcutter`)                       | Yes                            |
 
-DEXSeq adds each blocking variable to its models as an interaction with exon, for example `~ sample + exon + batch:exon + condition:exon` against `~ sample + exon + batch:exon`. The DEXSeq log fold changes are not adjusted for the blocking variables. edgeR adds them to its design matrix, `~ 0 + condition + batch`. LeafCutter takes them as confounders of its model, as extra columns of its groups file.
+DEXSeq adds each blocking variable to its models as an interaction with exon, for example `~ sample + exon + batch:exon + condition:exon` against `~ sample + exon + batch:exon`. The DEXSeq log fold changes are not adjusted for the blocking variables. edgeR adds them to its design matrix, `~ 0 + condition + batch`. LeafCutter takes them as confounders of its model, as extra columns of its groups file. IsoformSwitchAnalyzeR runs once per contrast, with the blocking variables as covariates of its switch test. ASpli accepts a model formula, but in the version the pipeline uses its gene-level test falls back to an exact test that ignores the formula for two-condition contrasts, and the reference level of the formula follows the alphabetical order of the conditions, so ASpli does not adjust for blocking variables. rMATS, SUPPA and MISO have no covariate support.
 
 Blocking variables are always treated as categorical, so numeric donor IDs are not read as continuous values. Each blocking column must have a value for every sample, and the same value in every row of a sample with several sequencing runs. They are checked against the samples of each contrast:
 

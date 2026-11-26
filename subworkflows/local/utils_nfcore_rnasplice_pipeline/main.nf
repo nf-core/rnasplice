@@ -140,7 +140,7 @@ workflow PIPELINE_INITIALISATION {
     }
 
     if (contrast_rows.any { row -> row.blocking }) {
-        log.warn("The contrastsheet 'blocking' column is used by DEXSeq DEU (--dexseq_exon), DEXSeq DTU (--dexseq_dtu), edgeR DEU (--edger_exon) and LeafCutter (--leafcutter) only, the other methods ignore it")
+        log.warn("The contrastsheet 'blocking' column is used by DEXSeq DEU (--dexseq_exon), DEXSeq DTU (--dexseq_dtu), edgeR DEU (--edger_exon), LeafCutter (--leafcutter) and IsoformSwitchAnalyzeR (--isoformswitchanalyzer) only, the other methods ignore it")
     }
 
     // Blocking variables are checked here, before any process runs. A column missing from
@@ -183,19 +183,9 @@ workflow PIPELINE_INITIALISATION {
 
     ch_contrastsheet = channel.fromList(contrast_rows)
 
-    // The modules that read the sheet themselves expect the legacy header, so they get
-    // a canonical copy of the normalised rows
-    ch_contrastsheet_file = channel
-        .fromList(contrast_rows)
-        .collectFile(name: 'contrastsheet.csv', seed: 'contrast,treatment,control', sort: 'index', newLine: true) { row ->
-            "${row.contrast},${row.treatment},${row.control}"
-        }
-        .first()
-
     emit:
     contrastsheet      = ch_contrastsheet                                    // channel: [ contrast, treatment, control, blocking (when set) ]
     blocking_values    = ch_blocking_values                                  // channel: [ sample: [ column: value ] ], the blocking variables of the contrasts
-    contrastsheet_file = ch_contrastsheet_file                               // channel: path(contrastsheet.csv), with the contrast, treatment, control header
 }
 
 /*

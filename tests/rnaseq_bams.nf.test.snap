@@ -119,6 +119,12 @@
                 "SAMTOOLS_STATS": {
                     "samtools": "1.24"
                 },
+                "SE_GENE_UNIFIED": {
+                    "bioconductor-summarizedexperiment": "1.42.0"
+                },
+                "SE_TRANSCRIPT_UNIFIED": {
+                    "bioconductor-summarizedexperiment": "1.42.0"
+                },
                 "SPLITFILES_PSI": {
                     "r-base": "4.6.1"
                 },
@@ -161,7 +167,7 @@
                     "statsmodels": "0.14.6",
                     "suppa": "2.4"
                 },
-                "TXIMPORT": {
+                "TXIMETA_TXIMPORT": {
                     "bioconductor-tximeta": "1.20.1",
                     "bioconductor-tximport": "1.30.0"
                 },
@@ -175,10 +181,16 @@
                 "annotation/genes_chrX.transcript_annotation.tsv",
                 "genome",
                 "isoformswitchanalyzer",
-                "isoformswitchanalyzer/isoformswitchanalyzer_isoformfeatures.csv",
-                "isoformswitchanalyzer/isoformswitchanalyzer_summary.csv",
-                "isoformswitchanalyzer/results",
-                "isoformswitchanalyzer/switchlist.rds",
+                "isoformswitchanalyzer/GBR-YRI",
+                "isoformswitchanalyzer/GBR-YRI/isoformswitchanalyzer_isoformfeatures.csv",
+                "isoformswitchanalyzer/GBR-YRI/isoformswitchanalyzer_summary.csv",
+                "isoformswitchanalyzer/GBR-YRI/results",
+                "isoformswitchanalyzer/GBR-YRI/switchlist.rds",
+                "isoformswitchanalyzer/YRI-GBR",
+                "isoformswitchanalyzer/YRI-GBR/isoformswitchanalyzer_isoformfeatures.csv",
+                "isoformswitchanalyzer/YRI-GBR/isoformswitchanalyzer_summary.csv",
+                "isoformswitchanalyzer/YRI-GBR/results",
+                "isoformswitchanalyzer/YRI-GBR/switchlist.rds",
                 "misopy",
                 "misopy/genes_chrX_genes.gff3",
                 "misopy/index",
@@ -847,11 +859,15 @@
                 "star_salmon/suppa/split_files/tpms/YRI.tpm",
                 "star_salmon/tximport",
                 "star_salmon/tximport/genes_chrX.tx2gene.tsv",
+                "star_salmon/tximport/salmon.merged.gene.R_sessionInfo.log",
+                "star_salmon/tximport/salmon.merged.gene.SummarizedExperiment.rds",
                 "star_salmon/tximport/salmon.merged.gene_counts.tsv",
                 "star_salmon/tximport/salmon.merged.gene_counts_length_scaled.tsv",
                 "star_salmon/tximport/salmon.merged.gene_counts_scaled.tsv",
                 "star_salmon/tximport/salmon.merged.gene_lengths.tsv",
                 "star_salmon/tximport/salmon.merged.gene_tpm.tsv",
+                "star_salmon/tximport/salmon.merged.transcript.R_sessionInfo.log",
+                "star_salmon/tximport/salmon.merged.transcript.SummarizedExperiment.rds",
                 "star_salmon/tximport/salmon.merged.transcript_counts.tsv",
                 "star_salmon/tximport/salmon.merged.transcript_counts_dtu_scaled.tsv",
                 "star_salmon/tximport/salmon.merged.transcript_counts_scaled.tsv",
@@ -861,6 +877,7 @@
                 "star_salmon/tximport/suppa_tpm.txt"
             ],
             [
+                "isoformswitchanalyzer_summary.csv:md5,4b2ab1b387ded8f479d7cfa96893e93b",
                 "isoformswitchanalyzer_summary.csv:md5,4b2ab1b387ded8f479d7cfa96893e93b",
                 "genes_chrX_genes.gff3:md5,c10571e49275f25f0a51f664a161f811",
                 "genes.gff:md5,96be13c1360e34dd9e565d9ac9a5a7bf",
@@ -973,7 +990,7 @@
                 "ERR204916_sorted.bam": "d04f778c726310a919eb676fe3432716"
             }
         ],
-        "timestamp": "2026-11-26T15:39:35.536711895",
+        "timestamp": "2026-11-26T17:08:37.694958561",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"

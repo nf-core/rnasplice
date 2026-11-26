@@ -73,7 +73,6 @@ workflow RNASPLICE {
     ch_samplesheet // channel: [ val(meta), [ fastq ], genome_bam, transcriptome_bam, salmon_results ], the parsed samplesheet, absent inputs null
     ch_samplesheet_file // channel: file(samplesheet), for the processes that read it
     ch_contrastsheet // channel: [ contrast, treatment, control ], the parsed contrasts
-    ch_contrastsheet_file // channel: file(contrastsheet), for the processes that read it
     ch_blocking_values // channel: [ sample: [ column: value ] ], the blocking variables of the contrasts
     input_routes // map: how each part of the pipeline gets its input, see `getInputRoutes`
     ch_fasta // channel: path of genome fasta
@@ -669,12 +668,21 @@ workflow RNASPLICE {
     // With both Salmon routes, the pseudo-aligned results replace the STAR ones above, so
     // IsoformSwitchAnalyzeR reads those
     if (params.isoformswitchanalyzer && (input_routes.star_salmon || input_routes.pseudo_salmon || input_routes.salmon_results)) {
+        // The Salmon directories of all the samples, sorted so that the task hash does not
+        // depend on the order the quantifications finished in. The module picks the samples
+        // of each contrast
+        ch_isa_samples = ch_samplesheet_file
+            .combine(ch_salmon_results.toSortedList { a, b -> a[0].id <=> b[0].id }.map { results -> [results.collect { _meta, dir -> dir }] })
+            .map { samplesheet, dirs -> [[id: 'samples'], samplesheet, dirs] }
+            .first()
+
         ISOFORMSWITCHANALYZER(
-            ch_salmon_results.collect { it -> it[1] },
+            ch_contrastsheet.map { row ->
+                [row.blocking ? [id: row.contrast, blocking: row.blocking] : [id: row.contrast], row.control, row.treatment]
+            },
+            ch_isa_samples,
             ch_gtf,
             ch_transcript_fasta,
-            ch_samplesheet_file,
-            ch_contrastsheet_file,
             params.isoformswitchanalyzer_alpha,
             params.isoformswitchanalyzer_dIF,
         )
