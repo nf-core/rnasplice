@@ -74,7 +74,7 @@ workflow EDGER_DEU {
     //
 
     GENEANNOTATION_ANNOTATE(
-        EDGER_DIFFSPLICE.out.results.mix(EDGER_DIFFSPLICE.out.simes, EDGER_DIFFSPLICE.out.gene),
+        EDGER_DIFFSPLICE.out.expression.mix(EDGER_DIFFSPLICE.out.results, EDGER_DIFFSPLICE.out.simes, EDGER_DIFFSPLICE.out.gene),
         ch_gene_annotation,
         'Geneid',
     )
@@ -83,6 +83,7 @@ workflow EDGER_DEU {
     featureCounts_counts  = SUBREAD_FEATURECOUNTS.out.counts   // channel: [ val(meta), path(counts) ]
     featureCounts_summary = SUBREAD_FEATURECOUNTS.out.summary  // channel: [ val(meta), path(summary) ]
     counts                = CSVTK_JOIN.out.out_file            // channel: [ val(meta), path(tsv) ], the counts of all samples
+    expression            = EDGER_DIFFSPLICE.out.expression    // channel: [ val(meta), path(tsv) ], feature-level differential expression per contrast
     results               = EDGER_DIFFSPLICE.out.results       // channel: [ val(meta), path(tsv) ], feature-level results per contrast
     simes                 = EDGER_DIFFSPLICE.out.simes         // channel: [ val(meta), path(tsv) ], gene-level Simes results per contrast
     gene                  = EDGER_DIFFSPLICE.out.gene          // channel: [ val(meta), path(tsv) ], gene-level test results per contrast

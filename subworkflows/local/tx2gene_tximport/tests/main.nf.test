@@ -60,6 +60,46 @@ nextflow_workflow {
 
     }
 
+    test("human chrX - versioned transcript IDs - ignore_tx_version") {
+
+        when {
+            params {
+                ignore_tx_version = true
+            }
+            workflow {
+                """
+                input[0] = channel.value([ [ id:'samplesheet' ], file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true) ])
+                // The GTF transcript IDs carry no version, so one is added to the Salmon ones, as
+                // with a GENCODE transcript FASTA and an Ensembl GTF
+                input[1] = UNTAR_SALMON_RESULTS.out.untar.map { meta, dir ->
+                    def copy = file("\${workDir}/versioned/\${dir.name}")
+                    copy.mkdirs()
+                    def lines = dir.resolve('quant.sf').readLines()
+                    file("\${copy}/quant.sf").text = ([lines[0]] + lines.tail().collect { line -> line.replaceFirst('\\t', '.1\\t') }).join('\\n') + '\\n'
+                    [ meta, copy ]
+                }
+                input[2] = channel.value(file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true))
+                input[3] = 'gene_id'
+                input[4] = 'gene_name'
+                """
+            }
+        }
+
+        then {
+            // With the versions ignored, the tables are those of the unversioned Salmon results
+            assertAll(
+                { assert workflow.success },
+                { assert snapshot(
+                    sanitizeOutput(
+                        workflow.out,
+                        unstableKeys: [ "salmon_results" ]
+                    )
+                ).match() }
+            )
+        }
+
+    }
+
     test("human chrX - salmon tarballs") {
 
         when {

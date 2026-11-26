@@ -369,6 +369,7 @@ Finally, as discussed above in the DEXSeq count section, users can inspect count
 
 - `edger/`
   - `edger_exon.tsv`: Exonic feature counts of all samples, joined from the per sample featureCounts tables.
+  - `{contrast}.edger.diffsplice.expression.tsv`: Differential exon expression results, each exon tested on its own with the same model and contrast (edgeR::glmQLFTest).
   - `{contrast}.edger.diffsplice.results.tsv`: Differential exon usage results at the exon level, each exon tested against the other exons of its gene with edgeR::diffSpliceDGE.
   - `{contrast}.edger.diffsplice.simes.tsv`: Gene-level results, combining the exon-level p-values with the Simes method.
   - `{contrast}.edger.diffsplice.gene.tsv`: Gene-level results of the F (or likelihood ratio) test.
@@ -382,7 +383,7 @@ Finally, as discussed above in the DEXSeq count section, users can inspect count
 
 </details>
 
-[edgeR](https://bioconductor.org/packages/release/bioc/html/edgeR.html) is a Bioconductor R package typically used for differential gene expression, which can also test for differential exon usage. The exon counts of all samples are filtered with edgeR::filterByExpr, normalised and fitted with edgeR::glmQLFit, and edgeR::diffSpliceDGE then tests, for each contrast, every exon against the other exons of its gene. The result tables are sorted by p-value: `{contrast}.edger.diffsplice.results.tsv` at the exon level, and `{contrast}.edger.diffsplice.simes.tsv` and `{contrast}.edger.diffsplice.gene.tsv` at the gene level, with the Simes method and the F test respectively.
+[edgeR](https://bioconductor.org/packages/release/bioc/html/edgeR.html) is a Bioconductor R package typically used for differential gene expression, which can also test for differential exon usage. The exon counts of all samples are filtered with edgeR::filterByExpr, normalised and fitted with edgeR::glmQLFit, and for each contrast edgeR::glmQLFTest tests every exon for differential expression, while edgeR::diffSpliceDGE tests every exon against the other exons of its gene. The result tables are sorted by p-value: `{contrast}.edger.diffsplice.expression.tsv` and `{contrast}.edger.diffsplice.results.tsv` at the exon level, and `{contrast}.edger.diffsplice.simes.tsv` and `{contrast}.edger.diffsplice.gene.tsv` at the gene level, with the Simes method and the F test respectively.
 
 ## Differential Bin and Junction Usage
 

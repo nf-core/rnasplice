@@ -70,7 +70,7 @@ nextflow_workflow {
                     workflow.out.featureCounts_summary.sort { summary -> summary[0].id },
                     workflow.out.featureCounts_counts.collect { meta, counts -> [ meta, file(counts).name ] }.sort { counts -> counts[0].id },
                     workflow.out.counts,
-                    [ workflow.out.results, workflow.out.simes, workflow.out.gene ].collect { tables ->
+                    [ workflow.out.expression, workflow.out.results, workflow.out.simes, workflow.out.gene ].collect { tables ->
                         tables.collect { meta, table -> [ meta, file(table).name, path(table).readLines()[0], path(table).readLines().size() ] }
                     },
                     [ workflow.out.plots, workflow.out.bcv_plot, workflow.out.rdata, workflow.out.lrt ].collect { files ->
@@ -108,6 +108,7 @@ nextflow_workflow {
                     workflow.out.featureCounts_counts.sort { counts -> counts[0].id },
                     workflow.out.featureCounts_summary.sort { summary -> summary[0].id },
                     workflow.out.counts,
+                    workflow.out.expression,
                     workflow.out.results,
                     workflow.out.simes,
                     workflow.out.gene,

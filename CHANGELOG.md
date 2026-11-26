@@ -29,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #371 - The `symbol` column of the ASpli tables holds the gene names of the gene annotation table, where it held the gene IDs, so it follows `--gtf_extra_attributes`. A gene with no name keeps its ID (requested by @pinin4fjords, done by @piplus2)
 - #372 - The gene annotation tables are built from the gffread transcript table tximport uses, which now runs with every run and gains `gene_biotype` and `gene_type` columns (requested by @pinin4fjords, done by @piplus2)
 - #376 - Replace the vendored `utils_nextflow_pipeline`, `utils_nfcore_pipeline` and `utils_nfschema_plugin` subworkflows with the `nf-core-utils@0.7.0` plugin, as in nf-core/rnaseq, and remove the unused `custom/dumpsoftwareversions` module. The completion email is skipped on Seqera Platform launches unless `--force_completion_email` is set (by @pinin4fjords)
-- #378 - Replace local modules with nf-core ones (tximport, edgeR exon usage, STAR alignment, GTF and FASTA preparation). edgeR now uses edgeR 4, so its results tables and file names change, and tximport writes SummarizedExperiment objects instead of its RDS lists (by @pinin4fjords)
+- #378 - Replace local modules with nf-core ones (tximport, edgeR exon usage, STAR alignment, GTF and FASTA preparation). edgeR now uses edgeR 4, so its results tables, file names and R objects (now per contrast) change, and tximport writes SummarizedExperiment objects instead of its RDS lists. No longer written: the scaled TPM tables, `transcript_counts_length_scaled.tsv` and the filtered `<fasta>_genes.gtf`; the GENCODE transcript FASTA is now `.fixed.fasta` (by @pinin4fjords)
 
 ### Deprecated
 

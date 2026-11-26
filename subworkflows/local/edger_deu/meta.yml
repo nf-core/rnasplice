@@ -59,6 +59,12 @@ output:
         Channel containing the exonic feature counts of all samples, joined into one table
         Structure: [ val(meta), path(tsv) ]
       pattern: "edger_exon.tsv"
+  - expression:
+      type: file
+      description: |
+        Channel containing the differential expression test of each exon, per contrast
+        Structure: [ val(meta), path(tsv) ]
+      pattern: "*.edger.diffsplice.expression.tsv"
   - results:
       type: file
       description: |
