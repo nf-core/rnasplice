@@ -26,18 +26,11 @@ nextflow_pipeline {
             def sorted_bams = getAllFilesFromDir(params.outdir, include: ['*_sorted.bam', '**/*_sorted.bam'])
                 .collectEntries { bam_file -> [ bam_file.name, bam(bam_file.toString()).getSamLinesMD5() ] }
 
-            // Models the DEXSeq exon and DTU tasks fitted, by contrast. The DEXSeq results vary
-            // with the CPU and are left out of stable_content, so the models are read from the
-            // task logs. Only successful tasks write a results table, so retries are skipped
+            // Full models the DEXSeq exon and DTU analyses fitted, by contrast
             def dexseq_models = [:].withDefault { [] }
-            new File("${launchDir}/work").eachFileRecurse { log_file ->
-                if (log_file.name == '.command.err') {
-                    def model = (log_file.text =~ /Full model: (.+)/).findResult { match -> match[1].trim() }
-                    def results = log_file.parentFile.listFiles().find { file -> file.name.endsWith('.dexseq.results.tsv') }
-                    if (model && results) {
-                        dexseq_models[results.name - '.dexseq.results.tsv'] << model
-                    }
-                }
+            getAllFilesFromDir(params.outdir, include: ['**/*.dexseq.model.txt']).each { model_file ->
+                def model = (model_file.text =~ /Full model: (.+)/).findResult { match -> match[1].trim() }
+                dexseq_models[model_file.name - '.dexseq.model.txt'] << model
             }
 
             assert workflow.success

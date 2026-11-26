@@ -381,6 +381,7 @@ The differential splicing outputs are written for each contrast in which both co
   - `{contrast}.dexseq.results.tsv`: TSV results table of DEXSeq DEU analysis featuring log2foldchanges and p-values etc.
   - `{contrast}.dexseq.gene_qvalues.rds`: DEXSeq R Object following DEXSeq::perGeneQValue containing q-values per gene.
   - `{contrast}.dexseq.gene_qvalues.tsv`: TSV file of the q-values in `{contrast}.dexseq.gene_qvalues.rds`.
+  - `{contrast}.dexseq.model.txt`: The full and reduced models DEXSeq fitted, including any blocking variables.
   - `{contrast}.dexseq.plots.pdf` : PDF file of top _N_ genes from DEXSeq results.
   - `{contrast}.dexseq.{results,gene_qvalues}.annotated.tsv`: The same two tables with the gene name and biotype after `groupID`, see [Gene annotation](#gene-annotation).
 - `dexseq_exon/annotation/`
@@ -478,6 +479,7 @@ The `symbol` column of the ASpli tables holds the gene name of each gene, from t
     - `{contrast}.dexseq.results.tsv`: TSV results table of DEXSeq DTU analysis featuring log2foldchanges and p-values etc.
     - `{contrast}.dexseq.gene_qvalues.rds`: DEXSeq R Object following DEXSeq::perGeneQValue containing q-values per gene.
     - `{contrast}.dexseq.gene_qvalues.tsv`: TSV file of the q-values in `{contrast}.dexseq.gene_qvalues.rds`.
+    - `{contrast}.dexseq.model.txt`: The full and reduced models DEXSeq fitted, including any blocking variables.
     - `{contrast}.dexseq.{results,gene_qvalues}.annotated.tsv`: The same two tables with the gene name and biotype after `groupID`, see [Gene annotation](#gene-annotation).
   - `stager/`
     - `stageRTx.{contrast}.rds`: stageRTx R object.
