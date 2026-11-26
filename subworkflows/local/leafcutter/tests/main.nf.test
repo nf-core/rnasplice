@@ -73,7 +73,8 @@ nextflow_workflow {
                     file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
                 ])
                 input[4] = channel.of([ contrast:'GBR-YRI', treatment:'GBR', control:'YRI' ])
-                input[5] = 2
+                input[5] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true))
+                input[6] = 2
                 """
             }
         }
@@ -144,7 +145,8 @@ nextflow_workflow {
                     file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
                 ])
                 input[4] = channel.of([ contrast:'GBR-YRI', treatment:'GBR', control:'YRI' ])
-                input[5] = 2
+                input[5] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true))
+                input[6] = 2
                 """
             }
         }
@@ -201,7 +203,8 @@ nextflow_workflow {
                     file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
                 ])
                 input[4] = channel.of([ contrast:'GBR-YRI', treatment:'GBR', control:'YRI' ])
-                input[5] = 2
+                input[5] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true))
+                input[6] = 2
                 """
             }
         }
@@ -253,7 +256,8 @@ nextflow_workflow {
                     file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
                 ])
                 input[4] = channel.of([ contrast:'GBR-YRI', treatment:'GBR', control:'YRI' ])
-                input[5] = 1
+                input[5] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true))
+                input[6] = 1
                 """
             }
         }
