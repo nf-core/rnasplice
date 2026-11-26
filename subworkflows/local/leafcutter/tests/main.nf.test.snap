@@ -127,6 +127,16 @@
                         "treatment": "GBR",
                         "control": "YRI"
                     },
+                    "GBR-YRI_groups.txt:md5,ead936431ff4d82510ba173726592453"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "GBR-YRI",
+                        "treatment": "GBR",
+                        "control": "YRI"
+                    },
                     [
                         "cluster\tstatus\tdf\tgenes",
                         "chrX:clu_1_-\tSuccess\t2\tFLNA"
@@ -149,10 +159,10 @@
                 ]
             ]
         ],
-        "timestamp": "2026-11-20T16:26:12.928295931",
+        "timestamp": "2026-11-26T19:49:46.780809652",
         "meta": {
-            "nf-test": "0.9.5",
-            "nextflow": "26.04.3"
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
         }
     },
     "human chrX - reverse stranded": {
@@ -394,6 +404,25 @@
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.3"
+        }
+    },
+    "human chrX - blocking variable": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "GBR-YRI",
+                        "treatment": "GBR",
+                        "control": "YRI"
+                    },
+                    "GBR-YRI_groups.txt:md5,459ed90fa19d306d3b1c0ea141383539"
+                ]
+            ]
+        ],
+        "timestamp": "2026-11-26T19:50:02.9059659",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
         }
     }
 }
