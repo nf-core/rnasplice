@@ -57,6 +57,12 @@
                 "SAMTOOLS_STATS": {
                     "samtools": "1.24"
                 },
+                "SE_GENE_UNIFIED": {
+                    "bioconductor-summarizedexperiment": "1.42.0"
+                },
+                "SE_TRANSCRIPT_UNIFIED": {
+                    "bioconductor-summarizedexperiment": "1.42.0"
+                },
                 "STAR_ALIGN": {
                     "gawk": "5.1.0",
                     "samtools": "1.21",
@@ -76,7 +82,7 @@
                 "TRIMGALORE": {
                     "trimgalore": "2.3.0"
                 },
-                "TXIMPORT": {
+                "TXIMETA_TXIMPORT": {
                     "bioconductor-tximeta": "1.20.1",
                     "bioconductor-tximport": "1.30.0"
                 },
@@ -323,11 +329,15 @@
                 "salmon/ERR204916_meta_info.json",
                 "salmon/tximport",
                 "salmon/tximport/genes_chrX.tx2gene.tsv",
+                "salmon/tximport/salmon.merged.gene.R_sessionInfo.log",
+                "salmon/tximport/salmon.merged.gene.SummarizedExperiment.rds",
                 "salmon/tximport/salmon.merged.gene_counts.tsv",
                 "salmon/tximport/salmon.merged.gene_counts_length_scaled.tsv",
                 "salmon/tximport/salmon.merged.gene_counts_scaled.tsv",
                 "salmon/tximport/salmon.merged.gene_lengths.tsv",
                 "salmon/tximport/salmon.merged.gene_tpm.tsv",
+                "salmon/tximport/salmon.merged.transcript.R_sessionInfo.log",
+                "salmon/tximport/salmon.merged.transcript.SummarizedExperiment.rds",
                 "salmon/tximport/salmon.merged.transcript_counts.tsv",
                 "salmon/tximport/salmon.merged.transcript_counts_dtu_scaled.tsv",
                 "salmon/tximport/salmon.merged.transcript_counts_scaled.tsv",
@@ -355,8 +365,10 @@
                 "star_salmon/leafcutter/ERR204916.strand_summary.tsv",
                 "star_salmon/leafcutter/GBR-YRI_cluster_significance.txt",
                 "star_salmon/leafcutter/GBR-YRI_effect_sizes.txt",
+                "star_salmon/leafcutter/GBR-YRI_groups.txt",
                 "star_salmon/leafcutter/YRI-GBR_cluster_significance.txt",
                 "star_salmon/leafcutter/YRI-GBR_effect_sizes.txt",
+                "star_salmon/leafcutter/YRI-GBR_groups.txt",
                 "star_salmon/leafcutter/lc_perind.counts.gz",
                 "star_salmon/leafcutter/lc_perind_numers.counts.gz",
                 "star_salmon/leafcutter/lc_pooled",
@@ -459,11 +471,15 @@
                 "star_salmon/samtools_stats/ERR204916.stats",
                 "star_salmon/tximport",
                 "star_salmon/tximport/genes_chrX.tx2gene.tsv",
+                "star_salmon/tximport/salmon.merged.gene.R_sessionInfo.log",
+                "star_salmon/tximport/salmon.merged.gene.SummarizedExperiment.rds",
                 "star_salmon/tximport/salmon.merged.gene_counts.tsv",
                 "star_salmon/tximport/salmon.merged.gene_counts_length_scaled.tsv",
                 "star_salmon/tximport/salmon.merged.gene_counts_scaled.tsv",
                 "star_salmon/tximport/salmon.merged.gene_lengths.tsv",
                 "star_salmon/tximport/salmon.merged.gene_tpm.tsv",
+                "star_salmon/tximport/salmon.merged.transcript.R_sessionInfo.log",
+                "star_salmon/tximport/salmon.merged.transcript.SummarizedExperiment.rds",
                 "star_salmon/tximport/salmon.merged.transcript_counts.tsv",
                 "star_salmon/tximport/salmon.merged.transcript_counts_dtu_scaled.tsv",
                 "star_salmon/tximport/salmon.merged.transcript_counts_scaled.tsv",
@@ -504,6 +520,8 @@
                 "ERR188428.junc:md5,68c72ba1614d479511b41d81de714364",
                 "ERR188454.junc:md5,ea437eaa94b2876673d9703a9aeda341",
                 "ERR204916.junc:md5,a607fcb5e68adfa1be9c2262c380fcab",
+                "GBR-YRI_groups.txt:md5,ead936431ff4d82510ba173726592453",
+                "YRI-GBR_groups.txt:md5,7ee034f6756b6e516ad338bbda15cc21",
                 "lc_pooled:md5,21dec5398f8d1289daa282b4638c12bf",
                 "lc_refined:md5,db3d36def298c7fae6e7a843ce52c2ce",
                 "lc_sortedlibs:md5,de8c5c512e43f549f32762dd9faa6c5b",
@@ -553,7 +571,7 @@
                 "ERR204916_sorted.bam": "1f2abfcbb9697c56744ffb5fcfeb9f17"
             }
         ],
-        "timestamp": "2026-11-26T15:33:50.206038339",
+        "timestamp": "2026-11-26T20:00:39.255981767",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"

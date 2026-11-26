@@ -168,6 +168,9 @@
                 "isoformswitchanalyzer/GBR-YRI/isoformswitchanalyzer_isoformfeatures.csv",
                 "isoformswitchanalyzer/GBR-YRI/isoformswitchanalyzer_summary.csv",
                 "isoformswitchanalyzer/GBR-YRI/results",
+                "isoformswitchanalyzer/GBR-YRI/results/YRI_vs_GBR",
+                "isoformswitchanalyzer/GBR-YRI/results/YRI_vs_GBR/1_switch_plot_RPL10_aka_RPL10.pdf",
+                "isoformswitchanalyzer/GBR-YRI/results/common_switch_consequences.pdf",
                 "isoformswitchanalyzer/GBR-YRI/switchlist.rds",
                 "isoformswitchanalyzer/YRI-GBR",
                 "isoformswitchanalyzer/YRI-GBR/isoformswitchanalyzer_isoformfeatures.csv",
@@ -555,8 +558,10 @@
                 "star_salmon/leafcutter/ERR204916.strand_summary.tsv",
                 "star_salmon/leafcutter/GBR-YRI_cluster_significance.txt",
                 "star_salmon/leafcutter/GBR-YRI_effect_sizes.txt",
+                "star_salmon/leafcutter/GBR-YRI_groups.txt",
                 "star_salmon/leafcutter/YRI-GBR_cluster_significance.txt",
                 "star_salmon/leafcutter/YRI-GBR_effect_sizes.txt",
+                "star_salmon/leafcutter/YRI-GBR_groups.txt",
                 "star_salmon/leafcutter/lc_perind.counts.gz",
                 "star_salmon/leafcutter/lc_perind_numers.counts.gz",
                 "star_salmon/leafcutter/lc_pooled",
@@ -704,7 +709,7 @@
                 "trimgalore/fastqc/ERR204916_2_val_2_fastqc.zip"
             ],
             [
-                "isoformswitchanalyzer_summary.csv:md5,4b2ab1b387ded8f479d7cfa96893e93b",
+                "isoformswitchanalyzer_summary.csv:md5,10a3f006cf38d35c3f4415f258b70cc9",
                 "isoformswitchanalyzer_summary.csv:md5,074341c35ff7d2dd8ebbbf6a559b2a07",
                 "GBR-YRI.edger.model.txt:md5,cf971de1db537b70c86a304ad84c73f5",
                 "YRI-GBR.edger.model.txt:md5,4280bed61961e287d9ea1488de88160c",
@@ -717,6 +722,8 @@
                 "ERR188428.junc:md5,68c72ba1614d479511b41d81de714364",
                 "ERR188454.junc:md5,ea437eaa94b2876673d9703a9aeda341",
                 "ERR204916.junc:md5,a607fcb5e68adfa1be9c2262c380fcab",
+                "GBR-YRI_groups.txt:md5,459ed90fa19d306d3b1c0ea141383539",
+                "YRI-GBR_groups.txt:md5,7ee034f6756b6e516ad338bbda15cc21",
                 "lc_pooled:md5,21dec5398f8d1289daa282b4638c12bf",
                 "lc_refined:md5,db3d36def298c7fae6e7a843ce52c2ce",
                 "lc_sortedlibs:md5,de8c5c512e43f549f32762dd9faa6c5b",
@@ -744,7 +751,7 @@
                 "ERR204916_sorted.bam": "1f2abfcbb9697c56744ffb5fcfeb9f17"
             }
         ],
-        "timestamp": "2026-11-26T17:05:02.547414798",
+        "timestamp": "2026-11-26T19:57:28.850722549",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"
