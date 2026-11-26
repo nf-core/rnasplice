@@ -1,0 +1,56 @@
+{
+    "two conditions": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "GBR-YRI"
+                        },
+                        "GBR-YRI_groups.txt:md5,ead936431ff4d82510ba173726592453"
+                    ]
+                ],
+                "groups": [
+                    [
+                        {
+                            "id": "GBR-YRI"
+                        },
+                        "GBR-YRI_groups.txt:md5,ead936431ff4d82510ba173726592453"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-11-26T19:49:24.290252744",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
+        }
+    },
+    "blocking variables": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "GBR-YRI"
+                        },
+                        "GBR-YRI_groups.txt:md5,459ed90fa19d306d3b1c0ea141383539"
+                    ]
+                ],
+                "groups": [
+                    [
+                        {
+                            "id": "GBR-YRI"
+                        },
+                        "GBR-YRI_groups.txt:md5,459ed90fa19d306d3b1c0ea141383539"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-11-26T19:49:30.007197263",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
+        }
+    }
+}
