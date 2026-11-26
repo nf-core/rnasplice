@@ -10,11 +10,12 @@ include { RMATS_POST } from '../../../modules/local/rmats/post'
 workflow RMATS {
     take:
     ch_samples // channel: [ val(sample_id), val(condition) ], in samplesheet order
-    ch_contrastsheet // channel: [ contrast:, treatment:, control: ]
+    ch_contrastsheet // channel: [ contrast:, treatment:, control:, blocking: (when set) ]
+    ch_samplesheet // channel: file(samplesheet), read for the values of the blocking variables
     ch_bam // channel: [ val(meta), path(bam) ], meta.condition is required
     ch_gtf // channel: [ val(meta), path(gtf) ]
     rmats_read_len // value channel: val(read_length), --readLength of both rMATS steps
-    rmats_paired_stats // boolean: pair the treatment and control samples
+    rmats_paired_stats // boolean: pair the treatment and control samples of every contrast by their position
 
     main:
 
@@ -50,14 +51,22 @@ workflow RMATS {
         }
 
     //
-    // The samples of each rMATS run: [ contrast, cond1, ids1, cond2, ids2 ]
+    // The samples of each rMATS run: [ contrast, cond1, ids1, cond2, ids2, paired ]
     //
+
+    // The samplesheet row of each sample, the first for a sample with several runs
+    ch_sample_rows = ch_samplesheet
+        .splitCsv(header: true)
+        .unique { row -> row.sample }
+        .toList()
+        .map { rows -> [rows.collectEntries { row -> [row.sample, row] }] }
+
 
     // With one condition there is nothing to contrast, so it is profiled on its own and
     // the second condition stays empty
     ch_single_samples = ch_condition_samples.flatMap { by_condition ->
         by_condition.size() == 1
-            ? by_condition.collect { condition, ids -> ["${condition}_profiling".toString(), condition, ids, '', []] }
+            ? by_condition.collect { condition, ids -> ["${condition}_profiling".toString(), condition, ids, '', [], rmats_paired_stats] }
             : []
     }
 
@@ -66,7 +75,8 @@ workflow RMATS {
     ch_contrast_samples = ch_contrastsheet
         .combine(ch_condition_samples)
         .filter { _row, by_condition -> by_condition.size() > 1 }
-        .map { row, by_condition ->
+        .combine(ch_sample_rows)
+        .map { row, by_condition, rows_by_sample ->
             [row.treatment, row.control].each { condition ->
                 if (!by_condition.containsKey(condition)) {
                     error("rMATS contrast '${row.contrast}': condition '${condition}' has no sample in the samplesheet")
@@ -74,11 +84,35 @@ workflow RMATS {
             }
             def ids1 = by_condition[row.treatment]
             def ids2 = by_condition[row.control]
+            def paired = rmats_paired_stats
+
+            // rMATS cannot adjust for covariates. A blocking variable that matches every
+            // treatment sample with one control sample, such as a donor, is a paired
+            // design, which the paired model tests. The samples are put in the order of
+            // that variable, which is how the paired model matches them
+            if (row.blocking) {
+                def columns = row.blocking.tokenize(';')
+                def values1 = ids1.collect { id -> rows_by_sample[id]?.get(columns[0])?.toString()?.trim() }
+                def values2 = ids2.collect { id -> rows_by_sample[id]?.get(columns[0])?.toString()?.trim() }
+                def one_to_one = columns.size() == 1 &&
+                    !(values1 + values2).any { value -> !value } &&
+                    values1.toSet().size() == ids1.size() &&
+                    values2.toSet().size() == ids2.size() &&
+                    values1.toSet() == values2.toSet()
+                if (one_to_one) {
+                    ids1 = [ids1, values1].transpose().sort { pair -> pair[1] }.collect { pair -> pair[0] }
+                    ids2 = [ids2, values2].transpose().sort { pair -> pair[1] }.collect { pair -> pair[0] }
+                    paired = true
+                } else if (!rmats_paired_stats) {
+                    log.warn("rMATS contrast '${row.contrast}': the blocking variables '${row.blocking}' do not pair each ${row.treatment} sample with one ${row.control} sample, so rMATS ignores them")
+                }
+            }
+
             // The paired model matches the n-th treatment sample with the n-th control one
-            if (rmats_paired_stats && ids1.size() != ids2.size()) {
+            if (paired && ids1.size() != ids2.size()) {
                 error("Paired rMATS contrast '${row.contrast}': unequal sample counts, ${row.treatment}: ${ids1}, ${row.control}: ${ids2}. Each treatment sample needs a control counterpart.")
             }
-            return [row.contrast, row.treatment, ids1, row.control, ids2]
+            return [row.contrast, row.treatment, ids1, row.control, ids2, paired]
         }
 
     // Exactly one of the two is populated, so rMATS runs off a single set of tuples
@@ -86,7 +120,7 @@ workflow RMATS {
     ch_run_samples = ch_single_samples.mix(ch_contrast_samples)
 
     // One entry per sample of a run: [ sample_id, contrast, condition number, position ]
-    ch_run_sample_index = ch_run_samples.flatMap { contrast, _cond1, ids1, _cond2, ids2 ->
+    ch_run_sample_index = ch_run_samples.flatMap { contrast, _cond1, ids1, _cond2, ids2, _paired ->
         def entries1 = ids1.withIndex().collect { sample_id, idx -> [sample_id, contrast, 1, idx] }
         def entries2 = ids2.withIndex().collect { sample_id, idx -> [sample_id, contrast, 2, idx] }
         return entries1 + entries2
@@ -110,7 +144,7 @@ workflow RMATS {
 
     ch_bamlist_input = ch_run_samples
         .join(ch_run_bams, by: 0)
-        .map { contrast, cond1, _ids1, cond2, _ids2, bam1, bam2 ->
+        .map { contrast, cond1, _ids1, cond2, _ids2, _paired, bam1, bam2 ->
             [contrast, cond1, bam1, cond2, bam2]
         }
 
@@ -138,9 +172,9 @@ workflow RMATS {
         .join(CREATEBAMLIST.out.bam_list1, by: 0)
         .join(CREATEBAMLIST.out.bam_list2, by: 0, remainder: true)
         .join(ch_run_rmats, by: 0)
-        .map { contrast, cond1, _ids1, cond2, _ids2, bam_list1, bam_list2, rmats ->
+        .map { contrast, cond1, _ids1, cond2, _ids2, paired, bam_list1, bam_list2, rmats ->
             // A single condition run has no control, so its meta map has no control key
-            def meta = cond2 ? [id: contrast, treatment: cond1, control: cond2] : [id: contrast, treatment: cond1]
+            def meta = cond2 ? [id: contrast, treatment: cond1, control: cond2, paired: paired] : [id: contrast, treatment: cond1, paired: paired]
             // Sorted so that the task hash does not depend on the order the prep tasks
             // finished in
             [meta, rmats.sort { rmats_file -> rmats_file.name }, bam_list1, bam_list2 ?: []]

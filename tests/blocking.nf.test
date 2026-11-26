@@ -53,6 +53,10 @@ nextflow_pipeline {
                 }
             }
 
+            // rMATS tests GBR-YRI with the paired model, as batch pairs its samples, and
+            // YRI-GBR, which has no blocking, with the unpaired one
+            def rmats_logs = getAllFilesFromDir(params.outdir, include: ['**/rmats/*.log']).collect { log_file -> log_file.name }.sort()
+
             assert workflow.success
 
             assertAll(
@@ -68,6 +72,7 @@ nextflow_pipeline {
                 ] },
                 { assert leafcutter_groups['GBR-YRI'].every { columns -> columns.size() == 3 && columns[2] =~ /^batch_\d+$/ } },
                 { assert leafcutter_groups['YRI-GBR'].every { columns -> columns.size() == 2 } },
+                { assert rmats_logs == [ 'GBR-YRI_paired.log', 'YRI-GBR.log' ] },
                 { assert snapshot(
                     // Remove Nextflow version to prevent cross-version testing failures
                     removeNextflowVersion("$outputDir/pipeline_info/nf_core_rnasplice_software_mqc_versions.yml"),

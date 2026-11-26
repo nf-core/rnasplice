@@ -21,8 +21,16 @@ input:
   - ch_contrastsheet:
       type: map
       description: |
-        Channel containing one map per contrast. Ignored when the samplesheet has a single condition
-        Structure: [ contrast: val(contrast), treatment: val(condition), control: val(condition) ]
+        Channel containing one map per contrast. Ignored when the samplesheet has a single condition.
+        A `blocking` column with one variable that pairs each treatment sample with one control sample
+        makes the contrast a paired one
+        Structure: [ contrast: val(contrast), treatment: val(condition), control: val(condition), blocking: val(columns) (when set) ]
+  - ch_samplesheet:
+      type: file
+      description: |
+        Value channel with the samplesheet, read for the values of the blocking variables
+        Structure: path(samplesheet.csv)
+      pattern: "*.csv"
   - ch_bam:
       type: file
       description: |

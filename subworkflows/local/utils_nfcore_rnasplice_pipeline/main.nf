@@ -140,7 +140,7 @@ workflow PIPELINE_INITIALISATION {
     }
 
     if (contrast_rows.any { row -> row.blocking }) {
-        log.warn("The contrastsheet 'blocking' column is used by DEXSeq DEU (--dexseq_exon), DEXSeq DTU (--dexseq_dtu), edgeR DEU (--edger_exon), LeafCutter (--leafcutter) and IsoformSwitchAnalyzeR (--isoformswitchanalyzer) only, the other methods ignore it")
+        log.warn("The contrastsheet 'blocking' column is used by DEXSeq DEU (--dexseq_exon), DEXSeq DTU (--dexseq_dtu), edgeR DEU (--edger_exon), LeafCutter (--leafcutter) and IsoformSwitchAnalyzeR (--isoformswitchanalyzer), and by rMATS (--rmats) for the contrasts it pairs, the other methods ignore it")
     }
 
     // Fails before any analysis when a blocking column is not in the samplesheet, as the
