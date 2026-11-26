@@ -149,7 +149,7 @@ workflow PIPELINE_INITIALISATION {
     // stop the pipeline. A variable with a single value in a contrast is left out of it, so
     // the contrast rows leave here with the variables the methods can fit. The header is
     // read from the file, as the parsed samplesheet keeps only the columns of its schema
-    def blocking_values = [:]
+    def blocking_lookup = [:]
     def blocked_contrasts = contrast_rows.findAll { row -> row.blocking }
     if (blocked_contrasts) {
         def samplesheet_columns = file(input).withReader { reader -> reader.readLine() }.tokenize(',').collect { column -> column.trim().replaceAll(/^"|"$/, '') }
@@ -174,12 +174,12 @@ workflow PIPELINE_INITIALISATION {
         // The values of the variables the contrasts use, by sample, with commas and
         // whitespace replaced so that the methods can write them to delimited files
         def kept_columns = contrast_rows.collectMany { row -> row.blocking ? row.blocking.tokenize(';') : [] }.unique()
-        blocking_values = rows_by_sample.collectEntries { sample, sample_row ->
+        blocking_lookup = rows_by_sample.collectEntries { sample, sample_row ->
             [sample, kept_columns.collectEntries { column -> [column, sample_row[column] ? sample_row[column].replaceAll(/[\s,]+/, '_') : '']}]
         }
     }
 
-    ch_blocking_values = channel.value(blocking_values)
+    ch_blocking_values = channel.value(blocking_lookup)
 
     ch_contrastsheet = channel.fromList(contrast_rows)
 
