@@ -48,7 +48,7 @@ include { SALMON_QUANT as SALMON_QUANT_SALMON                             } from
 include { SALMON_QUANT as SALMON_QUANT_STAR                               } from '../modules/nf-core/salmon/quant'
 include { SALMON_QUANT as SALMON_QUANT_STAR_AUTO                          } from '../modules/nf-core/salmon/quant'
 include { MULTIQC                                                         } from '../modules/nf-core/multiqc/'
-include { EAUTILS_GTF2BED                                                 } from '../modules/nf-core/eautils/gtf2bed'
+include { GFFREAD as GFFREAD_GTF2BED                                      } from '../modules/nf-core/gffread'
 include { RSEQC_INFEREXPERIMENT                                           } from '../modules/nf-core/rseqc/inferexperiment'
 include { CAT_FASTQ                                                       } from '../modules/nf-core/cat/fastq'
 include { SAMTOOLS_SPLITHEADER as SAMTOOLS_SPLITHEADER_GENOME             } from '../modules/nf-core/samtools/splitheader'
@@ -227,8 +227,8 @@ workflow RNASPLICE {
                 .combine(ch_input_genome_bam.filter { meta, _bam -> meta.strandedness == 'auto' })
                 .map { items -> items.first() }
                 .first()
-        EAUTILS_GTF2BED(ch_gtf_for_bed.map { gtf -> [[id: gtf.baseName], gtf] })
-        ch_gene_bed = EAUTILS_GTF2BED.out.bed.map { _meta, bed -> bed }
+        GFFREAD_GTF2BED(ch_gtf_for_bed.map { gtf -> [[id: gtf.baseName], gtf] }, [])
+        ch_gene_bed = GFFREAD_GTF2BED.out.bed.map { _meta, bed -> bed }
     }
 
     //

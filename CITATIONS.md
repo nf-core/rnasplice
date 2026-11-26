@@ -16,8 +16,6 @@
 
 - [csvtk](https://github.com/shenwei356/csvtk)
 
-- [ea-utils](https://github.com/ExpressionAnalysis/ea-utils)
-
 - [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
 
 > Andrews, S. (2010). FastQC: A Quality Control Tool for High Throughput Sequence Data [Online].
