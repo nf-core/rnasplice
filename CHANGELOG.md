@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #339 - Add a pipeline level nf-test for strandedness `auto` on reverse stranded reads, checking that the inferred strandedness reaches Salmon, featureCounts, DEXSeq, rMATS and LeafCutter (requested by @erikrikarddaniel, done by @piplus2)
 - #344 - Add ASpli (`--aspli`, off by default) for differential bin and junction usage on the genome BAM files, with the bin and junction signals of each contrast integrated into one report. Uses ASpli 2.16.0, the latest version with a Singularity image, and a 50,000 base maximum intron size as in the ASpli vignette. ASpli is on the DEU line of the metro map. Closes #343 (by @piplus2)
 - #350 - Accept the contrastsheet columns `id`, `variable`, `reference`, `target` and an ignored `blocking`, as in nf-core/differentialabundance. `variable` has to be `condition`. Closes #106 (requested by @adomingues, done by @piplus2)
-- #366 - Publish a `{contrast}{_paired}.samples.tsv` table with each rMATS contrast, naming the sample, condition, role and BAM file behind each position of the `SAMPLE_1` and `SAMPLE_2` columns, and document how to read them in the rMATS output docs. Also fix the paired samplesheet example in the usage docs, which had the condition labels swapped and mixed strandedness (by @piplus2)
+- #384 - Publish a `{contrast}{_paired}.samples.tsv` table with each rMATS contrast, naming the sample, condition, role and BAM file behind each position of the `SAMPLE_1` and `SAMPLE_2` columns, and document how to read them in the rMATS output docs. Also fix the paired samplesheet example in the usage docs, which had the condition labels swapped and mixed strandedness . Closes #366 (by @piplus2)
 
 ### Changed
 
