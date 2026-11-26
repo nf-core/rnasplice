@@ -28,7 +28,7 @@
                     "custom/tx2gene": {
                         "branch": "master",
                         "git_sha": "3553e8966a3a0575481e215ca21765f68b940cf3",
-                        "installed_by": ["modules"]
+                        "installed_by": ["modules", "quant_tximport_summarizedexperiment"]
                     },
                     "dexseq/count": {
                         "branch": "master",
@@ -180,6 +180,11 @@
                         "git_sha": "6d46786420b4d7bc88eba026eb389c0c5535d120",
                         "installed_by": ["modules"]
                     },
+                    "summarizedexperiment/summarizedexperiment": {
+                        "branch": "master",
+                        "git_sha": "3553e8966a3a0575481e215ca21765f68b940cf3",
+                        "installed_by": ["quant_tximport_summarizedexperiment"]
+                    },
                     "suppa/clusterevents": {
                         "branch": "master",
                         "git_sha": "290607b218569c8c96afb7b8ad9f1fd80ca9d7bd",
@@ -213,7 +218,7 @@
                     "tximeta/tximport": {
                         "branch": "master",
                         "git_sha": "fd7666afa7a12f6350ecaf12f105ff088b987971",
-                        "installed_by": ["modules"]
+                        "installed_by": ["modules", "quant_tximport_summarizedexperiment"]
                     },
                     "ucsc/bedclip": {
                         "branch": "master",
@@ -267,6 +272,11 @@
                     "fastq_subsample_fq_salmon": {
                         "branch": "master",
                         "git_sha": "b1d01480e4306e33851d936d065b70b469dad352",
+                        "installed_by": ["subworkflows"]
+                    },
+                    "quant_tximport_summarizedexperiment": {
+                        "branch": "master",
+                        "git_sha": "49d0ca7a887eeb1b85cfb68ab18c8039753bd1de",
                         "installed_by": ["subworkflows"]
                     }
                 }

@@ -2,13 +2,13 @@
 // tximport of the Salmon results of all samples
 //
 
-include { UNTAR            } from '../../../modules/nf-core/untar'
-include { CUSTOM_TX2GENE   } from '../../../modules/nf-core/custom/tx2gene'
-include { TXIMETA_TXIMPORT as TXIMPORT } from '../../../modules/nf-core/tximeta/tximport'
-include { SUPPATPM         } from '../../../modules/local/suppatpm'
+include { UNTAR                               } from '../../../modules/nf-core/untar'
+include { QUANT_TXIMPORT_SUMMARIZEDEXPERIMENT } from '../../nf-core/quant_tximport_summarizedexperiment'
+include { SUPPATPM                            } from '../../../modules/local/suppatpm'
 
 workflow TX2GENE_TXIMPORT {
     take:
+    ch_samplesheet    // channel: [ val(meta), path(samplesheet) ], for the colData of the SummarizedExperiment objects
     ch_salmon_results // channel: [ val(meta), path(results) ], a Salmon directory or a .tar.gz of one
     ch_gtf            // channel: path(gtf)
     gene_id           // string: GTF attribute of the gene ID
@@ -28,43 +28,28 @@ workflow TX2GENE_TXIMPORT {
 
     ch_extracted_results = ch_branched_results.dir.mix(UNTAR.out.untar)
 
-    // The Salmon directories of all samples: [ meta, [ results ] ]
-    ch_merged_results = ch_extracted_results
-        .map { _meta, results -> results }
-        .collect()
-        .map { results -> [[id: 'salmon.merged'], results] }
-
     //
-    // MODULE: Transcript to gene table, with the GTF attribute that matches the Salmon transcript IDs
+    // SUBWORKFLOW: Transcript to gene table, tximport and SummarizedExperiment objects of all samples
     //
-    CUSTOM_TX2GENE(
-        ch_gtf.map { gtf -> [[id: gtf.baseName], gtf] },
-        ch_merged_results,
-        'salmon',
+    QUANT_TXIMPORT_SUMMARIZEDEXPERIMENT(
+        ch_samplesheet,
+        ch_extracted_results,
+        ch_gtf,
         gene_id,
         gene_extra,
+        'salmon',
+        false,
     )
-
-    //
-    // MODULE: Merge the quantification of all samples
-    //
-    TXIMPORT(ch_merged_results, CUSTOM_TX2GENE.out.tx2gene, 'salmon')
+    ch_txi = QUANT_TXIMPORT_SUMMARIZEDEXPERIMENT.out
 
     //
     // MODULE: Transcript TPM table in the format SUPPA reads
     //
-    SUPPATPM(TXIMPORT.out.tpm_transcript.map { _meta, tpm -> [[id: 'suppa_tpm'], tpm] })
+    SUPPATPM(ch_txi.tpm_transcript.map { _meta, tpm -> [[id: 'suppa_tpm'], tpm] })
 
     emit:
-    salmon_results               = ch_extracted_results                    // channel: [ val(meta), path(results) ], the Salmon directory of each sample
-    tx2gene                      = CUSTOM_TX2GENE.out.tx2gene              // channel: [ val(meta), path(tx2gene.tsv) ]
-    tpm_transcript               = TXIMPORT.out.tpm_transcript             // channel: [ val(meta), path(transcript_tpm.tsv) ]
-    counts_transcript            = TXIMPORT.out.counts_transcript          // channel: [ val(meta), path(transcript_counts.tsv) ]
-    counts_transcript_scaled     = TXIMPORT.out.counts_transcript_scaled     // channel: [ val(meta), path(transcript_counts_scaled.tsv) ]
-    counts_transcript_dtu_scaled = TXIMPORT.out.counts_transcript_dtu_scaled // channel: [ val(meta), path(transcript_counts_dtu_scaled.tsv) ]
-    tpm_gene                     = TXIMPORT.out.tpm_gene                   // channel: [ val(meta), path(gene_tpm.tsv) ]
-    counts_gene                  = TXIMPORT.out.counts_gene                // channel: [ val(meta), path(gene_counts.tsv) ]
-    counts_gene_scaled           = TXIMPORT.out.counts_gene_scaled         // channel: [ val(meta), path(gene_counts_scaled.tsv) ]
-    counts_gene_length_scaled    = TXIMPORT.out.counts_gene_length_scaled  // channel: [ val(meta), path(gene_counts_length_scaled.tsv) ]
+    salmon_results               = ch_extracted_results                // channel: [ val(meta), path(results) ], the Salmon directory of each sample
+    counts_transcript_scaled     = ch_txi.counts_transcript_scaled     // channel: [ val(meta), path(transcript_counts_scaled.tsv) ]
+    counts_transcript_dtu_scaled = ch_txi.counts_transcript_dtu_scaled // channel: [ val(meta), path(transcript_counts_dtu_scaled.tsv) ]
     suppa_tpm                    = SUPPATPM.out.tpm.map { _meta, tpm -> tpm } // channel: path(suppa_tpm.txt)
 }
