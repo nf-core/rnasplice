@@ -1,0 +1,31 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "leafcutter_groups"
+description: Write the groups file of a leafcutter-ds contrast, with a column per blocking variable as confounders
+keywords:
+  - leafcutter
+  - alternative splicing
+  - groups file
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map with the contrast, e.g. `[ id:'GBR-YRI' ]`
+    - samples:
+        type: list
+        description: |
+          One list per sample, with the sample name, its condition and the values of its
+          blocking variables. Values of variables that leafcutter-ds would read as numbers
+          need a non-numeric prefix, as it treats numeric columns as continuous
+output:
+  groups:
+    - - meta:
+          type: map
+          description: Groovy Map with the contrast
+      - "*_groups.txt":
+          type: file
+          description: Tab-delimited groups file, one sample per line with its condition and blocking variables
+          pattern: "*_groups.txt"
+authors:
+  - "@pinin4fjords"
+maintainers:
+  - "@pinin4fjords"

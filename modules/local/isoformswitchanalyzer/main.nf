@@ -7,7 +7,8 @@ process ISOFORMSWITCHANALYZER {
         : 'community.wave.seqera.io/library/bioconductor-isoformswitchanalyzer_r-mass:93f7b7863f699086'}"
 
     input:
-    tuple val(meta), path(salmon_output), path(samplesheet), path(contrastsheet)
+    tuple val(meta), val(reference), val(target) // meta: [ id: contrast, blocking: semicolon separated samplesheet columns (when set) ]
+    tuple val(meta2), path(samplesheet), path(salmon_output) // path: the samplesheet and one Salmon quant directory per sample
     path gtf                    // path: /path/to/genes.gtf
     path transcript_sequences   // path: /path/to/transcripts.fa (isoform nucleotide sequences)
     val  alpha                  // val:  FDR cutoff for the isoform switch test

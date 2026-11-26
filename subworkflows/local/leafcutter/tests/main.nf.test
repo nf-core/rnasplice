@@ -73,7 +73,7 @@ nextflow_workflow {
                     file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
                 ])
                 input[4] = channel.of([ contrast:'GBR-YRI', treatment:'GBR', control:'YRI' ])
-                input[5] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true))
+                input[5] = channel.value([:])
                 input[6] = 2
                 """
             }
@@ -169,7 +169,7 @@ nextflow_workflow {
                     file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
                 ])
                 input[4] = channel.of([ contrast:'GBR-YRI', treatment:'GBR', control:'YRI', blocking:'batch' ])
-                input[5] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet_blocking.csv', checkIfExists: true))
+                input[5] = channel.value([ ERR188383: [ batch:'1' ], ERR188428: [ batch:'2' ], ERR188454: [ batch:'1' ], ERR204916: [ batch:'2' ] ])
                 input[6] = 2
                 """
             }
@@ -218,7 +218,7 @@ nextflow_workflow {
                     file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
                 ])
                 input[4] = channel.of([ contrast:'GBR-YRI', treatment:'GBR', control:'YRI' ])
-                input[5] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true))
+                input[5] = channel.value([:])
                 input[6] = 2
                 """
             }
@@ -276,7 +276,7 @@ nextflow_workflow {
                     file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
                 ])
                 input[4] = channel.of([ contrast:'GBR-YRI', treatment:'GBR', control:'YRI' ])
-                input[5] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true))
+                input[5] = channel.value([:])
                 input[6] = 2
                 """
             }
@@ -329,7 +329,7 @@ nextflow_workflow {
                     file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
                 ])
                 input[4] = channel.of([ contrast:'GBR-YRI', treatment:'GBR', control:'YRI' ])
-                input[5] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true))
+                input[5] = channel.value([:])
                 input[6] = 1
                 """
             }

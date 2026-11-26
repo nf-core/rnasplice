@@ -23,29 +23,31 @@ input:
   - - meta:
         type: map
         description: |
-          Groovy Map with the contrast, e.g. `[ id:'GBR-YRI' ]`
-    - salmon_output:
-        type: directory
-        description: One Salmon quant directory per sample of the contrast, each
-          holding a `quant.sf`. The directory names must match the `sample` column
-          of the samplesheet
-        pattern: "*"
+          Groovy Map with the contrast, e.g. `[ id:'GBR-YRI' ]`. An optional `blocking` entry
+          lists the samplesheet columns, separated by semicolons, to use as covariates of
+          the switch test
+    - reference:
+        type: string
+        description: The reference (control) condition of the contrast
+    - target:
+        type: string
+        description: The target (treatment) condition of the contrast
+  - - meta2:
+        type: map
+        description: |
+          Groovy Map with the samples, e.g. `[ id:'samples' ]`
     - samplesheet:
         type: file
-        description: Comma-separated sample sheet of the samples of the contrast,
-          with the `sample` and `condition` columns first. Further columns are
-          covariates of the switch test
+        description: Comma-separated sample sheet with `sample` and `condition` columns and
+          any blocking variables. Only the samples of the two conditions are used
         pattern: "*.csv"
         ontologies:
           - edam: "http://edamontology.org/format_3752" # CSV
-    - contrastsheet:
-        type: file
-        description: Comma-separated contrast sheet with `contrast`, `treatment` and
-          `control` column headers naming the conditions to compare. Every pair of
-          conditions is compared when the file does not exist
-        pattern: "*.csv"
-        ontologies:
-          - edam: "http://edamontology.org/format_3752" # CSV
+    - salmon_output:
+        type: directory
+        description: One Salmon quant directory per sample, each holding a `quant.sf`.
+          The directory names must match the `sample` column of the samplesheet
+        pattern: "*"
   - gtf:
       type: file
       description: GTF annotation the transcripts were quantified against
