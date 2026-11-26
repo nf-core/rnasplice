@@ -130,7 +130,10 @@
                 "SUBREAD_FLATTENGTF": {
                     "subread": "flattenGTF Version 2.0.1"
                 },
-                "SUPPATPM": {
+                "SUPPATPM_SALMON": {
+                    "coreutils": "9.5"
+                },
+                "SUPPATPM_STAR_SALMON": {
                     "coreutils": "9.5"
                 },
                 "TRIMGALORE": {
@@ -960,7 +963,7 @@
                 "ERR204916_sorted.bam": "484dbb84bd68ceb9ed24ecdb8f7a613a"
             }
         ],
-        "timestamp": "2026-11-26T21:02:19.664068121",
+        "timestamp": "2026-11-26T21:35:48.518627044",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"

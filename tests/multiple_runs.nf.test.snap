@@ -89,7 +89,10 @@
                     "samtools": "1.21",
                     "star": "2.7.11b"
                 },
-                "SUPPATPM": {
+                "SUPPATPM_SALMON": {
+                    "coreutils": "9.5"
+                },
+                "SUPPATPM_STAR_SALMON": {
                     "coreutils": "9.5"
                 },
                 "TRIMGALORE": {
@@ -104,7 +107,7 @@
                 }
             }
         ],
-        "timestamp": "2026-11-26T20:57:48.815258246",
+        "timestamp": "2026-11-26T21:30:59.652461147",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"

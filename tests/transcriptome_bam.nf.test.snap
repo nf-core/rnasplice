@@ -156,7 +156,7 @@
                 "SUBREAD_FLATTENGTF": {
                     "subread": "flattenGTF Version 2.0.1"
                 },
-                "SUPPATPM": {
+                "SUPPATPM_STAR_SALMON": {
                     "coreutils": "9.5"
                 },
                 "SUPPA_CLUSTEREVENTS": {
@@ -1064,7 +1064,7 @@
                 "ERR204916_sorted.bam": "46024b92c7c6c2a2883ad998f41b46b9"
             }
         ],
-        "timestamp": "2026-11-26T21:05:34.692614136",
+        "timestamp": "2026-11-26T21:39:01.776993962",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"
