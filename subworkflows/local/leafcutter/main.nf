@@ -158,6 +158,7 @@ workflow LEAFCUTTER {
     strand_summary = STRANDJUNCTIONS.out.summary // channel: [ val(meta), path(tsv) ], unstranded samples only
     counts = LEAFCUTTER_CLUSTERREGTOOLS.out.counts // channel: [ val(meta), path(counts) ]
     numers = LEAFCUTTER_CLUSTERREGTOOLS.out.numers // channel: [ val(meta), path(numers) ]
+    groups = ch_groups // channel: [ val(contrast), path(txt) ], the groups file of each tested contrast, with its blocking variables
     pooled = LEAFCUTTER_CLUSTERREGTOOLS.out.pooled // channel: [ val(meta), path(pooled) ]
     refined = LEAFCUTTER_CLUSTERREGTOOLS.out.refined // channel: [ val(meta), path(refined) ]
     sortedlibs = LEAFCUTTER_CLUSTERREGTOOLS.out.sortedlibs // channel: [ val(meta), path(sortedlibs) ]

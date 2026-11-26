@@ -101,11 +101,59 @@ nextflow_workflow {
                     workflow.out.refined,
                     workflow.out.sortedlibs,
                     workflow.out.exons,
+                    workflow.out.groups,
                     // The statistics of leafcutter-ds differ between machines, so only the
                     // ids, test status, degrees of freedom and genes are snapshotted
                     workflow.out.cluster_significance.collect { meta, txt -> [ meta, LeafcutterDsTable.stable(txt) ] },
                     workflow.out.effect_sizes.collect { meta, txt -> [ meta, LeafcutterDsTable.stable(txt) ] }
                 ).match() }
+            )
+        }
+
+    }
+
+    test("human chrX - blocking variable") {
+
+        // The batch column of the samplesheet goes into the groups file as a confounder
+        when {
+            params {
+                // Two samples per condition, fewer than leafcutter-ds asks for by default,
+                // and a single cluster of a few reads per sample, which leafcutter-ds only
+                // tests with a lower coverage threshold
+                leafcutter_ds_min_samples_per_intron = 2
+                leafcutter_ds_min_samples_per_group = 2
+                leafcutter_ds_min_coverage = 1
+            }
+            workflow {
+                """
+                input[0] = channel.of(
+                    [ [ id:'ERR188383', strandedness:'unstranded', condition:'GBR' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188428', strandedness:'unstranded', condition:'GBR' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188454', strandedness:'unstranded', condition:'YRI' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR204916', strandedness:'unstranded', condition:'YRI' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916.Aligned.out.bam', checkIfExists: true) ],
+                )
+                input[1] = channel.of(
+                    [ [ id:'ERR188383', strandedness:'unstranded', condition:'GBR' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam.bai', checkIfExists: true) ],
+                    [ [ id:'ERR188428', strandedness:'unstranded', condition:'GBR' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam.bai', checkIfExists: true) ],
+                    [ [ id:'ERR188454', strandedness:'unstranded', condition:'YRI' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454.Aligned.out.bam.bai', checkIfExists: true) ],
+                    [ [ id:'ERR204916', strandedness:'unstranded', condition:'YRI' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916.Aligned.out.bam.bai', checkIfExists: true) ],
+                )
+                input[2] = GUNZIP.out.gunzip.join(SAMTOOLS_FAIDX.out.fai).first()
+                input[3] = channel.value([
+                    [ id:'genome' ],
+                    file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
+                ])
+                input[4] = channel.of([ contrast:'GBR-YRI', treatment:'GBR', control:'YRI', blocking:'batch' ])
+                input[5] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet_blocking.csv', checkIfExists: true))
+                input[6] = 2
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert snapshot(workflow.out.groups).match() }
             )
         }
 

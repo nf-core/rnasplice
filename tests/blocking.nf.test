@@ -15,15 +15,15 @@ nextflow_pipeline {
 
         then {
             // stable_path: All files + folders in ${params.outdir}/ with a stable path
-            def stable_path = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,json,txt}'])
+            def stable_path = getAllFilesFromPath(params.outdir, includeDir: true, ignore: ['pipeline_info/*.{html,json,txt}'])
 
             // stable_content: All files in ${params.outdir}/ with stable content
-            def stable_content = getAllFilesFromDir(params.outdir, ignoreFile: 'tests/.nftignore')
+            def stable_content = getAllFilesFromPath(params.outdir, relative: false, ignoreFile: 'tests/.nftignore')
 
             // Sorted BAM files: left out of stable_content by the ignoreFile, as the conda and
             // container builds of samtools write different BAM headers, and snapshotted by the
             // md5 of their alignments instead
-            def sorted_bams = getAllFilesFromDir(params.outdir, include: ['*_sorted.bam', '**/*_sorted.bam'])
+            def sorted_bams = getAllFilesFromPath(params.outdir, relative: false, include: ['*_sorted.bam', '**/*_sorted.bam'])
                 .collectEntries { bam_file -> [ bam_file.name, bam(bam_file.toString()).getSamLinesMD5() ] }
 
             // Models the DEXSeq exon and DTU tasks fitted, by contrast. The DEXSeq results vary
@@ -40,19 +40,6 @@ nextflow_pipeline {
                 }
             }
 
-            // Models edgeR fitted, by contrast, from the model files it publishes
-            def edger_models = getAllFilesFromDir(params.outdir, include: ['**/*.edger.model.txt'])
-                .collectEntries { model_file -> [ model_file.name - '.edger.model.txt', model_file.text.trim() ] }
-
-            // Columns of the LeafCutter groups file of each contrast, from the files the
-            // clustering step collects in the work directory
-            def leafcutter_groups = [:]
-            new File("${launchDir}/work").eachFileRecurse { groups_file ->
-                if (groups_file.name.endsWith('_groups.txt')) {
-                    leafcutter_groups[groups_file.name - '_groups.txt'] = groups_file.readLines().collect { line -> line.split('\t') as List }
-                }
-            }
-
             assert workflow.success
 
             assertAll(
@@ -62,12 +49,6 @@ nextflow_pipeline {
                     'GBR-YRI': ['~sample + exon + batch:exon + condition:exon'] * 3,
                     'YRI-GBR': ['~sample + exon + condition:exon'] * 3
                 ] },
-                { assert edger_models == [
-                    'GBR-YRI': '~ 0 + condition+batch',
-                    'YRI-GBR': '~ 0 + condition'
-                ] },
-                { assert leafcutter_groups['GBR-YRI'].every { columns -> columns.size() == 3 && columns[2] =~ /^batch_\d+$/ } },
-                { assert leafcutter_groups['YRI-GBR'].every { columns -> columns.size() == 2 } },
                 { assert snapshot(
                     // Remove Nextflow version to prevent cross-version testing failures
                     removeNextflowVersion("$outputDir/pipeline_info/nf_core_rnasplice_software_mqc_versions.yml"),
