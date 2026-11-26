@@ -11,6 +11,8 @@ nextflow_workflow {
     tag "regtools/junctionsextract"
     tag "leafcutter"
     tag "leafcutter/clusterregtools"
+    tag "leafcutter/differentialsplicing"
+    tag "leafcutter/gtftoexons"
     tag "strandjunctions"
     tag "gunzip"
     tag "samtools"
@@ -43,25 +45,35 @@ nextflow_workflow {
         }
 
         when {
+            params {
+                // Two samples per condition, fewer than leafcutter-ds asks for by default,
+                // and a single cluster of a few reads per sample, which leafcutter-ds only
+                // tests with a lower coverage threshold
+                leafcutter_ds_min_samples_per_intron = 2
+                leafcutter_ds_min_samples_per_group = 2
+                leafcutter_ds_min_coverage = 1
+            }
             workflow {
                 """
                 input[0] = channel.of(
-                    [ [ id:'ERR188383', strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
-                    [ [ id:'ERR188428', strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true) ],
-                    [ [ id:'ERR188454', strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454.Aligned.out.bam', checkIfExists: true) ],
-                    [ [ id:'ERR204916', strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188383', strandedness:'unstranded', condition:'GBR' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188428', strandedness:'unstranded', condition:'GBR' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188454', strandedness:'unstranded', condition:'YRI' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR204916', strandedness:'unstranded', condition:'YRI' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916.Aligned.out.bam', checkIfExists: true) ],
                 )
                 input[1] = channel.of(
-                    [ [ id:'ERR188383', strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam.bai', checkIfExists: true) ],
-                    [ [ id:'ERR188428', strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam.bai', checkIfExists: true) ],
-                    [ [ id:'ERR188454', strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454.Aligned.out.bam.bai', checkIfExists: true) ],
-                    [ [ id:'ERR204916', strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916.Aligned.out.bam.bai', checkIfExists: true) ],
+                    [ [ id:'ERR188383', strandedness:'unstranded', condition:'GBR' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam.bai', checkIfExists: true) ],
+                    [ [ id:'ERR188428', strandedness:'unstranded', condition:'GBR' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam.bai', checkIfExists: true) ],
+                    [ [ id:'ERR188454', strandedness:'unstranded', condition:'YRI' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454.Aligned.out.bam.bai', checkIfExists: true) ],
+                    [ [ id:'ERR204916', strandedness:'unstranded', condition:'YRI' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916.Aligned.out.bam.bai', checkIfExists: true) ],
                 )
                 input[2] = GUNZIP.out.gunzip.join(SAMTOOLS_FAIDX.out.fai).first()
                 input[3] = channel.value([
                     [ id:'genome' ],
                     file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
                 ])
+                input[4] = channel.of([ contrast:'GBR-YRI', treatment:'GBR', control:'YRI' ])
+                input[5] = 2
                 """
             }
         }
@@ -81,11 +93,17 @@ nextflow_workflow {
                 { assert path(workflow.out.refined[0][1]).size() > 0 },
                 { assert snapshot(
                     workflow.out.juncs.sort { junc -> junc[0].id },
+                    workflow.out.strand_summary.sort { summary -> summary[0].id },
                     workflow.out.counts,
                     workflow.out.numers,
                     workflow.out.pooled,
                     workflow.out.refined,
-                    workflow.out.sortedlibs
+                    workflow.out.sortedlibs,
+                    workflow.out.exons,
+                    // The statistics of leafcutter-ds differ between machines, so only the
+                    // ids, test status, degrees of freedom and genes are snapshotted
+                    workflow.out.cluster_significance.collect { meta, txt -> [ meta, LeafcutterDsTable.stable(txt) ] },
+                    workflow.out.effect_sizes.collect { meta, txt -> [ meta, LeafcutterDsTable.stable(txt) ] }
                 ).match() }
             )
         }
@@ -95,24 +113,38 @@ nextflow_workflow {
     test("human chrX - reverse stranded") {
 
         when {
+            params {
+                // Two samples per condition, fewer than leafcutter-ds asks for by default,
+                // and a single cluster of a few reads per sample, which leafcutter-ds only
+                // tests with a lower coverage threshold
+                leafcutter_ds_min_samples_per_intron = 2
+                leafcutter_ds_min_samples_per_group = 2
+                leafcutter_ds_min_coverage = 1
+            }
             workflow {
                 """
                 input[0] = channel.of(
-                    [ [ id:'ERR188383', strandedness:'reverse' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383_reverse.Aligned.out.bam', checkIfExists: true) ],
-                    [ [ id:'ERR188428', strandedness:'reverse' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428_reverse.Aligned.out.bam', checkIfExists: true) ],
-                    [ [ id:'ERR188454', strandedness:'reverse' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454_reverse.Aligned.out.bam', checkIfExists: true) ],
-                    [ [ id:'ERR204916', strandedness:'reverse' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916_reverse.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188383', strandedness:'reverse', condition:'GBR' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383_reverse.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188428', strandedness:'reverse', condition:'GBR' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428_reverse.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188454', strandedness:'reverse', condition:'YRI' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454_reverse.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR204916', strandedness:'reverse', condition:'YRI' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916_reverse.Aligned.out.bam', checkIfExists: true) ],
                 )
                 input[1] = channel.of(
-                    [ [ id:'ERR188383', strandedness:'reverse' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383_reverse.Aligned.out.bam.bai', checkIfExists: true) ],
-                    [ [ id:'ERR188428', strandedness:'reverse' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428_reverse.Aligned.out.bam.bai', checkIfExists: true) ],
-                    [ [ id:'ERR188454', strandedness:'reverse' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454_reverse.Aligned.out.bam.bai', checkIfExists: true) ],
-                    [ [ id:'ERR204916', strandedness:'reverse' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916_reverse.Aligned.out.bam.bai', checkIfExists: true) ],
+                    [ [ id:'ERR188383', strandedness:'reverse', condition:'GBR' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383_reverse.Aligned.out.bam.bai', checkIfExists: true) ],
+                    [ [ id:'ERR188428', strandedness:'reverse', condition:'GBR' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428_reverse.Aligned.out.bam.bai', checkIfExists: true) ],
+                    [ [ id:'ERR188454', strandedness:'reverse', condition:'YRI' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454_reverse.Aligned.out.bam.bai', checkIfExists: true) ],
+                    [ [ id:'ERR204916', strandedness:'reverse', condition:'YRI' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916_reverse.Aligned.out.bam.bai', checkIfExists: true) ],
                 )
                 // A stranded sample takes its strand from the read orientation, so
-                // `STRANDJUNCTIONS` never runs and needs no genome
+                // `STRANDJUNCTIONS` never runs and needs no genome. The annotation is still
+                // what the exon table of the differential splicing comes from
                 input[2] = channel.value([ [ id:'genome' ], [], [] ])
-                input[3] = channel.value([ [ id:'genome' ], [] ])
+                input[3] = channel.value([
+                    [ id:'genome' ],
+                    file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
+                ])
+                input[4] = channel.of([ contrast:'GBR-YRI', treatment:'GBR', control:'YRI' ])
+                input[5] = 2
                 """
             }
         }
@@ -120,20 +152,81 @@ nextflow_workflow {
         then {
             // The reverse stranded versions of the GEUVADIS reads, so regtools reads the
             // strand off the read orientation. This is the stranded path, the one
-            // `--source genome_bam` depends on: the junctions reach `leafcutter-cluster`
+            // genome BAM input depends on: the junctions reach `leafcutter-cluster`
             // with a strand without any `XS` tag, and the clustering outputs come back non empty
             assertAll(
                 { assert workflow.success },
                 { assert path(workflow.out.pooled[0][1]).size() > 0 },
                 { assert path(workflow.out.refined[0][1]).size() > 0 },
+                // Stranded samples take the strand from the read orientation, so there is nothing to summarise
+                { assert workflow.out.strand_summary.isEmpty() },
                 { assert snapshot(
                     workflow.out.juncs.sort { junc -> junc[0].id },
+                    workflow.out.strand_summary.sort { summary -> summary[0].id },
                     workflow.out.counts,
                     workflow.out.numers,
                     workflow.out.pooled,
                     workflow.out.refined,
-                    workflow.out.sortedlibs
+                    workflow.out.sortedlibs,
+                    workflow.out.exons,
+                    // The statistics of leafcutter-ds differ between machines, so only the
+                    // ids, test status, degrees of freedom and genes are snapshotted
+                    workflow.out.cluster_significance.collect { meta, txt -> [ meta, LeafcutterDsTable.stable(txt) ] },
+                    workflow.out.effect_sizes.collect { meta, txt -> [ meta, LeafcutterDsTable.stable(txt) ] }
                 ).match() }
+            )
+        }
+
+    }
+
+    test("human chrX - leafcutter_max_intron_len") {
+
+        when {
+            params {
+                leafcutter_max_intron_len = 100000
+            }
+            workflow {
+                """
+                input[0] = channel.of(
+                    [ [ id:'ERR188383', strandedness:'reverse', condition:'GBR' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383_reverse.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188428', strandedness:'reverse', condition:'YRI' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428_reverse.Aligned.out.bam', checkIfExists: true) ],
+                )
+                input[1] = channel.of(
+                    [ [ id:'ERR188383', strandedness:'reverse', condition:'GBR' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383_reverse.Aligned.out.bam.bai', checkIfExists: true) ],
+                    [ [ id:'ERR188428', strandedness:'reverse', condition:'YRI' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428_reverse.Aligned.out.bam.bai', checkIfExists: true) ],
+                )
+                input[2] = channel.value([ [ id:'genome' ], [], [] ])
+                input[3] = channel.value([
+                    [ id:'genome' ],
+                    file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
+                ])
+                input[4] = channel.of([ contrast:'GBR-YRI', treatment:'GBR', control:'YRI' ])
+                input[5] = 2
+                """
+            }
+        }
+
+        then {
+            def scripts = []
+            new File(workDir.toString()).eachFileRecurse { file ->
+                if (file.name == '.command.sh') {
+                    scripts << file.text
+                }
+            }
+            def regtools = scripts.findAll { script -> script.contains('regtools junctions extract') }
+            def cluster = scripts.findAll { script -> script.contains('leafcutter-cluster') }
+            // One sample per condition is fewer than `min_samples_per_condition`, so the
+            // contrast is left out of the differential splicing with a warning
+            def ds = scripts.findAll { script -> script.contains('leafcutter-ds') }
+            assertAll(
+                { assert workflow.success },
+                { assert regtools.size() == 2 },
+                { assert regtools.every { script -> script.contains('-a 8 -m 50 -M 100000') } },
+                { assert cluster.size() == 1 },
+                { assert cluster[0].contains('-l 100000 -m 10 -p 0.001') },
+                { assert ds.size() == 0 },
+                { assert workflow.out.cluster_significance.size() == 0 },
+                { assert file("${outputDir}/../meta/nextflow.log").text.contains("LeafCutter contrast 'GBR-YRI' is not tested for differential splicing") }
             )
         }
 
@@ -147,15 +240,20 @@ nextflow_workflow {
             workflow {
                 """
                 input[0] = channel.of(
-                    [ [ id:'ERR188383', strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
-                    [ [ id:'ERR188428', strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188383', strandedness:'unstranded', condition:'GBR' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
+                    [ [ id:'ERR188428', strandedness:'unstranded', condition:'YRI' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true) ],
                 )
                 input[1] = channel.of(
-                    [ [ id:'ERR188383', strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam.bai', checkIfExists: true) ],
-                    [ [ id:'ERR188428', strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam.bai', checkIfExists: true) ],
+                    [ [ id:'ERR188383', strandedness:'unstranded', condition:'GBR' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam.bai', checkIfExists: true) ],
+                    [ [ id:'ERR188428', strandedness:'unstranded', condition:'YRI' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam.bai', checkIfExists: true) ],
                 )
                 input[2] = channel.value([ [ id:'genome' ], [], [] ])
-                input[3] = channel.value([ [ id:'genome' ], [] ])
+                input[3] = channel.value([
+                    [ id:'genome' ],
+                    file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
+                ])
+                input[4] = channel.of([ contrast:'GBR-YRI', treatment:'GBR', control:'YRI' ])
+                input[5] = 1
                 """
             }
         }
@@ -165,11 +263,15 @@ nextflow_workflow {
                 { assert workflow.success },
                 { assert snapshot(
                     workflow.out.juncs.sort { junc -> junc[0].id },
+                    workflow.out.strand_summary.sort { summary -> summary[0].id },
                     workflow.out.counts,
                     workflow.out.numers,
                     workflow.out.pooled,
                     workflow.out.refined,
-                    workflow.out.sortedlibs
+                    workflow.out.sortedlibs,
+                    workflow.out.exons,
+                    workflow.out.cluster_significance,
+                    workflow.out.effect_sizes
                 ).match() }
             )
         }

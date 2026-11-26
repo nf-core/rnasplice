@@ -24,9 +24,8 @@ nextflow_pipeline {
             // Sorted BAM files: left out of stable_content by the ignoreFile, as the conda and
             // container builds of samtools write different BAM headers, and snapshotted by the
             // md5 of their alignments instead
-            def sorted_bams = []
-            new File(params.outdir).eachFileRecurse { bam_file -> if (bam_file.name.endsWith('_sorted.bam')) { sorted_bams << bam_file } }
-            sorted_bams = sorted_bams.sort { bam_file -> bam_file.path }.collectEntries { bam_file -> [ bam_file.name, bam(bam_file.path).getSamLinesMD5() ] }
+            def sorted_bams = getAllFilesFromDir(params.outdir, include: ['*_sorted.bam', '**/*_sorted.bam'])
+                .collectEntries { bam_file -> [ bam_file.name, bam(bam_file.toString()).getSamLinesMD5() ] }
 
             // edgeR exon usage tables: left out of stable_content by the ignoreFile, as builds
             // of edgeR differ in the last digits, and snapshotted by their rounded values
@@ -38,6 +37,8 @@ nextflow_pipeline {
             assert workflow.success
 
             assertAll(
+                // Inferred from the 75 bp test reads
+                { assert RmatsReadLength.fromWorkDir("${launchDir}/work") == [ prep: [ '75' ], post: [ '75' ] ] },
                 { assert snapshot(
                     // Remove Nextflow version to prevent cross-version testing failures
                     removeNextflowVersion("$outputDir/pipeline_info/nf_core_rnasplice_software_mqc_versions.yml"),

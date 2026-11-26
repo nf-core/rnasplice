@@ -1,0 +1,93 @@
+{
+    "human chrX - gtf": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "genes_chrX"
+                        },
+                        "genes_chrX.exons.txt.gz:md5,8c60d34e6cc1d0384e4a692e38ded115"
+                    ]
+                ],
+                "1": [
+                    [
+                        "LEAFCUTTER_GTFTOEXONS",
+                        "leafcutter",
+                        "2.0.3"
+                    ]
+                ],
+                "exons": [
+                    [
+                        {
+                            "id": "genes_chrX"
+                        },
+                        "genes_chrX.exons.txt.gz:md5,8c60d34e6cc1d0384e4a692e38ded115"
+                    ]
+                ],
+                "versions_leafcutter": [
+                    [
+                        "LEAFCUTTER_GTFTOEXONS",
+                        "leafcutter",
+                        "2.0.3"
+                    ]
+                ]
+            },
+            {
+                "versions_leafcutter": [
+                    [
+                        "LEAFCUTTER_GTFTOEXONS",
+                        "leafcutter",
+                        "2.0.3"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-11-20T09:58:56.416283799",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    },
+    "human chrX - gtf - stub": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "genes_chrX"
+                        },
+                        "genes_chrX.exons.txt.gz:md5,68b329da9893e34099c7d8ad5cb9c940"
+                    ]
+                ],
+                "1": [
+                    [
+                        "LEAFCUTTER_GTFTOEXONS",
+                        "leafcutter",
+                        "2.0.3"
+                    ]
+                ],
+                "exons": [
+                    [
+                        {
+                            "id": "genes_chrX"
+                        },
+                        "genes_chrX.exons.txt.gz:md5,68b329da9893e34099c7d8ad5cb9c940"
+                    ]
+                ],
+                "versions_leafcutter": [
+                    [
+                        "LEAFCUTTER_GTFTOEXONS",
+                        "leafcutter",
+                        "2.0.3"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-11-20T09:59:01.438010289",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    }
+}

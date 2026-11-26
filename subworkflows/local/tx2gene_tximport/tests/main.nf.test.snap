@@ -162,9 +162,6 @@
                 "tpm_transcript_scaled": [
                     "salmon.merged.transcript_tpm_scaled.tsv:md5,cb586e9305690312b25d4a88a140eab3"
                 ],
-                "tx2gene": [
-                    "genes_chrX.tx2gene.tsv:md5,82067b6528ec063131fa4416f6719f54"
-                ],
                 "txi": [
                     "salmon.merged.txi.rds"
                 ],
@@ -182,10 +179,10 @@
                 ]
             }
         ],
-        "timestamp": "2026-10-29T11:54:56.680752339",
+        "timestamp": "2026-11-23T17:04:37.816505302",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.3"
+            "nextflow": "26.04.4"
         }
     },
     "human chrX - salmon directories": {
@@ -351,9 +348,6 @@
                 "tpm_transcript_scaled": [
                     "salmon.merged.transcript_tpm_scaled.tsv:md5,cb586e9305690312b25d4a88a140eab3"
                 ],
-                "tx2gene": [
-                    "genes_chrX.tx2gene.tsv:md5,82067b6528ec063131fa4416f6719f54"
-                ],
                 "txi": [
                     "salmon.merged.txi.rds"
                 ],
@@ -371,10 +365,10 @@
                 ]
             }
         ],
-        "timestamp": "2026-10-29T11:54:49.701113255",
+        "timestamp": "2026-11-23T17:04:26.672189523",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.3"
+            "nextflow": "26.04.4"
         }
     },
     "human chrX - salmon tarballs - stub": {
@@ -454,9 +448,6 @@
                 "tpm_transcript_scaled": [
                     "salmon.merged.transcript_tpm_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
                 ],
-                "tx2gene": [
-                    "genes_chrX.tx2gene.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
-                ],
                 "txi": [
                     "salmon.merged.txi.rds:md5,d41d8cd98f00b204e9800998ecf8427e"
                 ],
@@ -474,10 +465,10 @@
                 ]
             }
         ],
-        "timestamp": "2026-10-29T11:55:02.292133872",
+        "timestamp": "2026-11-23T17:04:46.635443599",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.3"
+            "nextflow": "26.04.4"
         }
     }
 }

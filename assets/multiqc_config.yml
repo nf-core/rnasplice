@@ -60,3 +60,60 @@ custom_data:
         max: 100
       Unstranded (%):
         max: 100
+  leafcutter_junction_strands:
+    section_name: "LeafCutter Junction Strands"
+    description: "<p>LeafCutter clusters only junctions with a strand. For unstranded samples the strand comes from the aligner <code>XS</code> tag where regtools finds one, otherwise from the splice motif in the genome, and otherwise from the annotation. Junctions that get a strand from none of these are discarded by the clustering without a message. This table shows, per sample, how many junctions, and how many of the reads spanning them, each route gave a strand to and how many were left strandless. Stranded samples take the strand from the read orientation, so they have no row here.</p>"
+    plot_type: "table"
+    pconfig:
+      id: "leafcutter_junction_strands_table"
+      title: "LeafCutter junction strands"
+      namespace: "LeafCutter junction strands"
+    headers:
+      Junctions:
+        description: Junctions regtools found in the sample
+        format: "{:,.0f}"
+      Junctions already stranded (XS):
+        description: Junctions stranded by the aligner XS tag
+        format: "{:,.0f}"
+        hidden: true
+      Junctions stranded by motif:
+        description: Junctions stranded by their canonical splice motif
+        format: "{:,.0f}"
+        hidden: true
+      Junctions stranded by annotation:
+        description: Junctions stranded by an annotated intron with a non-canonical motif
+        format: "{:,.0f}"
+        hidden: true
+      Junctions strandless:
+        description: Junctions left without a strand
+        format: "{:,.0f}"
+      Junctions strandless (%):
+        description: Percentage of the junctions left without a strand, which the clustering discards
+        min: 0
+        max: 100
+        scale: "OrRd"
+        suffix: "%"
+      Reads:
+        description: Reads spanning the junctions
+        format: "{:,.0f}"
+      Reads already stranded (XS):
+        description: Reads spanning junctions stranded by the aligner XS tag
+        format: "{:,.0f}"
+        hidden: true
+      Reads stranded by motif:
+        description: Reads spanning junctions stranded by their splice motif
+        format: "{:,.0f}"
+        hidden: true
+      Reads stranded by annotation:
+        description: Reads spanning junctions stranded by the annotation
+        format: "{:,.0f}"
+        hidden: true
+      Reads strandless:
+        description: Reads spanning junctions left without a strand
+        format: "{:,.0f}"
+      Reads strandless (%):
+        description: Percentage of the reads left without a strand, which the clustering discards
+        min: 0
+        max: 100
+        scale: "OrRd"
+        suffix: "%"

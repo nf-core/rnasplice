@@ -8,13 +8,18 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { UTILS_NFSCHEMA_PLUGIN     } from '../../nf-core/utils_nfschema_plugin'
+include { paramsHelp                } from 'plugin/nf-schema'
+include { paramsSummaryLog          } from 'plugin/nf-schema'
 include { paramsSummaryMap          } from 'plugin/nf-schema'
 include { samplesheetToList         } from 'plugin/nf-schema'
-include { completionEmail           } from '../../nf-core/utils_nfcore_pipeline'
-include { completionSummary         } from '../../nf-core/utils_nfcore_pipeline'
-include { UTILS_NFCORE_PIPELINE     } from '../../nf-core/utils_nfcore_pipeline'
-include { UTILS_NEXTFLOW_PIPELINE   } from '../../nf-core/utils_nextflow_pipeline'
+include { validateParameters        } from 'plugin/nf-schema'
+include { checkCondaChannels        } from 'plugin/nf-core-utils'
+include { checkConfigProvided       } from 'plugin/nf-core-utils'
+include { checkProfileProvided      } from 'plugin/nf-core-utils'
+include { completionEmail           } from 'plugin/nf-core-utils'
+include { completionSummary         } from 'plugin/nf-core-utils'
+include { dumpParametersToJSON      } from 'plugin/nf-core-utils'
+include { getWorkflowVersion        } from 'plugin/nf-core-utils'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -29,8 +34,7 @@ workflow PIPELINE_INITIALISATION {
     monochrome_logs // boolean: Do not use coloured log outputs
     nextflow_cli_args //   array: List of positional nextflow CLI args
     outdir            //  string: The output directory where the results will be saved
-    input             //  string: Path to input samplesheet
-    source            //  string: Type of input data [fastq, genome_bam, transcriptome_bam, salmon_results]
+    input             //  string: Path to input samplesheet, for the blocking column check
     contrasts         //  string: Path to the contrasts sheet
     help              // boolean: Display help message and exit
     help_full         // boolean: Show the full help message
@@ -38,17 +42,19 @@ workflow PIPELINE_INITIALISATION {
 
     main:
 
-    ch_versions = channel.empty()
-
     //
     // Print version and exit if required and dump pipeline parameters to JSON file
     //
-    UTILS_NEXTFLOW_PIPELINE(
-        version,
-        true,
-        outdir,
-        workflow.profile.tokenize(',').intersect(['conda', 'mamba']).size() >= 1,
-    )
+    if (version) {
+        log.info("${workflow.manifest.name} ${getWorkflowVersion(workflow.manifest.version, workflow.commitId)}")
+        System.exit(0)
+    }
+    if (outdir) {
+        dumpParametersToJSON(outdir.toString(), params)
+    }
+    if (workflow.profile.tokenize(',').intersect(['conda', 'mamba'])) {
+        checkCondaChannels()
+    }
 
     //
     // Validate parameters and generate parameter summary to stdout
@@ -78,25 +84,26 @@ workflow PIPELINE_INITIALISATION {
 
     command = "nextflow run ${workflow.manifest.name} -profile <docker/singularity/.../institute> --input samplesheet.csv --outdir <OUTDIR>"
 
-    UTILS_NFSCHEMA_PLUGIN(
-        workflow,
-        validate_params,
-        null,
-        help,
-        help_full,
-        show_hidden,
-        before_text,
-        after_text,
-        command,
-        null
-    )
+    if (help || help_full) {
+        log.info paramsHelp(
+            [beforeText: before_text, afterText: after_text, command: command, showHidden: show_hidden, fullHelp: help_full],
+            (help instanceof String && help != 'true') ? help : ''
+        )
+        exit 0
+    }
+
+    log.info before_text
+    log.info paramsSummaryLog(workflow)
+    log.info after_text
+    if (validate_params) {
+        validateParameters()
+    }
 
     //
     // Check config provided to the pipeline
     //
-    UTILS_NFCORE_PIPELINE(
-        nextflow_cli_args
-    )
+    checkConfigProvided()
+    checkProfileProvided(nextflow_cli_args)
 
     //
     // Custom validation for pipeline parameters
@@ -104,79 +111,12 @@ workflow PIPELINE_INITIALISATION {
     validateInputParameters()
 
     //
-    // Create channel from input file provided through params.input
-    //
-    // The samplesheet columns depend on --source, so it is validated against the schema
-    // matching the declared source, selected by `samplesheetSchema`, which errors on an
-    // unknown --source. This is the only place the pipeline itself reads the samplesheet:
-    // what is emitted here is a parsed channel for the consumers that need the values and
-    // the validated path for the processes that read the sheet themselves.
-    //
-
-    def samplesheet_rows = samplesheetToList(input, samplesheetSchema(source))
-
-    if (source == 'fastq') {
-        channel
-            .fromList(samplesheet_rows)
-            .map {
-                meta, fastq_1, fastq_2 ->
-                    if (!fastq_2) {
-                        return [ meta.id, meta + [ single_end:true ], [ fastq_1 ] ]
-                    } else {
-                        return [ meta.id, meta + [ single_end:false ], [ fastq_1, fastq_2 ] ]
-                    }
-            }
-            .groupTuple()
-            .map { samplesheet ->
-                validateInputSamplesheet(samplesheet)
-            }
-            .map {
-                meta, fastqs ->
-                    return [ meta, fastqs.flatten() ]
-            }
-            .set { ch_samplesheet }
-    } else if (source == 'transcriptome_bam') {
-        // The samplesheet carries both genome_bam and transcriptome_bam; only the
-        // transcriptome BAM is read from here. Strandedness and read type cannot be
-        // derived from a BAM file, so they come from the samplesheet, which defaults
-        // them to 'unstranded' and paired end when the columns are missing
-        channel
-            .fromList(samplesheet_rows)
-            .map {
-                meta, _genome_bam, transcriptome_bam ->
-                    return [ [ id: meta.id, condition: meta.condition, strandedness: meta.strandedness, single_end: meta.single_end ], [ transcriptome_bam ] ]
-            }
-            .set { ch_samplesheet }
-    } else if (source == 'genome_bam') {
-        channel
-            .fromList(samplesheet_rows)
-            .map {
-                meta, genome_bam ->
-                    return [ [ id: meta.id, condition: meta.condition, strandedness: meta.strandedness, single_end: meta.single_end ], [ genome_bam ] ]
-            }
-            .set { ch_samplesheet }
-    } else {
-        // salmon_results carries a single path column, and the quantification it holds
-        // has already been done, so no strandedness is needed
-        channel
-            .fromList(samplesheet_rows)
-            .map {
-                meta, input_file ->
-                    return [ [ id: meta.id, condition: meta.condition ], [ input_file ] ]
-            }
-            .set { ch_samplesheet }
-    }
-
-    //
     // Create channel from the contrasts file provided through params.contrasts
-    //
-    // Validated here next to the samplesheet, so each sheet is read once and both are
-    // emitted the same way: the rows for the consumers that work from the values, the
-    // validated path for the processes that read the sheet themselves.
     //
     // Both the id, variable, reference, target[, blocking] columns and the deprecated
     // contrast, treatment, control columns are accepted. Rows are normalised to the
-    // latter, which the downstream code and the modules reading the sheet use.
+    // latter, which the downstream code and the modules reading the sheet use, plus
+    // blocking when it is set.
     //
 
     // Fails early with a clear error when the contrasts file does not exist
@@ -189,14 +129,29 @@ workflow PIPELINE_INITIALISATION {
     if (contrast_metas.any { meta -> isLegacyContrastRow(meta) }) {
         log.warn("The contrastsheet columns 'contrast', 'treatment' and 'control' are deprecated and will be removed in a future release. Please use 'id', 'target' and 'reference' instead, together with a 'variable' column set to 'condition'. The columns map as contrast -> id, treatment -> target and control -> reference")
     }
-    if (contrast_metas.any { meta -> meta.blocking }) {
-        log.warn("The contrastsheet 'blocking' column is ignored, blocking factors are not supported")
-    }
 
     def contrast_rows = contrast_metas.collect { meta ->
         def contrast_row = normaliseContrastRow(meta)
         validateInputContrastsheet([[contrast_row]])
         return contrast_row
+    }
+
+    if (contrast_rows.any { row -> row.blocking }) {
+        log.warn("The contrastsheet 'blocking' column is used by DEXSeq DEU (--dexseq_exon) and DEXSeq DTU (--dexseq_dtu) only, the other methods ignore it")
+    }
+
+    // Fails before any analysis when a blocking column is not in the samplesheet, as the
+    // DEXSeq modules would only find out after the alignment and counting. The header is
+    // read from the file, as the parsed samplesheet keeps only the columns of its schema
+    def blocked_contrasts = contrast_rows.findAll { row -> row.blocking }
+    if (blocked_contrasts) {
+        def samplesheet_columns = file(input).withReader { reader -> reader.readLine() }.tokenize(',').collect { column -> column.trim().replaceAll(/^"|"$/, '') }
+        blocked_contrasts.each { row ->
+            def missing_columns = row.blocking.tokenize(';') - samplesheet_columns
+            if (missing_columns) {
+                error("Contrast '${row.contrast}': blocking columns missing from the samplesheet: ${missing_columns.join(', ')}")
+            }
+        }
     }
 
     ch_contrastsheet = channel.fromList(contrast_rows)
@@ -211,11 +166,8 @@ workflow PIPELINE_INITIALISATION {
         .first()
 
     emit:
-    samplesheet        = ch_samplesheet                                      // channel: [ val(meta), [ files ] ]
-    samplesheet_file   = channel.value(file(input, checkIfExists: true))     // channel: path(samplesheet.csv)
-    contrastsheet      = ch_contrastsheet                                    // channel: [ contrast, treatment, control ]
+    contrastsheet      = ch_contrastsheet                                    // channel: [ contrast, treatment, control, blocking (when set) ]
     contrastsheet_file = ch_contrastsheet_file                               // channel: path(contrastsheet.csv), with the contrast, treatment, control header
-    versions           = ch_versions
 }
 
 /*
@@ -331,64 +283,169 @@ def validateInputParameters() {
         error("--clusterevents_isoform specified without diffsplice_isoform... please specify e.g. --diffsplice_isoform=true")
     }
 
-    if (!params.skip_alignment) {
-        if (params.aligner == "star_salmon" && params.pseudo_aligner == "salmon") {
-            log.warn("Both --aligner=star_salmon and --pseudo_aligner=salmon specified. Downstream analyses will be performed on both salmon output files.")
-        }
-    }
-
     if (!params.input) {
         error("Please provide an input samplesheet to the pipeline e.g. '--input samplesheet.csv'")
     }
 
-    // ASpli reads genome BAM files, which only the STAR alignment or a genome BAM
-    // samplesheet provide
-    if (params.aspli && !(params.source == 'genome_bam' || (params.source == 'fastq' && !params.skip_alignment))) {
-        error("--aspli needs genome BAM files: use '--source genome_bam', or '--source fastq' without '--skip_alignment'.")
+    if (params.source) {
+        log.warn("The '--source' parameter is deprecated and ignored: the input type is worked out from the samplesheet columns. It will be removed in a future release.")
     }
 }
 
 //
-// Schema the input samplesheet is validated against, selected from --source
+// Which input types the samplesheet gives, from the columns that are filled. Methods
+// compare the samples of a contrast, so a column is filled for every sample or for none
 //
-// Each source declares a different set of columns, so there is one schema per source.
-// Every place that reads the samplesheet goes through this function, so a samplesheet
-// can never be accepted by one consumer and rejected by another.
-//
-def samplesheetSchema(source) {
-    def source_schemas = [
-        fastq:             "${projectDir}/assets/schema_input.json",
-        genome_bam:        "${projectDir}/assets/schema_input_genome_bam.json",
-        transcriptome_bam: "${projectDir}/assets/schema_input_transcriptome_bam.json",
-        salmon_results:    "${projectDir}/assets/schema_input_salmon_results.json",
-    ]
+def getSamplesheetInputTypes(samplesheet_rows) {
+    def columns = [ fastq: 'fastq_1', genome_bam: 'genome_bam', transcriptome_bam: 'transcriptome_bam', salmon_results: 'salmon_results' ]
+    def samples = samplesheet_rows.collect { row -> row.meta.id }.unique()
 
-    if (!source_schemas.containsKey(source)) {
-        error("Invalid --source parameter: '${source}'. Must be one of: ${source_schemas.keySet().join(', ')}")
+    def input_types = columns.collectEntries { input_type, name ->
+        def samples_with = samplesheet_rows.findAll { row -> row[name] }.collect { row -> row.meta.id }.unique()
+        def samples_without = samples - samples_with
+        if (samples_with && samples_without) {
+            error("Please check input samplesheet -> The '${name}' column must be filled for every sample or for none, as the samples of a contrast are compared with each other. It is empty for: ${samples_without.join(', ')}")
+        }
+        return [ (input_type): samples_with as boolean ]
     }
 
-    return source_schemas[source]
+    def fastq_samples_without_strandedness = samplesheet_rows.findAll { row -> row.fastq_1 && !row.meta.strandedness }.collect { row -> row.meta.id }.unique()
+    if (fastq_samples_without_strandedness) {
+        error("Please check input samplesheet -> The 'strandedness' column must be filled for samples with FASTQ files, use 'auto' to infer it. It is empty for: ${fastq_samples_without_strandedness.join(', ')}")
+    }
+
+    if (!input_types.any { _input_type, given -> given }) {
+        error("Please check input samplesheet -> Each sample needs at least one of the 'fastq_1', 'genome_bam', 'transcriptome_bam' or 'salmon_results' columns.")
+    }
+    if (input_types.transcriptome_bam && input_types.salmon_results) {
+        error("Please check input samplesheet -> The 'transcriptome_bam' and 'salmon_results' columns cannot both be given, as either one is quantified for the transcript level analyses.")
+    }
+
+    return input_types
+}
+
+//
+// The samples of the samplesheet and how each part of the pipeline gets its input. These
+// are plain values, not channels, as the input routes are tested in workflow `if`
+// conditions. A sample may have one row per sequencing run: its runs are merged under its
+// id, keeping the FASTQ files of all of them for concatenation, while the BAM files and
+// Salmon results, which describe the whole sample, must be the same on every row
+//
+def parseSamplesheet(input) {
+    def samplesheet_rows = readSamplesheet(input)
+    def input_routes = getInputRoutes(getSamplesheetInputTypes(samplesheet_rows))
+    validateInputRoutes(input_routes)
+
+    def samples = samplesheet_rows
+        .collect { row ->
+            def meta = row.meta
+            def fastqs = row.fastq_1 ? [ row.fastq_1, row.fastq_2 ].findAll() : []
+            // A BAM file does not say whether its reads were paired, so without FASTQ
+            // files that comes from the 'single_end' column
+            def single_end = row.fastq_1 ? !row.fastq_2 : meta.single_end
+            // BAM files and Salmon results carry no strandedness to infer from their reads, so
+            // without FASTQ files a missing value is taken as unstranded
+            def strandedness = meta.strandedness ?: 'unstranded'
+            def sample_meta = [ id: meta.id, condition: meta.condition, strandedness: strandedness, single_end: single_end ]
+            return [ meta: sample_meta, fastqs: fastqs, genome_bam: row.genome_bam ?: null, transcriptome_bam: row.transcriptome_bam ?: null, salmon_results: row.salmon_results ?: null ]
+        }
+        .groupBy { run -> run.meta.id }
+        .collect { _id, runs -> validateInputSamplesheet(runs) }
+
+    return [ samples: samples, input_routes: input_routes ]
+}
+
+//
+// The validated samplesheet rows, each as a map of the meta map and the other columns by
+// name. samplesheetToList returns the meta map, then the columns without a meta field in
+// the order of the schema, which is where their names are taken from
+//
+def readSamplesheet(input) {
+    def schema = "${projectDir}/assets/schema_input.json"
+    def path_columns = new groovy.json.JsonSlurper().parse(file(schema)).items.properties
+        .findAll { _name, property -> !property.meta }
+        .keySet()
+        .toList()
+    return samplesheetToList(input, schema).collect { row ->
+        [ meta: row[0] ] + [ path_columns, row.drop(1) ].transpose().collectEntries()
+    }
+}
+
+//
+// How each part of the pipeline gets its input. A BAM file or Salmon result given in the
+// samplesheet is used instead of making it from the FASTQ files, which are only processed
+// for what nothing else in the samplesheet provides
+//
+def getInputRoutes(input_types) {
+    def star = input_types.fastq && !input_types.genome_bam && !params.skip_alignment && params.aligner in ['star', 'star_salmon']
+    def star_salmon = input_types.transcriptome_bam || (star && params.aligner == 'star_salmon')
+    def pseudo_salmon = input_types.fastq && !input_types.transcriptome_bam && !input_types.salmon_results && params.pseudo_aligner == 'salmon'
+
+    return [
+        input_types:    input_types,
+        fastq:          star || pseudo_salmon,                 // FASTQ files are trimmed and quality checked
+        star:           star,                                  // FASTQ files are aligned with STAR
+        genome:         input_types.genome_bam || star,        // genome BAM files reach the exon and junction methods
+        star_salmon:    star_salmon,                           // transcriptome BAM files are quantified with Salmon
+        pseudo_salmon:  pseudo_salmon,                         // FASTQ files are quantified with Salmon
+        salmon_results: input_types.salmon_results as boolean, // Salmon results are taken from the samplesheet
+    ]
+}
+
+//
+// Check that the input routes can run the methods asked for
+//
+def validateInputRoutes(input_routes) {
+    if (input_routes.input_types.fastq && !input_routes.fastq) {
+        log.info("The FASTQ files of the samplesheet are not used: BAM files or Salmon results are given for every analysis that would use them.")
+    }
+
+    if (input_routes.star_salmon && input_routes.pseudo_salmon) {
+        log.warn("Both --aligner=star_salmon and --pseudo_aligner=salmon specified. Downstream analyses will be performed on both salmon output files.")
+    }
+
+    // ASpli reads genome BAM files, which only the STAR alignment or a genome BAM column provide
+    if (params.aspli && !input_routes.genome) {
+        error("--aspli needs genome BAM files: give a 'genome_bam' samplesheet column, or FASTQ files without '--skip_alignment'.")
+    }
 }
 
 //
 // Validate channels from input samplesheet
 //
-def validateInputSamplesheet(input) {
-    def (metas, fastqs) = input[1..2]
+def validateInputSamplesheet(runs) {
+    def metas = runs.collect { run -> run.meta }
+    def fastqs = runs.collect { run -> run.fastqs }
+    def sample = metas[0].id
 
     // Check that multiple runs of the same sample are of the same strandedness
     def strandedness_ok = metas.collect { meta -> meta.strandedness }.unique().size == 1
     if (!strandedness_ok) {
-        error("Please check input samplesheet -> Multiple runs of a sample must have the same strandedness: ${metas[0].id}")
+        error("Please check input samplesheet -> Multiple runs of a sample must have the same strandedness: ${sample}")
     }
 
     // Check that multiple runs of the same sample are of the same datatype i.e. single-end / paired-end
     def endedness_ok = metas.collect { meta -> meta.single_end }.unique().size == 1
     if (!endedness_ok) {
-        error("Please check input samplesheet -> Multiple runs of a sample must be of the same datatype i.e. single-end or paired-end: ${metas[0].id}")
+        error("Please check input samplesheet -> Multiple runs of a sample must be of the same datatype i.e. single-end or paired-end: ${sample}")
     }
 
-    return [metas[0], fastqs]
+    if (metas.collect { meta -> meta.condition }.unique().size() > 1) {
+        error("Please check input samplesheet -> Multiple rows of a sample must have the same condition: ${sample}")
+    }
+
+    if (fastqs.any { run -> run } && !fastqs.every { run -> run }) {
+        error("Please check input samplesheet -> Multiple rows of a sample must all have FASTQ files or none: ${sample}")
+    }
+
+    [ 'genome_bam', 'transcriptome_bam', 'salmon_results' ].each { column ->
+        if (runs.collect { run -> run[column]?.toString() }.unique().size() > 1) {
+            error("Please check input samplesheet -> Multiple rows of a sample must give the same '${column}': ${sample}")
+        }
+    }
+
+    def first_run = runs[0]
+    return [ first_run.meta, fastqs.flatten(), first_run.genome_bam, first_run.transcriptome_bam, first_run.salmon_results ]
 }
 
 //
@@ -408,7 +465,9 @@ def normaliseContrastRow(meta) {
     if (isLegacyContrastRow(meta)) {
         return [ contrast: meta.contrast, treatment: meta.treatment, control: meta.control ]
     }
-    return [ contrast: meta.id, treatment: meta.target, control: meta.reference ]
+    def row = [ contrast: meta.id, treatment: meta.target, control: meta.reference ]
+    // As in nf-core/differentialabundance, an NA blocking value means no blocking
+    return meta.blocking && meta.blocking != 'NA' ? row + [ blocking: meta.blocking ] : row
 }
 
 //
@@ -579,11 +638,11 @@ def skipAlignmentWarn() {
 //
 def rmatsReadError(samples) {
     samples
-        .map { meta, _files -> meta.single_end }
+        .map { row -> row[0].single_end }
         .unique()
         .collect()
-        .map {
-            if (it.size() > 1) {
+        .map { values ->
+            if (values.size() > 1) {
                 error("Please check input samplesheet -> Cannot run rMats with mixed single and paired end samples.")
             }
         }
@@ -594,14 +653,81 @@ def rmatsReadError(samples) {
 //
 def rmatsStrandednessError(samples) {
     samples
-        .map { meta, _files -> meta.strandedness }
+        .map { row -> row[0].strandedness }
         .unique()
         .collect()
-        .map {
-            if (it.size() > 1) {
+        .map { values ->
+            if (values.size() > 1) {
                 error("Please check input samplesheet -> Cannot run rMats with mixed stranded samples.")
             }
         }
+}
+
+//
+// Fail when the reference sequences in a BAM header, by name and length, are not all in
+// the index of the FASTA file the pipeline uses for them, as a BAM file aligned to another
+// reference would be quantified against the wrong sequences. The stub header is a
+// placeholder, so stub runs are not checked
+//
+def checkBamReferenceSequences(meta, sequences_file, fai_file, reference_name) {
+    if (workflow.stubRun) {
+        return
+    }
+
+    def reference_lengths = [:]
+    fai_file.eachLine { line ->
+        def fields = line.split('\t')
+        reference_lengths[fields[0]] = fields[1]
+    }
+
+    def bam_sequences = sequences_file.readLines().findAll { line -> line.startsWith('@SQ') }.collect { line ->
+        def tags = line.split('\t').drop(1).collectEntries { tag -> [ (tag.take(2)): tag.drop(3) ] }
+        [ name: tags.SN, length: tags.LN ]
+    }
+    if (!bam_sequences) {
+        error("The BAM file of sample '${meta.id}' has no @SQ lines in its header, so it cannot be checked against ${reference_name}.")
+    }
+
+    def mismatched = bam_sequences.findAll { sequence -> reference_lengths[sequence.name] != sequence.length }
+    if (mismatched) {
+        def examples = mismatched.take(5).collect { sequence -> "${sequence.name} (${sequence.length} bp)" }.join(', ')
+        error(
+            "The BAM file of sample '${meta.id}' was not aligned to ${reference_name}: ${mismatched.size()} of its ${bam_sequences.size()} reference sequences are missing from ${fai_file.name} or have another length, for example ${examples}. " +
+            "Give the pipeline the references the BAM files were aligned to. For BAM files from nf-core/rnaseq that is its genome FASTA and, for transcriptome BAM files, the transcript FASTA it wrote to '<outdir>/genome', given with '--transcript_fasta'."
+        )
+    }
+}
+
+//
+// Median read length of the reads of all the samples, from the read length histograms
+// ('RL' lines) of their samtools stats files, given as [ meta, stats ] pairs. rMATS takes
+// one read length per run and recommends the median when the reads vary in length.
+// Returns the median, which is null when no sample has reads (as in a stub run), and the
+// ids of the samples with no reads
+//
+def getSamtoolsStatsMedianReadLength(samples_stats) {
+    def counts = [:].withDefault { 0L }
+    def samples_without_reads = []
+    samples_stats.each { meta, stats_file ->
+        def sample_reads = 0L
+        stats_file.eachLine { line ->
+            def fields = line.split('\t')
+            if (fields[0] == 'RL') {
+                counts[fields[1].toInteger()] += fields[2].toLong()
+                sample_reads += fields[2].toLong()
+            }
+        }
+        if (sample_reads == 0L) {
+            samples_without_reads << meta.id
+        }
+    }
+    def total = counts.values().sum() ?: 0L
+    def seen = 0L
+    def median = counts.keySet().sort().find { length ->
+        seen += counts[length]
+        seen * 2 >= total
+    }
+    return [median: median, samples_without_reads: samples_without_reads.sort()]
 }
 
 //
@@ -609,11 +735,11 @@ def rmatsStrandednessError(samples) {
 //
 def aspliReadError(samples) {
     samples
-        .map { meta, _files -> meta.single_end }
+        .map { row -> row[0].single_end }
         .unique()
         .collect()
-        .map {
-            if (it.size() > 1) {
+        .map { values ->
+            if (values.size() > 1) {
                 error("Please check input samplesheet -> Cannot run ASpli with mixed single and paired end samples.")
             }
         }

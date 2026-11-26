@@ -16,6 +16,25 @@ nextflow_process {
     // are counted first
     setup {
 
+        // The gene annotation table the symbol column of the ASpli tables is named from
+        run("GFFREAD_TX2GENE") {
+            script '../../../../../modules/local/gffread/tx2gene/main.nf'
+            process {
+            """
+            input[0] = file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true)
+            """
+            }
+        }
+
+        run("GENEANNOTATION_TABLES") {
+            script '../../../../../modules/local/geneannotation/tables/main.nf'
+            process {
+            """
+            input[0] = GFFREAD_TX2GENE.out.tx2gene.map { tx2gene -> [ [ id:'genes_chrX' ], tx2gene ] }
+            """
+            }
+        }
+
         run("ASPLI_COUNTS") {
             script "../../counts/main.nf"
             process {
@@ -40,6 +59,7 @@ nextflow_process {
                 file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true),
             ]
             input[2] = 0
+            input[3] = GENEANNOTATION_TABLES.out.gene.first()
             """
             }
         }

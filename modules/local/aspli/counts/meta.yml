@@ -61,6 +61,18 @@ input:
       description: Minimum read length of ASpli. A read is only counted over an
         exon-intron boundary when it overlaps it by at least this many bases. 0
         estimates it from the BAM files
+  - - meta3:
+        type: map
+        description: |
+          Groovy Map containing annotation information
+          e.g. `[ id:'genes' ]`
+    - gene_annotation:
+        type: file
+        description: Tab-separated table of the genes, with `gene_id` and `gene_name`
+          columns, the names of the `symbol` column of the ASpli tables
+        pattern: "*.tsv"
+        ontologies:
+          - edam: "http://edamontology.org/format_3475" # TSV
 output:
   features:
     - - meta:

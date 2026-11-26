@@ -23,9 +23,8 @@ nextflow_pipeline {
             // Sorted BAM files: left out of stable_content by the ignoreFile, as the conda and
             // container builds of samtools write different BAM headers, and snapshotted by the
             // md5 of their alignments instead
-            def sorted_bams = []
-            new File(params.outdir).eachFileRecurse { bam_file -> if (bam_file.name.endsWith('_sorted.bam')) { sorted_bams << bam_file } }
-            sorted_bams = sorted_bams.sort { bam_file -> bam_file.path }.collectEntries { bam_file -> [ bam_file.name, bam(bam_file.path).getSamLinesMD5() ] }
+            def sorted_bams = getAllFilesFromDir(params.outdir, include: ['*_sorted.bam', '**/*_sorted.bam'])
+                .collectEntries { bam_file -> [ bam_file.name, bam(bam_file.toString()).getSamLinesMD5() ] }
 
             // The samples are unstranded, so their junctions only get a strand once
             // `STRANDJUNCTIONS` has read the splice motifs. Assert on the clusters rather
@@ -33,13 +32,49 @@ nextflow_pipeline {
             // leafcutter-cluster and the pipeline still completes, with empty results
             def counts = path("${params.outdir}/star_salmon/leafcutter/lc_perind.counts.gz").linesGzip
 
+            // leafcutter-ds tables: left out of stable_content by the ignoreFile, as their
+            // statistics differ between machines, and snapshotted by their stable columns
+            def ds_dir = "${params.outdir}/star_salmon/leafcutter"
+            def ds_tables = new File(ds_dir).listFiles()
+                .findAll { table -> table.name ==~ /.*_(cluster_significance|effect_sizes)\.txt/ }
+                .sort { table -> table.name }
+                .collectEntries { table -> [ table.name, LeafcutterDsTable.stable(table) ] }
+
+            // The two contrasts are the same comparison with treatment and control swapped,
+            // so with the control as baseline every ΔPSI changes sign between them
+            def deltapsi_gbr = LeafcutterDsTable.deltapsi("${ds_dir}/GBR-YRI_effect_sizes.txt")
+            def deltapsi_yri = LeafcutterDsTable.deltapsi("${ds_dir}/YRI-GBR_effect_sizes.txt")
+
+            // Strand summaries: left out of stable_content by the ignoreFile, as every TSV
+            // is, so each is checked against the junctions published for its sample. The
+            // junctions left strandless still have `?` in the published file
+            def samples = ['ERR188383', 'ERR188428', 'ERR188454', 'ERR204916']
+            def strand_summaries = samples.collectEntries { sample ->
+                def lines = path("${ds_dir}/${sample}.strand_summary.tsv").readLines()
+                [ sample, [ lines[0].split('\t').toList(), lines[1].split('\t').toList() ].transpose().collectEntries() ]
+            }
+            def junc_strands = samples.collectEntries { sample ->
+                [ sample, path("${ds_dir}/${sample}.junc").readLines().collect { line -> line.split('\t')[5] } ]
+            }
+            def mqc_strand_samples = path("${params.outdir}/multiqc/multiqc_data/multiqc_leafcutter_junction_strands_table.txt")
+                .readLines().drop(1).collect { line -> line.split('\t')[0] }
+
             assert workflow.success
 
             assertAll(
+                { assert strand_summaries.every { sample, row -> row['Junctions'] as int == junc_strands[sample].size() } },
+                { assert strand_summaries.every { sample, row -> row['Junctions strandless'] as int == junc_strands[sample].count('?') } },
+                { assert mqc_strand_samples.sort() == samples },
                 { assert counts.size() > 1 },
                 { assert counts[0].startsWith('chrom ') },
                 { assert path("${params.outdir}/star_salmon/leafcutter/lc_pooled").size() > 0 },
                 { assert path("${params.outdir}/star_salmon/leafcutter/lc_refined").size() > 0 },
+                // Every contrast is tested, with control as the baseline
+                { assert ds_tables.keySet() == ['GBR-YRI_cluster_significance.txt', 'GBR-YRI_effect_sizes.txt', 'YRI-GBR_cluster_significance.txt', 'YRI-GBR_effect_sizes.txt'] as Set },
+                { assert path("${ds_dir}/GBR-YRI_effect_sizes.txt").readLines()[0].endsWith('deltapsi_GBR') },
+                { assert path("${ds_dir}/YRI-GBR_effect_sizes.txt").readLines()[0].endsWith('deltapsi_YRI') },
+                { assert deltapsi_gbr.keySet() == deltapsi_yri.keySet() },
+                { assert deltapsi_gbr.every { intron, dpsi -> dpsi.signum() == -deltapsi_yri[intron].signum() && dpsi.signum() != 0 } },
                 { assert snapshot(
                     // Remove Nextflow version to prevent cross-version testing failures
                     removeNextflowVersion("$outputDir/pipeline_info/nf_core_rnasplice_software_mqc_versions.yml"),
@@ -49,6 +84,9 @@ nextflow_pipeline {
 
                     // Snapshot the deterministic data file contents
                     stable_content,
+
+                    // Snapshot the stable columns of the leafcutter-ds tables
+                    ds_tables,
 
                     // Snapshot the sorted BAM files by the md5 of their alignments
                     sorted_bams

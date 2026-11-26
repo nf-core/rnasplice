@@ -1,0 +1,149 @@
+{
+    "gtf": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "genes"
+                        },
+                        "genes.gene_annotation.tsv:md5,5822ec3775cbfa66acbe250eeff20e5d"
+                    ]
+                ],
+                "1": [
+                    [
+                        {
+                            "id": "genes"
+                        },
+                        "genes.transcript_annotation.tsv:md5,858dae2944b46c3bf8ee63ac1b793653"
+                    ]
+                ],
+                "2": [
+                    "versions.yml:md5,40b824da1794591a909032c5f72106f9"
+                ],
+                "gene": [
+                    [
+                        {
+                            "id": "genes"
+                        },
+                        "genes.gene_annotation.tsv:md5,5822ec3775cbfa66acbe250eeff20e5d"
+                    ]
+                ],
+                "transcript": [
+                    [
+                        {
+                            "id": "genes"
+                        },
+                        "genes.transcript_annotation.tsv:md5,858dae2944b46c3bf8ee63ac1b793653"
+                    ]
+                ],
+                "versions_python": [
+                    "versions.yml:md5,40b824da1794591a909032c5f72106f9"
+                ]
+            }
+        ],
+        "timestamp": "2026-11-23T08:36:36.259350206",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    },
+    "human chrX - gtf": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "genes_chrX"
+                        },
+                        "genes_chrX.gene_annotation.tsv:md5,c36831cef9bf99438c5e075f456001e0"
+                    ]
+                ],
+                "1": [
+                    [
+                        {
+                            "id": "genes_chrX"
+                        },
+                        "genes_chrX.transcript_annotation.tsv:md5,1dffcf5cdf28cf0eb5d965f47442e35e"
+                    ]
+                ],
+                "2": [
+                    "versions.yml:md5,40b824da1794591a909032c5f72106f9"
+                ],
+                "gene": [
+                    [
+                        {
+                            "id": "genes_chrX"
+                        },
+                        "genes_chrX.gene_annotation.tsv:md5,c36831cef9bf99438c5e075f456001e0"
+                    ]
+                ],
+                "transcript": [
+                    [
+                        {
+                            "id": "genes_chrX"
+                        },
+                        "genes_chrX.transcript_annotation.tsv:md5,1dffcf5cdf28cf0eb5d965f47442e35e"
+                    ]
+                ],
+                "versions_python": [
+                    "versions.yml:md5,40b824da1794591a909032c5f72106f9"
+                ]
+            }
+        ],
+        "timestamp": "2026-11-23T08:36:40.156842386",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    },
+    "gtf - stub": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "genes"
+                        },
+                        "genes.gene_annotation.tsv:md5,88e3cd11b34c59723b04971dcff7b1f6"
+                    ]
+                ],
+                "1": [
+                    [
+                        {
+                            "id": "genes"
+                        },
+                        "genes.transcript_annotation.tsv:md5,4aff9533aa2cb2c4dd4b073343b898b3"
+                    ]
+                ],
+                "2": [
+                    "versions.yml:md5,40b824da1794591a909032c5f72106f9"
+                ],
+                "gene": [
+                    [
+                        {
+                            "id": "genes"
+                        },
+                        "genes.gene_annotation.tsv:md5,88e3cd11b34c59723b04971dcff7b1f6"
+                    ]
+                ],
+                "transcript": [
+                    [
+                        {
+                            "id": "genes"
+                        },
+                        "genes.transcript_annotation.tsv:md5,4aff9533aa2cb2c4dd4b073343b898b3"
+                    ]
+                ],
+                "versions_python": [
+                    "versions.yml:md5,40b824da1794591a909032c5f72106f9"
+                ]
+            }
+        ],
+        "timestamp": "2026-11-23T08:36:44.069032709",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
+        }
+    }
+}

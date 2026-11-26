@@ -10,7 +10,7 @@
             "type": "object",
             "fa_icon": "fas fa-terminal",
             "description": "Define where the pipeline should find input data and save output data.",
-            "required": ["input", "source", "outdir", "contrasts"],
+            "required": ["input", "outdir", "contrasts"],
             "properties": {
                 "input": {
                     "type": "string",
@@ -19,7 +19,7 @@
                     "mimetype": "text/csv",
                     "pattern": "^\\S+\\.csv$",
                     "description": "Path to comma-separated file containing information about the samples in the experiment.",
-                    "help_text": "You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 4 columns, and a header row. See [usage docs](https://nf-co.re/rnasplice/usage#samplesheet-input). For paired differential splicing analyses, the samples in the design file should be ordered such that the same individuals are in the same order for both conditions. For example, if you have 3 case-control pairs, then the first 3 samples in the design file should be the case samples and the next 3 samples should be the corresponding control samples, in the same order as the case samples.",
+                    "help_text": "You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with a header row, and one of the `fastq_1`, `genome_bam`, `transcriptome_bam` or `salmon_results` columns filled for every sample. See [usage docs](https://nf-co.re/rnasplice/usage#samplesheet-input). For paired differential splicing analyses, the samples in the design file should be ordered such that the same individuals are in the same order for both conditions. For example, if you have 3 case-control pairs, then the first 3 samples in the design file should be the case samples and the next 3 samples should be the corresponding control samples, in the same order as the case samples.",
                     "fa_icon": "fas fa-file-csv"
                 },
                 "contrasts": {
@@ -29,10 +29,11 @@
                 },
                 "source": {
                     "type": "string",
-                    "default": "fastq",
                     "enum": ["fastq", "genome_bam", "transcriptome_bam", "salmon_results"],
-                    "description": "Source of input files.",
-                    "fa_icon": "fas fa-file-import"
+                    "description": "Deprecated and ignored: the input type is worked out from the samplesheet columns.",
+                    "fa_icon": "fas fa-file-import",
+                    "help_text": "The input type of each analysis is worked out from which of the `fastq_1`, `genome_bam`, `transcriptome_bam` and `salmon_results` samplesheet columns are filled, so this parameter is no longer needed. It will be removed in a future release.",
+                    "hidden": true
                 },
                 "outdir": {
                     "type": "string",
@@ -243,6 +244,12 @@
                     "fa_icon": "fas fa-remove-format",
                     "hidden": true
                 },
+                "force_completion_email": {
+                    "type": "boolean",
+                    "description": "Send the completion email on Seqera Platform launches, where it is skipped by default.",
+                    "fa_icon": "fas fa-envelope",
+                    "hidden": true
+                },
                 "max_multiqc_email_size": {
                     "type": "string",
                     "description": "File size limit when attaching MultiQC reports to summary emails.",
@@ -392,7 +399,7 @@
                     "type": "boolean",
                     "fa_icon": "fas fa-check-square",
                     "description": "Check the strandedness of each sample against the one RSeQC infer_experiment.py infers from the genome BAM.",
-                    "help_text": "Mismatches are reported as warnings and in a 'Strandedness Checks' table in the MultiQC report. Requires genome alignments, from `--aligner` or `--source genome_bam`."
+                    "help_text": "Mismatches are reported as warnings and in a 'Strandedness Checks' table in the MultiQC report. Requires genome alignments, from `--aligner` or a `genome_bam` samplesheet column."
                 }
             }
         },
@@ -426,6 +433,13 @@
                     "type": "boolean",
                     "description": "When using pre-built STAR indices do not re-extract and use splice junctions from the GTF file.",
                     "fa_icon": "fas fa-ban"
+                },
+                "max_intron_length": {
+                    "type": "integer",
+                    "description": "Maximum intron length in bases, for STAR and as the default of the LeafCutter and ASpli intron limits.",
+                    "help_text": "Set it for organisms with short introns, such as Arabidopsis, where introns longer than a few kb are rare. It is passed to STAR as `--alignIntronMax` and `--alignMatesGapMax`, and is the intron limit of LeafCutter and ASpli unless `--leafcutter_max_intron_len` or `--aspli_max_intron_len` is set. When it is not set, STAR uses its default limit of about 590 kb, whatever the genome, LeafCutter uses 500 kb and ASpli 50 kb.",
+                    "minimum": 1,
+                    "fa_icon": "fas fa-ruler-horizontal"
                 },
                 "salmon_quant_libtype": {
                     "type": "string",
@@ -477,12 +491,57 @@
         "leafcutter_options": {
             "title": "Leafcutter options",
             "type": "object",
-            "description": "Options for the LeafCutter splicing quantification.",
+            "description": "Options for the LeafCutter splicing quantification and differential splicing.",
             "properties": {
                 "leafcutter": {
                     "type": "boolean",
                     "description": "Run the LeafCutter workflow.",
                     "fa_icon": "fas fa-leaf"
+                },
+                "leafcutter_max_intron_len": {
+                    "type": "integer",
+                    "description": "Maximum intron length in bases for LeafCutter junction extraction and clustering (regtools `-M`, leafcutter-cluster `-l`).",
+                    "help_text": "When it is not set, it is `--max_intron_length`, or 500000 if that is not set either.",
+                    "minimum": 1,
+                    "fa_icon": "fas fa-ruler-horizontal"
+                },
+                "leafcutter_min_cluster_reads": {
+                    "type": "integer",
+                    "default": 10,
+                    "description": "Minimum number of reads in a LeafCutter cluster (leafcutter-cluster `-m`).",
+                    "minimum": 0,
+                    "fa_icon": "fas fa-filter"
+                },
+                "leafcutter_min_cluster_ratio": {
+                    "type": "number",
+                    "default": 0.001,
+                    "description": "Minimum fraction of a cluster's reads that must support a junction for it to be kept (leafcutter-cluster `-p`).",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "fa_icon": "fas fa-filter"
+                },
+                "leafcutter_ds_min_samples_per_intron": {
+                    "type": "integer",
+                    "default": 5,
+                    "description": "Minimum number of samples an intron must be used in to be tested for differential splicing (leafcutter-ds `-i`).",
+                    "help_text": "leafcutter-ds also requires each condition of a contrast to have at least this many samples. A contrast with fewer is not tested, with a warning.",
+                    "minimum": 1,
+                    "fa_icon": "fas fa-filter"
+                },
+                "leafcutter_ds_min_samples_per_group": {
+                    "type": "integer",
+                    "default": 3,
+                    "description": "Minimum number of samples in each condition that must have `--leafcutter_ds_min_coverage` reads in a cluster for it to be tested (leafcutter-ds `-g`).",
+                    "help_text": "A contrast with a condition that has fewer samples than this is not tested, with a warning.",
+                    "minimum": 1,
+                    "fa_icon": "fas fa-filter"
+                },
+                "leafcutter_ds_min_coverage": {
+                    "type": "integer",
+                    "default": 20,
+                    "description": "Minimum number of reads in a cluster for it to be tested for differential splicing (leafcutter-ds `-c`).",
+                    "minimum": 0,
+                    "fa_icon": "fas fa-filter"
                 }
             },
             "fa_icon": "fas fa-leaf"
@@ -495,13 +554,20 @@
                 "aspli": {
                     "type": "boolean",
                     "description": "Run the ASpli workflow.",
-                    "help_text": "Run [ASpli](https://bioconductor.org/packages/ASpli) on the genome BAM files, with `--aligner star` or `--aligner star_salmon`, or with `--source genome_bam`. ASpli bins the genome from the GTF, counts reads over genes, bins and junctions, tests each contrast of the contrastsheet for differential bin and junction usage, and integrates the bin and junction signals of each region into one report. The samples must be all single end or all paired end, and the samplesheet needs at least two conditions.",
+                    "help_text": "Run [ASpli](https://bioconductor.org/packages/ASpli) on the genome BAM files, with `--aligner star` or `--aligner star_salmon`, or from a `genome_bam` samplesheet column. ASpli bins the genome from the GTF, counts reads over genes, bins and junctions, tests each contrast of the contrastsheet for differential bin and junction usage, and integrates the bin and junction signals of each region into one report. The samples must be all single end or all paired end, and the samplesheet needs at least two conditions.",
                     "fa_icon": "fas fa-play"
                 },
                 "aspli_read_len": {
                     "type": "integer",
                     "description": "Minimum read length given to ASpli. Estimated from the BAM files when not set.",
                     "help_text": "ASpli only counts a read over an exon-intron boundary when it overlaps the boundary by at least this many bases, so it must not be longer than the reads. When it is not set, it is the 5th percentile of the lengths of all the primary mapped reads of each BAM file, taken from the BAM file with the shortest reads.",
+                    "minimum": 1,
+                    "fa_icon": "fas fa-ruler-horizontal"
+                },
+                "aspli_max_intron_len": {
+                    "type": "integer",
+                    "description": "Maximum intron length in bases for ASpli. Junctions longer than this are not counted (gbCounts `maxISize`).",
+                    "help_text": "When it is not set, it is `--max_intron_length`, or 50000 if that is not set either.",
                     "minimum": 1,
                     "fa_icon": "fas fa-ruler-horizontal"
                 }
@@ -531,13 +597,13 @@
                     "type": "boolean",
                     "default": false,
                     "description": "Use paired statistical model. It requires that the same individuals are measured in both conditions.",
-                    "help_text": "Use the paired statistical model in rMATS. This is appropriate when the same individuals are measured in both conditions, for example in a case-control study design. If your study design is not paired, set this to `false` to use the unpaired model. The paired model requires that the samples in the samplesheet are ordered such that the same individuals are in the same order for both conditions. For example, if you have 3 case-control pairs, then the first 3 samples in the samplesheet should be the case samples and the next 3 samples should be the corresponding control samples, in the same order as the case samples:\n\n```csv\nsample,fastq_1,fastq_2,strandedness,condition\nTREATMENT_SAMPLE_A,TX_SAMPLE_A_R1_001.fastq.gz,TX_SAMPLE_A_R2_001.fastq.gz,forward,treatment\nTREATMENT_SAMPLE_B,TX_SAMPLE_B_R1_001.fastq.gz,TX_SAMPLE_B_R2_001.fastq.gz,forward,treatment\nTREATMENT_SAMPLE_C,TX_SAMPLE_C_R1_001.fastq.gz,TX_SAMPLE_C_R2_001.fastq.gz,forward,treatment\nCONTROL_SAMPLE_A,CTRL_SAMPLE_A_R1_001.fastq.gz,CTRL_SAMPLE_A_R2_001.fastq.gz,forward,control\nCONTROL_SAMPLE_B,CTRL_SAMPLE_B_R1_001.fastq.gz,CTRL_SAMPLE_B_R2_001.fastq.gz,forward,control\nCONTROL_SAMPLE_C,CTRL_SAMPLE_C_R1_001.fastq.gz,CTRL_SAMPLE_C_R2_001.fastq.gz,forward,control\n\n```\nSimilar order must be followed when `--source genome_bam` or `--source transcriptome_bam`.",
+                    "help_text": "Use the paired statistical model in rMATS. This is appropriate when the same individuals are measured in both conditions, for example in a case-control study design. If your study design is not paired, set this to `false` to use the unpaired model. The paired model requires that the samples in the samplesheet are ordered such that the same individuals are in the same order for both conditions. For example, if you have 3 case-control pairs, then the first 3 samples in the samplesheet should be the case samples and the next 3 samples should be the corresponding control samples, in the same order as the case samples:\n\n```csv\nsample,fastq_1,fastq_2,strandedness,condition\nTREATMENT_SAMPLE_A,TX_SAMPLE_A_R1_001.fastq.gz,TX_SAMPLE_A_R2_001.fastq.gz,forward,treatment\nTREATMENT_SAMPLE_B,TX_SAMPLE_B_R1_001.fastq.gz,TX_SAMPLE_B_R2_001.fastq.gz,forward,treatment\nTREATMENT_SAMPLE_C,TX_SAMPLE_C_R1_001.fastq.gz,TX_SAMPLE_C_R2_001.fastq.gz,forward,treatment\nCONTROL_SAMPLE_A,CTRL_SAMPLE_A_R1_001.fastq.gz,CTRL_SAMPLE_A_R2_001.fastq.gz,forward,control\nCONTROL_SAMPLE_B,CTRL_SAMPLE_B_R1_001.fastq.gz,CTRL_SAMPLE_B_R2_001.fastq.gz,forward,control\nCONTROL_SAMPLE_C,CTRL_SAMPLE_C_R1_001.fastq.gz,CTRL_SAMPLE_C_R2_001.fastq.gz,forward,control\n\n```\nThe same order applies to samplesheets with BAM columns.",
                     "fa_icon": "fas fa-link"
                 },
                 "rmats_read_len": {
                     "type": "integer",
-                    "default": 40,
-                    "description": "The length of each read.",
+                    "description": "Read length given to rMATS. Inferred from the genome BAM files when not set.",
+                    "help_text": "rMATS uses the read length to compute the effective lengths of the inclusion and skipping forms of each event, which the inclusion levels and the test depend on, so it should match the reads. Reads of other lengths are still counted. When it is not set, it is the median length of the reads of all the samples, taken from the samtools stats of the genome BAM files, as rMATS recommends the median for reads of varying length.",
                     "minimum": 1,
                     "fa_icon": "fas fa-ruler-horizontal"
                 },
@@ -732,7 +798,8 @@
                     "type": "string",
                     "default": "ENSG00000004961, ENSG00000005302, ENSG00000147403",
                     "description": "List containing identifiers of genes to plot.",
-                    "pattern": "^[\\w-]+(,\\s+[\\w-]+)*$",
+                    "help_text": "Genes that are not in the GTF are skipped with a warning. IDs match with or without a version suffix, so `ENSG00000004961` matches `ENSG00000004961.15`. If you give a version and the GTF has the gene under a different version, that gene is plotted with a warning.",
+                    "pattern": "^[\\w.-]+(,\\s*[\\w.-]+)*$",
                     "fa_icon": "fas fa-list"
                 },
                 "miso_genes_file": {

@@ -1,0 +1,67 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "leafcutter_gtftoexons"
+description: Write the exons of a GTF file as the exon table leafcutter-ds annotates its clusters with
+keywords:
+  - alternative splicing
+  - exons
+  - gtf
+tools:
+  - "leafcutter":
+      description: "Annotation-free quantification of RNA splicing from RNA-seq data"
+      homepage: "https://leafcutter2.github.io/leafcutter-ds/"
+      documentation: "https://leafcutter2.github.io/leafcutter-ds/tutorials/differential-splicing/"
+      tool_dev_url: "https://github.com/leafcutter2/leafcutter-ds"
+      doi: "10.1038/s41588-017-0004-9"
+      licence: ["Apache-2.0"]
+      identifier: biotools:leafcutter
+
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing reference information
+          e.g. `[ id:'genome' ]`
+    - gtf:
+        type: file
+        description: Annotation in GTF format, plain or gzipped
+        pattern: "*.{gtf,gtf.gz}"
+        ontologies:
+          - edam: http://edamontology.org/format_2306 # GTF
+output:
+  exons:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing reference information
+            e.g. `[ id:'genome' ]`
+      - "*.exons.txt.gz":
+          type: file
+          description: Gzipped tab-separated table of exons, with the columns chr, start, end, strand and gene_name
+          pattern: "*.exons.txt.gz"
+          ontologies:
+            - edam: http://edamontology.org/format_3475 # TSV
+  versions_leafcutter:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - leafcutter:
+          type: string
+          description: The name of the tool
+      - python -c "import importlib.metadata as m; print(m.version('leafcutter'))":
+          type: eval
+          description: The expression to obtain the version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - leafcutter:
+          type: string
+          description: The name of the tool
+      - python -c "import importlib.metadata as m; print(m.version('leafcutter'))":
+          type: eval
+          description: The expression to obtain the version of the tool
+authors:
+  - "@piplus2"
+maintainers:
+  - "@piplus2"

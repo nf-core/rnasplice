@@ -3,7 +3,7 @@
         "content": [
             {
                 "CREATEBAMLIST": {
-                    "sed": 4.9
+                    "sed": "4.9"
                 },
                 "DEXSEQ_COUNT": {
                     "bioconductor-dexseq": "1.56.0",
@@ -30,6 +30,12 @@
                 "FQ_SUBSAMPLE": {
                     "fq": "0.12.0"
                 },
+                "GENEANNOTATION_ANNOTATE": {
+                    "python": "3.14.6"
+                },
+                "GENEANNOTATION_TABLES": {
+                    "python": "3.14.6"
+                },
                 "GFFREAD_TX2GENE": {
                     "gffread": "0.12.7"
                 },
@@ -37,9 +43,12 @@
                     "python": "3.14.6"
                 },
                 "GUNZIP_FASTA": {
-                    "gunzip": 1.13
+                    "gunzip": "1.13"
                 },
                 "LEAFCUTTER_CLUSTERREGTOOLS": {
+                    "leafcutter": "2.0.3"
+                },
+                "LEAFCUTTER_GTFTOEXONS": {
                     "leafcutter": "2.0.3"
                 },
                 "MAKE_TRANSCRIPTS_FASTA": {
@@ -47,7 +56,7 @@
                     "star": "2.7.10a"
                 },
                 "RMATS_POST": {
-                    "pairadise": 1.0,
+                    "pairadise": "1.0",
                     "rmats": "4.3.0"
                 },
                 "RMATS_PREP": {
@@ -69,31 +78,31 @@
                     "salmon": "1.10.3"
                 },
                 "SAMTOOLS_FAIDX": {
-                    "samtools": 1.24
+                    "samtools": "1.24"
                 },
                 "SAMTOOLS_FLAGSTAT": {
-                    "samtools": 1.24
+                    "samtools": "1.24"
                 },
                 "SAMTOOLS_IDXSTATS": {
-                    "samtools": 1.24
+                    "samtools": "1.24"
                 },
                 "SAMTOOLS_INDEX": {
-                    "samtools": 1.24
+                    "samtools": "1.24"
                 },
                 "SAMTOOLS_SORT": {
-                    "samtools": 1.24
+                    "samtools": "1.24"
                 },
                 "SAMTOOLS_STATS": {
-                    "samtools": 1.24
+                    "samtools": "1.24"
                 },
                 "STAR_ALIGN": {
                     "gawk": "5.1.0",
-                    "samtools": 1.21,
+                    "samtools": "1.21",
                     "star": "2.7.11b"
                 },
                 "STAR_GENOMEGENERATE": {
                     "gawk": "5.1.0",
-                    "samtools": 1.21,
+                    "samtools": "1.21",
                     "star": "2.7.11b"
                 },
                 "SUBREAD_FEATURECOUNTS": {
@@ -114,6 +123,9 @@
                 }
             },
             [
+                "annotation",
+                "annotation/genes_chrX.gene_annotation.tsv",
+                "annotation/genes_chrX.transcript_annotation.tsv",
                 "fastqc",
                 "fastqc/ERR188383_1_fastqc.html",
                 "fastqc/ERR188383_1_fastqc.zip",
@@ -402,15 +414,19 @@
                 "star_salmon/dexseq_exon/counts/ERR204916.clean.count.txt",
                 "star_salmon/dexseq_exon/results",
                 "star_salmon/dexseq_exon/results/GBR-YRI.dexseq.dataset.rds",
+                "star_salmon/dexseq_exon/results/GBR-YRI.dexseq.gene_qvalues.annotated.tsv",
                 "star_salmon/dexseq_exon/results/GBR-YRI.dexseq.gene_qvalues.rds",
                 "star_salmon/dexseq_exon/results/GBR-YRI.dexseq.gene_qvalues.tsv",
                 "star_salmon/dexseq_exon/results/GBR-YRI.dexseq.plots.pdf",
+                "star_salmon/dexseq_exon/results/GBR-YRI.dexseq.results.annotated.tsv",
                 "star_salmon/dexseq_exon/results/GBR-YRI.dexseq.results.rds",
                 "star_salmon/dexseq_exon/results/GBR-YRI.dexseq.results.tsv",
                 "star_salmon/dexseq_exon/results/YRI-GBR.dexseq.dataset.rds",
+                "star_salmon/dexseq_exon/results/YRI-GBR.dexseq.gene_qvalues.annotated.tsv",
                 "star_salmon/dexseq_exon/results/YRI-GBR.dexseq.gene_qvalues.rds",
                 "star_salmon/dexseq_exon/results/YRI-GBR.dexseq.gene_qvalues.tsv",
                 "star_salmon/dexseq_exon/results/YRI-GBR.dexseq.plots.pdf",
+                "star_salmon/dexseq_exon/results/YRI-GBR.dexseq.results.annotated.tsv",
                 "star_salmon/dexseq_exon/results/YRI-GBR.dexseq.results.rds",
                 "star_salmon/dexseq_exon/results/YRI-GBR.dexseq.results.tsv",
                 "star_salmon/edger",
@@ -418,18 +434,26 @@
                 "star_salmon/edger/DGELRT.exprs.rds",
                 "star_salmon/edger/DGELRT.usage.rds",
                 "star_salmon/edger/DGEList.rds",
+                "star_salmon/edger/contrast_GBR-YRI.exprs.annotated.csv",
                 "star_salmon/edger/contrast_GBR-YRI.exprs.csv",
+                "star_salmon/edger/contrast_GBR-YRI.usage.exon.annotated.csv",
                 "star_salmon/edger/contrast_GBR-YRI.usage.exon.csv",
                 "star_salmon/edger/contrast_GBR-YRI.usage.exon.pdf",
+                "star_salmon/edger/contrast_GBR-YRI.usage.gene.annotated.csv",
                 "star_salmon/edger/contrast_GBR-YRI.usage.gene.csv",
                 "star_salmon/edger/contrast_GBR-YRI.usage.gene.pdf",
+                "star_salmon/edger/contrast_GBR-YRI.usage.simes.annotated.csv",
                 "star_salmon/edger/contrast_GBR-YRI.usage.simes.csv",
                 "star_salmon/edger/contrast_GBR-YRI.usage.simes.pdf",
+                "star_salmon/edger/contrast_YRI-GBR.exprs.annotated.csv",
                 "star_salmon/edger/contrast_YRI-GBR.exprs.csv",
+                "star_salmon/edger/contrast_YRI-GBR.usage.exon.annotated.csv",
                 "star_salmon/edger/contrast_YRI-GBR.usage.exon.csv",
                 "star_salmon/edger/contrast_YRI-GBR.usage.exon.pdf",
+                "star_salmon/edger/contrast_YRI-GBR.usage.gene.annotated.csv",
                 "star_salmon/edger/contrast_YRI-GBR.usage.gene.csv",
                 "star_salmon/edger/contrast_YRI-GBR.usage.gene.pdf",
+                "star_salmon/edger/contrast_YRI-GBR.usage.simes.annotated.csv",
                 "star_salmon/edger/contrast_YRI-GBR.usage.simes.csv",
                 "star_salmon/edger/contrast_YRI-GBR.usage.simes.pdf",
                 "star_salmon/featurecounts",
@@ -473,7 +497,6 @@
                 "star_salmon/rmats",
                 "star_salmon/rmats/GBR-YRI_paired",
                 "star_salmon/rmats/GBR-YRI_paired.log",
-                "star_salmon/rmats/GBR-YRI_paired.samples.tsv",
                 "star_salmon/rmats/GBR-YRI_paired/A3SS.MATS.JC.txt",
                 "star_salmon/rmats/GBR-YRI_paired/A3SS.MATS.JCEC.txt",
                 "star_salmon/rmats/GBR-YRI_paired/A5SS.MATS.JC.txt",
@@ -512,7 +535,6 @@
                 "star_salmon/rmats/GBR-YRI_paired/summary.txt",
                 "star_salmon/rmats/YRI-GBR_paired",
                 "star_salmon/rmats/YRI-GBR_paired.log",
-                "star_salmon/rmats/YRI-GBR_paired.samples.tsv",
                 "star_salmon/rmats/YRI-GBR_paired/A3SS.MATS.JC.txt",
                 "star_salmon/rmats/YRI-GBR_paired/A3SS.MATS.JCEC.txt",
                 "star_salmon/rmats/YRI-GBR_paired/A5SS.MATS.JC.txt",
@@ -715,26 +737,26 @@
                 "ERR188428.SJ.out.tab:md5,66d4c5e629b2901756fec2d5fe06a5b9",
                 "ERR188454.SJ.out.tab:md5,b0a6368caf1e2e22682aa59b1f1345c6",
                 "ERR204916.SJ.out.tab:md5,d1088e3867a07b8f053cd0b43cda3cfb",
-                "A3SS.MATS.JC.txt:md5,1f067ff5ecd1f48e64761627136a0721",
-                "A3SS.MATS.JCEC.txt:md5,1f067ff5ecd1f48e64761627136a0721",
-                "A5SS.MATS.JC.txt:md5,d0563a6d470ef1801e9e3c6474a84e3d",
-                "A5SS.MATS.JCEC.txt:md5,d5dbfacc89508b8c93e7822549892fa5",
-                "JC.raw.input.A3SS.txt:md5,162bcdfa327cd1ff1fa755099d44b8c3",
-                "JC.raw.input.A5SS.txt:md5,e714bbfa34186f93d13d43e69908e301",
-                "JC.raw.input.MXE.txt:md5,9be70535c90dc18cc06b3f5222564d0f",
-                "JC.raw.input.RI.txt:md5,f60b1c1b619022495964300007b3847b",
-                "JC.raw.input.SE.txt:md5,d4c69c27b6b66ca37350b070f821925b",
-                "JCEC.raw.input.A3SS.txt:md5,162bcdfa327cd1ff1fa755099d44b8c3",
-                "JCEC.raw.input.A5SS.txt:md5,bd440ac7d05be8ab96dee12fb91200e1",
-                "JCEC.raw.input.MXE.txt:md5,fa4bd74961a986add25e46e196767515",
-                "JCEC.raw.input.RI.txt:md5,85f759f3280f74a495e5427c72275bbd",
-                "JCEC.raw.input.SE.txt:md5,02d2acc56d6486e7fbbfaf85e51ac5be",
-                "MXE.MATS.JC.txt:md5,84494c34156549f0217b452808758c35",
-                "MXE.MATS.JCEC.txt:md5,a966ea6b62337db9d068377fb456dc68",
-                "RI.MATS.JC.txt:md5,edad1c67daead3c31d93d42a0684f939",
-                "RI.MATS.JCEC.txt:md5,43e6f0a36165c39d605a6cadcda8063c",
-                "SE.MATS.JC.txt:md5,7c7e1681ac2b3fda561f5011bdb4f6c6",
-                "SE.MATS.JCEC.txt:md5,59971981fbc05390a96fd2a08611ce6a",
+                "A3SS.MATS.JC.txt:md5,074f4101cf37f8d1913b2fd93a45276d",
+                "A3SS.MATS.JCEC.txt:md5,074f4101cf37f8d1913b2fd93a45276d",
+                "A5SS.MATS.JC.txt:md5,582449bdc095c10c63c5bc42117b5a6d",
+                "A5SS.MATS.JCEC.txt:md5,08db2173526d144639f4969dc2ccde07",
+                "JC.raw.input.A3SS.txt:md5,0eb3939f111468355f9c098390b2ac51",
+                "JC.raw.input.A5SS.txt:md5,53d506cbbc70b14685849cd8f344a664",
+                "JC.raw.input.MXE.txt:md5,118ab0867188730d3a2a6a9913cbcf01",
+                "JC.raw.input.RI.txt:md5,c8bb0482a58acab872795441a086dd8a",
+                "JC.raw.input.SE.txt:md5,9a292bf1b30eb2d3fe43dd68d6d88ed5",
+                "JCEC.raw.input.A3SS.txt:md5,0eb3939f111468355f9c098390b2ac51",
+                "JCEC.raw.input.A5SS.txt:md5,b8abfc3a3f2278af50d9bb6a62bd479b",
+                "JCEC.raw.input.MXE.txt:md5,c99cd93a828c1295ac3fd5458baa3af3",
+                "JCEC.raw.input.RI.txt:md5,e0e40dcee01fa9eaf94451617f47e985",
+                "JCEC.raw.input.SE.txt:md5,be5dd4877306262724cae9717853c2ca",
+                "MXE.MATS.JC.txt:md5,55da3fc729073bca1901b09677140c4b",
+                "MXE.MATS.JCEC.txt:md5,51fd12879bd77bec6168645eb7a8f731",
+                "RI.MATS.JC.txt:md5,859f0bcbd39983c3bbafdaf27aee8ac9",
+                "RI.MATS.JCEC.txt:md5,000a5f0daace6be851f5c59691cda76f",
+                "SE.MATS.JC.txt:md5,9efaaf8af6325506a2dcf8d746712cb7",
+                "SE.MATS.JCEC.txt:md5,c479b70cb03e07e921747b6cbea6e535",
                 "fromGTF.A3SS.txt:md5,0c792da2d79960043a26fdebb27e3d5a",
                 "fromGTF.A5SS.txt:md5,0ba3bfe951e62b6b01014eab832d9852",
                 "fromGTF.MXE.txt:md5,1b0af788a20178645ea94af540ebb089",
@@ -751,26 +773,26 @@
                 "fromGTF.novelSpliceSite.RI.txt:md5,5014acbbac2bd06d27e322bccf7499f7",
                 "fromGTF.novelSpliceSite.SE.txt:md5,bfb5abe47d6cfc54f7209ca921bf58b4",
                 "summary.txt:md5,087c89da746f6e1ce3e4e9318b000af5",
-                "A3SS.MATS.JC.txt:md5,86ff1b4d6649e697c1f239b7f26dc70d",
-                "A3SS.MATS.JCEC.txt:md5,86ff1b4d6649e697c1f239b7f26dc70d",
-                "A5SS.MATS.JC.txt:md5,8e0d775338bd2d944b3067ce0465c2a7",
-                "A5SS.MATS.JCEC.txt:md5,10ce3bba0c92a986a234d935f0f5ab8c",
-                "JC.raw.input.A3SS.txt:md5,67507b3d991e02597d39f76ffacead3d",
-                "JC.raw.input.A5SS.txt:md5,5928d62b5915159157ee5fcd1ac9f5cd",
-                "JC.raw.input.MXE.txt:md5,93b592c039be440be8ed3ddf9802c16d",
-                "JC.raw.input.RI.txt:md5,6c3391ca7f1682feeb7f39dc24ff880f",
-                "JC.raw.input.SE.txt:md5,f4552754a3f98a00846ed8e0cc0462a9",
-                "JCEC.raw.input.A3SS.txt:md5,67507b3d991e02597d39f76ffacead3d",
-                "JCEC.raw.input.A5SS.txt:md5,6f1371b4d4d68c471139d9ac857bfa26",
-                "JCEC.raw.input.MXE.txt:md5,320f4cf94deb37afa65a2b7c510b046f",
-                "JCEC.raw.input.RI.txt:md5,a6941640398eed4ba66e26f17b1675f6",
-                "JCEC.raw.input.SE.txt:md5,651364253ca3d24944fccc7ac402d383",
-                "MXE.MATS.JC.txt:md5,6f85d7da14fd601d636170ea268a80ec",
-                "MXE.MATS.JCEC.txt:md5,003d5f7443e84744f2be6dc0eb38829a",
-                "RI.MATS.JC.txt:md5,c9947a04f63f5b958f7c8fa72230a39a",
-                "RI.MATS.JCEC.txt:md5,53868ca6a8fc5332c0ad6ff47c979dc8",
-                "SE.MATS.JC.txt:md5,d61cb01ad9930eaa5e68ee27a66f5f8c",
-                "SE.MATS.JCEC.txt:md5,17ed01690248c2c6a0ae081878471a1c",
+                "A3SS.MATS.JC.txt:md5,4ec223548bd3133c79f4cd337fad05f8",
+                "A3SS.MATS.JCEC.txt:md5,4ec223548bd3133c79f4cd337fad05f8",
+                "A5SS.MATS.JC.txt:md5,7ab0c3e6c719e26acbf6954f57c32d84",
+                "A5SS.MATS.JCEC.txt:md5,019b627189079b5e1e3f0bde717ab8ec",
+                "JC.raw.input.A3SS.txt:md5,03a5ed852c1ab3b425e2899428708c94",
+                "JC.raw.input.A5SS.txt:md5,a6c88e75dbab2de7a666334f6be1d52a",
+                "JC.raw.input.MXE.txt:md5,3e8f0e6562d4024b4e73b50b27ced07d",
+                "JC.raw.input.RI.txt:md5,de59cd20929f3b6300c5d17cd6690ef2",
+                "JC.raw.input.SE.txt:md5,d8b561a08bc9fdf0b7cc1373b563d973",
+                "JCEC.raw.input.A3SS.txt:md5,03a5ed852c1ab3b425e2899428708c94",
+                "JCEC.raw.input.A5SS.txt:md5,5d370a95585cd05fe7c733f695e71ba0",
+                "JCEC.raw.input.MXE.txt:md5,9a10251f59d9c673b8c5bef5898873ad",
+                "JCEC.raw.input.RI.txt:md5,8641b3462aa4a3a94527d290b963d8fd",
+                "JCEC.raw.input.SE.txt:md5,d5abaaaa52318ef86daa0e077dcc73cf",
+                "MXE.MATS.JC.txt:md5,4dc87ae239cbf951c22720d8da25328b",
+                "MXE.MATS.JCEC.txt:md5,fc30d94e002c980e2f295378d827cd90",
+                "RI.MATS.JC.txt:md5,30351568b638fedfb54e1be82a6f65a9",
+                "RI.MATS.JCEC.txt:md5,517dc64d1b613f04b4bfcaf3738bdd26",
+                "SE.MATS.JC.txt:md5,13577d8cf2810f63fe9c23eafbd5b4b3",
+                "SE.MATS.JCEC.txt:md5,3af93a1272a291a4235961b94ad326a5",
                 "fromGTF.A3SS.txt:md5,0c792da2d79960043a26fdebb27e3d5a",
                 "fromGTF.A5SS.txt:md5,0ba3bfe951e62b6b01014eab832d9852",
                 "fromGTF.MXE.txt:md5,1b0af788a20178645ea94af540ebb089",
@@ -786,7 +808,7 @@
                 "fromGTF.novelSpliceSite.MXE.txt:md5,0c41e04b81f335801f85af04ef0ae3e3",
                 "fromGTF.novelSpliceSite.RI.txt:md5,5014acbbac2bd06d27e322bccf7499f7",
                 "fromGTF.novelSpliceSite.SE.txt:md5,bfb5abe47d6cfc54f7209ca921bf58b4",
-                "summary.txt:md5,17d97f605abe2bc941fdb78db0109f09",
+                "summary.txt:md5,4f5a74488eaea34dae05ebc90e30e77c",
                 "ERR188383_read_outcomes_by_bam.txt:md5,08e1217edcdccddad26eb73a6800c943",
                 "ERR188428_read_outcomes_by_bam.txt:md5,6535d9f391bed3921c9cd1c6df1ccae0",
                 "ERR188454_read_outcomes_by_bam.txt:md5,7168b6927f05b3fdf3b9b1ae47120ee4",
@@ -809,11 +831,17 @@
                 "ERR204916.stats:md5,b62d88fdf4bf0d2809e9f1e602b7c704"
             ],
             {
+                "contrast_GBR-YRI.usage.exon.annotated.csv": "191679cebb5190cd932318f520ba74d2",
                 "contrast_GBR-YRI.usage.exon.csv": "9d69a4960a38075e14c1b208c82ebfb6",
+                "contrast_GBR-YRI.usage.gene.annotated.csv": "934049cead1a649bf269251965168f2d",
                 "contrast_GBR-YRI.usage.gene.csv": "0147b4b882301439740eae671ad80a6a",
+                "contrast_GBR-YRI.usage.simes.annotated.csv": "edd9a7b19b51abd660d7dabb8c0e88dd",
                 "contrast_GBR-YRI.usage.simes.csv": "661f1df2ae25951ee90717466b9b6505",
+                "contrast_YRI-GBR.usage.exon.annotated.csv": "6f22dd8fc7f1d203d466a8c556c1ccee",
                 "contrast_YRI-GBR.usage.exon.csv": "bf5dca26691d13c655e72b73e6c6329c",
+                "contrast_YRI-GBR.usage.gene.annotated.csv": "934049cead1a649bf269251965168f2d",
                 "contrast_YRI-GBR.usage.gene.csv": "0147b4b882301439740eae671ad80a6a",
+                "contrast_YRI-GBR.usage.simes.annotated.csv": "edd9a7b19b51abd660d7dabb8c0e88dd",
                 "contrast_YRI-GBR.usage.simes.csv": "661f1df2ae25951ee90717466b9b6505"
             },
             {
@@ -823,7 +851,7 @@
                 "ERR204916_sorted.bam": "484dbb84bd68ceb9ed24ecdb8f7a613a"
             }
         ],
-        "timestamp": "2026-11-26T10:53:43.33020423",
+        "timestamp": "2026-11-24T12:42:56.452527334",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"

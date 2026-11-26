@@ -7,6 +7,8 @@
 include { BEDTOOLS_GENOMECOV as BEDTOOLS_GENOMECOV_FORWARD                } from '../modules/nf-core/bedtools/genomecov'
 include { BEDTOOLS_GENOMECOV as BEDTOOLS_GENOMECOV_REVERSE                } from '../modules/nf-core/bedtools/genomecov'
 include { ISOFORMSWITCHANALYZER                                           } from '../modules/local/isoformswitchanalyzer'
+include { GENEANNOTATION_TABLES                                           } from '../modules/local/geneannotation/tables'
+include { GFFREAD_TX2GENE                                                 } from '../modules/local/gffread/tx2gene'
 include { ALIGN_STAR                                                      } from '../subworkflows/local/align_star'
 include { TX2GENE_TXIMPORT as TX2GENE_TXIMPORT_SALMON                     } from '../subworkflows/local/tx2gene_tximport'
 include { TX2GENE_TXIMPORT as TX2GENE_TXIMPORT_STAR_SALMON                } from '../subworkflows/local/tx2gene_tximport'
@@ -27,9 +29,11 @@ include { INFER_STRANDEDNESS_BAM                                          } from
 
 include { rmatsReadError                                                  } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
 include { rmatsStrandednessError                                          } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
+include { getSamtoolsStatsMedianReadLength                                } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
 include { aspliReadError                                                  } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
 include { multiqcTsvFromList                                              } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
-include { paramsSummaryMultiqc                                            } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { checkBamReferenceSequences                                      } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
+include { paramsSummaryMultiqc                                            } from 'plugin/nf-core-utils'
 include { methodsDescriptionText                                          } from '../subworkflows/local/utils_nfcore_rnasplice_pipeline'
 
 
@@ -46,13 +50,15 @@ include { SALMON_QUANT as SALMON_QUANT_STAR_AUTO                          } from
 include { MULTIQC                                                         } from '../modules/nf-core/multiqc/'
 include { EAUTILS_GTF2BED                                                 } from '../modules/nf-core/ea-utils/gtf2bed'
 include { RSEQC_INFEREXPERIMENT                                           } from '../modules/nf-core/rseqc/inferexperiment'
-include { CUSTOM_DUMPSOFTWAREVERSIONS                                     } from '../modules/nf-core/custom/dumpsoftwareversions'
 include { CAT_FASTQ                                                       } from '../modules/nf-core/cat/fastq'
+include { SAMTOOLS_SPLITHEADER as SAMTOOLS_SPLITHEADER_GENOME             } from '../modules/nf-core/samtools/splitheader'
+include { SAMTOOLS_SPLITHEADER as SAMTOOLS_SPLITHEADER_TRANSCRIPTOME      } from '../modules/nf-core/samtools/splitheader'
 include { FASTQ_FASTQC_UMITOOLS_TRIMGALORE                                } from '../subworkflows/nf-core/fastq_fastqc_umitools_trimgalore'
 include { BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG as BEDGRAPH_TO_BIGWIG_FORWARD } from '../subworkflows/nf-core/bedgraph_bedclip_bedgraphtobigwig/main'
 include { BEDGRAPH_BEDCLIP_BEDGRAPHTOBIGWIG as BEDGRAPH_TO_BIGWIG_REVERSE } from '../subworkflows/nf-core/bedgraph_bedclip_bedgraphtobigwig/main'
 include { BAM_SORT_STATS_SAMTOOLS                                         } from '../subworkflows/nf-core/bam_sort_stats_samtools/main'
-include { softwareVersionsToYAML                                          } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { BAM_SORT_STATS_SAMTOOLS as BAM_SORT_STATS_SAMTOOLS_TRANSCRIPTOME } from '../subworkflows/nf-core/bam_sort_stats_samtools/main'
+include { collectVersions                                                 } from 'plugin/nf-core-utils'
 include { paramsSummaryMap                                                } from 'plugin/nf-schema'
 
 /*
@@ -63,14 +69,16 @@ include { paramsSummaryMap                                                } from
 
 workflow RNASPLICE {
     take:
-    ch_samplesheet // channel: [ val(meta), [ files ] ], the parsed samplesheet
+    ch_samplesheet // channel: [ val(meta), [ fastq ], genome_bam, transcriptome_bam, salmon_results ], the parsed samplesheet, absent inputs null
     ch_samplesheet_file // channel: file(samplesheet), for the processes that read it
     ch_contrastsheet // channel: [ contrast, treatment, control ], the parsed contrasts
     ch_contrastsheet_file // channel: file(contrastsheet), for the processes that read it
+    input_routes // map: how each part of the pipeline gets its input, see `getInputRoutes`
     ch_fasta // channel: path of genome fasta
     ch_fai // channel: [ val(meta), path(fai) ], the genome fasta index
     ch_gtf // channel: path of genome gtf
     ch_transcript_fasta // channel: path of transcript fasta
+    ch_transcript_fai // channel: [ val(meta), path(fai) ], the transcript fasta index, made for transcriptome BAM input
     ch_dexseq_gff
     ch_salmon_index // channel: path of salmon index
     ch_star_index // channel: path of star index
@@ -83,75 +91,88 @@ workflow RNASPLICE {
 
     main:
 
-    def ch_versions = channel.empty()
     def ch_multiqc_files = channel.empty()
     def pass_trimmed_reads = [:]
     def ch_rseqc_txt = channel.empty()
+    def ch_leafcutter_strand_summary = channel.empty()
 
-    // Branch samplesheet channel based on source type
-    if (params.source == 'fastq') {
-        // PIPELINE_INITIALISATION has already collected every run of a sample under its
-        // sample id, so all that is left to decide here is whether a sample has more than
-        // one run and therefore needs its fastq files concatenated first
-        ch_samplesheet
-            .branch { meta, fastq ->
-                def runs = meta.single_end ? fastq.size() : fastq.size().intdiv(2)
-                single: runs == 1
-                return [meta, fastq]
-                multiple: runs > 1
-                return [meta, fastq]
-            }
-            .set { ch_fastq }
-    }
-    else if (params.source == 'genome_bam') {
-        ch_samplesheet.set { ch_genome_bam }
-    }
-    else if (params.source == 'transcriptome_bam') {
-        ch_samplesheet.set { ch_transcriptome_bam }
-    }
-    else if (params.source == 'salmon_results') {
-        // One Salmon tarball per sample, taken out of its list so that ch_salmon_results
-        // is [ meta, path ] whichever way the Salmon results are produced
-        ch_samplesheet
-            .map { meta, salmon_results -> [ meta, salmon_results[0] ] }
-            .set { ch_salmon_results }
-    }
+    // Each input the samplesheet gives a sample, for the steps that read it
+    ch_input_fastq = ch_samplesheet
+        .filter { _meta, fastqs, _genome_bam, _transcriptome_bam, _salmon_results -> fastqs }
+        .map { meta, fastqs, _genome_bam, _transcriptome_bam, _salmon_results -> [ meta, fastqs ] }
+    ch_input_genome_bam = ch_samplesheet
+        .filter { _meta, _fastqs, genome_bam, _transcriptome_bam, _salmon_results -> genome_bam }
+        .map { meta, _fastqs, genome_bam, _transcriptome_bam, _salmon_results -> [ meta, genome_bam ] }
+    ch_input_transcriptome_bam = ch_samplesheet
+        .filter { _meta, _fastqs, _genome_bam, transcriptome_bam, _salmon_results -> transcriptome_bam }
+        .map { meta, _fastqs, _genome_bam, transcriptome_bam, _salmon_results -> [ meta, transcriptome_bam ] }
+    ch_input_salmon_results = ch_samplesheet
+        .filter { _meta, _fastqs, _genome_bam, _transcriptome_bam, salmon_results -> salmon_results }
+        .map { meta, _fastqs, _genome_bam, _transcriptome_bam, salmon_results -> [ meta, salmon_results ] }
+
+    // PIPELINE_INITIALISATION has already collected every run of a sample under its sample
+    // id, so all that is left to decide here is whether a sample has more than one run and
+    // therefore needs its fastq files concatenated first
+    ch_input_fastq
+        .branch { meta, fastq ->
+            def runs = meta.single_end ? fastq.size() : fastq.size().intdiv(2)
+            single: runs == 1
+            return [meta, fastq]
+            multiple: runs > 1
+            return [meta, fastq]
+        }
+        .set { ch_fastq }
 
     //
     // Sample id and condition, in samplesheet order, from the channel
     // PIPELINE_INITIALISATION emits. rMATS needs these as values rather than as a sheet
     // to read, and taking them from here is what keeps it from parsing --input again.
     //
-    ch_samples = ch_samplesheet.map { meta, _files -> [ meta.id, meta.condition ] }
+    ch_samples = ch_samplesheet.map { row -> [ row[0].id, row[0].condition ] }
 
     // rMATS takes the read type and the library type from the first sample of a
-    // contrast, so every sample has to agree on both. Genome BAM samplesheets carry
-    // them as well as fastq ones, so they get the same checks. The library type of an
-    // 'auto' sample is only known once it has been inferred, so it is checked again on
-    // the genome BAM files further down
-    if (params.rmats && ['fastq', 'genome_bam'].contains(params.source)) {
+    // contrast, so every sample has to agree on both. The library type of an 'auto'
+    // sample is only known once it has been inferred, so it is checked again on the
+    // genome BAM files further down
+    if (params.rmats && input_routes.genome) {
         rmatsReadError(ch_samplesheet)
-        rmatsStrandednessError(ch_samplesheet.filter { meta, _files -> meta.strandedness != 'auto' })
+        rmatsStrandednessError(ch_samplesheet.filter { row -> row[0].strandedness != 'auto' })
     }
 
     // ASpli counts every sample with one library type, so the read type is checked
     // before the samples are aligned
-    if (params.aspli && ['fastq', 'genome_bam'].contains(params.source)) {
+    if (params.aspli && input_routes.genome) {
         aspliReadError(ch_samplesheet)
     }
 
     //
-    // MODULE: Concatenate FastQ technical replicates if required
+    // MODULE: Transcript table of the GTF
     //
-    if (params.source == 'fastq') {
-        CAT_FASTQ(ch_fastq.multiple)
-        CAT_FASTQ.out.reads.mix(ch_fastq.single).set { ch_cat_fastq }
-    }
+    // One gffread table with the gene ID, name and biotype of each transcript, which
+    // tximport and the annotation tables both read
+    GFFREAD_TX2GENE(ch_gtf)
+    ch_tx2gene = GFFREAD_TX2GENE.out.tx2gene
 
     //
-    // SUBWORKFLOW: Read QC and trim adapters with TrimGalore!
+    // MODULE: Gene and transcript annotation tables of the GTF
     //
-    if (params.source == 'fastq') {
+    // Made for every run, as a reference of the gene names, and used to write copies of
+    // the results tables with the gene name next to each gene ID
+    GENEANNOTATION_TABLES(
+        ch_gtf.combine(ch_tx2gene).map { gtf, tx2gene -> [[id: gtf.baseName], tx2gene] }
+    )
+    ch_gene_annotation = GENEANNOTATION_TABLES.out.gene.first()
+
+    //
+    // MODULE: Concatenate FastQ technical replicates if required
+    //
+    if (input_routes.fastq) {
+        CAT_FASTQ(ch_fastq.multiple)
+        CAT_FASTQ.out.reads.mix(ch_fastq.single).set { ch_cat_fastq }
+
+        //
+        // SUBWORKFLOW: Read QC and trim adapters with TrimGalore!
+        //
         FASTQ_FASTQC_UMITOOLS_TRIMGALORE(
             ch_cat_fastq,
             params.skip_fastqc,
@@ -174,7 +195,7 @@ workflow RNASPLICE {
             ch_transcript_fasta,
             ch_gtf,
             ch_salmon_index,
-            !(params.pseudo_aligner == 'salmon' || (params.salmon_index && params.aligner == 'star_salmon')),
+            !(input_routes.pseudo_salmon || (params.salmon_index && input_routes.star_salmon)),
             params.stranded_threshold,
             params.unstranded_threshold,
         )
@@ -201,13 +222,12 @@ workflow RNASPLICE {
     // MODULE: BED12 annotation for RSeQC, made for the strand check, or for a genome BAM
     // samplesheet with an 'auto' sample
     //
-    def strand_check_genome_bam = params.strand_check && (params.source == 'genome_bam' ||
-        (params.source == 'fastq' && !params.skip_alignment && ['star', 'star_salmon'].contains(params.aligner)))
-    if (strand_check_genome_bam || params.source == 'genome_bam') {
+    def strand_check_genome_bam = params.strand_check && input_routes.genome
+    if (strand_check_genome_bam || input_routes.input_types.genome_bam) {
         ch_gtf_for_bed = strand_check_genome_bam
             ? ch_gtf
             : ch_gtf
-                .combine(ch_samplesheet.filter { meta, _files -> meta.strandedness == 'auto' })
+                .combine(ch_input_genome_bam.filter { meta, _bam -> meta.strandedness == 'auto' })
                 .map { items -> items.first() }
                 .first()
         EAUTILS_GTF2BED(ch_gtf_for_bed.map { gtf -> [[id: gtf.baseName], gtf] })
@@ -215,10 +235,19 @@ workflow RNASPLICE {
     }
 
     //
-    // SUBWORKFLOW: BAM post-processing and indexing loops
+    // SUBWORKFLOW: Genome BAM files from the samplesheet, checked against the genome and sorted
     //
-    if (params.source == 'genome_bam') {
-        BAM_SORT_STATS_SAMTOOLS(ch_genome_bam, ch_fasta.map { fasta -> [[:], fasta, []] })
+    if (input_routes.input_types.genome_bam) {
+        SAMTOOLS_SPLITHEADER_GENOME(ch_input_genome_bam)
+        ch_checked_genome_bam = SAMTOOLS_SPLITHEADER_GENOME.out.sequences
+            .combine(ch_fai.map { _meta, fai -> fai })
+            .map { meta, sequences, fai ->
+                checkBamReferenceSequences(meta, sequences, fai, 'the genome FASTA')
+                return meta.id
+            }
+            .join(ch_input_genome_bam.map { meta, bam -> [ meta.id, meta, bam ] })
+            .map { _id, meta, bam -> [ meta, bam ] }
+        BAM_SORT_STATS_SAMTOOLS(ch_checked_genome_bam, ch_fasta.map { fasta -> [[:], fasta, []] })
 
         //
         // SUBWORKFLOW: Infer the strandedness of the samples set to 'auto' with RSeQC
@@ -237,32 +266,48 @@ workflow RNASPLICE {
         ch_samtools_idxstats = BAM_SORT_STATS_SAMTOOLS.out.idxstats
     }
 
-    if (params.source == 'transcriptome_bam') {
-        ch_transcriptome_bam_for_salmon = ch_transcriptome_bam
-        BAM_SORT_STATS_SAMTOOLS(ch_transcriptome_bam, ch_fasta.map { fasta -> [[:], fasta, []] })
-        ch_transcriptome_bam = BAM_SORT_STATS_SAMTOOLS.out.bam
-        ch_transcriptome_bam_index = BAM_SORT_STATS_SAMTOOLS.out.index
-        ch_samtools_stats = BAM_SORT_STATS_SAMTOOLS.out.stats
-        ch_samtools_flagstat = BAM_SORT_STATS_SAMTOOLS.out.flagstat
-        ch_samtools_idxstats = BAM_SORT_STATS_SAMTOOLS.out.idxstats
+    //
+    // SUBWORKFLOW: Align the reads of samples with no genome BAM file with STAR
+    //
+    if (input_routes.star) {
+        ALIGN_STAR(
+            ch_trim_reads,
+            ch_star_index.map { index -> [[:], index] },
+            ch_gtf.map { gtf -> [[:], gtf] },
+            params.star_ignore_sjdbgtf,
+            ch_fasta.map { fasta -> [[:], fasta, []] },
+        )
+        ch_genome_bam = ALIGN_STAR.out.bam           // [meta, bam]
+        ch_genome_bam_index = ALIGN_STAR.out.index
+        ch_transcriptome_bam_for_salmon = ALIGN_STAR.out.bam_transcript
+        ch_samtools_stats = ALIGN_STAR.out.stats
+        ch_samtools_flagstat = ALIGN_STAR.out.flagstat
+        ch_samtools_idxstats = ALIGN_STAR.out.idxstats
+        ch_star_multiqc = ALIGN_STAR.out.log_final
     }
 
-    if (params.source == 'fastq' && !params.skip_alignment) {
-        if (params.aligner == 'star' || params.aligner == 'star_salmon') {
-            ALIGN_STAR(
-                ch_trim_reads,
-                ch_star_index.map { index -> [[:], index] },
-                ch_gtf.map { gtf -> [[:], gtf] },
-                params.star_ignore_sjdbgtf,
-                ch_fasta.map { fasta -> [[:], fasta, []] },
-            )
-            ch_genome_bam = ALIGN_STAR.out.bam           // [meta, bam]
-            ch_genome_bam_index = ALIGN_STAR.out.index
-            ch_transcriptome_bam_for_salmon = ALIGN_STAR.out.bam_transcript
-            ch_samtools_stats = ALIGN_STAR.out.stats
-            ch_samtools_flagstat = ALIGN_STAR.out.flagstat
-            ch_samtools_idxstats = ALIGN_STAR.out.idxstats
-            ch_star_multiqc = ALIGN_STAR.out.log_final
+    //
+    // SUBWORKFLOW: Transcriptome BAM files from the samplesheet, checked against the
+    // transcript FASTA they must have been aligned to. They are quantified as they are, and
+    // only sorted for their alignment statistics when there are no genome BAM files to
+    // report those
+    //
+    if (input_routes.input_types.transcriptome_bam) {
+        SAMTOOLS_SPLITHEADER_TRANSCRIPTOME(ch_input_transcriptome_bam)
+        ch_transcriptome_bam_for_salmon = SAMTOOLS_SPLITHEADER_TRANSCRIPTOME.out.sequences
+            .combine(ch_transcript_fai.map { _meta, fai -> fai })
+            .map { meta, sequences, fai ->
+                checkBamReferenceSequences(meta, sequences, fai, 'the transcript FASTA')
+                return meta.id
+            }
+            .join(ch_input_transcriptome_bam.map { meta, bam -> [ meta.id, meta, bam ] })
+            .map { _id, meta, bam -> [ meta, bam ] }
+
+        if (!input_routes.genome) {
+            BAM_SORT_STATS_SAMTOOLS_TRANSCRIPTOME(ch_transcriptome_bam_for_salmon, ch_transcript_fasta.map { fasta -> [[:], fasta, []] })
+            ch_samtools_stats = BAM_SORT_STATS_SAMTOOLS_TRANSCRIPTOME.out.stats
+            ch_samtools_flagstat = BAM_SORT_STATS_SAMTOOLS_TRANSCRIPTOME.out.flagstat
+            ch_samtools_idxstats = BAM_SORT_STATS_SAMTOOLS_TRANSCRIPTOME.out.idxstats
         }
     }
 
@@ -271,10 +316,7 @@ workflow RNASPLICE {
     // ====================================================================
 
 
-    if (params.source == 'genome_bam' ||
-            ( ( params.source == 'fastq') && ( !params.skip_alignment && (params.aligner == 'star' || params.aligner == 'star_salmon') ) )
-        )
-    {
+    if (input_routes.genome) {
         //
         // MODULE: Check the strandedness used against the one RSeQC infers from the genome BAM
         //
@@ -354,6 +396,7 @@ workflow RNASPLICE {
                 params.gff_dexseq as boolean,
                 ch_samplesheet_file,
                 ch_contrastsheet,
+                ch_gene_annotation,
             )
         }
 
@@ -363,11 +406,31 @@ workflow RNASPLICE {
                 ch_genome_bam,
                 ch_samplesheet_file,
                 ch_contrastsheet_file,
+                ch_gene_annotation,
             )
         }
 
         if (params.rmats) {
             rmatsStrandednessError(ch_genome_bam)
+
+            def ch_rmats_read_len = params.rmats_read_len
+                ? channel.value(params.rmats_read_len)
+                : ch_samtools_stats
+                    .toList()
+                    .map { samples_stats ->
+                        def read_lengths = getSamtoolsStatsMedianReadLength(samples_stats)
+                        if (read_lengths.median != null) {
+                            log.info("rMATS read length: ${read_lengths.median}, the median read length of the genome BAM files")
+                            return read_lengths.median
+                        }
+                        if (!workflow.stubRun) {
+                            error("Cannot infer the rMATS read length: the genome BAM files of ${read_lengths.samples_without_reads.join(', ')} have no reads. Set it with --rmats_read_len.")
+                        }
+                        // The stub samtools stats files are empty, and a null would never
+                        // reach rMATS, as a channel does not emit null
+                        log.info("rMATS read length: 1, a placeholder for the stub run")
+                        return 1
+                    }
 
             // rMATS pairs treatment and control samples by their position within a
             // condition, so the samplesheet order of `ch_samples` is what it works from
@@ -376,7 +439,7 @@ workflow RNASPLICE {
                 ch_contrastsheet,
                 ch_genome_bam,
                 ch_gtf.map { gtf -> [[:], gtf] },
-                params.rmats_read_len,
+                ch_rmats_read_len,
                 params.rmats_paired_stats,
             )
         }
@@ -401,7 +464,10 @@ workflow RNASPLICE {
                 ch_genome_bam_index,
                 ch_fasta.combine(ch_fai).map { fasta, _meta, fai -> [[id: fasta.baseName], fasta, fai] }.first(),
                 ch_gtf.map { gtf -> [[id: gtf.baseName], gtf] }.first(),
+                ch_contrastsheet,
+                Math.max(params.leafcutter_ds_min_samples_per_intron, params.leafcutter_ds_min_samples_per_group),
             )
+            ch_leafcutter_strand_summary = LEAFCUTTER.out.strand_summary
         }
 
         if (params.aspli) {
@@ -411,6 +477,7 @@ workflow RNASPLICE {
                 ch_gtf.map { gtf -> [[id: gtf.baseName], gtf] }.first(),
                 ch_contrastsheet,
                 params.aspli_read_len ?: 0,
+                ch_gene_annotation,
             )
         }
     }
@@ -419,7 +486,7 @@ workflow RNASPLICE {
     // TRANSCRIPT ALIGNMENT & QUANTIFICATION ENGINES (SALMON)
     // ====================================================================
 
-    if (params.source == 'transcriptome_bam' || ((params.source == 'fastq' && !params.skip_alignment && params.aligner == 'star_salmon'))) {
+    if (input_routes.star_salmon) {
         // Salmon detects the library type of an 'auto' transcriptome BAM itself, with
         // --libType A, unless --salmon_quant_libtype sets one for every sample. Reads given
         // as FASTQ have had theirs inferred already, so they are never 'auto' here
@@ -466,7 +533,7 @@ workflow RNASPLICE {
             .mix(SALMON_QUANT_STAR.out.results)
             .set { ch_salmon_results }
 
-        TX2GENE_TXIMPORT_STAR_SALMON(ch_salmon_results, ch_gtf)
+        TX2GENE_TXIMPORT_STAR_SALMON(ch_salmon_results, ch_tx2gene)
         ch_tximport_tx2gene = TX2GENE_TXIMPORT_STAR_SALMON.out.tximport_tx2gene
         ch_txi_s = TX2GENE_TXIMPORT_STAR_SALMON.out.txi_s
         ch_txi_dtu = TX2GENE_TXIMPORT_STAR_SALMON.out.txi_dtu
@@ -479,6 +546,7 @@ workflow RNASPLICE {
                 ch_tximport_tx2gene,
                 ch_samplesheet_file,
                 ch_contrastsheet,
+                ch_gene_annotation,
             )
         }
 
@@ -517,11 +585,12 @@ workflow RNASPLICE {
                 params.clusterevents_sigthreshold ?: false,
                 params.clusterevents_separation ?: false,
                 params.suppa_per_isoform,
+                ch_gene_annotation,
             )
         }
     }
 
-    if (params.source == 'fastq' && params.pseudo_aligner == 'salmon') {
+    if (input_routes.pseudo_salmon) {
         SALMON_QUANT_SALMON(
             ch_trim_reads,
             ch_salmon_index,
@@ -532,17 +601,17 @@ workflow RNASPLICE {
         )
         ch_salmon_results = SALMON_QUANT_SALMON.out.results
 
-        TX2GENE_TXIMPORT_SALMON(ch_salmon_results, ch_gtf)
+        TX2GENE_TXIMPORT_SALMON(ch_salmon_results, ch_tx2gene)
     }
-    else if (params.source == 'salmon_results') {
-        TX2GENE_TXIMPORT_SALMON(ch_salmon_results, ch_gtf)
+    else if (input_routes.salmon_results) {
+        TX2GENE_TXIMPORT_SALMON(ch_input_salmon_results, ch_tx2gene)
 
         // The samplesheet may point at tarballs, which TX2GENE_TXIMPORT extracts.
         // Consumers downstream need the extracted directories, not the archives
         ch_salmon_results = TX2GENE_TXIMPORT_SALMON.out.salmon_results
     }
 
-    if ((params.pseudo_aligner == 'salmon' && params.source == 'fastq') || (params.source == 'salmon_results')) {
+    if (input_routes.pseudo_salmon || input_routes.salmon_results) {
         if (params.dexseq_dtu) {
             ch_txi = (params.dtu_txi == "dtuScaledTPM") ? TX2GENE_TXIMPORT_SALMON.out.txi_dtu : TX2GENE_TXIMPORT_SALMON.out.txi_s
             DRIMSEQ_DEXSEQ_DTU_SALMON(
@@ -550,6 +619,7 @@ workflow RNASPLICE {
                 TX2GENE_TXIMPORT_SALMON.out.tximport_tx2gene,
                 ch_samplesheet_file,
                 ch_contrastsheet,
+                ch_gene_annotation,
             )
         }
 
@@ -588,11 +658,14 @@ workflow RNASPLICE {
                 params.clusterevents_sigthreshold ?: false,
                 params.clusterevents_separation ?: false,
                 params.suppa_per_isoform,
+                ch_gene_annotation,
             )
         }
     }
 
-    if (params.isoformswitchanalyzer && (params.source == 'fastq' || params.source == 'salmon_results')) {
+    // With both Salmon routes, the pseudo-aligned results replace the STAR ones above, so
+    // IsoformSwitchAnalyzeR reads those
+    if (params.isoformswitchanalyzer && (input_routes.star_salmon || input_routes.pseudo_salmon || input_routes.salmon_results)) {
         ISOFORMSWITCHANALYZER(
             ch_salmon_results.collect { it -> it[1] },
             ch_gtf,
@@ -607,7 +680,7 @@ workflow RNASPLICE {
     //
     // Module: Generate stranded coverage bigWig files for visualisation in genome browsers
     //
-    if ((params.source == 'genome_bam' && !params.skip_bigwig) || (!params.skip_alignment && !params.skip_bigwig && params.source == 'fastq')) {
+    if (input_routes.genome && !params.skip_bigwig) {
 
         BEDTOOLS_GENOMECOV_FORWARD(
             ch_genome_bam.map { meta, bam -> [ meta, bam, 0 ]},
@@ -622,25 +695,11 @@ workflow RNASPLICE {
     // REPORTING LAYER & VERSION COLLATOR SYNC
     // ====================================================================
 
-    def topic_versions = channel.topic("versions")
-        .distinct()
-        .branch { entry ->
-            versions_file: entry instanceof Path
-            versions_tuple: true
-        }
-
-    def topic_versions_string = topic_versions.versions_tuple
-        .map { process, tool, version ->
-            [ process[process.lastIndexOf(':')+1..-1], "  ${tool}: ${version}" ]
-        }
-        .groupTuple(by:0)
-        .map { process, tool_versions ->
-            tool_versions.unique().sort()
-            "${process}:\n${tool_versions.join('\n')}"
-        }
-
-    def ch_collated_versions = softwareVersionsToYAML(ch_versions.mix(topic_versions.versions_file))
-        .mix(topic_versions_string)
+    def ch_collated_versions = channel.topic('versions')
+        // Read via Nextflow's Path API so remote work directories remain supported.
+        .map { entry -> entry instanceof Path ? entry.text : entry }
+        .toList()
+        .map { versions -> collectVersions(versions, workflow.nextflow.version) }
         .collectFile(
             storeDir: "${outdir}/pipeline_info",
             name: 'nf_core_'  +  'rnasplice_software_'  + 'mqc_'  + 'versions.yml',
@@ -659,30 +718,28 @@ workflow RNASPLICE {
 
     // Blend final channel maps
     ch_multiqc_files = ch_multiqc_files.mix(ch_collated_versions)
-    ch_multiqc_files = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
-    ch_multiqc_files = ch_multiqc_files.mix(ch_methods_description.collectFile(name: 'methods_description_mqc.yaml', sort: true))
 
-    if (params.source == 'fastq') {
+    if (input_routes.fastq) {
         ch_multiqc_files = ch_multiqc_files.mix(FASTQ_FASTQC_UMITOOLS_TRIMGALORE.out.fastqc_zip.collect { it -> it[1] }.ifEmpty([]))
         ch_multiqc_files = ch_multiqc_files.mix(FASTQ_FASTQC_UMITOOLS_TRIMGALORE.out.trim_zip.collect { it -> it[1] }.ifEmpty([]))
         ch_multiqc_files = ch_multiqc_files.mix(FASTQ_FASTQC_UMITOOLS_TRIMGALORE.out.trim_log.collect { it -> it[1] }.ifEmpty([]))
         ch_multiqc_files = ch_multiqc_files.mix(ch_fail_trimming_multiqc.collectFile(name: 'fail_trimmed_samples_mqc.tsv').ifEmpty([]))
     }
 
-    if (params.pseudo_aligner == 'salmon' && params.source == 'fastq') {
+    if (input_routes.pseudo_salmon) {
         ch_multiqc_files = ch_multiqc_files.mix(ch_salmon_results.collect { it -> it[1] }.ifEmpty([]))
     }
 
-    if (!params.skip_alignment && params.source == 'fastq' && (params.aligner == 'star_salmon' || params.aligner == "star")) {
+    if (input_routes.star) {
         ch_multiqc_files = ch_multiqc_files.mix(ch_star_multiqc.collect { it -> it[1] }.ifEmpty([]))
     }
 
-    if ((params.source == 'genome_bam' || params.source == 'transcriptome_bam') || (!params.skip_alignment && params.source == 'fastq' && (params.aligner == 'star_salmon' || params.aligner == "star"))) {
+    if (input_routes.genome || input_routes.input_types.transcriptome_bam) {
         ch_multiqc_files = ch_multiqc_files.mix(ch_samtools_stats.collect { it -> it[1] }.ifEmpty([]))
         ch_multiqc_files = ch_multiqc_files.mix(ch_samtools_flagstat.collect { it -> it[1] }.ifEmpty([]))
         ch_multiqc_files = ch_multiqc_files.mix(ch_samtools_idxstats.collect { it -> it[1] }.ifEmpty([]))
 
-        if (params.edger_exon && params.source != 'transcriptome_bam') {
+        if (params.edger_exon && input_routes.genome) {
             ch_multiqc_files = ch_multiqc_files.mix(EDGER_DEU.out.featureCounts_summary.collect { it -> it[1] }.ifEmpty([]))
         }
 
@@ -690,6 +747,14 @@ workflow RNASPLICE {
         if (strand_check_genome_bam) {
             ch_multiqc_files = ch_multiqc_files.mix(ch_strand_check_multiqc.collectFile(name: 'fail_strand_check_mqc.tsv'))
         }
+
+        // One table row per unstranded sample, sorted by sample so the report does not
+        // depend on the order the tasks finished in
+        ch_multiqc_files = ch_multiqc_files.mix(
+            ch_leafcutter_strand_summary
+                .map { _meta, summary -> summary }
+                .collectFile(name: 'leafcutter_junction_strands_mqc.tsv', keepHeader: true, skip: 1, sort: { summary -> summary.name })
+        )
     }
 
     MULTIQC(
@@ -708,5 +773,4 @@ workflow RNASPLICE {
     )
     emit:
     multiqc_report = MULTIQC.out.report.map { _meta, report -> [report] }.toList() // channel: /path/to/multiqc_report.html
-    versions       = ch_versions // channel: [ path(versions.yml) ]
 }

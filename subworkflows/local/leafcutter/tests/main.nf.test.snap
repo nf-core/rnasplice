@@ -5,30 +5,68 @@
                 [
                     {
                         "id": "ERR188383",
-                        "strandedness": "unstranded"
+                        "strandedness": "unstranded",
+                        "condition": "GBR"
                     },
                     "ERR188383.junc:md5,a72e6e8417825d50a54e2a51b80c9f3d"
                 ],
                 [
                     {
                         "id": "ERR188428",
-                        "strandedness": "unstranded"
+                        "strandedness": "unstranded",
+                        "condition": "GBR"
                     },
                     "ERR188428.junc:md5,d199fbbef6f86131320834477c28d535"
                 ],
                 [
                     {
                         "id": "ERR188454",
-                        "strandedness": "unstranded"
+                        "strandedness": "unstranded",
+                        "condition": "YRI"
                     },
                     "ERR188454.junc:md5,4ba470a59a6b476701417464b34f2664"
                 ],
                 [
                     {
                         "id": "ERR204916",
-                        "strandedness": "unstranded"
+                        "strandedness": "unstranded",
+                        "condition": "YRI"
                     },
                     "ERR204916.junc:md5,44b439b6c797b26aae35eb37acc43948"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "ERR188383",
+                        "strandedness": "unstranded",
+                        "condition": "GBR"
+                    },
+                    "ERR188383.strand_summary.tsv:md5,abe33803e7978be9bc8c6286822c6e5f"
+                ],
+                [
+                    {
+                        "id": "ERR188428",
+                        "strandedness": "unstranded",
+                        "condition": "GBR"
+                    },
+                    "ERR188428.strand_summary.tsv:md5,850d6013680171ea03b3ca872cd06a4e"
+                ],
+                [
+                    {
+                        "id": "ERR188454",
+                        "strandedness": "unstranded",
+                        "condition": "YRI"
+                    },
+                    "ERR188454.strand_summary.tsv:md5,e68739aa5ddafec0b6e1a3bf873be5fa"
+                ],
+                [
+                    {
+                        "id": "ERR204916",
+                        "strandedness": "unstranded",
+                        "condition": "YRI"
+                    },
+                    "ERR204916.strand_summary.tsv:md5,acc1bc34c9780d3e9c9dbbfd17ad6be2"
                 ]
             ],
             [
@@ -73,9 +111,45 @@
                     },
                     "lc_sortedlibs:md5,de8c5c512e43f549f32762dd9faa6c5b"
                 ]
+            ],
+            [
+                [
+                    {
+                        "id": "genome"
+                    },
+                    "genome.exons.txt.gz:md5,8c60d34e6cc1d0384e4a692e38ded115"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "GBR-YRI",
+                        "treatment": "GBR",
+                        "control": "YRI"
+                    },
+                    [
+                        "cluster\tstatus\tdf\tgenes",
+                        "chrX:clu_1_-\tSuccess\t2\tFLNA"
+                    ]
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "GBR-YRI",
+                        "treatment": "GBR",
+                        "control": "YRI"
+                    },
+                    [
+                        "intron",
+                        "X:3345845:3348024:clu_1_-",
+                        "X:3345845:3348207:clu_1_-",
+                        "X:3348047:3348207:clu_1_-"
+                    ]
+                ]
             ]
         ],
-        "timestamp": "2026-10-23T12:05:28.013426643",
+        "timestamp": "2026-11-20T16:26:12.928295931",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.3"
@@ -87,31 +161,38 @@
                 [
                     {
                         "id": "ERR188383",
-                        "strandedness": "reverse"
+                        "strandedness": "reverse",
+                        "condition": "GBR"
                     },
                     "ERR188383.junc:md5,e81ae710a94d15463ed8ec2d087ac11b"
                 ],
                 [
                     {
                         "id": "ERR188428",
-                        "strandedness": "reverse"
+                        "strandedness": "reverse",
+                        "condition": "GBR"
                     },
                     "ERR188428.junc:md5,251823ff82f67c1eacf36ce8180b5174"
                 ],
                 [
                     {
                         "id": "ERR188454",
-                        "strandedness": "reverse"
+                        "strandedness": "reverse",
+                        "condition": "YRI"
                     },
                     "ERR188454.junc:md5,a30f7b4082529a38534666f2907c0f68"
                 ],
                 [
                     {
                         "id": "ERR204916",
-                        "strandedness": "reverse"
+                        "strandedness": "reverse",
+                        "condition": "YRI"
                     },
                     "ERR204916.junc:md5,cf150ab1efdfa1a4e2d6f869d7027403"
                 ]
+            ],
+            [
+                
             ],
             [
                 [
@@ -155,9 +236,45 @@
                     },
                     "lc_sortedlibs:md5,de8c5c512e43f549f32762dd9faa6c5b"
                 ]
+            ],
+            [
+                [
+                    {
+                        "id": "genome"
+                    },
+                    "genome.exons.txt.gz:md5,8c60d34e6cc1d0384e4a692e38ded115"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "GBR-YRI",
+                        "treatment": "GBR",
+                        "control": "YRI"
+                    },
+                    [
+                        "cluster\tstatus\tdf\tgenes",
+                        "chrX:clu_1_-\tSuccess\t2\tFLNA"
+                    ]
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "GBR-YRI",
+                        "treatment": "GBR",
+                        "control": "YRI"
+                    },
+                    [
+                        "intron",
+                        "X:3345845:3348024:clu_1_-",
+                        "X:3345845:3348207:clu_1_-",
+                        "X:3348047:3348207:clu_1_-"
+                    ]
+                ]
             ]
         ],
-        "timestamp": "2026-10-23T12:36:06.87302696",
+        "timestamp": "2026-11-20T16:26:23.657475874",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.3"
@@ -169,16 +286,36 @@
                 [
                     {
                         "id": "ERR188383",
-                        "strandedness": "unstranded"
+                        "strandedness": "unstranded",
+                        "condition": "GBR"
                     },
                     "ERR188383.junc:md5,d41d8cd98f00b204e9800998ecf8427e"
                 ],
                 [
                     {
                         "id": "ERR188428",
-                        "strandedness": "unstranded"
+                        "strandedness": "unstranded",
+                        "condition": "YRI"
                     },
                     "ERR188428.junc:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "ERR188383",
+                        "strandedness": "unstranded",
+                        "condition": "GBR"
+                    },
+                    "ERR188383.strand_summary.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "ERR188428",
+                        "strandedness": "unstranded",
+                        "condition": "YRI"
+                    },
+                    "ERR188428.strand_summary.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
                 ]
             ],
             [
@@ -223,12 +360,40 @@
                     },
                     "lc_sortedlibs:md5,d41d8cd98f00b204e9800998ecf8427e"
                 ]
+            ],
+            [
+                [
+                    {
+                        "id": "genome"
+                    },
+                    "genome.exons.txt.gz:md5,68b329da9893e34099c7d8ad5cb9c940"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "GBR-YRI",
+                        "treatment": "GBR",
+                        "control": "YRI"
+                    },
+                    "GBR-YRI_cluster_significance.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "GBR-YRI",
+                        "treatment": "GBR",
+                        "control": "YRI"
+                    },
+                    "GBR-YRI_effect_sizes.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
             ]
         ],
-        "timestamp": "2026-09-10T18:39:14.878381243",
+        "timestamp": "2026-11-20T16:26:34.538398944",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.4"
+            "nextflow": "26.04.3"
         }
     }
 }

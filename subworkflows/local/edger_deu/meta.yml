@@ -11,6 +11,7 @@ components:
   - subread/flattengtf
   - subread/featurecounts
   - edger/exon
+  - geneannotation/annotate
 input:
   - gtf:
       type: file
@@ -37,6 +38,13 @@ input:
         The input channel containing the contrastsheet, which lists the conditions to compare
         Structure: [ path(contrastsheet) ]
       pattern: "*.csv"
+  - ch_gene_annotation:
+      type: file
+      description: |
+        The input channel containing the gene annotation table of `GENEANNOTATION_TABLES`,
+        as a value channel, that the annotated copies of the results tables are made from
+        Structure: [ val(meta), path(tsv) ]
+      pattern: "*.gene_annotation.tsv"
 output:
   - featureCounts_counts:
       type: file
@@ -82,6 +90,13 @@ output:
         Channel containing the exon usage plots of the top significant genes per contrast
         Structure: [ val(meta), path(pdf) ]
       pattern: "contrast_*.pdf"
+  - edger_exon_annotated_csv:
+      type: file
+      description: |
+        Channel containing copies of the edgeR tables with the gene name and biotype after
+        `Geneid`, one table per item
+        Structure: [ val(meta), path(csv) ]
+      pattern: "contrast_*.annotated.csv"
 authors:
   - "@bensouthgate"
   - "@jma1991"

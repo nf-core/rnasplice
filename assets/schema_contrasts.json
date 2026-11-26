@@ -2,8 +2,9 @@
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://raw.githubusercontent.com/nf-core/rnasplice/master/assets/schema_contrasts.json",
     "title": "nf-core/rnasplice pipeline - params.contrasts schema",
-    "description": "Schema for the file provided with params.contrasts. Either the id, variable, reference, target[, blocking] columns or the deprecated contrast, treatment, control columns, never both",
+    "description": "Schema for the file provided with params.contrasts. Either the id, variable, reference, target[, blocking] columns or the deprecated contrast, treatment, control columns, never both. Each id, or contrast, must be unique",
     "type": "array",
+    "uniqueEntries": ["id", "contrast"],
     "items": {
         "type": "object",
         "properties": {

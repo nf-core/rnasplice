@@ -5,6 +5,7 @@
 include { DEXSEQ_PREPAREANNOTATION } from '../../../modules/nf-core/dexseq/prepareannotation'
 include { DEXSEQ_COUNT } from '../../../modules/nf-core/dexseq/count'
 include { DEXSEQ_EXON } from '../../../modules/nf-core/dexseq/exon'
+include { GENEANNOTATION_ANNOTATE } from '../../../modules/local/geneannotation/annotate'
 
 workflow DEXSEQ_DEU {
     take:
@@ -13,7 +14,8 @@ workflow DEXSEQ_DEU {
     ch_dexseq_gff // path dexseq gff, empty when `skip_annotation` is false
     skip_annotation // boolean: true when a DEXSeq annotation is supplied in `ch_dexseq_gff`
     ch_samplesheet // channel.fromPath(params.input)
-    ch_contrastsheet // channel: [ contrast:, treatment:, control: ]
+    ch_contrastsheet // channel: [ contrast:, treatment:, control:, blocking: (when set) ]
+    ch_gene_annotation // channel: [ val(meta), path(tsv) ], the gene annotation table, as a value channel
 
     main:
 
@@ -61,13 +63,14 @@ workflow DEXSEQ_DEU {
         .map { _meta, txt -> txt }
         .toSortedList { txt_a, txt_b -> txt_a.name <=> txt_b.name }
 
-    // `DEXSEQ_EXON` runs once per contrast, with the contrast name as its id
+    // `DEXSEQ_EXON` runs once per contrast, with the contrast name as its id and, when
+    // set, its blocking variables, which `ext.args` passes to the module
     ch_dexseq_exon_input = ch_contrastsheet
         .combine(ch_samplesheet)
         .combine(ch_dexseq_clean_txt.map { txts -> [txts] })
         .combine(ch_dexseq_gff)
         .multiMap { row, samplesheet, txts, gff_meta, gff ->
-            def meta = [id: row.contrast]
+            def meta = row.blocking ? [id: row.contrast, blocking: row.blocking] : [id: row.contrast]
             contrast: [meta, 'condition', row.control, row.treatment]
             counts: [meta, samplesheet, txts]
             gff: [gff_meta, gff]
@@ -79,6 +82,16 @@ workflow DEXSEQ_DEU {
         ch_dexseq_exon_input.gff,
     )
 
+    //
+    // MODULE: Copies of the DEXSeq tables with the gene names
+    //
+
+    GENEANNOTATION_ANNOTATE(
+        DEXSEQ_EXON.out.results.mix(DEXSEQ_EXON.out.gene_qvalues),
+        ch_gene_annotation,
+        'groupID',
+    )
+
     emit:
     dexseq_clean_txt = ch_dexseq_clean_txt
     dexseq_exon_dataset_rds = DEXSEQ_EXON.out.dataset_rds
@@ -87,4 +100,5 @@ workflow DEXSEQ_DEU {
     dexseq_exon_results_tsv = DEXSEQ_EXON.out.results
     dexseq_gene_results_tsv = DEXSEQ_EXON.out.gene_qvalues
     dexseq_plot_results_pdf = DEXSEQ_EXON.out.plots
+    dexseq_annotated_tsv = GENEANNOTATION_ANNOTATE.out.annotated // channel: [ val(meta), path(tsv) ], the exon results and gene q-values with the gene names
 }

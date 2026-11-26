@@ -13,42 +13,48 @@
                 "FASTQC": {
                     "fastqc": "0.13.0"
                 },
+                "GENEANNOTATION_TABLES": {
+                    "python": "3.14.6"
+                },
+                "GFFREAD_TX2GENE": {
+                    "gffread": "0.12.7"
+                },
                 "GTFGENEFILTER": {
                     "python": "3.14.6"
                 },
                 "GUNZIP_FASTA": {
-                    "gunzip": 1.13
+                    "gunzip": "1.13"
                 },
                 "MAKE_TRANSCRIPTS_FASTA": {
                     "rsem": "1.3.1",
                     "star": "2.7.10a"
                 },
                 "SAMTOOLS_FAIDX": {
-                    "samtools": 1.24
+                    "samtools": "1.24"
                 },
                 "SAMTOOLS_FLAGSTAT": {
-                    "samtools": 1.24
+                    "samtools": "1.24"
                 },
                 "SAMTOOLS_IDXSTATS": {
-                    "samtools": 1.24
+                    "samtools": "1.24"
                 },
                 "SAMTOOLS_INDEX": {
-                    "samtools": 1.24
+                    "samtools": "1.24"
                 },
                 "SAMTOOLS_SORT": {
-                    "samtools": 1.24
+                    "samtools": "1.24"
                 },
                 "SAMTOOLS_STATS": {
-                    "samtools": 1.24
+                    "samtools": "1.24"
                 },
                 "STAR_ALIGN": {
                     "gawk": "5.1.0",
-                    "samtools": 1.21,
+                    "samtools": "1.21",
                     "star": "2.7.11b"
                 },
                 "STAR_GENOMEGENERATE": {
                     "gawk": "5.1.0",
-                    "samtools": 1.21,
+                    "samtools": "1.21",
                     "star": "2.7.11b"
                 },
                 "TRIMGALORE": {
@@ -59,6 +65,9 @@
                 }
             },
             [
+                "annotation",
+                "annotation/genes_chrX.gene_annotation.tsv",
+                "annotation/genes_chrX.transcript_annotation.tsv",
                 "fastqc",
                 "fastqc/ERR188383_1_fastqc.html",
                 "fastqc/ERR188383_1_fastqc.zip",
@@ -356,17 +365,17 @@
                 "ERR204916_sorted.bam": "1f2abfcbb9697c56744ffb5fcfeb9f17"
             },
             {
-                "gene": "ff8268fb0323d8709eb9dca3cfb87d00",
-                "bin": "920ec96ed93f6b78d64a483a5dec7004",
-                "junction": "d549ebaea89068aa6ed3f2a87651a89d",
-                "e1i": "12d5cc25b6cc6428c387654f7ccca851",
-                "ie2": "d44a37ce7692b6aae05fbbe08abbef90"
+                "gene": "5661ec3274c45c5b6a6c11acb2e76cf1",
+                "bin": "c80f05249bee5dff0dbf3760f50dafe5",
+                "junction": "bfa673613b20d91a70c5f244a941fbea",
+                "e1i": "8d896b24d874eb6819b3a7f9fcafca70",
+                "ie2": "ff2117cda8354f3f04cd0a4be8c0dc7e"
             }
         ],
-        "timestamp": "2026-10-29T11:56:25.391664399",
+        "timestamp": "2026-11-24T12:30:36.692938228",
         "meta": {
-            "nf-test": "0.9.5",
-            "nextflow": "26.04.3"
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
         }
     }
 }

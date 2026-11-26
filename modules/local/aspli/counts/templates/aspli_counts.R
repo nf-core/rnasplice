@@ -141,6 +141,8 @@ targets_file <- '$targets'
 
 gtf <- '$gtf'
 
+gene_annotation_file <- '$gene_annotation'
+
 read_length <- as.integer('$read_length')
 
 cores <- as.integer('$task.cpus')
@@ -253,7 +255,31 @@ suppressPackageStartupMessages(library(ASpli))
 
 txdb <- suppressWarnings(txdbmaker::makeTxDbFromGFF(gtf, format = "gtf"))
 
-features <- binGenome(txdb, logTo = paste0(prefix, ".binGenome.log"), cores = cores)
+# The gene names of the `symbol` column of the ASpli tables, which holds the gene IDs
+# when binGenome is given no names. They are read from the gene annotation table of the
+# pipeline rather than from the GTF a second time, so that they follow the same GTF
+# attributes as the annotated copies of the other results tables. A gene that is not
+# in the table keeps its ID
+
+gene_ids <- names(GenomicFeatures::transcriptsBy(txdb, by = "gene"))
+
+gene_annotation <- read.delim(
+    gene_annotation_file, colClasses = "character", quote = "", comment.char = "", na.strings = character(0)
+)
+
+found <- gene_ids %in% gene_annotation[["gene_id"]]
+
+if (!any(found)) {
+
+    message("No gene ID of the GTF is in the gene annotation table, so the symbol column of the ASpli tables holds the gene IDs.")
+
+}
+
+gene_symbols <- data.frame(symbol = gene_ids, row.names = gene_ids, stringsAsFactors = FALSE)
+
+gene_symbols[found, "symbol"] <- gene_annotation[["gene_name"]][match(gene_ids[found], gene_annotation[["gene_id"]])]
+
+features <- binGenome(txdb, geneSymbols = gene_symbols, logTo = paste0(prefix, ".binGenome.log"), cores = cores)
 
 
 # Count reads over genes, bins and junctions. The order of the conditions is the order

@@ -13,8 +13,9 @@ process STRANDJUNCTIONS {
     tuple val(meta3), path(gtf)
 
     output:
-    tuple val(meta), path("stranded/*.junc"), emit: junc
-    path "versions.yml"                     , topic: versions, emit: versions_python
+    tuple val(meta), path("stranded/*.junc")      , emit: junc
+    tuple val(meta), path("*.strand_summary.tsv") , emit: summary
+    path "versions.yml"                           , topic: versions, emit: versions_python
 
     when:
     task.ext.when == null || task.ext.when
@@ -27,6 +28,7 @@ process STRANDJUNCTIONS {
     """
     mkdir stranded
     touch stranded/${prefix}.junc
+    touch ${prefix}.strand_summary.tsv
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
