@@ -33,7 +33,7 @@ nextflow_workflow {
                     [ contrast:'GBR-YRI', treatment:'GBR', control:'YRI' ],
                     [ contrast:'YRI-GBR', treatment:'YRI', control:'GBR' ],
                 )
-                input[2] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true))
+                input[2] = channel.value([:])
                 input[3] = channel.of(
                     [ [ id:'ERR188383', condition:'GBR', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
                     [ [ id:'ERR188428', condition:'GBR', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true) ],
@@ -84,7 +84,7 @@ nextflow_workflow {
                 input[1] = channel.of(
                     [ contrast:'GBR-YRI', treatment:'GBR', control:'YRI' ],
                 )
-                input[2] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true))
+                input[2] = channel.value([:])
                 input[3] = channel.of(
                     [ [ id:'ERR188383', condition:'GBR', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
                     [ [ id:'ERR188428', condition:'GBR', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true) ],
@@ -136,7 +136,7 @@ nextflow_workflow {
                 input[1] = channel.of(
                     [ contrast:'GBR-YRI', treatment:'GBR', control:'YRI', blocking:'batch' ],
                 )
-                input[2] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet_blocking.csv', checkIfExists: true))
+                input[2] = channel.value([ ERR188383: [ batch:'1' ], ERR188428: [ batch:'2' ], ERR188454: [ batch:'1' ], ERR204916: [ batch:'2' ] ])
                 input[3] = channel.of(
                     [ [ id:'ERR188383', condition:'GBR', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
                     [ [ id:'ERR188428', condition:'GBR', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true) ],
@@ -178,7 +178,7 @@ nextflow_workflow {
                 input[1] = channel.of(
                     [ contrast:'GBR-YRI', treatment:'GBR', control:'YRI' ],
                 )
-                input[2] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true))
+                input[2] = channel.value([:])
                 input[3] = channel.of(
                     [ [ id:'ERR188383', condition:'GBR', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
                     [ [ id:'ERR188428', condition:'GBR', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true) ],
@@ -225,7 +225,7 @@ nextflow_workflow {
                 input[1] = channel.of(
                     [ contrast:'GBR-YRI', treatment:'GBR', control:'YRI' ],
                 )
-                input[2] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true))
+                input[2] = channel.value([:])
                 input[3] = channel.of(
                     [ [ id:'ERR188383', condition:'GBR', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
                     [ [ id:'ERR188428', condition:'GBR', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true) ],
@@ -267,7 +267,7 @@ nextflow_workflow {
                 input[1] = channel.of(
                     [ contrast:'GBR-YRI', treatment:'GBR', control:'YRI' ],
                 )
-                input[2] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true))
+                input[2] = channel.value([:])
                 input[3] = channel.of(
                     [ [ id:'ERR188383', condition:'GBR', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.Aligned.out.bam', checkIfExists: true) ],
                     [ [ id:'ERR188428', condition:'GBR', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true) ],

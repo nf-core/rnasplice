@@ -439,7 +439,7 @@ workflow RNASPLICE {
             RMATS(
                 ch_samples,
                 ch_contrastsheet,
-                ch_samplesheet_file,
+                ch_blocking_values,
                 ch_genome_bam,
                 ch_gtf.map { gtf -> [[:], gtf] },
                 ch_rmats_read_len,

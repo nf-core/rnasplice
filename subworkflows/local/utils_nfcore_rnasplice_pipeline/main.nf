@@ -540,6 +540,32 @@ def resolveBlockingVariables(contrast_id, blocking, sample_rows) {
 }
 
 //
+// The samples of a contrast in the order that pairs them, when its blocking variable is a
+// paired design: a single variable that matches every sample of the first condition with
+// one sample of the second, such as a donor. Returns the sample ids of the two conditions
+// sorted by that variable, or null when the blocking variables are not a pairing
+//
+def pairSamplesByBlocking(blocking, ids1, ids2, blocking_values) {
+    def columns = blocking.tokenize(';')
+    if (columns.size() != 1) {
+        return null
+    }
+    def values1 = ids1.collect { id -> blocking_values[id]?.get(columns[0]) }
+    def values2 = ids2.collect { id -> blocking_values[id]?.get(columns[0]) }
+    def one_to_one = !(values1 + values2).any { value -> !value } &&
+        values1.toSet().size() == ids1.size() &&
+        values2.toSet().size() == ids2.size() &&
+        values1.toSet() == values2.toSet()
+    if (!one_to_one) {
+        return null
+    }
+    return [
+        ids1: [ids1, values1].transpose().sort { pair -> pair[1] }.collect { pair -> pair[0] },
+        ids2: [ids2, values2].transpose().sort { pair -> pair[1] }.collect { pair -> pair[0] },
+    ]
+}
+
+//
 // Validate channels from input contrastsheet
 //
 def validateInputContrastsheet(input) {

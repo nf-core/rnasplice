@@ -1,0 +1,98 @@
+nextflow_function {
+
+    name "Test Function pairSamplesByBlocking"
+    script "../main.nf"
+    function "pairSamplesByBlocking"
+
+    tag "subworkflows"
+    tag "subworkflows/utils_nfcore_rnasplice_pipeline"
+
+    test("donor pairs the samples, which are put in the order of the donor") {
+
+        when {
+            function {
+                """
+                input[0] = 'donor'
+                input[1] = [ 'a2', 'a1' ]
+                input[2] = [ 'b1', 'b2' ]
+                input[3] = [ a1: [ donor:'d1' ], a2: [ donor:'d2' ], b1: [ donor:'d1' ], b2: [ donor:'d2' ] ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert snapshot(function.result).match() }
+            )
+        }
+
+    }
+
+    test("several samples per value are not a pairing") {
+
+        when {
+            function {
+                """
+                input[0] = 'batch'
+                input[1] = [ 'a1', 'a2' ]
+                input[2] = [ 'b1', 'b2' ]
+                input[3] = [ a1: [ batch:'x' ], a2: [ batch:'x' ], b1: [ batch:'x' ], b2: [ batch:'x' ] ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result == null }
+            )
+        }
+
+    }
+
+    test("values that differ between the conditions are not a pairing") {
+
+        when {
+            function {
+                """
+                input[0] = 'donor'
+                input[1] = [ 'a1', 'a2' ]
+                input[2] = [ 'b1', 'b2' ]
+                input[3] = [ a1: [ donor:'d1' ], a2: [ donor:'d2' ], b1: [ donor:'d1' ], b2: [ donor:'d3' ] ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result == null }
+            )
+        }
+
+    }
+
+    test("several blocking variables are not a pairing") {
+
+        when {
+            function {
+                """
+                input[0] = 'donor;batch'
+                input[1] = [ 'a1', 'a2' ]
+                input[2] = [ 'b1', 'b2' ]
+                input[3] = [ a1: [ donor:'d1', batch:'x' ], a2: [ donor:'d2', batch:'y' ], b1: [ donor:'d1', batch:'x' ], b2: [ donor:'d2', batch:'y' ] ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result == null }
+            )
+        }
+
+    }
+
+}
