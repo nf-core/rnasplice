@@ -151,12 +151,13 @@ nextflow_workflow {
         }
 
         then {
-            def bam_names = { lists -> lists.collect { _contrast, list -> path(list).text.trim().split(',').collect { bam -> bam.tokenize('/')[-1] } } }
             assertAll(
                 { assert workflow.success },
-                { assert bam_names(workflow.out.bam_list1) == [ [ 'ERR188383.Aligned.out.bam', 'ERR188428.Aligned.out.bam' ] ] },
-                { assert bam_names(workflow.out.bam_list2) == [ [ 'ERR188454.Aligned.out.bam', 'ERR204916.Aligned.out.bam' ] ] },
-                { assert workflow.out.summary.every { meta, summary -> meta.paired } }
+                { assert snapshot(
+                    workflow.out.bam_list1,
+                    workflow.out.bam_list2,
+                    workflow.out.summary.collect { meta, summary -> [ meta, file(summary).name ] }
+                ).match() }
             )
         }
 
