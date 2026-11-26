@@ -50,7 +50,7 @@ nextflow_workflow {
                     [ [ id:'ERR204916', condition:'YRI', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916.Aligned.out.bam', checkIfExists: true) ],
                 )
                 input[2] = channel.of([ contrast:'GBR-YRI', treatment:'GBR', control:'YRI' ])
-                input[3] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true))
+                input[3] = channel.value([:])
                 input[4] = GENEANNOTATION_TABLES.out.gene.first()
                 """
             }
@@ -97,7 +97,7 @@ nextflow_workflow {
                     [ [ id:'ERR188428', condition:'GBR', single_end:false, strandedness:'unstranded' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.Aligned.out.bam', checkIfExists: true) ],
                 )
                 input[2] = channel.of([ contrast:'GBR-YRI', treatment:'GBR', control:'YRI' ])
-                input[3] = channel.value(file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true))
+                input[3] = channel.value([:])
                 input[4] = GENEANNOTATION_TABLES.out.gene.first()
                 """
             }

@@ -16,7 +16,17 @@ nextflow_workflow {
         def genome_bam_blocking = new File("${launchDir}/samplesheet_genome_bam_blocking.csv")
         genome_bam_blocking.parentFile.mkdirs()
         genome_bam_blocking.text = '"sample","condition","batch","genome_bam"\n' + samples.collect { sample, condition ->
+            "${sample},${condition},${sample in ['ERR188383', 'ERR188454'] ? 'b 1' : 'b,2'},${testdata}${sample}.Aligned.out.bam\n"
+        }.join()
+
+        // Every sample has the same batch, and a batch that is the condition
+        def genome_bam_constant = new File("${launchDir}/samplesheet_genome_bam_constant.csv")
+        genome_bam_constant.text = 'sample,condition,batch,genome_bam\n' + samples.collect { sample, condition ->
             "${sample},${condition},1,${testdata}${sample}.Aligned.out.bam\n"
+        }.join()
+        def genome_bam_confounded = new File("${launchDir}/samplesheet_genome_bam_confounded.csv")
+        genome_bam_confounded.text = 'sample,condition,batch,genome_bam\n' + samples.collect { sample, condition ->
+            "${sample},${condition},${condition},${testdata}${sample}.Aligned.out.bam\n"
         }.join()
 
         def contrasts = [
@@ -152,7 +162,74 @@ nextflow_workflow {
                 { assert workflow.out.contrastsheet == [
                     [ contrast: 'GBR-YRI', treatment: 'GBR', control: 'YRI', blocking: 'batch' ],
                     [ contrast: 'YRI-GBR', treatment: 'YRI', control: 'GBR' ]
-                ] }
+                ] },
+                // Commas and whitespace in the values are replaced
+                { assert workflow.out.blocking_values == [ [
+                    ERR188383: [ batch: 'b_1' ],
+                    ERR188428: [ batch: 'b_2' ],
+                    ERR188454: [ batch: 'b_1' ],
+                    ERR204916: [ batch: 'b_2' ]
+                ] ] }
+            )
+        }
+
+    }
+
+    test("contrastsheet - blocking variable with a single value is left out") {
+
+        when {
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = "${outputDir}"
+                input[5] = "${launchDir}/samplesheet_genome_bam_constant.csv"
+                input[6] = "${launchDir}/contrastsheet_new_blocking.csv"
+                input[7] = false
+                input[8] = false
+                input[9] = false
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.contrastsheet == [
+                    [ contrast: 'GBR-YRI', treatment: 'GBR', control: 'YRI' ],
+                    [ contrast: 'YRI-GBR', treatment: 'YRI', control: 'GBR' ]
+                ] },
+                { assert (workflow.stdout + workflow.stderr).any { line -> line.contains("blocking column 'batch' has a single value") } }
+            )
+        }
+
+    }
+
+    test("contrastsheet - blocking variable confounded with the condition fails") {
+
+        when {
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = "${outputDir}"
+                input[5] = "${launchDir}/samplesheet_genome_bam_confounded.csv"
+                input[6] = "${launchDir}/contrastsheet_new_blocking.csv"
+                input[7] = false
+                input[8] = false
+                input[9] = false
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.failed },
+                { assert (workflow.stdout + workflow.stderr).any { line -> line.contains("blocking column 'batch' is confounded with the condition") } }
             )
         }
 
