@@ -2,42 +2,10 @@
     "human chrX - salmon tarballs": {
         "content": [
             {
-                "counts_gene": [
-                    [
-                        {
-                            "id": "salmon.merged"
-                        },
-                        "salmon.merged.gene_counts.tsv:md5,93ffc330a6781594aa054039d8cea457"
-                    ]
-                ],
-                "counts_gene_length_scaled": [
-                    [
-                        {
-                            "id": "salmon.merged"
-                        },
-                        "salmon.merged.gene_counts_length_scaled.tsv:md5,50a1a9c62fc4dd073164c84198c1c9ec"
-                    ]
-                ],
-                "counts_gene_scaled": [
-                    [
-                        {
-                            "id": "salmon.merged"
-                        },
-                        "salmon.merged.gene_counts_scaled.tsv:md5,24f99504a5e59a756c0605e357b1e474"
-                    ]
-                ],
-                "counts_transcript": [
-                    [
-                        {
-                            "id": "salmon.merged"
-                        },
-                        "salmon.merged.transcript_counts.tsv:md5,a10dd95031656d46f15aa34e1751e9d9"
-                    ]
-                ],
                 "counts_transcript_dtu_scaled": [
                     [
                         {
-                            "id": "salmon.merged"
+                            "id": "all_samples"
                         },
                         "salmon.merged.transcript_counts_dtu_scaled.tsv:md5,faa76b5ad9975d1121fb938ef00f7a7d"
                     ]
@@ -45,7 +13,7 @@
                 "counts_transcript_scaled": [
                     [
                         {
-                            "id": "salmon.merged"
+                            "id": "all_samples"
                         },
                         "salmon.merged.transcript_counts_scaled.tsv:md5,94db631b5de8a4a4873daf65c07a580a"
                     ]
@@ -158,34 +126,10 @@
                 ],
                 "suppa_tpm": [
                     "suppa_tpm.txt:md5,c144b0264eee77c30b9dddc1cebea4e4"
-                ],
-                "tpm_gene": [
-                    [
-                        {
-                            "id": "salmon.merged"
-                        },
-                        "salmon.merged.gene_tpm.tsv:md5,30ef28f3e7f2e421a58b66d029e88427"
-                    ]
-                ],
-                "tpm_transcript": [
-                    [
-                        {
-                            "id": "salmon.merged"
-                        },
-                        "salmon.merged.transcript_tpm.tsv:md5,cb586e9305690312b25d4a88a140eab3"
-                    ]
-                ],
-                "tx2gene": [
-                    [
-                        {
-                            "id": "genes_chrX"
-                        },
-                        "genes_chrX.tx2gene.tsv:md5,4c0b778cd0b4ceb782e9c60fedaf8497"
-                    ]
                 ]
             }
         ],
-        "timestamp": "2026-11-25T23:47:00.648778848",
+        "timestamp": "2026-11-26T16:30:06.87715531",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"
@@ -194,42 +138,10 @@
     "human chrX - salmon directories": {
         "content": [
             {
-                "counts_gene": [
-                    [
-                        {
-                            "id": "salmon.merged"
-                        },
-                        "salmon.merged.gene_counts.tsv:md5,93ffc330a6781594aa054039d8cea457"
-                    ]
-                ],
-                "counts_gene_length_scaled": [
-                    [
-                        {
-                            "id": "salmon.merged"
-                        },
-                        "salmon.merged.gene_counts_length_scaled.tsv:md5,50a1a9c62fc4dd073164c84198c1c9ec"
-                    ]
-                ],
-                "counts_gene_scaled": [
-                    [
-                        {
-                            "id": "salmon.merged"
-                        },
-                        "salmon.merged.gene_counts_scaled.tsv:md5,24f99504a5e59a756c0605e357b1e474"
-                    ]
-                ],
-                "counts_transcript": [
-                    [
-                        {
-                            "id": "salmon.merged"
-                        },
-                        "salmon.merged.transcript_counts.tsv:md5,a10dd95031656d46f15aa34e1751e9d9"
-                    ]
-                ],
                 "counts_transcript_dtu_scaled": [
                     [
                         {
-                            "id": "salmon.merged"
+                            "id": "all_samples"
                         },
                         "salmon.merged.transcript_counts_dtu_scaled.tsv:md5,faa76b5ad9975d1121fb938ef00f7a7d"
                     ]
@@ -237,7 +149,7 @@
                 "counts_transcript_scaled": [
                     [
                         {
-                            "id": "salmon.merged"
+                            "id": "all_samples"
                         },
                         "salmon.merged.transcript_counts_scaled.tsv:md5,94db631b5de8a4a4873daf65c07a580a"
                     ]
@@ -350,34 +262,10 @@
                 ],
                 "suppa_tpm": [
                     "suppa_tpm.txt:md5,c144b0264eee77c30b9dddc1cebea4e4"
-                ],
-                "tpm_gene": [
-                    [
-                        {
-                            "id": "salmon.merged"
-                        },
-                        "salmon.merged.gene_tpm.tsv:md5,30ef28f3e7f2e421a58b66d029e88427"
-                    ]
-                ],
-                "tpm_transcript": [
-                    [
-                        {
-                            "id": "salmon.merged"
-                        },
-                        "salmon.merged.transcript_tpm.tsv:md5,cb586e9305690312b25d4a88a140eab3"
-                    ]
-                ],
-                "tx2gene": [
-                    [
-                        {
-                            "id": "genes_chrX"
-                        },
-                        "genes_chrX.tx2gene.tsv:md5,4c0b778cd0b4ceb782e9c60fedaf8497"
-                    ]
                 ]
             }
         ],
-        "timestamp": "2026-11-25T23:46:45.162315587",
+        "timestamp": "2026-11-26T16:29:41.44005097",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"
@@ -386,52 +274,20 @@
     "human chrX - salmon tarballs - stub": {
         "content": [
             {
-                "counts_gene": [
-                    [
-                        {
-                            "id": "salmon.merged"
-                        },
-                        "salmon.merged.gene_counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
-                    ]
-                ],
-                "counts_gene_length_scaled": [
-                    [
-                        {
-                            "id": "salmon.merged"
-                        },
-                        "salmon.merged.gene_counts_length_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
-                    ]
-                ],
-                "counts_gene_scaled": [
-                    [
-                        {
-                            "id": "salmon.merged"
-                        },
-                        "salmon.merged.gene_counts_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
-                    ]
-                ],
-                "counts_transcript": [
-                    [
-                        {
-                            "id": "salmon.merged"
-                        },
-                        "salmon.merged.transcript_counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
-                    ]
-                ],
                 "counts_transcript_dtu_scaled": [
                     [
                         {
-                            "id": "salmon.merged"
+                            "id": "all_samples"
                         },
-                        "salmon.merged.transcript_counts_dtu_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        "all_samples.transcript_counts_dtu_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
                     ]
                 ],
                 "counts_transcript_scaled": [
                     [
                         {
-                            "id": "salmon.merged"
+                            "id": "all_samples"
                         },
-                        "salmon.merged.transcript_counts_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        "all_samples.transcript_counts_scaled.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
                     ]
                 ],
                 "salmon_results": [
@@ -456,34 +312,10 @@
                 ],
                 "suppa_tpm": [
                     "suppa_tpm.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
-                ],
-                "tpm_gene": [
-                    [
-                        {
-                            "id": "salmon.merged"
-                        },
-                        "salmon.merged.gene_tpm.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
-                    ]
-                ],
-                "tpm_transcript": [
-                    [
-                        {
-                            "id": "salmon.merged"
-                        },
-                        "salmon.merged.transcript_tpm.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
-                    ]
-                ],
-                "tx2gene": [
-                    [
-                        {
-                            "id": "genes_chrX"
-                        },
-                        "genes_chrX.tx2gene.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
-                    ]
                 ]
             }
         ],
-        "timestamp": "2026-11-25T23:47:19.160412033",
+        "timestamp": "2026-11-26T16:30:31.567888428",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"

@@ -61,6 +61,12 @@
                 "SAMTOOLS_STATS": {
                     "samtools": "1.24"
                 },
+                "SE_GENE_UNIFIED": {
+                    "bioconductor-summarizedexperiment": "1.42.0"
+                },
+                "SE_TRANSCRIPT_UNIFIED": {
+                    "bioconductor-summarizedexperiment": "1.42.0"
+                },
                 "STAR_ALIGN": {
                     "gawk": "5.1.0",
                     "samtools": "1.21",
@@ -77,7 +83,7 @@
                 "TRIMGALORE": {
                     "trimgalore": "2.3.0"
                 },
-                "TXIMPORT": {
+                "TXIMETA_TXIMPORT": {
                     "bioconductor-tximeta": "1.20.1",
                     "bioconductor-tximport": "1.30.0"
                 },
@@ -86,7 +92,7 @@
                 }
             }
         ],
-        "timestamp": "2026-11-26T15:37:55.228393471",
+        "timestamp": "2026-11-26T16:44:48.013776965",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"
