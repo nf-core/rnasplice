@@ -179,7 +179,8 @@
                     "trimgalore": "2.3.0"
                 },
                 "TXIMPORT": {
-                    "bioconductor-tximeta": "1.20.1"
+                    "bioconductor-tximeta": "1.20.1",
+                    "bioconductor-tximport": "1.30.0"
                 },
                 "Workflow": {
                     "nf-core/rnasplice": "v2.0.1dev"
@@ -209,15 +210,22 @@
                 "genome",
                 "genome/index",
                 "isoformswitchanalyzer",
-                "isoformswitchanalyzer/isoformswitchanalyzer_isoformfeatures.csv",
-                "isoformswitchanalyzer/isoformswitchanalyzer_summary.csv",
-                "isoformswitchanalyzer/results",
-                "isoformswitchanalyzer/results/GBR_vs_YRI",
-                "isoformswitchanalyzer/results/GBR_vs_YRI/1_switch_plot_RPL10_aka_RPL10.pdf",
-                "isoformswitchanalyzer/results/YRI_vs_GBR",
-                "isoformswitchanalyzer/results/YRI_vs_GBR/1_switch_plot_RPL10_aka_RPL10.pdf",
-                "isoformswitchanalyzer/results/common_switch_consequences.pdf",
-                "isoformswitchanalyzer/switchlist.rds",
+                "isoformswitchanalyzer/GBR-YRI",
+                "isoformswitchanalyzer/GBR-YRI/isoformswitchanalyzer_isoformfeatures.csv",
+                "isoformswitchanalyzer/GBR-YRI/isoformswitchanalyzer_summary.csv",
+                "isoformswitchanalyzer/GBR-YRI/results",
+                "isoformswitchanalyzer/GBR-YRI/results/YRI_vs_GBR",
+                "isoformswitchanalyzer/GBR-YRI/results/YRI_vs_GBR/1_switch_plot_RPL10_aka_RPL10.pdf",
+                "isoformswitchanalyzer/GBR-YRI/results/common_switch_consequences.pdf",
+                "isoformswitchanalyzer/GBR-YRI/switchlist.rds",
+                "isoformswitchanalyzer/YRI-GBR",
+                "isoformswitchanalyzer/YRI-GBR/isoformswitchanalyzer_isoformfeatures.csv",
+                "isoformswitchanalyzer/YRI-GBR/isoformswitchanalyzer_summary.csv",
+                "isoformswitchanalyzer/YRI-GBR/results",
+                "isoformswitchanalyzer/YRI-GBR/results/GBR_vs_YRI",
+                "isoformswitchanalyzer/YRI-GBR/results/GBR_vs_YRI/1_switch_plot_RPL10_aka_RPL10.pdf",
+                "isoformswitchanalyzer/YRI-GBR/results/common_switch_consequences.pdf",
+                "isoformswitchanalyzer/YRI-GBR/switchlist.rds",
                 "misopy",
                 "misopy/genes_chrX_genes.gff3",
                 "misopy/index",
@@ -1220,7 +1228,8 @@
                 "trimgalore/fastqc/ERR204916_2_val_2_fastqc.zip"
             ],
             [
-                "isoformswitchanalyzer_summary.csv:md5,8cb2a864dbf6d26df508842d83a25bdb",
+                "isoformswitchanalyzer_summary.csv:md5,10a3f006cf38d35c3f4415f258b70cc9",
+                "isoformswitchanalyzer_summary.csv:md5,074341c35ff7d2dd8ebbbf6a559b2a07",
                 "genes_chrX_genes.gff3:md5,c10571e49275f25f0a51f664a161f811",
                 "genes.gff:md5,96be13c1360e34dd9e565d9ac9a5a7bf",
                 "miso_settings.txt:md5,c092cc3e878a299674a99c508b6b2e72",
@@ -1349,7 +1358,7 @@
                 "ERR204916_sorted.bam": "1f2abfcbb9697c56744ffb5fcfeb9f17"
             }
         ],
-        "timestamp": "2026-11-26T13:39:19.552675446",
+        "timestamp": "2026-11-26T16:07:29.389703325",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"

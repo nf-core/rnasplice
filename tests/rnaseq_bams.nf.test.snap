@@ -162,7 +162,8 @@
                     "suppa": "2.4"
                 },
                 "TXIMPORT": {
-                    "bioconductor-tximeta": "1.20.1"
+                    "bioconductor-tximeta": "1.20.1",
+                    "bioconductor-tximport": "1.30.0"
                 },
                 "Workflow": {
                     "nf-core/rnasplice": "v2.0.1dev"
@@ -174,10 +175,16 @@
                 "annotation/genes_chrX.transcript_annotation.tsv",
                 "genome",
                 "isoformswitchanalyzer",
-                "isoformswitchanalyzer/isoformswitchanalyzer_isoformfeatures.csv",
-                "isoformswitchanalyzer/isoformswitchanalyzer_summary.csv",
-                "isoformswitchanalyzer/results",
-                "isoformswitchanalyzer/switchlist.rds",
+                "isoformswitchanalyzer/GBR-YRI",
+                "isoformswitchanalyzer/GBR-YRI/isoformswitchanalyzer_isoformfeatures.csv",
+                "isoformswitchanalyzer/GBR-YRI/isoformswitchanalyzer_summary.csv",
+                "isoformswitchanalyzer/GBR-YRI/results",
+                "isoformswitchanalyzer/GBR-YRI/switchlist.rds",
+                "isoformswitchanalyzer/YRI-GBR",
+                "isoformswitchanalyzer/YRI-GBR/isoformswitchanalyzer_isoformfeatures.csv",
+                "isoformswitchanalyzer/YRI-GBR/isoformswitchanalyzer_summary.csv",
+                "isoformswitchanalyzer/YRI-GBR/results",
+                "isoformswitchanalyzer/YRI-GBR/switchlist.rds",
                 "misopy",
                 "misopy/genes_chrX_genes.gff3",
                 "misopy/index",
@@ -861,6 +868,7 @@
             ],
             [
                 "isoformswitchanalyzer_summary.csv:md5,4b2ab1b387ded8f479d7cfa96893e93b",
+                "isoformswitchanalyzer_summary.csv:md5,4b2ab1b387ded8f479d7cfa96893e93b",
                 "genes_chrX_genes.gff3:md5,c10571e49275f25f0a51f664a161f811",
                 "genes.gff:md5,96be13c1360e34dd9e565d9ac9a5a7bf",
                 "miso_settings.txt:md5,c092cc3e878a299674a99c508b6b2e72",
@@ -972,7 +980,7 @@
                 "ERR204916_sorted.bam": "d04f778c726310a919eb676fe3432716"
             }
         ],
-        "timestamp": "2026-11-26T13:49:06.690954839",
+        "timestamp": "2026-11-26T16:09:00.758244961",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"
