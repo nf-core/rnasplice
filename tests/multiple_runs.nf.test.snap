@@ -78,14 +78,15 @@
                     "trimgalore": "2.3.0"
                 },
                 "TXIMPORT": {
-                    "bioconductor-tximeta": "1.20.1"
+                    "bioconductor-tximeta": "1.20.1",
+                    "bioconductor-tximport": "1.30.0"
                 },
                 "Workflow": {
                     "nf-core/rnasplice": "v2.0.1dev"
                 }
             }
         ],
-        "timestamp": "2026-11-26T13:47:35.449915917",
+        "timestamp": "2026-11-26T15:37:55.228393471",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"

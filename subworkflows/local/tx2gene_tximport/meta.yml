@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
 name: "tx2gene_tximport"
-description: Extract the Salmon results given as tarballs, build a transcript to gene table from the annotation and merge the quantification of all samples with tximport
+description: Extract the Salmon results given as tarballs, merge the quantification of all samples with tximport into tables and SummarizedExperiment objects, and reshape the transcript TPM for SUPPA
 keywords:
   - salmon
   - tximport
@@ -9,10 +9,15 @@ keywords:
   - rna-seq
 components:
   - untar
-  - custom/tx2gene
-  - tximeta/tximport
+  - quant_tximport_summarizedexperiment
   - suppatpm
 input:
+  - ch_samplesheet:
+      type: file
+      description: |
+        Channel containing the samplesheet, used as the colData of the SummarizedExperiment objects
+        Structure: [ val(meta), path(csv) ]
+      pattern: "*.csv"
   - ch_salmon_results:
       type: directory
       description: |
@@ -38,24 +43,6 @@ output:
       description: |
         Channel containing the Salmon directory of each sample, extracted when the input was a tarball, with the meta map of the input
         Structure: [ val(meta), path(results) ]
-  - tx2gene:
-      type: file
-      description: |
-        Channel containing the transcript to gene table of the annotation
-        Structure: [ val(meta), path(tsv) ]
-      pattern: "*tx2gene.tsv"
-  - tpm_transcript:
-      type: file
-      description: |
-        Channel containing the transcript TPM of all samples
-        Structure: [ val(meta), path(tsv) ]
-      pattern: "*transcript_tpm.tsv"
-  - counts_transcript:
-      type: file
-      description: |
-        Channel containing the transcript counts of all samples, as Salmon estimates them
-        Structure: [ val(meta), path(tsv) ]
-      pattern: "*transcript_counts.tsv"
   - counts_transcript_scaled:
       type: file
       description: |
@@ -68,30 +55,6 @@ output:
         Channel containing the transcript counts of all samples, scaled for differential transcript usage (dtuScaledTPM)
         Structure: [ val(meta), path(tsv) ]
       pattern: "*transcript_counts_dtu_scaled.tsv"
-  - tpm_gene:
-      type: file
-      description: |
-        Channel containing the gene TPM of all samples
-        Structure: [ val(meta), path(tsv) ]
-      pattern: "*gene_tpm.tsv"
-  - counts_gene:
-      type: file
-      description: |
-        Channel containing the gene counts of all samples
-        Structure: [ val(meta), path(tsv) ]
-      pattern: "*gene_counts.tsv"
-  - counts_gene_scaled:
-      type: file
-      description: |
-        Channel containing the gene counts of all samples, scaled to library size (scaledTPM)
-        Structure: [ val(meta), path(tsv) ]
-      pattern: "*gene_counts_scaled.tsv"
-  - counts_gene_length_scaled:
-      type: file
-      description: |
-        Channel containing the gene counts of all samples, scaled to library size and transcript length (lengthScaledTPM)
-        Structure: [ val(meta), path(tsv) ]
-      pattern: "*gene_counts_length_scaled.tsv"
   - suppa_tpm:
       type: file
       description: |

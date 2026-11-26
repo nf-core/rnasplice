@@ -130,6 +130,8 @@ workflow RNASPLICE {
     //
     ch_samples = ch_samplesheet.map { row -> [ row[0].id, row[0].condition ] }
 
+    ch_samplesheet_tuple = ch_samplesheet_file.map { samplesheet -> [ [ id: 'samplesheet' ], samplesheet ] }
+
     // rMATS takes the read type and the library type from the first sample of a
     // contrast, so every sample has to agree on both. The library type of an 'auto'
     // sample is only known once it has been inferred, so it is checked again on the
@@ -534,7 +536,7 @@ workflow RNASPLICE {
             .mix(SALMON_QUANT_STAR.out.results)
             .set { ch_salmon_results }
 
-        TX2GENE_TXIMPORT_STAR_SALMON(ch_salmon_results, ch_gtf, params.gtf_group_features, params.gtf_extra_attributes)
+        TX2GENE_TXIMPORT_STAR_SALMON(ch_samplesheet_tuple, ch_salmon_results, ch_gtf, params.gtf_group_features, params.gtf_extra_attributes)
         ch_txi_suppa_tpm = TX2GENE_TXIMPORT_STAR_SALMON.out.suppa_tpm
 
         if (params.dexseq_dtu) {
@@ -600,10 +602,10 @@ workflow RNASPLICE {
         )
         ch_salmon_results = SALMON_QUANT_SALMON.out.results
 
-        TX2GENE_TXIMPORT_SALMON(ch_salmon_results, ch_gtf, params.gtf_group_features, params.gtf_extra_attributes)
+        TX2GENE_TXIMPORT_SALMON(ch_samplesheet_tuple, ch_salmon_results, ch_gtf, params.gtf_group_features, params.gtf_extra_attributes)
     }
     else if (input_routes.salmon_results) {
-        TX2GENE_TXIMPORT_SALMON(ch_input_salmon_results, ch_gtf, params.gtf_group_features, params.gtf_extra_attributes)
+        TX2GENE_TXIMPORT_SALMON(ch_samplesheet_tuple, ch_input_salmon_results, ch_gtf, params.gtf_group_features, params.gtf_extra_attributes)
 
         // The samplesheet may point at tarballs, which TX2GENE_TXIMPORT extracts.
         // Consumers downstream need the extracted directories, not the archives
