@@ -495,7 +495,7 @@ def normaliseContrastRow(meta) {
 //
 def readSampleRows(input, columns) {
     def rows_by_sample = [:]
-    file(input).splitCsv(header: true).each { row ->
+    file(input).splitCsv(header: true, quote: '"').each { row ->
         def values = ['condition'] + columns
         def sample_row = values.collectEntries { column -> [column, row[column]?.toString()?.trim()] } + [sample: row.sample]
         if (rows_by_sample.containsKey(row.sample) && rows_by_sample[row.sample] != sample_row) {
