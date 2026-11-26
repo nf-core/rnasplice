@@ -10,8 +10,11 @@ include { ISOFORMSWITCHANALYZER                                           } from
 include { GENEANNOTATION_TABLES                                           } from '../modules/local/geneannotation/tables'
 include { GFFREAD as GFFREAD_TX2GENE                                      } from '../modules/nf-core/gffread'
 include { FASTQ_ALIGN_STAR                                                } from '../subworkflows/nf-core/fastq_align_star'
-include { TX2GENE_TXIMPORT as TX2GENE_TXIMPORT_SALMON                     } from '../subworkflows/local/tx2gene_tximport'
-include { TX2GENE_TXIMPORT as TX2GENE_TXIMPORT_STAR_SALMON                } from '../subworkflows/local/tx2gene_tximport'
+include { QUANT_TXIMPORT_SUMMARIZEDEXPERIMENT as QUANT_TXIMPORT_SALMON      } from '../subworkflows/nf-core/quant_tximport_summarizedexperiment'
+include { QUANT_TXIMPORT_SUMMARIZEDEXPERIMENT as QUANT_TXIMPORT_STAR_SALMON } from '../subworkflows/nf-core/quant_tximport_summarizedexperiment'
+include { SUPPATPM as SUPPATPM_SALMON                                     } from '../modules/local/suppatpm'
+include { SUPPATPM as SUPPATPM_STAR_SALMON                                } from '../modules/local/suppatpm'
+include { UNTAR as UNTAR_SALMON_RESULTS                                   } from '../modules/nf-core/untar'
 include { DRIMSEQ_DEXSEQ_DTU as DRIMSEQ_DEXSEQ_DTU_SALMON                 } from '../subworkflows/local/drimseq_dexseq_dtu'
 include { DRIMSEQ_DEXSEQ_DTU as DRIMSEQ_DEXSEQ_DTU_STAR_SALMON            } from '../subworkflows/local/drimseq_dexseq_dtu'
 include { RMATS                                                           } from '../subworkflows/local/rmats'
@@ -571,13 +574,21 @@ workflow RNASPLICE {
             .mix(SALMON_QUANT_STAR.out.results)
             .set { ch_salmon_results }
 
-        TX2GENE_TXIMPORT_STAR_SALMON(ch_samplesheet_tuple, ch_salmon_results, ch_gtf, params.gtf_group_features, params.gtf_extra_attributes)
-        ch_txi_suppa_tpm = TX2GENE_TXIMPORT_STAR_SALMON.out.suppa_tpm
+        QUANT_TXIMPORT_STAR_SALMON(
+            ch_samplesheet_tuple,
+            ch_salmon_results,
+            ch_gtf,
+            params.gtf_group_features,
+            params.gtf_extra_attributes,
+            'salmon',
+            false,
+        )
+        SUPPATPM_STAR_SALMON(QUANT_TXIMPORT_STAR_SALMON.out.tpm_transcript.map { _meta, tpm -> [[id: 'suppa_tpm'], tpm] })
 
         if (params.dexseq_dtu) {
             ch_dtu_counts = (params.dtu_txi == "dtuScaledTPM")
-                ? TX2GENE_TXIMPORT_STAR_SALMON.out.counts_transcript_dtu_scaled
-                : TX2GENE_TXIMPORT_STAR_SALMON.out.counts_transcript_scaled
+                ? QUANT_TXIMPORT_STAR_SALMON.out.counts_transcript_dtu_scaled
+                : QUANT_TXIMPORT_STAR_SALMON.out.counts_transcript_scaled
             DRIMSEQ_DEXSEQ_DTU_STAR_SALMON(
                 ch_dtu_counts.map { _meta, counts -> counts },
                 ch_samplesheet_file,
@@ -592,7 +603,7 @@ workflow RNASPLICE {
         }
 
         if (params.suppa) {
-            ch_suppa_tpm = params.suppa_tpm ? ch_suppa_tpm : ch_txi_suppa_tpm
+            ch_suppa_tpm = params.suppa_tpm ? ch_suppa_tpm : SUPPATPM_STAR_SALMON.out.tpm.map { _meta, tpm -> tpm }
             SUPPA_STAR_SALMON(
                 ch_gtf.map { gtf -> [[ id: gtf.baseName ], gtf] },
                 ch_suppa_tpm.map { tpm_psi -> [[ id: tpm_psi.baseName ], tpm_psi] },
@@ -645,22 +656,36 @@ workflow RNASPLICE {
             params.salmon_quant_libtype ?: '',
         )
         ch_salmon_results = SALMON_QUANT_SALMON.out.results
-
-        TX2GENE_TXIMPORT_SALMON(ch_samplesheet_tuple, ch_salmon_results, ch_gtf, params.gtf_group_features, params.gtf_extra_attributes)
     }
     else if (input_routes.salmon_results) {
-        TX2GENE_TXIMPORT_SALMON(ch_samplesheet_tuple, ch_input_salmon_results, ch_gtf, params.gtf_group_features, params.gtf_extra_attributes)
-
-        // The samplesheet may point at tarballs, which TX2GENE_TXIMPORT extracts.
-        // Consumers downstream need the extracted directories, not the archives
-        ch_salmon_results = TX2GENE_TXIMPORT_SALMON.out.salmon_results
+        // Salmon results in the samplesheet can be tarballs, and every step that reads them
+        // needs the extracted directories
+        ch_input_salmon_results
+            .branch { _meta, results ->
+                tar: results.name.endsWith('.tar.gz')
+                dir: true
+            }
+            .set { ch_salmon_results_input }
+        UNTAR_SALMON_RESULTS(ch_salmon_results_input.tar)
+        ch_salmon_results = ch_salmon_results_input.dir.mix(UNTAR_SALMON_RESULTS.out.untar)
     }
 
     if (input_routes.pseudo_salmon || input_routes.salmon_results) {
+        QUANT_TXIMPORT_SALMON(
+            ch_samplesheet_tuple,
+            ch_salmon_results,
+            ch_gtf,
+            params.gtf_group_features,
+            params.gtf_extra_attributes,
+            'salmon',
+            false,
+        )
+        SUPPATPM_SALMON(QUANT_TXIMPORT_SALMON.out.tpm_transcript.map { _meta, tpm -> [[id: 'suppa_tpm'], tpm] })
+
         if (params.dexseq_dtu) {
             ch_dtu_counts = (params.dtu_txi == "dtuScaledTPM")
-                ? TX2GENE_TXIMPORT_SALMON.out.counts_transcript_dtu_scaled
-                : TX2GENE_TXIMPORT_SALMON.out.counts_transcript_scaled
+                ? QUANT_TXIMPORT_SALMON.out.counts_transcript_dtu_scaled
+                : QUANT_TXIMPORT_SALMON.out.counts_transcript_scaled
             DRIMSEQ_DEXSEQ_DTU_SALMON(
                 ch_dtu_counts.map { _meta, counts -> counts },
                 ch_samplesheet_file,
@@ -675,7 +700,7 @@ workflow RNASPLICE {
         }
 
         if (params.suppa) {
-            ch_suppa_tpm = params.suppa_tpm ? ch_suppa_tpm : TX2GENE_TXIMPORT_SALMON.out.suppa_tpm
+            ch_suppa_tpm = params.suppa_tpm ? ch_suppa_tpm : SUPPATPM_SALMON.out.tpm.map { _meta, tpm -> tpm }
             SUPPA_SALMON(
                 ch_gtf.map { gtf -> [ [ id: gtf.baseName ] , gtf] },
                 ch_suppa_tpm.map { tpm_psi -> [ [ id: tpm_psi.baseName ] , tpm_psi] },

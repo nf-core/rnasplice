@@ -16,6 +16,9 @@ nextflow_workflow {
     tag "mergeevents"
     tag "splitfiles"
     tag "clustergroups"
+    tag "untar"
+    tag "subworkflows/quant_tximport_summarizedexperiment"
+    tag "suppatpm"
 
     // The test-datasets have no SUPPA TPM table, so it is built from the Salmon results
     // of two GBR and two YRI samples of the pipeline test data, as the pipeline does
@@ -39,20 +42,40 @@ nextflow_workflow {
             }
         }
 
-        run("TX2GENE_TXIMPORT") {
-            script "../../tx2gene_tximport/main.nf"
-            workflow {
+        run("UNTAR") {
+            script "../../../../modules/nf-core/untar/main.nf"
+            process {
                 """
-                input[0] = channel.value([ [ id:'samplesheet' ], file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true) ])
-                input[1] = channel.of(
+                input[0] = channel.of(
                     [ [ id:'ERR188383' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.tar.gz', checkIfExists: true) ],
                     [ [ id:'ERR188428' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.tar.gz', checkIfExists: true) ],
                     [ [ id:'ERR188454' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454.tar.gz', checkIfExists: true) ],
                     [ [ id:'ERR204916' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916.tar.gz', checkIfExists: true) ],
                 )
+                """
+            }
+        }
+
+        run("QUANT_TXIMPORT_SUMMARIZEDEXPERIMENT") {
+            script "../../../nf-core/quant_tximport_summarizedexperiment/main.nf"
+            workflow {
+                """
+                input[0] = channel.value([ [ id:'samplesheet' ], file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true) ])
+                input[1] = UNTAR.out.untar
                 input[2] = channel.value(file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true))
                 input[3] = 'gene_id'
                 input[4] = 'gene_name'
+                input[5] = 'salmon'
+                input[6] = false
+                """
+            }
+        }
+
+        run("SUPPATPM") {
+            script "../../../../modules/local/suppatpm/main.nf"
+            process {
+                """
+                input[0] = QUANT_TXIMPORT_SUMMARIZEDEXPERIMENT.out.tpm_transcript.map { _meta, tpm -> [ [ id:'suppa_tpm' ], tpm ] }
                 """
             }
         }
@@ -64,7 +87,7 @@ nextflow_workflow {
             workflow {
                 """
                 input[0] = [ [ id:'genes_chrX' ], file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true) ]
-                input[1] = TX2GENE_TXIMPORT.out.suppa_tpm.map { tpm -> [ [ id:'suppa_tpm' ], tpm ] }
+                input[1] = SUPPATPM.out.tpm
                 input[2] = channel.of(
                     [ 'ERR188383', 'GBR' ],
                     [ 'ERR188428', 'GBR' ],
@@ -168,7 +191,7 @@ nextflow_workflow {
             workflow {
                 """
                 input[0] = [ [ id:'genes_chrX' ], file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true) ]
-                input[1] = TX2GENE_TXIMPORT.out.suppa_tpm.map { tpm -> [ [ id:'suppa_tpm' ], tpm ] }
+                input[1] = SUPPATPM.out.tpm
                 input[2] = channel.of(
                     [ 'ERR188383', 'GBR' ],
                     [ 'ERR188428', 'GBR' ],
@@ -249,7 +272,7 @@ nextflow_workflow {
             workflow {
                 """
                 input[0] = [ [ id:'genes_chrX' ], file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true) ]
-                input[1] = TX2GENE_TXIMPORT.out.suppa_tpm.map { tpm -> [ [ id:'suppa_tpm' ], tpm ] }
+                input[1] = SUPPATPM.out.tpm
                 input[2] = channel.of(
                     [ 'ERR188383', 'GBR' ],
                     [ 'ERR188428', 'GBR' ],
@@ -318,7 +341,7 @@ nextflow_workflow {
             workflow {
                 """
                 input[0] = [ [ id:'genes_chrX' ], file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true) ]
-                input[1] = TX2GENE_TXIMPORT.out.suppa_tpm.map { tpm -> [ [ id:'suppa_tpm' ], tpm ] }
+                input[1] = SUPPATPM.out.tpm
                 input[2] = channel.of(
                     [ 'ERR188383', 'GBR' ],
                     [ 'ERR188428', 'GBR' ],
@@ -387,7 +410,7 @@ nextflow_workflow {
             workflow {
                 """
                 input[0] = [ [ id:'genes_chrX' ], file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true) ]
-                input[1] = TX2GENE_TXIMPORT.out.suppa_tpm.map { tpm -> [ [ id:'suppa_tpm' ], tpm ] }
+                input[1] = SUPPATPM.out.tpm
                 input[2] = channel.of(
                     [ 'ERR188383', 'GBR' ],
                     [ 'ERR188428', 'GBR' ],
