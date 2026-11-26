@@ -212,7 +212,7 @@
                     },
                     "tximeta/tximport": {
                         "branch": "master",
-                        "git_sha": "3852918d5b1872e0aa9b26e2253132fba59a783a",
+                        "git_sha": "fd7666afa7a12f6350ecaf12f105ff088b987971",
                         "installed_by": ["modules"]
                     },
                     "ucsc/bedclip": {
