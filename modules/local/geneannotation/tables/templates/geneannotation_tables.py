@@ -3,8 +3,10 @@
 Write the gene and transcript annotation tables of a gffread transcript table.
 
 The input is the table `gffread --table` writes with the columns transcript ID, gene ID,
-gene name, `gene_biotype` and `gene_type`, in that order and with no header. gffread
-writes `.` for an attribute a transcript does not have.
+one or more extra attributes of which the first is the gene name, then `gene_biotype`
+and `gene_type`, with no header. gffread writes `.` for an attribute a transcript does
+not have. Rows are deduplicated and read in sorted order, so that the name and biotype
+chosen for a gene do not depend on the order gffread writes its transcripts in.
 
 The gene table has one row per gene, with its name and biotype, and is the one the
 results tables of the pipeline are annotated from: the results are by gene, and a
@@ -36,26 +38,25 @@ def read_table(table):
     genes = {}
     transcripts = {}
     with open(table) as handle:
-        for number, line in enumerate(handle, start=1):
-            line = line.rstrip("\\r\\n")
-            if not line:
-                continue
-            fields = line.split("\\t")
-            if len(fields) != 5:
-                sys.exit(
-                    f"Line {number} of {table} has {len(fields)} columns, where 5 are expected: "
-                    "transcript ID, gene ID, gene name, gene_biotype and gene_type."
-                )
-            transcript_id, gene_id, gene_name, gene_biotype, gene_type = (value(field) for field in fields)
-            if not gene_id:
-                continue
-            gene = genes.setdefault(gene_id, {"gene_name": "", "gene_biotype": ""})
-            if not gene["gene_name"]:
-                gene["gene_name"] = gene_name
-            if not gene["gene_biotype"]:
-                gene["gene_biotype"] = gene_biotype or gene_type
-            if transcript_id:
-                transcripts.setdefault(transcript_id, gene_id)
+        lines = sorted({line.rstrip("\\r\\n") for line in handle} - {""})
+    for line in lines:
+        fields = line.split("\\t")
+        if len(fields) < 5:
+            sys.exit(
+                f"{table} has a row with {len(fields)} columns, where at least 5 are expected: "
+                "transcript ID, gene ID, gene name, gene_biotype and gene_type."
+            )
+        transcript_id, gene_id, gene_name = (value(field) for field in fields[:3])
+        gene_biotype, gene_type = (value(field) for field in fields[-2:])
+        if not gene_id:
+            continue
+        gene = genes.setdefault(gene_id, {"gene_name": "", "gene_biotype": ""})
+        if not gene["gene_name"]:
+            gene["gene_name"] = gene_name
+        if not gene["gene_biotype"]:
+            gene["gene_biotype"] = gene_biotype or gene_type
+        if transcript_id:
+            transcripts.setdefault(transcript_id, gene_id)
     return genes, transcripts
 
 

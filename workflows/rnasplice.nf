@@ -8,7 +8,7 @@ include { BEDTOOLS_GENOMECOV as BEDTOOLS_GENOMECOV_FORWARD                } from
 include { BEDTOOLS_GENOMECOV as BEDTOOLS_GENOMECOV_REVERSE                } from '../modules/nf-core/bedtools/genomecov'
 include { ISOFORMSWITCHANALYZER                                           } from '../modules/local/isoformswitchanalyzer'
 include { GENEANNOTATION_TABLES                                           } from '../modules/local/geneannotation/tables'
-include { GFFREAD_TX2GENE                                                 } from '../modules/local/gffread/tx2gene'
+include { GFFREAD as GFFREAD_TX2GENE                                      } from '../modules/nf-core/gffread'
 include { FASTQ_ALIGN_STAR                                                } from '../subworkflows/nf-core/fastq_align_star'
 include { TX2GENE_TXIMPORT as TX2GENE_TXIMPORT_SALMON                     } from '../subworkflows/local/tx2gene_tximport'
 include { TX2GENE_TXIMPORT as TX2GENE_TXIMPORT_STAR_SALMON                } from '../subworkflows/local/tx2gene_tximport'
@@ -150,17 +150,14 @@ workflow RNASPLICE {
     //
     // One gffread table with the gene ID, name and biotype of each transcript, which
     // the annotation tables read
-    GFFREAD_TX2GENE(ch_gtf)
-    ch_tx2gene = GFFREAD_TX2GENE.out.tx2gene
+    GFFREAD_TX2GENE(ch_gtf.map { gtf -> [[id: gtf.baseName], gtf] }, [])
 
     //
     // MODULE: Gene and transcript annotation tables of the GTF
     //
     // Made for every run, as a reference of the gene names, and used to write copies of
     // the results tables with the gene name next to each gene ID
-    GENEANNOTATION_TABLES(
-        ch_gtf.combine(ch_tx2gene).map { gtf, tx2gene -> [[id: gtf.baseName], tx2gene] }
-    )
+    GENEANNOTATION_TABLES(GFFREAD_TX2GENE.out.table)
     ch_gene_annotation = GENEANNOTATION_TABLES.out.gene.first()
 
     //
