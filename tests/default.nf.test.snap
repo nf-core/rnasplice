@@ -956,6 +956,7 @@
                 "star_salmon/rmats",
                 "star_salmon/rmats/GBR-YRI_paired",
                 "star_salmon/rmats/GBR-YRI_paired.log",
+                "star_salmon/rmats/GBR-YRI_paired.samples.tsv",
                 "star_salmon/rmats/GBR-YRI_paired/A3SS.MATS.JC.txt",
                 "star_salmon/rmats/GBR-YRI_paired/A3SS.MATS.JCEC.txt",
                 "star_salmon/rmats/GBR-YRI_paired/A5SS.MATS.JC.txt",
@@ -994,6 +995,7 @@
                 "star_salmon/rmats/GBR-YRI_paired/summary.txt",
                 "star_salmon/rmats/YRI-GBR_paired",
                 "star_salmon/rmats/YRI-GBR_paired.log",
+                "star_salmon/rmats/YRI-GBR_paired.samples.tsv",
                 "star_salmon/rmats/YRI-GBR_paired/A3SS.MATS.JC.txt",
                 "star_salmon/rmats/YRI-GBR_paired/A3SS.MATS.JCEC.txt",
                 "star_salmon/rmats/YRI-GBR_paired/A5SS.MATS.JC.txt",
@@ -1368,7 +1370,7 @@
                 "ERR204916_sorted.bam": "1f2abfcbb9697c56744ffb5fcfeb9f17"
             }
         ],
-        "timestamp": "2026-11-24T12:34:20.31346967",
+        "timestamp": "2026-11-26T11:59:55.641708242",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"
