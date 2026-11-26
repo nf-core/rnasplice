@@ -9,13 +9,13 @@
                         },
                         [
                             "differential_splicing_mqc.json:md5,1883061657bea867429ba97120e7fc67",
-                            "leafcutter_cluster_test_outcomes_mqc.json:md5,c53243bfa69df2e5a7aaf4724369e670",
+                            "leafcutter_cluster_test_outcomes_mqc.json:md5,318c28c273d233128a12dcc1404323e0",
                             "splicing_design_check_mqc.json:md5,154e12b100b8fd1fe61ff7f3a2654065",
                             "splicing_method_agreement_mqc.json:md5,a90b972db4677442ed73816a0a0e6eb4",
                             "splicing_pvalue_histograms_mqc.json:md5,fe424899fe9cac686d88a5f10e801f18",
                             "splicing_sample_metrics_mqc.json:md5,66a6f0c04dfac56672a121f22ce1ed89",
                             "splicing_verdict_mqc.json:md5,a496b5d9ab41beb27ae43453cc0ceb87",
-                            "suppa_significant_events_mqc.json:md5,08458caed79636afa382398c2a3d19fa"
+                            "suppa_significant_events_mqc.json:md5,763d2b56f56e2bdd7635bd36e18ca957"
                         ]
                     ]
                 ],
@@ -29,13 +29,13 @@
                         },
                         [
                             "differential_splicing_mqc.json:md5,1883061657bea867429ba97120e7fc67",
-                            "leafcutter_cluster_test_outcomes_mqc.json:md5,c53243bfa69df2e5a7aaf4724369e670",
+                            "leafcutter_cluster_test_outcomes_mqc.json:md5,318c28c273d233128a12dcc1404323e0",
                             "splicing_design_check_mqc.json:md5,154e12b100b8fd1fe61ff7f3a2654065",
                             "splicing_method_agreement_mqc.json:md5,a90b972db4677442ed73816a0a0e6eb4",
                             "splicing_pvalue_histograms_mqc.json:md5,fe424899fe9cac686d88a5f10e801f18",
                             "splicing_sample_metrics_mqc.json:md5,66a6f0c04dfac56672a121f22ce1ed89",
                             "splicing_verdict_mqc.json:md5,a496b5d9ab41beb27ae43453cc0ceb87",
-                            "suppa_significant_events_mqc.json:md5,08458caed79636afa382398c2a3d19fa"
+                            "suppa_significant_events_mqc.json:md5,763d2b56f56e2bdd7635bd36e18ca957"
                         ]
                     ]
                 ],
@@ -44,7 +44,7 @@
                 ]
             }
         ],
-        "timestamp": "2026-11-26T09:51:16.494040155",
+        "timestamp": "2026-11-26T11:54:58.077854395",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"
@@ -62,7 +62,7 @@
                             "differential_splicing_mqc.json:md5,a9e35cf8f99ab393844334fc5cf8ce8c",
                             "splicing_pvalue_histograms_mqc.json:md5,a406692ddafad878cfb0c7a3db53eb32",
                             "splicing_sample_metrics_mqc.json:md5,19d7f8451ecca91d89716b6a517f504f",
-                            "suppa_psi_concordance_mqc.json:md5,24e86d362d3e744cc4db366f81bc7b6d"
+                            "suppa_psi_concordance_mqc.json:md5,bca846ab6bdb0d9073b4ebc4d612a93c"
                         ]
                     ]
                 ],
@@ -78,7 +78,7 @@
                             "differential_splicing_mqc.json:md5,a9e35cf8f99ab393844334fc5cf8ce8c",
                             "splicing_pvalue_histograms_mqc.json:md5,a406692ddafad878cfb0c7a3db53eb32",
                             "splicing_sample_metrics_mqc.json:md5,19d7f8451ecca91d89716b6a517f504f",
-                            "suppa_psi_concordance_mqc.json:md5,24e86d362d3e744cc4db366f81bc7b6d"
+                            "suppa_psi_concordance_mqc.json:md5,bca846ab6bdb0d9073b4ebc4d612a93c"
                         ]
                     ]
                 ],
@@ -87,7 +87,7 @@
                 ]
             }
         ],
-        "timestamp": "2026-11-26T09:51:32.393378384",
+        "timestamp": "2026-11-26T11:55:12.813372345",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"
@@ -103,7 +103,7 @@
                         },
                         [
                             "differential_splicing_mqc.json:md5,c096938313d0bfb239583b70dafb056b",
-                            "leafcutter_cluster_test_outcomes_mqc.json:md5,6f2a70e2c425b1026618a65d3590fb89",
+                            "leafcutter_cluster_test_outcomes_mqc.json:md5,41958fa19cb97af577390327550b592c",
                             "splicing_method_agreement_mqc.json:md5,fcf353a394e0391eca78ac8a7ec970df",
                             "splicing_pvalue_histograms_mqc.json:md5,574759403815250d896de3ee1063dfb4"
                         ]
@@ -119,7 +119,7 @@
                         },
                         [
                             "differential_splicing_mqc.json:md5,c096938313d0bfb239583b70dafb056b",
-                            "leafcutter_cluster_test_outcomes_mqc.json:md5,6f2a70e2c425b1026618a65d3590fb89",
+                            "leafcutter_cluster_test_outcomes_mqc.json:md5,41958fa19cb97af577390327550b592c",
                             "splicing_method_agreement_mqc.json:md5,fcf353a394e0391eca78ac8a7ec970df",
                             "splicing_pvalue_histograms_mqc.json:md5,574759403815250d896de3ee1063dfb4"
                         ]
@@ -130,7 +130,7 @@
                 ]
             }
         ],
-        "timestamp": "2026-11-26T09:51:48.155014843",
+        "timestamp": "2026-11-26T11:55:27.464972589",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"
@@ -146,7 +146,7 @@
                         },
                         [
                             "differential_splicing_mqc.json:md5,a8de2e461f1785d4a4024e4921e47d64",
-                            "leafcutter_cluster_test_outcomes_mqc.json:md5,c53243bfa69df2e5a7aaf4724369e670",
+                            "leafcutter_cluster_test_outcomes_mqc.json:md5,318c28c273d233128a12dcc1404323e0",
                             "splicing_design_check_mqc.json:md5,3d34d846ce50c3cc12e8280735dc687f",
                             "splicing_pvalue_histograms_mqc.json:md5,574759403815250d896de3ee1063dfb4",
                             "splicing_sample_metrics_mqc.json:md5,0f8e0fa0f43028c82b75e83b1c5639c6",
@@ -164,7 +164,7 @@
                         },
                         [
                             "differential_splicing_mqc.json:md5,a8de2e461f1785d4a4024e4921e47d64",
-                            "leafcutter_cluster_test_outcomes_mqc.json:md5,c53243bfa69df2e5a7aaf4724369e670",
+                            "leafcutter_cluster_test_outcomes_mqc.json:md5,318c28c273d233128a12dcc1404323e0",
                             "splicing_design_check_mqc.json:md5,3d34d846ce50c3cc12e8280735dc687f",
                             "splicing_pvalue_histograms_mqc.json:md5,574759403815250d896de3ee1063dfb4",
                             "splicing_sample_metrics_mqc.json:md5,0f8e0fa0f43028c82b75e83b1c5639c6",
@@ -177,7 +177,7 @@
                 ]
             }
         ],
-        "timestamp": "2026-11-26T09:51:24.486543445",
+        "timestamp": "2026-11-26T11:55:05.456011889",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"
@@ -195,7 +195,7 @@
                             "differential_splicing_mqc.json:md5,03891e30e986bbce6404bbef884ad9d7",
                             "splicing_pvalue_histograms_mqc.json:md5,d82403fef78c6051d577694c9c76eda6",
                             "splicing_verdict_mqc.json:md5,31fe5e3b87d2b64c5e9a0f5e40cb551d",
-                            "suppa_significant_events_mqc.json:md5,08458caed79636afa382398c2a3d19fa"
+                            "suppa_significant_events_mqc.json:md5,763d2b56f56e2bdd7635bd36e18ca957"
                         ]
                     ]
                 ],
@@ -211,7 +211,7 @@
                             "differential_splicing_mqc.json:md5,03891e30e986bbce6404bbef884ad9d7",
                             "splicing_pvalue_histograms_mqc.json:md5,d82403fef78c6051d577694c9c76eda6",
                             "splicing_verdict_mqc.json:md5,31fe5e3b87d2b64c5e9a0f5e40cb551d",
-                            "suppa_significant_events_mqc.json:md5,08458caed79636afa382398c2a3d19fa"
+                            "suppa_significant_events_mqc.json:md5,763d2b56f56e2bdd7635bd36e18ca957"
                         ]
                     ]
                 ],
@@ -220,7 +220,7 @@
                 ]
             }
         ],
-        "timestamp": "2026-11-26T09:51:55.494486203",
+        "timestamp": "2026-11-26T11:55:34.80215792",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"
@@ -278,7 +278,7 @@
                             "splicing_design_check_mqc.json:md5,8fbcfab5126f1fdf0a7ecc9928511ed8",
                             "splicing_pvalue_histograms_mqc.json:md5,d82403fef78c6051d577694c9c76eda6",
                             "splicing_verdict_mqc.json:md5,1fe481b010205607dcac07581d15d775",
-                            "suppa_significant_events_mqc.json:md5,08458caed79636afa382398c2a3d19fa"
+                            "suppa_significant_events_mqc.json:md5,763d2b56f56e2bdd7635bd36e18ca957"
                         ]
                     ]
                 ],
@@ -295,7 +295,7 @@
                             "splicing_design_check_mqc.json:md5,8fbcfab5126f1fdf0a7ecc9928511ed8",
                             "splicing_pvalue_histograms_mqc.json:md5,d82403fef78c6051d577694c9c76eda6",
                             "splicing_verdict_mqc.json:md5,1fe481b010205607dcac07581d15d775",
-                            "suppa_significant_events_mqc.json:md5,08458caed79636afa382398c2a3d19fa"
+                            "suppa_significant_events_mqc.json:md5,763d2b56f56e2bdd7635bd36e18ca957"
                         ]
                     ]
                 ],
@@ -304,7 +304,7 @@
                 ]
             }
         ],
-        "timestamp": "2026-11-26T09:51:40.658496038",
+        "timestamp": "2026-11-26T11:55:20.16424748",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"
