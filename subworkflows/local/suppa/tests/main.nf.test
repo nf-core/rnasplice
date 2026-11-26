@@ -43,15 +43,16 @@ nextflow_workflow {
             script "../../tx2gene_tximport/main.nf"
             workflow {
                 """
-                input[0] = channel.of(
+                input[0] = channel.value([ [ id:'samplesheet' ], file(params.pipelines_testdata_base_path + 'samplesheet/samplesheet.csv', checkIfExists: true) ])
+                input[1] = channel.of(
                     [ [ id:'ERR188383' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188383.tar.gz', checkIfExists: true) ],
                     [ [ id:'ERR188428' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188428.tar.gz', checkIfExists: true) ],
                     [ [ id:'ERR188454' ], file(params.pipelines_testdata_base_path + 'testdata/ERR188454.tar.gz', checkIfExists: true) ],
                     [ [ id:'ERR204916' ], file(params.pipelines_testdata_base_path + 'testdata/ERR204916.tar.gz', checkIfExists: true) ],
                 )
-                input[1] = channel.value(file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true))
-                input[2] = 'gene_id'
-                input[3] = 'gene_name'
+                input[2] = channel.value(file(params.pipelines_testdata_base_path + 'reference/genes_chrX.gtf', checkIfExists: true))
+                input[3] = 'gene_id'
+                input[4] = 'gene_name'
                 """
             }
         }

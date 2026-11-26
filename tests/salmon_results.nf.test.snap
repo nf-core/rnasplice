@@ -85,7 +85,8 @@
                     "suppa": "2.4"
                 },
                 "TXIMPORT": {
-                    "bioconductor-tximeta": "1.20.1"
+                    "bioconductor-tximeta": "1.20.1",
+                    "bioconductor-tximport": "1.30.0"
                 },
                 "UNTAR": {
                     "untar": "1.34"
@@ -301,7 +302,7 @@
                 "genes_chrX.ioi:md5,aa178a4526493cc55fbd9d6f59ed5c4f"
             ]
         ],
-        "timestamp": "2026-11-26T13:50:12.351713457",
+        "timestamp": "2026-11-26T15:40:46.93978749",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"

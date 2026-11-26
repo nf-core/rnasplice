@@ -1,0 +1,230 @@
+{
+    "gene_log_multi_matrix_rowdata_coldataa_stub": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.R_sessionInfo.log:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ]
+        ],
+        "timestamp": "2024-07-11T16:41:31.796715",
+        "meta": {
+            "nf-test": "0.8.4",
+            "nextflow": "24.04.3"
+        }
+    },
+    "versions_multi_matrix_rowdata_coldata_unify": {
+        "content": [
+            [
+                "versions.yml:md5,0226afc3518e87c15bb6cba7c3394cb6"
+            ]
+        ],
+        "timestamp": "2026-11-10T16:44:26.700827",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.10.2"
+        }
+    },
+    "gene_log_single_matrix_stub": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.R_sessionInfo.log:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ]
+        ],
+        "timestamp": "2024-07-11T16:42:47.12955",
+        "meta": {
+            "nf-test": "0.8.4",
+            "nextflow": "24.04.3"
+        }
+    },
+    "versions_single_matrix": {
+        "content": [
+            [
+                "versions.yml:md5,0226afc3518e87c15bb6cba7c3394cb6"
+            ]
+        ],
+        "timestamp": "2026-11-10T16:48:45.945142",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.10.2"
+        }
+    },
+    "gene_log_multi_matrix_rowdata_stub": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.R_sessionInfo.log:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ]
+        ],
+        "timestamp": "2024-07-11T16:41:54.028064",
+        "meta": {
+            "nf-test": "0.8.4",
+            "nextflow": "24.04.3"
+        }
+    },
+    "gene_log_multi_matrix_rowdata": {
+        "content": "1070e66a9d9e0c959c50a7740e41f125",
+        "timestamp": "2026-11-10T17:03:48.457551",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.10.2"
+        }
+    },
+    "versions_multi_matrix_rowdata_stub": {
+        "content": [
+            [
+                "versions.yml:md5,0226afc3518e87c15bb6cba7c3394cb6"
+            ]
+        ],
+        "timestamp": "2026-11-10T16:50:01.515467",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.10.2"
+        }
+    },
+    "versions_multi_matrix_stub": {
+        "content": [
+            [
+                "versions.yml:md5,0226afc3518e87c15bb6cba7c3394cb6"
+            ]
+        ],
+        "timestamp": "2026-11-10T16:50:21.037764",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.10.2"
+        }
+    },
+    "gene_log_multi_matrix_rowdata_coldata_unify": {
+        "content": "1070e66a9d9e0c959c50a7740e41f125",
+        "timestamp": "2026-11-10T17:01:36.189905",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.10.2"
+        }
+    },
+    "versions_multi_matrix_rowdata_coldata_stub": {
+        "content": [
+            [
+                "versions.yml:md5,0226afc3518e87c15bb6cba7c3394cb6"
+            ]
+        ],
+        "timestamp": "2026-11-10T16:49:42.11955",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.10.2"
+        }
+    },
+    "gene_log_multi_matrix": {
+        "content": "1070e66a9d9e0c959c50a7740e41f125",
+        "timestamp": "2026-11-10T17:04:55.133782",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.10.2"
+        }
+    },
+    "versions_multi_matrix_all_na": {
+        "content": [
+            [
+                "versions.yml:md5,0226afc3518e87c15bb6cba7c3394cb6"
+            ]
+        ],
+        "timestamp": "2026-11-10T16:49:22.157018",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.10.2"
+        }
+    },
+    "gene_log_multi_matrix_stub": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.R_sessionInfo.log:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ]
+        ],
+        "timestamp": "2024-07-11T16:42:21.370562",
+        "meta": {
+            "nf-test": "0.8.4",
+            "nextflow": "24.04.3"
+        }
+    },
+    "gene_log_single_matrix": {
+        "content": "1070e66a9d9e0c959c50a7740e41f125",
+        "timestamp": "2026-11-10T17:05:59.94317",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.10.2"
+        }
+    },
+    "versions_single_matrix_stub": {
+        "content": [
+            [
+                "versions.yml:md5,0226afc3518e87c15bb6cba7c3394cb6"
+            ]
+        ],
+        "timestamp": "2026-11-10T16:50:40.9367",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.10.2"
+        }
+    },
+    "versions_multi_matrix_rowdata": {
+        "content": [
+            [
+                "versions.yml:md5,0226afc3518e87c15bb6cba7c3394cb6"
+            ]
+        ],
+        "timestamp": "2026-11-10T16:46:41.441921",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.10.2"
+        }
+    },
+    "gene_log_multi_matrix_rowdata_coldata": {
+        "content": "1070e66a9d9e0c959c50a7740e41f125",
+        "timestamp": "2026-11-10T17:02:42.11639",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.10.2"
+        }
+    },
+    "versions_multi_matrix": {
+        "content": [
+            [
+                "versions.yml:md5,0226afc3518e87c15bb6cba7c3394cb6"
+            ]
+        ],
+        "timestamp": "2026-11-10T16:47:44.529548",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.10.2"
+        }
+    },
+    "versions_multi_matrix_rowdata_coldata": {
+        "content": [
+            [
+                "versions.yml:md5,0226afc3518e87c15bb6cba7c3394cb6"
+            ]
+        ],
+        "timestamp": "2026-11-10T16:45:38.075098",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.10.2"
+        }
+    }
+}

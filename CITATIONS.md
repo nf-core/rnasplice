@@ -125,6 +125,10 @@
 
   > Soneson C, Love MI, Robinson MD (2015). “Differential analyses for RNA-seq: transcript-level estimates improve gene-level inferences.” F1000Research, 4. doi: 10.12688/f1000research.7563.1.
 
+- [SummarizedExperiment](https://bioconductor.org/packages/release/bioc/html/SummarizedExperiment.html)
+
+  > Morgan M, Obenchain V, Hester J, Pagès H (2025). SummarizedExperiment: A container (S4 class) for matrix-like assays. Bioconductor. doi: 10.18129/B9.bioc.SummarizedExperiment.
+
 ## Software packaging/containerisation tools
 
 - [Anaconda](https://anaconda.com)
