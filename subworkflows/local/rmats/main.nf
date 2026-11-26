@@ -105,10 +105,14 @@ workflow RMATS {
     // whichever mode the samplesheet puts it in
     ch_run_samples = ch_single_samples.mix(ch_contrast_samples)
 
-    // One entry per sample of a run: [ sample_id, contrast, condition number, position ]
+    // One entry per sample of a run: [ sample_id, run key, condition number, position ]. The
+    // run key is a groupKey holding the contrast and the number of samples of the run, which
+    // lets `groupTuple` release a run as soon as its own samples are ready, rather than
+    // after the samples of every run
     ch_run_sample_index = ch_run_samples.flatMap { contrast, _cond1, ids1, _cond2, ids2, _paired ->
-        def entries1 = ids1.withIndex().collect { sample_id, idx -> [sample_id, contrast, 1, idx] }
-        def entries2 = ids2.withIndex().collect { sample_id, idx -> [sample_id, contrast, 2, idx] }
+        def run_key = groupKey(contrast, ids1.size() + ids2.size())
+        def entries1 = ids1.withIndex().collect { sample_id, idx -> [sample_id, run_key, 1, idx] }
+        def entries2 = ids2.withIndex().collect { sample_id, idx -> [sample_id, run_key, 2, idx] }
         return entries1 + entries2
     }
 
@@ -119,10 +123,11 @@ workflow RMATS {
     // The BAM files of each run, in samplesheet order within each condition
     ch_run_bams = ch_run_sample_index
         .combine(ch_bam.map { meta, bam -> [meta.id, bam] }, by: 0)
-        .map { _sample_id, contrast, cond_num, idx, bam -> [contrast, [cond_num, idx, bam]] }
+        .map { _sample_id, run_key, cond_num, idx, bam -> [run_key, [cond_num, idx, bam]] }
         .groupTuple()
-        .map { contrast, entries ->
-            def sorted = entries.sort { a, b -> a[0] <=> b[0] ?: a[1] <=> b[1] }
+        .map { run_key, entries ->
+            def contrast = run_key.getGroupTarget()
+            def sorted = entries.toSorted { a, b -> a[0] <=> b[0] ?: a[1] <=> b[1] }
             def bam1 = sorted.findAll { entry -> entry[0] == 1 }.collect { entry -> entry[2] }
             def bam2 = sorted.findAll { entry -> entry[0] == 2 }.collect { entry -> entry[2] }
             [contrast, bam1, bam2]
@@ -146,10 +151,11 @@ workflow RMATS {
     // The bam lists carry the BAM file names, which is what rMATS matches the `.rmats`
     // files by, so the samples of a run are looked up by sample id here
     ch_run_rmats = ch_run_sample_index
-        .map { sample_id, contrast, _cond_num, _idx -> [sample_id, contrast] }
+        .map { sample_id, run_key, _cond_num, _idx -> [sample_id, run_key] }
         .combine(RMATS_PREP.out.rmats.map { meta, rmats -> [meta.id, rmats] }, by: 0)
-        .map { _sample_id, contrast, rmats -> [contrast, rmats] }
+        .map { _sample_id, run_key, rmats -> [run_key, rmats] }
         .groupTuple()
+        .map { run_key, rmats -> [run_key.getGroupTarget(), rmats] }
 
     // CREATEBAMLIST only writes the second bam list when there is a second condition,
     // so a single condition run joins with no bam list 2. It has to become an empty list
