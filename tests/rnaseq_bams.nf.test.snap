@@ -162,7 +162,8 @@
                     "suppa": "2.4"
                 },
                 "TXIMPORT": {
-                    "bioconductor-tximeta": "1.20.1"
+                    "bioconductor-tximeta": "1.20.1",
+                    "bioconductor-tximport": "1.30.0"
                 },
                 "Workflow": {
                     "nf-core/rnasplice": "v2.0.1dev"
@@ -972,7 +973,7 @@
                 "ERR204916_sorted.bam": "d04f778c726310a919eb676fe3432716"
             }
         ],
-        "timestamp": "2026-11-26T13:49:06.690954839",
+        "timestamp": "2026-11-26T15:39:35.536711895",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"
