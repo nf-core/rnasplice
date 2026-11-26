@@ -10,6 +10,7 @@ process STAGER {
     input:
     tuple val(meta), path(feature_tsv), path(gene_tsv)
     val analysis_type
+    val alpha
 
     output:
     tuple val(meta), path("stageRTx.*.rds")          , emit: stager_rds

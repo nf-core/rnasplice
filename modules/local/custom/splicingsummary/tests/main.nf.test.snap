@@ -1,0 +1,313 @@
+{
+    "splicing results": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "splicing_summary"
+                        },
+                        [
+                            "differential_splicing_mqc.json:md5,1883061657bea867429ba97120e7fc67",
+                            "leafcutter_cluster_test_outcomes_mqc.json:md5,318c28c273d233128a12dcc1404323e0",
+                            "splicing_design_check_mqc.json:md5,154e12b100b8fd1fe61ff7f3a2654065",
+                            "splicing_method_agreement_mqc.json:md5,a90b972db4677442ed73816a0a0e6eb4",
+                            "splicing_pvalue_histograms_mqc.json:md5,fe424899fe9cac686d88a5f10e801f18",
+                            "splicing_sample_metrics_mqc.json:md5,66a6f0c04dfac56672a121f22ce1ed89",
+                            "splicing_verdict_mqc.json:md5,a496b5d9ab41beb27ae43453cc0ceb87",
+                            "suppa_significant_events_mqc.json:md5,763d2b56f56e2bdd7635bd36e18ca957"
+                        ]
+                    ]
+                ],
+                "1": [
+                    "versions.yml:md5,d501bbbcae57b225d614f462f6da9784"
+                ],
+                "sections": [
+                    [
+                        {
+                            "id": "splicing_summary"
+                        },
+                        [
+                            "differential_splicing_mqc.json:md5,1883061657bea867429ba97120e7fc67",
+                            "leafcutter_cluster_test_outcomes_mqc.json:md5,318c28c273d233128a12dcc1404323e0",
+                            "splicing_design_check_mqc.json:md5,154e12b100b8fd1fe61ff7f3a2654065",
+                            "splicing_method_agreement_mqc.json:md5,a90b972db4677442ed73816a0a0e6eb4",
+                            "splicing_pvalue_histograms_mqc.json:md5,fe424899fe9cac686d88a5f10e801f18",
+                            "splicing_sample_metrics_mqc.json:md5,66a6f0c04dfac56672a121f22ce1ed89",
+                            "splicing_verdict_mqc.json:md5,a496b5d9ab41beb27ae43453cc0ceb87",
+                            "suppa_significant_events_mqc.json:md5,763d2b56f56e2bdd7635bd36e18ca957"
+                        ]
+                    ]
+                ],
+                "versions": [
+                    "versions.yml:md5,d501bbbcae57b225d614f462f6da9784"
+                ]
+            }
+        ],
+        "timestamp": "2026-11-26T11:54:58.077854395",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
+        }
+    },
+    "p-value distribution and PSI concordance": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "splicing_summary"
+                        },
+                        [
+                            "differential_splicing_mqc.json:md5,a9e35cf8f99ab393844334fc5cf8ce8c",
+                            "splicing_pvalue_histograms_mqc.json:md5,a406692ddafad878cfb0c7a3db53eb32",
+                            "splicing_sample_metrics_mqc.json:md5,19d7f8451ecca91d89716b6a517f504f",
+                            "suppa_psi_concordance_mqc.json:md5,bca846ab6bdb0d9073b4ebc4d612a93c"
+                        ]
+                    ]
+                ],
+                "1": [
+                    "versions.yml:md5,d501bbbcae57b225d614f462f6da9784"
+                ],
+                "sections": [
+                    [
+                        {
+                            "id": "splicing_summary"
+                        },
+                        [
+                            "differential_splicing_mqc.json:md5,a9e35cf8f99ab393844334fc5cf8ce8c",
+                            "splicing_pvalue_histograms_mqc.json:md5,a406692ddafad878cfb0c7a3db53eb32",
+                            "splicing_sample_metrics_mqc.json:md5,19d7f8451ecca91d89716b6a517f504f",
+                            "suppa_psi_concordance_mqc.json:md5,bca846ab6bdb0d9073b4ebc4d612a93c"
+                        ]
+                    ]
+                ],
+                "versions": [
+                    "versions.yml:md5,d501bbbcae57b225d614f462f6da9784"
+                ]
+            }
+        ],
+        "timestamp": "2026-11-26T11:55:12.813372345",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
+        }
+    },
+    "contrasts sharing their conditions": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "splicing_summary"
+                        },
+                        [
+                            "differential_splicing_mqc.json:md5,c096938313d0bfb239583b70dafb056b",
+                            "leafcutter_cluster_test_outcomes_mqc.json:md5,41958fa19cb97af577390327550b592c",
+                            "splicing_method_agreement_mqc.json:md5,fcf353a394e0391eca78ac8a7ec970df",
+                            "splicing_pvalue_histograms_mqc.json:md5,574759403815250d896de3ee1063dfb4"
+                        ]
+                    ]
+                ],
+                "1": [
+                    "versions.yml:md5,d501bbbcae57b225d614f462f6da9784"
+                ],
+                "sections": [
+                    [
+                        {
+                            "id": "splicing_summary"
+                        },
+                        [
+                            "differential_splicing_mqc.json:md5,c096938313d0bfb239583b70dafb056b",
+                            "leafcutter_cluster_test_outcomes_mqc.json:md5,41958fa19cb97af577390327550b592c",
+                            "splicing_method_agreement_mqc.json:md5,fcf353a394e0391eca78ac8a7ec970df",
+                            "splicing_pvalue_histograms_mqc.json:md5,574759403815250d896de3ee1063dfb4"
+                        ]
+                    ]
+                ],
+                "versions": [
+                    "versions.yml:md5,d501bbbcae57b225d614f462f6da9784"
+                ]
+            }
+        ],
+        "timestamp": "2026-11-26T11:55:27.464972589",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
+        }
+    },
+    "leafcutter contrast below the samples per condition the pipeline needs": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "splicing_summary"
+                        },
+                        [
+                            "differential_splicing_mqc.json:md5,a8de2e461f1785d4a4024e4921e47d64",
+                            "leafcutter_cluster_test_outcomes_mqc.json:md5,318c28c273d233128a12dcc1404323e0",
+                            "splicing_design_check_mqc.json:md5,3d34d846ce50c3cc12e8280735dc687f",
+                            "splicing_pvalue_histograms_mqc.json:md5,574759403815250d896de3ee1063dfb4",
+                            "splicing_sample_metrics_mqc.json:md5,0f8e0fa0f43028c82b75e83b1c5639c6",
+                            "splicing_verdict_mqc.json:md5,052ebefc53de52121f8c5c64b5e298d4"
+                        ]
+                    ]
+                ],
+                "1": [
+                    "versions.yml:md5,d501bbbcae57b225d614f462f6da9784"
+                ],
+                "sections": [
+                    [
+                        {
+                            "id": "splicing_summary"
+                        },
+                        [
+                            "differential_splicing_mqc.json:md5,a8de2e461f1785d4a4024e4921e47d64",
+                            "leafcutter_cluster_test_outcomes_mqc.json:md5,318c28c273d233128a12dcc1404323e0",
+                            "splicing_design_check_mqc.json:md5,3d34d846ce50c3cc12e8280735dc687f",
+                            "splicing_pvalue_histograms_mqc.json:md5,574759403815250d896de3ee1063dfb4",
+                            "splicing_sample_metrics_mqc.json:md5,0f8e0fa0f43028c82b75e83b1c5639c6",
+                            "splicing_verdict_mqc.json:md5,052ebefc53de52121f8c5c64b5e298d4"
+                        ]
+                    ]
+                ],
+                "versions": [
+                    "versions.yml:md5,d501bbbcae57b225d614f462f6da9784"
+                ]
+            }
+        ],
+        "timestamp": "2026-11-26T11:55:05.456011889",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
+        }
+    },
+    "contrast condition missing from the samplesheet": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "splicing_summary"
+                        },
+                        [
+                            "differential_splicing_mqc.json:md5,03891e30e986bbce6404bbef884ad9d7",
+                            "splicing_pvalue_histograms_mqc.json:md5,d82403fef78c6051d577694c9c76eda6",
+                            "splicing_verdict_mqc.json:md5,31fe5e3b87d2b64c5e9a0f5e40cb551d",
+                            "suppa_significant_events_mqc.json:md5,763d2b56f56e2bdd7635bd36e18ca957"
+                        ]
+                    ]
+                ],
+                "1": [
+                    "versions.yml:md5,d501bbbcae57b225d614f462f6da9784"
+                ],
+                "sections": [
+                    [
+                        {
+                            "id": "splicing_summary"
+                        },
+                        [
+                            "differential_splicing_mqc.json:md5,03891e30e986bbce6404bbef884ad9d7",
+                            "splicing_pvalue_histograms_mqc.json:md5,d82403fef78c6051d577694c9c76eda6",
+                            "splicing_verdict_mqc.json:md5,31fe5e3b87d2b64c5e9a0f5e40cb551d",
+                            "suppa_significant_events_mqc.json:md5,763d2b56f56e2bdd7635bd36e18ca957"
+                        ]
+                    ]
+                ],
+                "versions": [
+                    "versions.yml:md5,d501bbbcae57b225d614f462f6da9784"
+                ]
+            }
+        ],
+        "timestamp": "2026-11-26T11:55:34.80215792",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
+        }
+    },
+    "splicing results - stub": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "splicing_summary"
+                        },
+                        [
+                            "differential_splicing_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "splicing_sample_metrics_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ]
+                ],
+                "1": [
+                    "versions.yml:md5,1d04eddd65a1fb2782f319e9f077d033"
+                ],
+                "sections": [
+                    [
+                        {
+                            "id": "splicing_summary"
+                        },
+                        [
+                            "differential_splicing_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "splicing_sample_metrics_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ]
+                ],
+                "versions": [
+                    "versions.yml:md5,1d04eddd65a1fb2782f319e9f077d033"
+                ]
+            }
+        ],
+        "timestamp": "2026-11-25T20:37:30.783327995",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
+        }
+    },
+    "malformed table": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "splicing_summary"
+                        },
+                        [
+                            "differential_splicing_mqc.json:md5,3ebce412848cb4e9d24221159406bb38",
+                            "splicing_design_check_mqc.json:md5,8fbcfab5126f1fdf0a7ecc9928511ed8",
+                            "splicing_pvalue_histograms_mqc.json:md5,d82403fef78c6051d577694c9c76eda6",
+                            "splicing_verdict_mqc.json:md5,1fe481b010205607dcac07581d15d775",
+                            "suppa_significant_events_mqc.json:md5,763d2b56f56e2bdd7635bd36e18ca957"
+                        ]
+                    ]
+                ],
+                "1": [
+                    "versions.yml:md5,d501bbbcae57b225d614f462f6da9784"
+                ],
+                "sections": [
+                    [
+                        {
+                            "id": "splicing_summary"
+                        },
+                        [
+                            "differential_splicing_mqc.json:md5,3ebce412848cb4e9d24221159406bb38",
+                            "splicing_design_check_mqc.json:md5,8fbcfab5126f1fdf0a7ecc9928511ed8",
+                            "splicing_pvalue_histograms_mqc.json:md5,d82403fef78c6051d577694c9c76eda6",
+                            "splicing_verdict_mqc.json:md5,1fe481b010205607dcac07581d15d775",
+                            "suppa_significant_events_mqc.json:md5,763d2b56f56e2bdd7635bd36e18ca957"
+                        ]
+                    ]
+                ],
+                "versions": [
+                    "versions.yml:md5,d501bbbcae57b225d614f462f6da9784"
+                ]
+            }
+        ],
+        "timestamp": "2026-11-26T11:55:20.16424748",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
+        }
+    }
+}

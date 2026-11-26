@@ -1,0 +1,94 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "multiqc_rnasplice"
+description: Assemble the MultiQC report of the pipeline from the outputs of the
+  analyses, the custom-content tables the pipeline writes, the summaries of the
+  splicing analyses, the workflow summary, the methods description and the software
+  versions
+keywords:
+  - multiqc
+  - report
+  - splicing
+  - qc
+components:
+  - custom/splicingsummary
+  - multiqc
+input:
+  - ch_multiqc_files:
+      type: file
+      description: |
+        Outputs that MultiQC modules read as they are, such as FastQC, STAR, Salmon,
+        samtools, RSeQC and featureCounts reports
+        Structure: [ val(meta), path(file) or [ path(files) ] ]
+  - ch_fail_trimming_tsv:
+      type: string
+      description: |
+        Table of the samples that failed the trimmed reads threshold, written to
+        fail_trimmed_samples_mqc.tsv
+        Structure: val(tsv)
+  - ch_strand_check_tsv:
+      type: string
+      description: |
+        Table of the strand check of each sample, written to fail_strand_check_mqc.tsv
+        Structure: val(tsv)
+  - ch_fastq_meta:
+      type: map
+      description: |
+        Meta map of each sample given as FASTQ files, with `id` and `single_end`. The
+        `_1` and `_2` reads of paired-end samples are grouped in the General Statistics table
+        Structure: val(meta)
+  - ch_leafcutter_strand_summary:
+      type: file
+      description: |
+        Junction strand summary of each unstranded sample, passed to CUSTOM_SPLICINGSUMMARY
+        for the LeafCutter reads strandless column of General Statistics
+        Structure: [ val(meta), path(tsv) ]
+      pattern: "*.strand_summary.tsv"
+  - ch_rmats_read_outcomes:
+      type: file
+      description: |
+        rMATS read outcome reports of each BAM file
+        Structure: [ val(meta), path(txt) ]
+      pattern: "*.txt"
+  - ch_rmats_summary:
+      type: file
+      description: |
+        rMATS summary of each contrast, passed to MultiQC as <contrast>_summary.txt
+        Structure: [ val(meta), path(txt) ]
+      pattern: "summary.txt"
+  - ch_splicing_results:
+      type: file
+      description: |
+        Result tables of the splicing analyses, each with a label map of its `kind`,
+        `route` and `id`, summarised by CUSTOM_SPLICINGSUMMARY
+        Structure: [ val(label), path(result) ]
+  - ch_collated_versions:
+      type: file
+      description: |
+        Software versions of the pipeline
+        Structure: path(versions.yml)
+      pattern: "*.yml"
+  - multiqc_config:
+      type: string
+      description: Path to a custom MultiQC config applied on top of the one of the pipeline, or null
+  - multiqc_logo:
+      type: string
+      description: Path to a custom MultiQC logo, or null
+  - multiqc_methods_description:
+      type: string
+      description: Path to a custom methods description, or null for the one of the pipeline
+output:
+  - report:
+      type: file
+      description: |
+        MultiQC report
+        Structure: [ path(multiqc_report.html) ]
+      pattern: "multiqc_report.html"
+  - data:
+      type: directory
+      description: |
+        MultiQC data directory
+        Structure: path(multiqc_data)
+authors:
+  - "@pinin4fjords"
+maintainers:
+  - "@pinin4fjords"

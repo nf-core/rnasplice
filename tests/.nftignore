@@ -36,6 +36,9 @@ misopy/**/batch-logs*.log
 **/libParams/flenDist.txt
 **/libParams/fld.gz
 
+# RSeQC junction saturation samples reads at random
+**/rseqc/junction_saturation/*.r
+
 **/quant.sf
 **/quant.genes.sf
 

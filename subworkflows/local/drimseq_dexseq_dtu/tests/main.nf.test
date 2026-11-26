@@ -70,6 +70,7 @@ nextflow_workflow {
                     [ contrast:'YRI-GBR', treatment:'YRI', control:'GBR' ],
                 )
                 input[4] = GENEANNOTATION_TABLES.out.gene.first()
+                input[5] = 0.05
                 """
             }
         }
@@ -139,6 +140,7 @@ nextflow_workflow {
                     [ contrast:'YRI-GBR', treatment:'YRI', control:'GBR' ],
                 )
                 input[4] = GENEANNOTATION_TABLES.out.gene.first()
+                input[5] = 0.05
                 """
             }
         }

@@ -93,6 +93,7 @@ workflow DEXSEQ_DEU {
     )
 
     emit:
+    counts = DEXSEQ_COUNT.out.counts // channel: [ val(meta), path(txt) ], the exon bin counts of each sample
     dexseq_clean_txt = ch_dexseq_clean_txt
     dexseq_exon_dataset_rds = DEXSEQ_EXON.out.dataset_rds
     dexseq_exon_results_rds = DEXSEQ_EXON.out.results_rds

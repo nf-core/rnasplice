@@ -10,6 +10,7 @@ process ASPLI_DU {
 
     input:
     tuple val(meta), path(features), path(gbcounts), path(jcounts) // meta: [ id: contrast, treatment, control ]
+    val bin_fdr
 
     output:
     tuple val(meta), path("*.{genes_de,bins_du}.tsv")                             , emit: gb_du

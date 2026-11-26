@@ -64,7 +64,7 @@ opt <- list(
     min_avg_counts = 5,
     strong_filter  = TRUE,
     bin_fc         = 3,
-    bin_fdr        = 0.05,
+    bin_fdr        = ${bin_fdr},
     bin_inclusion  = 0.2,
     bjs_inclusion  = 10.3, # as in ASpli, although the other inclusion filters are fractions
     bjs_fdr        = 0.01,

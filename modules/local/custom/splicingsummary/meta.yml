@@ -1,0 +1,110 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "custom_splicingsummary"
+description: Summarise the result tables of the splicing analyses into MultiQC custom content, as per-sample General Statistics columns and one report section per summary, grouped under a Splicing parent section
+keywords:
+  - splicing
+  - multiqc
+  - summary
+  - differential splicing
+tools:
+  - "custom":
+      description: "Python script, using pandas, that summarises the outputs of DEXSeq, edgeR, DRIMSeq/DEXSeq DTU with stageR, SUPPA2, IsoformSwitchAnalyzeR, LeafCutter, ASpli and rMATS, and the splice junctions of STAR, for MultiQC"
+      licence: ["MIT"]
+      identifier: ""
+
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing run information
+          e.g. `[ id:'splicing_summary' ]`
+    - labels:
+        type: list
+        description: |
+          One map per result file, in the order of `results`, with the keys
+          `kind` (what the file is, e.g. `dexseq_counts`, `star_log`, `suppa_events`,
+          `leafcutter_ds`, `leafcutter_strands`, `rmats_summary`, `rmats_jc`, `contrasts`, `samplesheet`,
+          `gene_annotation`), `route` (`STAR`, `Salmon` or empty) and `id` (the sample of
+          a per-sample table, the contrast of a result table, or empty)
+    - results:
+        type: file
+        description: |
+          Result tables of the splicing analyses: DEXSeq count tables, STAR
+          `Log.final.out` files, SUPPA2 PSI matrices and dPSI tables, LeafCutter intron
+          counts, junction strand summaries and cluster significance tables, DEXSeq DEU and DTU results and gene
+          q-values, edgeR exon and Simes tables, stageR adjusted p-values, the
+          IsoformSwitchAnalyzeR isoform features, ASpli bin and junction cluster tables,
+          rMATS summaries and JC tables, the contrastsheet, a `sample,condition` CSV and
+          the gene annotation table
+        pattern: "*.{txt,tsv,csv,psi,dpsi,gz,out}"
+        ontologies: []
+  - section_config:
+      type: file
+      description: |
+        The text, headers, tool tables and thresholds of the sections, the pipeline's
+        assets/multiqc_splicing_sections.yml, filled in with the computed values
+      pattern: "*.{yml,yaml}"
+      ontologies:
+        - edam: http://edamontology.org/format_3750 # YAML
+output:
+  sections:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing run information
+      - "*_mqc.json":
+          type: file
+          description: |
+            MultiQC custom content, each file written when its inputs are given:
+            `splicing_sample_metrics` (General Statistics columns), and the sections
+            under the Splicing parent section, `splicing_verdict`,
+            `splicing_design_check`, `suppa_psi_concordance`, `differential_splicing`
+            (significant features of each analysis and contrast),
+            `leafcutter_cluster_test_outcomes`, `suppa_significant_events`,
+            `splicing_method_agreement` and `splicing_pvalue_histograms`
+          pattern: "*_mqc.json"
+          ontologies:
+            - edam: http://edamontology.org/format_3464 # JSON
+  versions:
+    - versions.yml:
+        type: file
+        description: File containing software versions
+        pattern: "versions.yml"
+        ontologies:
+          - edam: http://edamontology.org/format_3750 # YAML
+topics:
+  versions:
+    - versions.yml:
+        type: file
+        description: File containing software versions
+        pattern: "versions.yml"
+        ontologies:
+          - edam: http://edamontology.org/format_3750 # YAML
+authors:
+  - "@pinin4fjords"
+maintainers:
+  - "@pinin4fjords"
+containers:
+  docker:
+    linux/amd64:
+      name: community.wave.seqera.io/library/pandas_python_pyyaml:599168875025982d
+      build_id: bd-599168875025982d_1
+      scan_id: sc-82401eb79cef3a7e_1
+    linux/arm64:
+      name: community.wave.seqera.io/library/pandas_python_pyyaml:1e9b136cad069eac
+      build_id: bd-1e9b136cad069eac_1
+      scan_id: sc-448d9765fe9b33a0_1
+  singularity:
+    linux/arm64:
+      name: oras://community.wave.seqera.io/library/pandas_python_pyyaml:9e36564ba5c6ecfd
+      build_id: bd-9e36564ba5c6ecfd_1
+      https: https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/41/415c8eeecdeaab6fcd89fa4da0b52d20cbed6da8c5ffec756ae3ced669d3838a/data
+    linux/amd64:
+      name: oras://community.wave.seqera.io/library/pandas_python_pyyaml:64077921e4f9a8ba
+      build_id: bd-64077921e4f9a8ba_1
+      https: https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/5a/5ad122d0a8e6da5ddadc47909d45d49a12c1232ce0d492a9592dc9e9e23e730c/data
+  conda:
+    linux/amd64:
+      lock_file: modules/local/custom/splicingsummary/.conda-lock/linux_amd64-bd-599168875025982d_1.txt
+    linux/arm64:
+      lock_file: modules/local/custom/splicingsummary/.conda-lock/linux_arm64-bd-1e9b136cad069eac_1.txt

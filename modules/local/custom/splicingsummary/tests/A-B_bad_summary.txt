@@ -1,0 +1,2 @@
+EventType	EventTypeDescription	TotalEventsJCEC	SignificantEventsJC
+SE	skipped exon	4	1
