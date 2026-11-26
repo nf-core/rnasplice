@@ -279,14 +279,14 @@ General Statistics gets these columns per sample:
 
 The Splicing section has these parts, in this order:
 
-- Design and Depth: one line with the samples per contrast, any LeafCutter settings below its defaults and the spliced reads per sample, followed by the published evidence that applies to such a design, where there is any.
-- Design Check: for each contrast, whether an analysis cannot run as configured, runs below the guidance in its documentation, or meets the tool requirements (which does not mean the contrast is adequately powered), with what to change and the published evidence that applies.
+- Design and Depth: one line with the samples per contrast, the limit on permutation checks with 2 vs 2 samples, any LeafCutter settings below its defaults and the spliced reads per sample, followed by the published evidence that applies to such a design, where there is any.
+- Design Check: one row for each contrast and analysis that ran, with whether the analysis cannot run as configured, runs below the guidance in its documentation or published evaluations, or meets the tool requirements (which does not mean the contrast is adequately powered), what to change and the published evidence that applies.
 - SUPPA2 PSI Concordance: how closely the PSI values of each pair of samples agree. Samples of the same condition should agree most.
 - Differential Splicing: the features each analysis called significant in each contrast, one column per analysis, at gene level where the analysis has one. Counts are not comparable across columns. Feature-level counts, the second quantification route, the numbers tested and the median effect size of the significant calls (|log2 fold change|, |dPSI|, |IncLevelDifference| or |dIF|) are hidden columns. A contrast that tests the same comparison as another in reverse is marked, here and in the plots, as it is not an independent finding.
 - LeafCutter Cluster Test Outcomes: whether each intron cluster was tested, and if not why, with the LeafCutter settings the pipeline ran with.
 - SUPPA2 Significant Events: the significant local events of each contrast by event type and by whether the PSI is higher or lower in the treatment, with a second tab of the percentage of the tested events of each type for the types with at least 10 significant events.
 - Method Agreement: the genes called significant by at least two independent lines of evidence in each contrast, counting analyses built on the same quantification once (transcript abundances: DEXSeq DTU, IsoformSwitchAnalyzeR and SUPPA2; exon counts: DEXSeq DEU and edgeR; junction reads: rMATS and LeafCutter; and ASpli on its own), with the analyses that call them from both quantification routes. Reverse contrasts are left out.
-- P-value Distributions (Diagnostic): the p-values of the features each analysis with at least 100 tested features tested, a check on the power and calibration of the tests.
+- P-value Distributions (Diagnostic): the p-values of the features each analysis with at least 100 tested features tested, a check on the power and calibration of the tests. The description lists the analyses that are left out and why.
 
 The rMATS module of MultiQC, in versions that include it, shows the rMATS sections right after the Splicing section.
 

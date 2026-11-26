@@ -72,8 +72,17 @@ methods:
   ASpli: { family: ASpli, primary: bins }
   rMATS: { family: Junction reads, primary: JC events }
 
-# The analyses that cannot run with one sample in a condition, as named in the design check
-variance_analyses: { DEXSeq DEU: DEXSeq DEU, edgeR DEU: edgeR DEU, DRIMSeq: DEXSeq DTU, SUPPA2: SUPPA2 }
+# The rows of each contrast in the design check: the label of each analysis, whether it needs
+# replicates to estimate variance, and the option of its paired test, which needs equal groups
+design_analyses:
+  DEXSeq DEU: { label: DEXSeq DEU, variance: true }
+  edgeR DEU: { label: edgeR DEU, variance: true }
+  DRIMSeq: { label: DEXSeq DTU + stageR, variance: true }
+  SUPPA2: { label: SUPPA2, variance: true, paired: suppa_paired }
+  IsoformSwitchAnalyzeR: { label: IsoformSwitchAnalyzeR }
+  LeafCutter: { label: LeafCutter }
+  ASpli: { label: ASpli }
+  rMATS: { label: rMATS, paired: rmats_paired_stats }
 
 # The columns of the cross-method table by analysis and unit: threshold, effect-size cutoff
 # (default no_effect_cutoff), tested features (default tested), the unit of the median effect
@@ -313,6 +322,7 @@ sections:
     messages:
       design: "Design: {designs} samples per contrast."
       designs: "Design: {designs} samples."
+      permutation: With 2 vs 2 samples there are only 3 distinct ways to relabel the samples, so permutation checks cannot give a p-value below 1/3.
       leafcutter: LeafCutter ran with <code>{flags}</code>; its defaults are <code>{leafcutter_default_flags}</code>.
       splices: "Spliced reads per sample: median {median} (range {range})."
       evidence_dtu: in simulations, most transcript-usage methods did not control the false discovery rate at 2 samples per group (Love et al. 2018)
@@ -324,11 +334,13 @@ sections:
   splicing_design_check:
     section_name: Design Check
     plot_type: table
-    description: Whether each contrast meets the requirements of the splicing analyses that ran and the guidance in their documentation, with the published evidence that applies to its design. Meeting the requirements of the tools does not mean the contrast is adequately powered.
+    description: Whether each contrast meets the requirements of each splicing analysis that ran and the guidance in its documentation, with the published evidence that applies to the design. Meeting the requirements of a tool does not mean the contrast is adequately powered.
     references: true
     helptext: |-
-      Each row is one contrast of the contrastsheet, with the samples of its treatment and
-      control conditions and their median STAR spliced reads. The status has three tiers:
+      Each row is one analysis that ran on one contrast of the contrastsheet, with the
+      samples of the treatment and control conditions and their median STAR spliced reads.
+      The LeafCutter and DEXSeq DTU + stageR rows also have hidden columns with the settings
+      that apply to them. The status has three tiers:
 
       * **Cannot run**: an analysis cannot test this contrast as configured. A condition
         with one sample gives DEXSeq, edgeR, DEXSeq DTU and SUPPA2 no estimate of the
@@ -338,14 +350,14 @@ sections:
       * **Runs below documented guidance**: the analysis runs, but with settings below
         the tool defaults or with fewer samples than its documentation covers. LeafCutter
         defaults to `-g 3 -i 5 -c 20`, is documented as well calibrated down to 4 vs 4, and
-        suggests `-i 4 -g 2` for 2 vs 2.
+        suggests `-i 4 -g 2` for 2 vs 2. In simulations, most transcript-usage methods did not
+        control the gene-level false discovery rate at 2 samples per group, so DEXSeq DTU +
+        stageR and IsoformSwitchAnalyzeR run below guidance there.
       * **Meets tool requirements**: none of the above. This is not a statement that the
         contrast is adequately powered.
 
       The Details column says what to change, and the Evidence column gives the published
-      evaluations or documentation that apply to the design, where they exist. With 2 vs 2
-      samples there are only 3 distinct ways to relabel the samples, so permutation checks
-      cannot give a p-value below 1/3.
+      evaluations or documentation that apply to the design, where they exist.
 
       No published minimum number of replicates applies to all splicing analyses. Power and
       error control improve with replicates (Mehmood et al. 2020); the entries above give
@@ -355,7 +367,7 @@ sections:
         id: splicing_design_check_table,
         title: "Splicing: Design Check",
         namespace: Design check,
-        col1_header: Contrast,
+        col1_header: Contrast | analysis,
         sort_rows: false,
       }
     headers:
@@ -388,10 +400,15 @@ sections:
         }
       status:
         title: Status
-        description: Cannot run, Runs below documented guidance, or Meets tool requirements. Meeting the requirements of the tools does not mean the contrast is adequately powered
+        description: Cannot run, Runs below documented guidance, or Meets tool requirements. Meeting the requirements of a tool does not mean the contrast is adequately powered
         scale: false
         cond_formatting_rules: { fail: [{ s_eq: Cannot run }], warn: [{ s_eq: Runs below documented guidance }] }
-      details: { title: Details, description: "What the contrast is short of, and what to change", scale: false }
+      details:
+        {
+          title: Details,
+          description: "What the analysis is short of in this contrast, and what to change",
+          scale: false,
+        }
       evidence:
         {
           title: Evidence,
@@ -402,19 +419,19 @@ sections:
       cannot: Cannot run
       below: Runs below documented guidance
       meets: Meets tool requirements
-      variance: "{names} need replicates to estimate variance ({n_treatment} and {n_control} samples)"
-      suppa_paired: the SUPPA2 paired test (--diffsplice_paired) needs equal groups ({n_treatment} and {n_control})
-      rmats_paired: rMATS paired statistics (--rmats_paired_stats) need equal groups ({n_treatment} and {n_control})
-      leafcutter_minimum: "LeafCutter not tested: the pipeline tests a LeafCutter contrast only with at least {leafcutter_min_samples_per_condition} samples per condition, the larger of -g and -i ({n_treatment} and {n_control}) (lower --leafcutter_ds_min_samples_per_group and --leafcutter_ds_min_samples_per_intron or add replicates)"
-      leafcutter_defaults: LeafCutter settings {flags} are below its defaults {leafcutter_default_flags}
-      leafcutter_few: LeafCutter with fewer than 4 samples per group ({n_treatment} and {n_control})
-      leafcutter_i: LeafCutter -i {leafcutter_min_samples_per_intron} is below the -i 4 (with -g 2) its documentation suggests for 2 vs 2
+      variance: needs replicates to estimate variance ({n_treatment} and {n_control} samples)
+      suppa_paired: the paired test (--diffsplice_paired) needs equal groups ({n_treatment} and {n_control})
+      rmats_paired_stats: paired statistics (--rmats_paired_stats) need equal groups ({n_treatment} and {n_control})
+      leafcutter_minimum: "the pipeline tests a LeafCutter contrast only with at least {leafcutter_min_samples_per_condition} samples per condition, the larger of -g and -i ({n_treatment} and {n_control}) (lower --leafcutter_ds_min_samples_per_group and --leafcutter_ds_min_samples_per_intron or add replicates)"
+      leafcutter_defaults: settings {flags} are below the defaults {leafcutter_default_flags}
+      leafcutter_few: fewer than 4 samples per group ({n_treatment} and {n_control})
+      leafcutter_i: -i {leafcutter_min_samples_per_intron} is below the -i 4 (with -g 2) the documentation suggests for 2 vs 2
       drimseq: the DRIMSeq filter needs {needed} samples and the run has {total} (lower --min_samps_gene_expr, --min_samps_feature_expr and --min_samps_feature_prop, or add samples)
-      evidence_leafcutter_few: "LeafCutter: well calibrated down to 4 vs 4 (LeafCutter documentation)"
-      evidence_leafcutter_i: "LeafCutter: -i {leafcutter_min_samples_per_intron} is below the documented 2 vs 2 setting -i 4"
-      evidence_dtu_2: "DTU: most methods did not control gene-level FDR at 2 per group (Love et al. 2018)"
-      evidence_dtu_3: "DTU: DEXSeq + stageR OFDR about 10% vs 5% target at 3 per group (Love et al. 2018)"
-      evidence_permutation: Permutation checks impossible (3 distinct relabellings, minimum p = 1/3)
+      dtu_few: most transcript-usage methods did not control gene-level FDR at 2 per group
+      evidence_leafcutter_few: well calibrated down to 4 vs 4 (LeafCutter documentation)
+      evidence_leafcutter_i: -i 4 with -g 2 is the documented setting for 2 vs 2 (LeafCutter documentation)
+      evidence_dtu_2: most methods did not control gene-level FDR at 2 per group (Love et al. 2018)
+      evidence_dtu_3: DEXSeq + stageR OFDR about 10% vs 5% target at 3 per group (Love et al. 2018)
       details_cannot: "Cannot run: {items}."
       details_below: "Runs below documented guidance: {items}."
 
@@ -455,7 +472,7 @@ sections:
   differential_splicing:
     section_name: Differential Splicing
     plot_type: table
-    description: "Features each splicing analysis called significant in each contrast, one column per analysis at gene level where the analysis has one. Counts are not comparable across columns: the analyses count different units with different tests and effect-size cutoffs. STAR + Salmon: Salmon quantification of STAR alignments; Salmon: Salmon pseudo-alignment. An empty cell is a contrast the analysis did not test; the Design Check says why.{reciprocal}"
+    description: "Features each splicing analysis called significant in each contrast, one column per analysis at gene level where the analysis has one. Counts are not comparable across columns: the analyses count different units with different tests and effect-size cutoffs. STAR + Salmon: Salmon quantification of STAR alignments; Salmon: Salmon pseudo-alignment. An empty cell is a contrast the analysis did not test; the Design Check says why.{reciprocal}{rmats}"
     helptext: |-
       Each row is one contrast, and each visible column one analysis: the genes DEXSeq DEU,
       edgeR, DEXSeq DTU with stageR and IsoformSwitchAnalyzeR call significant, the events
@@ -519,6 +536,7 @@ sections:
           hidden: true,
         }
     messages:
+      rmats: " rMATS's read outcomes and event summaries are shown in an rMATS section by MultiQC versions that include the rMATS module (MultiQC/MultiQC#3749); this pipeline's MultiQC does not yet, so they are not shown."
       reciprocal: " Contrasts in the Reverse of column test the same comparison in reverse, so they are not independent findings; for some tools, such as rMATS with paired statistics, their calls can differ slightly."
 
   leafcutter_cluster_test_outcomes:
@@ -674,7 +692,7 @@ sections:
   splicing_pvalue_histograms:
     section_name: P-value Distributions (Diagnostic)
     plot_type: linegraph
-    description: For analyses with at least {p_min_features} tested features. A flat curve with a rise near 0 is expected; most features near 1 means the test had little power. One tab per contrast.
+    description: For analyses with at least {p_min_features} tested features. A flat curve with a rise near 0 is expected; most features near 1 means the test had little power. One tab per contrast.{left_out}
     helptext: |-
       The raw p-values of the features each analysis tested, in {p_bins} bins of 0.05, as a
       percentage of its tested features. Features without a real change have uniform
@@ -701,3 +719,9 @@ sections:
         ymax: 30,
         tt_suffix: "%",
       }
+    messages:
+      left_out: "Not shown: {items}."
+      suppa: SUPPA2 (gene-corrected p-values are not uniform under the null)
+      few: "too few tested features (under {p_min_features}): {series}"
+      nothing: No analysis of this run tested enough features with raw p-values for a distribution.
+      note: <div class="alert alert-info">{message}</div>

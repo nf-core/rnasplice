@@ -559,6 +559,8 @@ def write_verdict(section, run, calls, counts):
                     ),
                 )
             )
+    if (2, 2) in sizes.values():
+        facts.append(say(section, "permutation"))
     if "LeafCutter" in run.ran and ARGS["leafcutter_below_defaults"]:
         facts.append(say(section, "leafcutter"))
     if run.splices:
@@ -588,28 +590,16 @@ def write_verdict(section, run, calls, counts):
     emit(section, content)
 
 
-def design_problems(section, run, n_treatment, n_control):
-    """What a contrast cannot run, where it runs below documented guidance, and the evidence that applies to it."""
-    smallest, pair, sizes = (
-        min(n_treatment, n_control),
-        (n_treatment, n_control),
-        {"n_treatment": n_treatment, "n_control": n_control},
-    )
-    cannot, below, evidence = [], [], []
-    variance = [
-        name
-        for analysis, name in CONFIG["variance_analyses"].items()
-        if analysis in run.ran
-    ]
-    if smallest < 2 and variance:
-        cannot.append(say(section, "variance", names=", ".join(variance), **sizes))
-    for analysis, option, key in (
-        ("SUPPA2", "suppa_paired", "suppa_paired"),
-        ("rMATS", "rmats_paired_stats", "rmats_paired"),
-    ):
-        if analysis in run.ran and ARGS[option] and n_treatment != n_control:
-            cannot.append(say(section, key, **sizes))
-    if "LeafCutter" in run.ran:
+def design_problems(section, run, analysis, n_treatment, n_control):
+    """What an analysis cannot run in a contrast, where it runs below documented guidance, and the evidence that applies to it."""
+    smallest, pair = min(n_treatment, n_control), (n_treatment, n_control)
+    sizes = {"n_treatment": n_treatment, "n_control": n_control}
+    spec, cannot, below, evidence = CONFIG["design_analyses"][analysis], [], [], []
+    if smallest < 2 and spec.get("variance"):
+        cannot.append(say(section, "variance", **sizes))
+    if spec.get("paired") and ARGS[spec["paired"]] and n_treatment != n_control:
+        cannot.append(say(section, spec["paired"], **sizes))
+    if analysis == "LeafCutter":
         if smallest < ARGS["leafcutter_min_samples_per_condition"]:
             cannot.append(say(section, "leafcutter_minimum", **sizes))
         if ARGS["leafcutter_below_defaults"]:
@@ -620,33 +610,41 @@ def design_problems(section, run, n_treatment, n_control):
         if pair == (2, 2) and ARGS["leafcutter_min_samples_per_intron"] < 4:
             below.append(say(section, "leafcutter_i"))
             evidence.append(say(section, "evidence_leafcutter_i"))
-    needed = max(
-        ARGS[f"min_samps_{name}"]
-        for name in ("gene_expr", "feature_expr", "feature_prop")
-    )
-    if "DRIMSeq" in run.ran and len(run.condition_of) < needed:
-        cannot.append(
-            say(section, "drimseq", needed=needed, total=len(run.condition_of))
+    if analysis in DTU and smallest <= 2:
+        below.append(say(section, "dtu_few"))
+        evidence.append(say(section, "evidence_dtu_2"))
+    if analysis == "DRIMSeq":
+        total = len(run.condition_of)
+        needed = max(
+            ARGS[f"min_samps_{name}"]
+            for name in ("gene_expr", "feature_expr", "feature_prop")
         )
-    if run.ran & DTU and smallest <= 3:
-        evidence.append(
-            say(section, "evidence_dtu_2" if smallest <= 2 else "evidence_dtu_3")
-        )
-    if pair == (2, 2):
-        evidence.append(say(section, "evidence_permutation"))
+        if total < needed:
+            cannot.append(say(section, "drimseq", needed=needed, total=total))
+        if smallest == 3:
+            evidence.append(say(section, "evidence_dtu_3"))
     return cannot, below, evidence
 
 
 def write_design_check(section, run, calls, counts):
-    if not run.contrasts or not run.condition_of:
+    analyses = {
+        analysis: spec["label"]
+        for analysis, spec in CONFIG["design_analyses"].items()
+        if analysis in run.ran
+    }
+    if not run.contrasts or not run.condition_of or not analyses:
         return
-    leafcutter, drimseq = "LeafCutter" in run.ran, "DRIMSeq" in run.ran
-    shown = {
-        "splices": bool(run.splices),
-        "drimseq_gene": drimseq,
-        "leafcutter_g": leafcutter,
-        "leafcutter_i": leafcutter,
-        "leafcutter_c": leafcutter,
+    settings = {
+        "LeafCutter": {
+            f"leafcutter_{flag}": ARGS[option]
+            for flag, option in CONFIG["leafcutter_flags"].items()
+        },
+        "DRIMSeq": {"drimseq_gene": ARGS["min_samps_gene_expr"]},
+    }
+    shown = {"splices": bool(run.splices)} | {
+        key: analysis in analyses
+        for analysis, columns in settings.items()
+        for key in columns
     }
     data = {}
     for name, (n_treatment, n_control) in sorted(run.sizes().items()):
@@ -657,13 +655,6 @@ def write_design_check(section, run, calls, counts):
             "n_treatment": n_treatment,
             "n_control": n_control,
         }
-        if leafcutter:
-            row |= {
-                f"leafcutter_{flag}": ARGS[option]
-                for flag, option in CONFIG["leafcutter_flags"].items()
-            }
-        if drimseq:
-            row["drimseq_gene"] = ARGS["min_samps_gene_expr"]
         splices = [
             run.splices[sample]
             for sample in run.samples(contrast.treatment)
@@ -672,19 +663,26 @@ def write_design_check(section, run, calls, counts):
         ]
         if splices:
             row["splices"] = np.median(splices) / 1e6
-        cannot, below, evidence = design_problems(section, run, n_treatment, n_control)
-        row["status"] = say(
-            section, "cannot" if cannot else "below" if below else "meets"
-        )
-        details = [
-            say(section, key, items="; ".join(items))
-            for key, items in (("details_cannot", cannot), ("details_below", below))
-            if items
-        ]
-        data[name] = row | {
-            "details": " ".join(details),
-            "evidence": "; ".join(evidence),
-        }
+        for analysis, label in analyses.items():
+            cannot, below, evidence = design_problems(
+                section, run, analysis, n_treatment, n_control
+            )
+            details = [
+                say(section, key, items="; ".join(items))
+                for key, items in (("details_cannot", cannot), ("details_below", below))
+                if items
+            ]
+            data[f"{name} | {label}"] = (
+                row
+                | settings.get(analysis, {})
+                | {
+                    "status": say(
+                        section, "cannot" if cannot else "below" if below else "meets"
+                    ),
+                    "details": " ".join(details),
+                    "evidence": "; ".join(evidence),
+                }
+            )
     emit(
         section,
         data,
@@ -723,7 +721,10 @@ def write_concordance(section, run, calls, counts):
         ctx["few"] = say(section, "few")
     emit(
         section,
-        correlation.where(correlation.notna(), None).to_numpy().tolist(),
+        correlation.where(correlation.notna(), None)
+        .set_axis(names, axis=0)
+        .set_axis(names, axis=1)
+        .to_dict(orient="index"),
         ctx,
         xcats=names,
         ycats=names,
@@ -822,7 +823,13 @@ def write_differential(section, run, calls, counts):
         data[row.contrast] |= {key: row.significant, f"{key}_tested": row.tested}
         if primary and pd.notna(row.effect):
             data[row.contrast][f"{key}_effect"] = row.effect
-    ctx = {"reciprocal": say(section, "reciprocal") if reversed_contrasts else ""}
+    ctx = {
+        key: say(section, key) if shown else ""
+        for key, shown in (
+            ("reciprocal", reversed_contrasts),
+            ("rmats", "rMATS" in run.ran),
+        )
+    }
     emit(
         section,
         {contrast: data[contrast] for contrast in contrasts},
@@ -1012,12 +1019,26 @@ def write_pvalues(section, run, calls, counts):
     }
     pvalues = calls.assign(series=[labels.get(key) for key in keys])
     pvalues = pvalues[pvalues["series"].notna() & pvalues["p"].between(0, 1)]
-    pvalues = pvalues[
-        pvalues.groupby(["contrast", "series"], sort=False)["p"].transform("size")
-        >= LIMITS["p_min_features"]
-    ]
+    tested = pvalues.groupby(["contrast", "series"], sort=False)["p"].transform("size")
+    most = tested.groupby(pvalues["series"], sort=False).max()
+    left_out = [say(section, "suppa")] if "SUPPA2" in run.ran else []
+    few = most[most < LIMITS["p_min_features"]]
+    if len(few):
+        series = ", ".join(f"{name} with {count:,}" for name, count in few.items())
+        left_out.append(say(section, "few", series=series))
+    note = say(section, "left_out", items="; ".join(left_out)) if left_out else ""
+    pvalues = pvalues[tested >= LIMITS["p_min_features"]]
     contrasts = sorted(set(pvalues["contrast"]))
+    ctx = {"per_bin": f"{100 / bins:g}", "left_out": f" {note}" if note else ""}
     if not contrasts:
+        if note:
+            emit(
+                section,
+                say(section, "note", message=note),
+                ctx,
+                plot_type="html",
+                description=say(section, "nothing"),
+            )
         return
 
     def histogram(p):
@@ -1045,7 +1066,7 @@ def write_pvalues(section, run, calls, counts):
             for contrast in contrasts
         ]
     }
-    emit(section, data, {"per_bin": f"{100 / bins:g}"}, pconfig=pconfig)
+    emit(section, data, ctx, pconfig=pconfig)
 
 
 WRITERS = {
