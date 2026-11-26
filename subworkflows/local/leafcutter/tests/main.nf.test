@@ -115,6 +115,31 @@ nextflow_workflow {
     test("human chrX - blocking variable") {
 
         // The batch column of the samplesheet goes into the groups file as a confounder
+
+        setup {
+            run("GUNZIP") {
+                script "../../../../modules/nf-core/gunzip/main.nf"
+                process {
+                    """
+                    input[0] = channel.of([
+                        [ id:'genome' ],
+                        file(params.pipelines_testdata_base_path + 'reference/X.fa.gz', checkIfExists: true)
+                    ])
+                    """
+                }
+            }
+
+            run("SAMTOOLS_FAIDX") {
+                script "../../../../modules/nf-core/samtools/faidx/main.nf"
+                process {
+                    """
+                    input[0] = GUNZIP.out.gunzip.map { meta, fasta -> [ meta, fasta, [] ] }
+                    input[1] = false
+                    """
+                }
+            }
+        }
+
         when {
             params {
                 // Two samples per condition, fewer than leafcutter-ds asks for by default,
