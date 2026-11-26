@@ -2,6 +2,9 @@
     "-profile test_blocking": {
         "content": [
             {
+                "CSVTK_JOIN": {
+                    "csvtk": "0.37.0"
+                },
                 "CUSTOM_TX2GENE": {
                     "python": "3.10.4"
                 },
@@ -25,6 +28,11 @@
                     "bioconductor-drimseq": "1.18.0",
                     "r-base": "4.0.3"
                 },
+                "EDGER_DIFFSPLICE": {
+                    "bioconductor-edger": "4.10.5",
+                    "bioconductor-limma": "3.68.5",
+                    "r-base": "4.5.3"
+                },
                 "FASTQC": {
                     "fastqc": "0.13.0"
                 },
@@ -45,6 +53,15 @@
                 },
                 "GUNZIP_FASTA": {
                     "gunzip": "1.13"
+                },
+                "LEAFCUTTER_CLUSTERREGTOOLS": {
+                    "leafcutter": "2.0.3"
+                },
+                "LEAFCUTTER_DIFFERENTIALSPLICING": {
+                    "leafcutter": "2.0.3"
+                },
+                "LEAFCUTTER_GTFTOEXONS": {
+                    "leafcutter": "2.0.3"
                 },
                 "MAKE_TRANSCRIPTS_FASTA": {
                     "rsem": "1.3.1",
@@ -77,6 +94,12 @@
                 "SAMTOOLS_STATS": {
                     "samtools": "1.24"
                 },
+                "SE_GENE_UNIFIED": {
+                    "bioconductor-summarizedexperiment": "1.42.0"
+                },
+                "SE_TRANSCRIPT_UNIFIED": {
+                    "bioconductor-summarizedexperiment": "1.42.0"
+                },
                 "STAGER": {
                     "stageR": "1.32.0"
                 },
@@ -90,13 +113,22 @@
                     "samtools": "1.21",
                     "star": "2.7.11b"
                 },
+                "STRANDJUNCTIONS": {
+                    "python": "3.14.6"
+                },
+                "SUBREAD_FEATURECOUNTS": {
+                    "subread": "2.1.1"
+                },
+                "SUBREAD_FLATTENGTF": {
+                    "subread": "flattenGTF Version 2.0.1"
+                },
                 "SUPPATPM": {
                     "coreutils": "9.5"
                 },
                 "TRIMGALORE": {
                     "trimgalore": "2.3.0"
                 },
-                "TXIMPORT": {
+                "TXIMETA_TXIMPORT": {
                     "bioconductor-tximeta": "1.20.1",
                     "bioconductor-tximport": "1.30.0"
                 },
@@ -141,6 +173,7 @@
                 "multiqc/multiqc_data/fastqc_sequence_duplication_levels_plot.txt",
                 "multiqc/multiqc_data/fastqc_sequence_length_distribution_plot.txt",
                 "multiqc/multiqc_data/fastqc_top_overrepresented_sequences_table.txt",
+                "multiqc/multiqc_data/featureCounts_assignment_plot.txt",
                 "multiqc/multiqc_data/llms-full.txt",
                 "multiqc/multiqc_data/multiqc.log",
                 "multiqc/multiqc_data/multiqc.parquet",
@@ -148,7 +181,9 @@
                 "multiqc/multiqc_data/multiqc_data.json",
                 "multiqc/multiqc_data/multiqc_fail_trimmed_samples_table.txt",
                 "multiqc/multiqc_data/multiqc_fastqc.txt",
+                "multiqc/multiqc_data/multiqc_featurecounts.txt",
                 "multiqc/multiqc_data/multiqc_general_stats.txt",
+                "multiqc/multiqc_data/multiqc_leafcutter_junction_strands_table.txt",
                 "multiqc/multiqc_data/multiqc_salmon.txt",
                 "multiqc/multiqc_data/multiqc_samtools_flagstat.txt",
                 "multiqc/multiqc_data/multiqc_samtools_idxstats.txt",
@@ -183,6 +218,9 @@
                 "multiqc/multiqc_plots/pdf/fastqc_sequence_duplication_levels_plot.pdf",
                 "multiqc/multiqc_plots/pdf/fastqc_sequence_length_distribution_plot.pdf",
                 "multiqc/multiqc_plots/pdf/fastqc_top_overrepresented_sequences_table.pdf",
+                "multiqc/multiqc_plots/pdf/featureCounts_assignment_plot-cnt.pdf",
+                "multiqc/multiqc_plots/pdf/featureCounts_assignment_plot-pct.pdf",
+                "multiqc/multiqc_plots/pdf/leafcutter_junction_strands_table.pdf",
                 "multiqc/multiqc_plots/pdf/salmon_plot.pdf",
                 "multiqc/multiqc_plots/pdf/samtools-flagstat-pct-table.pdf",
                 "multiqc/multiqc_plots/pdf/samtools-flagstat-table.pdf",
@@ -214,6 +252,9 @@
                 "multiqc/multiqc_plots/png/fastqc_sequence_duplication_levels_plot.png",
                 "multiqc/multiqc_plots/png/fastqc_sequence_length_distribution_plot.png",
                 "multiqc/multiqc_plots/png/fastqc_top_overrepresented_sequences_table.png",
+                "multiqc/multiqc_plots/png/featureCounts_assignment_plot-cnt.png",
+                "multiqc/multiqc_plots/png/featureCounts_assignment_plot-pct.png",
+                "multiqc/multiqc_plots/png/leafcutter_junction_strands_table.png",
                 "multiqc/multiqc_plots/png/salmon_plot.png",
                 "multiqc/multiqc_plots/png/samtools-flagstat-pct-table.png",
                 "multiqc/multiqc_plots/png/samtools-flagstat-table.png",
@@ -245,6 +286,9 @@
                 "multiqc/multiqc_plots/svg/fastqc_sequence_duplication_levels_plot.svg",
                 "multiqc/multiqc_plots/svg/fastqc_sequence_length_distribution_plot.svg",
                 "multiqc/multiqc_plots/svg/fastqc_top_overrepresented_sequences_table.svg",
+                "multiqc/multiqc_plots/svg/featureCounts_assignment_plot-cnt.svg",
+                "multiqc/multiqc_plots/svg/featureCounts_assignment_plot-pct.svg",
+                "multiqc/multiqc_plots/svg/leafcutter_junction_strands_table.svg",
                 "multiqc/multiqc_plots/svg/salmon_plot.svg",
                 "multiqc/multiqc_plots/svg/samtools-flagstat-pct-table.svg",
                 "multiqc/multiqc_plots/svg/samtools-flagstat-table.svg",
@@ -368,11 +412,15 @@
                 "salmon/dexseq_dtu/results/stager/stageRTx.YRI-GBR.rds",
                 "salmon/tximport",
                 "salmon/tximport/genes_chrX.tx2gene.tsv",
+                "salmon/tximport/salmon.merged.gene.R_sessionInfo.log",
+                "salmon/tximport/salmon.merged.gene.SummarizedExperiment.rds",
                 "salmon/tximport/salmon.merged.gene_counts.tsv",
                 "salmon/tximport/salmon.merged.gene_counts_length_scaled.tsv",
                 "salmon/tximport/salmon.merged.gene_counts_scaled.tsv",
                 "salmon/tximport/salmon.merged.gene_lengths.tsv",
                 "salmon/tximport/salmon.merged.gene_tpm.tsv",
+                "salmon/tximport/salmon.merged.transcript.R_sessionInfo.log",
+                "salmon/tximport/salmon.merged.transcript.SummarizedExperiment.rds",
                 "salmon/tximport/salmon.merged.transcript_counts.tsv",
                 "salmon/tximport/salmon.merged.transcript_counts_dtu_scaled.tsv",
                 "salmon/tximport/salmon.merged.transcript_counts_scaled.tsv",
@@ -442,6 +490,60 @@
                 "star_salmon/dexseq_exon/results/YRI-GBR.dexseq.results.annotated.tsv",
                 "star_salmon/dexseq_exon/results/YRI-GBR.dexseq.results.rds",
                 "star_salmon/dexseq_exon/results/YRI-GBR.dexseq.results.tsv",
+                "star_salmon/edger",
+                "star_salmon/edger/GBR-YRI.DGEGLM.edger.rds",
+                "star_salmon/edger/GBR-YRI.DGELRT.edger.rds",
+                "star_salmon/edger/GBR-YRI.R_sessionInfo.log",
+                "star_salmon/edger/GBR-YRI.edger.bcv.png",
+                "star_salmon/edger/GBR-YRI.edger.diffsplice.gene.annotated.tsv",
+                "star_salmon/edger/GBR-YRI.edger.diffsplice.gene.tsv",
+                "star_salmon/edger/GBR-YRI.edger.diffsplice.pdf",
+                "star_salmon/edger/GBR-YRI.edger.diffsplice.results.annotated.tsv",
+                "star_salmon/edger/GBR-YRI.edger.diffsplice.results.tsv",
+                "star_salmon/edger/GBR-YRI.edger.diffsplice.simes.annotated.tsv",
+                "star_salmon/edger/GBR-YRI.edger.diffsplice.simes.tsv",
+                "star_salmon/edger/GBR-YRI.edger.model.txt",
+                "star_salmon/edger/YRI-GBR.DGEGLM.edger.rds",
+                "star_salmon/edger/YRI-GBR.DGELRT.edger.rds",
+                "star_salmon/edger/YRI-GBR.R_sessionInfo.log",
+                "star_salmon/edger/YRI-GBR.edger.bcv.png",
+                "star_salmon/edger/YRI-GBR.edger.diffsplice.gene.annotated.tsv",
+                "star_salmon/edger/YRI-GBR.edger.diffsplice.gene.tsv",
+                "star_salmon/edger/YRI-GBR.edger.diffsplice.pdf",
+                "star_salmon/edger/YRI-GBR.edger.diffsplice.results.annotated.tsv",
+                "star_salmon/edger/YRI-GBR.edger.diffsplice.results.tsv",
+                "star_salmon/edger/YRI-GBR.edger.diffsplice.simes.annotated.tsv",
+                "star_salmon/edger/YRI-GBR.edger.diffsplice.simes.tsv",
+                "star_salmon/edger/YRI-GBR.edger.model.txt",
+                "star_salmon/edger/edger_exon.tsv",
+                "star_salmon/featurecounts",
+                "star_salmon/featurecounts/ERR188383.featureCounts.tsv",
+                "star_salmon/featurecounts/ERR188383.featureCounts.tsv.summary",
+                "star_salmon/featurecounts/ERR188428.featureCounts.tsv",
+                "star_salmon/featurecounts/ERR188428.featureCounts.tsv.summary",
+                "star_salmon/featurecounts/ERR188454.featureCounts.tsv",
+                "star_salmon/featurecounts/ERR188454.featureCounts.tsv.summary",
+                "star_salmon/featurecounts/ERR204916.featureCounts.tsv",
+                "star_salmon/featurecounts/ERR204916.featureCounts.tsv.summary",
+                "star_salmon/featurecounts/genes_chrX.saf",
+                "star_salmon/leafcutter",
+                "star_salmon/leafcutter/ERR188383.junc",
+                "star_salmon/leafcutter/ERR188383.strand_summary.tsv",
+                "star_salmon/leafcutter/ERR188428.junc",
+                "star_salmon/leafcutter/ERR188428.strand_summary.tsv",
+                "star_salmon/leafcutter/ERR188454.junc",
+                "star_salmon/leafcutter/ERR188454.strand_summary.tsv",
+                "star_salmon/leafcutter/ERR204916.junc",
+                "star_salmon/leafcutter/ERR204916.strand_summary.tsv",
+                "star_salmon/leafcutter/GBR-YRI_cluster_significance.txt",
+                "star_salmon/leafcutter/GBR-YRI_effect_sizes.txt",
+                "star_salmon/leafcutter/YRI-GBR_cluster_significance.txt",
+                "star_salmon/leafcutter/YRI-GBR_effect_sizes.txt",
+                "star_salmon/leafcutter/lc_perind.counts.gz",
+                "star_salmon/leafcutter/lc_perind_numers.counts.gz",
+                "star_salmon/leafcutter/lc_pooled",
+                "star_salmon/leafcutter/lc_refined",
+                "star_salmon/leafcutter/lc_sortedlibs",
                 "star_salmon/log",
                 "star_salmon/log/ERR188383.Log.final.out",
                 "star_salmon/log/ERR188383.Log.out",
@@ -539,11 +641,15 @@
                 "star_salmon/samtools_stats/ERR204916.stats",
                 "star_salmon/tximport",
                 "star_salmon/tximport/genes_chrX.tx2gene.tsv",
+                "star_salmon/tximport/salmon.merged.gene.R_sessionInfo.log",
+                "star_salmon/tximport/salmon.merged.gene.SummarizedExperiment.rds",
                 "star_salmon/tximport/salmon.merged.gene_counts.tsv",
                 "star_salmon/tximport/salmon.merged.gene_counts_length_scaled.tsv",
                 "star_salmon/tximport/salmon.merged.gene_counts_scaled.tsv",
                 "star_salmon/tximport/salmon.merged.gene_lengths.tsv",
                 "star_salmon/tximport/salmon.merged.gene_tpm.tsv",
+                "star_salmon/tximport/salmon.merged.transcript.R_sessionInfo.log",
+                "star_salmon/tximport/salmon.merged.transcript.SummarizedExperiment.rds",
                 "star_salmon/tximport/salmon.merged.transcript_counts.tsv",
                 "star_salmon/tximport/salmon.merged.transcript_counts_dtu_scaled.tsv",
                 "star_salmon/tximport/salmon.merged.transcript_counts_scaled.tsv",
@@ -580,6 +686,20 @@
                 "trimgalore/fastqc/ERR204916_2_val_2_fastqc.zip"
             ],
             [
+                "GBR-YRI.edger.model.txt:md5,cf971de1db537b70c86a304ad84c73f5",
+                "YRI-GBR.edger.model.txt:md5,4280bed61961e287d9ea1488de88160c",
+                "ERR188383.featureCounts.tsv.summary:md5,397e3a5c0d1cd305414d46e1dc705508",
+                "ERR188428.featureCounts.tsv.summary:md5,5902b678065ed8a66e82dac2370f3931",
+                "ERR188454.featureCounts.tsv.summary:md5,69ebb892fc19b61ae9a500050b0804fa",
+                "ERR204916.featureCounts.tsv.summary:md5,7cf16c1bc34ac0242eff2525b03ebd22",
+                "genes_chrX.saf:md5,21c8a42064800a41839bc9508018df75",
+                "ERR188383.junc:md5,490c551451c2f61df5ae3dd4bbf146a2",
+                "ERR188428.junc:md5,68c72ba1614d479511b41d81de714364",
+                "ERR188454.junc:md5,ea437eaa94b2876673d9703a9aeda341",
+                "ERR204916.junc:md5,a607fcb5e68adfa1be9c2262c380fcab",
+                "lc_pooled:md5,21dec5398f8d1289daa282b4638c12bf",
+                "lc_refined:md5,db3d36def298c7fae6e7a843ce52c2ce",
+                "lc_sortedlibs:md5,de8c5c512e43f549f32762dd9faa6c5b",
                 "ERR188383.SJ.out.tab:md5,eac5cb7bb66519ca4193c9d4559f955b",
                 "ERR188428.SJ.out.tab:md5,66d4c5e629b2901756fec2d5fe06a5b9",
                 "ERR188454.SJ.out.tab:md5,b0a6368caf1e2e22682aa59b1f1345c6",
@@ -604,7 +724,7 @@
                 "ERR204916_sorted.bam": "1f2abfcbb9697c56744ffb5fcfeb9f17"
             }
         ],
-        "timestamp": "2026-11-26T15:27:17.447210644",
+        "timestamp": "2026-11-26T17:01:13.53419534",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"
