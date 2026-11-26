@@ -94,8 +94,8 @@ nextflow_process {
                 { assert snapshot(
                     process.out.isoformswitchanalyzer_summary,
                     process.out.isoformswitchanalyzer_isoformFeatures.collect { meta, csv ->
-                        def lines = path(csv).readLines()
-                        [ meta, file(csv).name, lines[0], lines.size() ]
+                        def csv_lines = path(csv).readLines()
+                        [ meta, file(csv).name, csv_lines[0], csv_lines.size() ]
                     },
                     process.out.switchlist_rds.collect { meta, rds -> [ meta, file(rds).name ] },
                     process.out.results.collect { _meta, dir ->
@@ -135,8 +135,8 @@ nextflow_process {
                 { assert lines.size() > 1 },
                 { assert snapshot(
                     process.out.isoformswitchanalyzer_isoformFeatures.collect { meta, csv ->
-                        def lines = path(csv).readLines()
-                        [ meta, file(csv).name, lines[0], lines.size() ]
+                        def csv_lines = path(csv).readLines()
+                        [ meta, file(csv).name, csv_lines[0], csv_lines.size() ]
                     },
                 ).match() }
             )

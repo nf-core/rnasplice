@@ -29,7 +29,7 @@ workflow ISOFORMSWITCHANALYZER_CONTRASTS {
     // conditions. Blocking variables are prefixed with their column name, so that
     // numeric values are not read as continuous
     ch_contrast_inputs = ch_contrastsheet
-        .combine(ch_salmon_results.toList())
+        .combine(ch_salmon_results.toList().map { results -> [results] })
         .combine(ch_sample_rows)
         .map { row, salmon, rows_by_sample ->
             def conditions = [row.treatment, row.control]
