@@ -373,9 +373,11 @@ Finally, as discussed above in the DEXSeq count section, users can inspect count
   - `{contrast}.edger.diffsplice.results.tsv`: Differential exon usage results at the exon level, each exon tested against the other exons of its gene with edgeR::diffSpliceDGE.
   - `{contrast}.edger.diffsplice.simes.tsv`: Gene-level results, combining the exon-level p-values with the Simes method.
   - `{contrast}.edger.diffsplice.gene.tsv`: Gene-level results of the F (or likelihood ratio) test.
-  - `{contrast}.edger.diffsplice.pdf`: edgeR::plotSpliceDGE plots of the top genes by Simes p-value (`--n_edger_plot`).
+  - `{contrast}.edger.diffsplice.{results,simes,gene}.pdf`: edgeR::plotSpliceDGE plots of the top genes (`--n_edger_plot`) of each results table.
   - `{contrast}.edger.bcv.png`: Biological coefficient of variation plot of the estimated dispersions.
+  - `{contrast}.DGEList.edger.rds`: DGEList R object after filtering, normalisation and dispersion estimation.
   - `{contrast}.DGEGLM.edger.rds`: DGEGLM R object following edgeR::glmQLFit.
+  - `{contrast}.DGELRT.expression.edger.rds`: DGELRT R object following edgeR::glmQLFTest.
   - `{contrast}.DGELRT.edger.rds`: DGELRT R object following edgeR::diffSpliceDGE.
   - `{contrast}.edger.model.txt`: The model formula.
   - `{contrast}.R_sessionInfo.log`: R session information.

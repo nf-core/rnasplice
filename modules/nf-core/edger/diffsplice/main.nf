@@ -19,10 +19,12 @@ process EDGER_DIFFSPLICE {
     tuple val(meta), path("*.edger.diffsplice.results.tsv"), emit: results
     tuple val(meta), path("*.edger.diffsplice.simes.tsv")  , emit: simes
     tuple val(meta), path("*.edger.diffsplice.gene.tsv")   , emit: gene
-    tuple val(meta), path("*.edger.diffsplice.pdf")        , emit: plots
+    tuple val(meta), path("*.edger.diffsplice.*.pdf")      , emit: plots
     tuple val(meta), path("*.edger.bcv.png")               , emit: bcv_plot
+    tuple val(meta), path("*.DGEList.edger.rds")           , emit: dgelist
     tuple val(meta), path("*.DGEGLM.edger.rds")            , emit: rdata
     tuple val(meta), path("*.DGELRT.edger.rds")            , emit: lrt
+    tuple val(meta), path("*.DGELRT.expression.edger.rds") , emit: expression_lrt
     tuple val(meta), path("*.edger.model.txt")             , emit: model
     tuple val(meta), path("*.R_sessionInfo.log")           , emit: session_info
     path "versions.yml"                                    , emit: versions, topic: versions
@@ -40,10 +42,14 @@ process EDGER_DIFFSPLICE {
     touch ${prefix}.edger.diffsplice.results.tsv
     touch ${prefix}.edger.diffsplice.simes.tsv
     touch ${prefix}.edger.diffsplice.gene.tsv
-    touch ${prefix}.edger.diffsplice.pdf
+    touch ${prefix}.edger.diffsplice.results.pdf
+    touch ${prefix}.edger.diffsplice.simes.pdf
+    touch ${prefix}.edger.diffsplice.gene.pdf
     touch ${prefix}.edger.bcv.png
+    touch ${prefix}.DGEList.edger.rds
     touch ${prefix}.DGEGLM.edger.rds
     touch ${prefix}.DGELRT.edger.rds
+    touch ${prefix}.DGELRT.expression.edger.rds
     touch ${prefix}.edger.model.txt
     touch ${prefix}.R_sessionInfo.log
 
