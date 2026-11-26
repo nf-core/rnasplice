@@ -6,6 +6,7 @@ include { RMATS_PREP } from '../../../modules/nf-core/rmats/prep'
 
 include { CREATEBAMLIST } from '../../../modules/local/createbamlist'
 include { RMATS_POST } from '../../../modules/local/rmats/post'
+include { pairSamplesByBlocking } from '../utils_nfcore_rnasplice_pipeline'
 
 workflow RMATS {
     take:
