@@ -14,8 +14,8 @@
                     "python": "3.14.6",
                     "yaml": "6.0.3"
                 },
-                "EAUTILS_GTF2BED": {
-                    "perl": "5.26.2"
+                "CUSTOM_TX2GENE": {
+                    "python": "3.10.4"
                 },
                 "FASTQC": {
                     "fastqc": "0.13.0"
@@ -23,11 +23,11 @@
                 "GENEANNOTATION_TABLES": {
                     "python": "3.14.6"
                 },
-                "GFFREAD_TX2GENE": {
-                    "gffread": "0.12.7"
+                "GFFREAD_GTF2BED": {
+                    "gffread": "0.12.9"
                 },
-                "GTFGENEFILTER": {
-                    "python": "3.14.6"
+                "GFFREAD_TX2GENE": {
+                    "gffread": "0.12.9"
                 },
                 "GUNZIP_FASTA": {
                     "gunzip": "1.13"
@@ -73,6 +73,12 @@
                 "SAMTOOLS_STATS": {
                     "samtools": "1.24"
                 },
+                "SE_GENE_UNIFIED": {
+                    "bioconductor-summarizedexperiment": "1.42.0"
+                },
+                "SE_TRANSCRIPT_UNIFIED": {
+                    "bioconductor-summarizedexperiment": "1.42.0"
+                },
                 "STAR_ALIGN": {
                     "gawk": "5.1.0",
                     "samtools": "1.21",
@@ -83,19 +89,22 @@
                     "samtools": "1.21",
                     "star": "2.7.11b"
                 },
+                "SUPPATPM": {
+                    "coreutils": "9.5"
+                },
                 "TRIMGALORE": {
                     "trimgalore": "2.3.0"
                 },
-                "TXIMPORT": {
-                    "bioconductor-tximeta": "1.28.2",
-                    "bioconductor-tximport": "1.38.2"
+                "TXIMETA_TXIMPORT": {
+                    "bioconductor-tximeta": "1.20.1",
+                    "bioconductor-tximport": "1.30.0"
                 },
                 "Workflow": {
                     "nf-core/rnasplice": "v2.0.1dev"
                 }
             }
         ],
-        "timestamp": "2026-11-25T20:52:32.029572718",
+        "timestamp": "2026-11-26T20:57:48.815258246",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "26.10.6"
