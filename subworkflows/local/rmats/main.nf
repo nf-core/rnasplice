@@ -99,19 +99,19 @@ workflow RMATS {
     // The BAM files of each run, in samplesheet order within each condition
     ch_run_bams = ch_run_sample_index
         .combine(ch_bam.map { meta, bam -> [meta.id, bam] }, by: 0)
-        .map { _sample_id, contrast, cond_num, idx, bam -> [contrast, [cond_num, idx, bam]] }
+        .map { sample_id, contrast, cond_num, idx, bam -> [contrast, [cond_num, idx, bam, sample_id]] }
         .groupTuple()
         .map { contrast, entries ->
             def sorted = entries.sort { a, b -> a[0] <=> b[0] ?: a[1] <=> b[1] }
-            def bam1 = sorted.findAll { entry -> entry[0] == 1 }.collect { entry -> entry[2] }
-            def bam2 = sorted.findAll { entry -> entry[0] == 2 }.collect { entry -> entry[2] }
-            [contrast, bam1, bam2]
+            def run1 = sorted.findAll { entry -> entry[0] == 1 }
+            def run2 = sorted.findAll { entry -> entry[0] == 2 }
+            [contrast, run1.collect { entry -> entry[3] }, run1.collect { entry -> entry[2] }, run2.collect { entry -> entry[3] }, run2.collect { entry -> entry[2] }]
         }
 
     ch_bamlist_input = ch_run_samples
         .join(ch_run_bams, by: 0)
-        .map { contrast, cond1, _ids1, cond2, _ids2, bam1, bam2 ->
-            [contrast, cond1, bam1, cond2, bam2]
+        .map { contrast, cond1, _ids1, cond2, _ids2, ids1, bam1, ids2, bam2 ->
+            [contrast, cond1, ids1, bam1, cond2, ids2, bam2]
         }
 
     CREATEBAMLIST(
@@ -157,6 +157,7 @@ workflow RMATS {
     read_outcomes = RMATS_PREP.out.read_outcomes // channel: [ val(meta), path(txt) ]
     bam_list1 = CREATEBAMLIST.out.bam_list1 // channel: [ val(contrast), path(txt) ]
     bam_list2 = CREATEBAMLIST.out.bam_list2 // channel: [ val(contrast), path(txt) ]
+    samples = CREATEBAMLIST.out.samples // channel: [ val(contrast), path(tsv) ]
     mats = RMATS_POST.out.mats // channel: [ val(meta), [ path(txt) ] ]
     from_gtf = RMATS_POST.out.from_gtf // channel: [ val(meta), [ path(txt) ] ]
     raw_input = RMATS_POST.out.raw_input // channel: [ val(meta), [ path(txt) ] ]

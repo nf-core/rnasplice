@@ -74,6 +74,13 @@ output:
         empty in single condition mode
         Structure: [ val(contrast), path(txt) ]
       pattern: "*_bamlist.txt"
+  - samples:
+      type: file
+      description: |
+        Channel containing the table of each contrast that names the sample behind every
+        position of the rMATS `_SAMPLE_1` and `_SAMPLE_2` columns
+        Structure: [ val(contrast), path(tsv) ]
+      pattern: "*.samples.tsv"
   - mats:
       type: file
       description: |

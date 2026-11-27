@@ -14,6 +14,12 @@
                         "YRI_bamlist.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
                     ]
                 ],
+                "samples": [
+                    [
+                        "GBR-YRI",
+                        "GBR-YRI_paired.samples.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
                 "versions_sed": [
                     [
                         "CREATEBAMLIST",
@@ -23,10 +29,10 @@
                 ]
             }
         ],
-        "timestamp": "2026-10-12T16:59:28.194656461",
+        "timestamp": "2026-11-26T10:46:23.609834958",
         "meta": {
-            "nf-test": "0.9.5",
-            "nextflow": "26.04.4"
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
         }
     },
     "homo_sapiens - one condition - stub": {
@@ -41,6 +47,12 @@
                 "bam_list2": [
                     
                 ],
+                "samples": [
+                    [
+                        "GBR_profiling",
+                        "GBR_profiling_paired.samples.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
                 "versions_sed": [
                     [
                         "CREATEBAMLIST",
@@ -50,10 +62,10 @@
                 ]
             }
         ],
-        "timestamp": "2026-10-12T16:59:33.943476903",
+        "timestamp": "2026-11-26T10:46:30.892037045",
         "meta": {
-            "nf-test": "0.9.5",
-            "nextflow": "26.04.4"
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
         }
     },
     "homo_sapiens - one condition": {
@@ -68,6 +80,12 @@
                 "bam_list2": [
                     
                 ],
+                "samples": [
+                    [
+                        "GBR_profiling",
+                        "GBR_profiling_paired.samples.tsv:md5,7f86415bb0dee25d09e386a98ded8d49"
+                    ]
+                ],
                 "versions_sed": [
                     [
                         "CREATEBAMLIST",
@@ -77,10 +95,10 @@
                 ]
             }
         ],
-        "timestamp": "2026-10-12T16:59:21.802082052",
+        "timestamp": "2026-11-26T10:46:17.004260842",
         "meta": {
-            "nf-test": "0.9.5",
-            "nextflow": "26.04.4"
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
         }
     },
     "homo_sapiens - two conditions": {
@@ -98,6 +116,12 @@
                         "YRI_bamlist.txt:md5,2a4f7e2a1ba40b40d31c0bf01e3dfd3e"
                     ]
                 ],
+                "samples": [
+                    [
+                        "GBR-YRI",
+                        "GBR-YRI_paired.samples.tsv:md5,3a4552a901564d43f8ee310ebe22cb79"
+                    ]
+                ],
                 "versions_sed": [
                     [
                         "CREATEBAMLIST",
@@ -107,10 +131,10 @@
                 ]
             }
         ],
-        "timestamp": "2026-10-12T16:59:16.070653218",
+        "timestamp": "2026-11-26T10:46:10.403156264",
         "meta": {
-            "nf-test": "0.9.5",
-            "nextflow": "26.04.4"
+            "nf-test": "0.9.4",
+            "nextflow": "26.10.6"
         }
     }
 }

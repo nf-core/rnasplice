@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - #380 - Add `--stager_alpha` and `--aspli_bin_fdr` for the stageR target OFDR and the ASpli bin FDR cutoff, both 0.05 as before, so that the MultiQC splicing summary counts significant features with the thresholds the tools ran with (by @pinin4fjords)
 - #380 - Run RSeQC junction_saturation.py on the genome BAM files and show its saturation curves in the MultiQC report. This adds one RSeQC run per BAM file, and so some runtime, which `--skip_junction_saturation` skips (by @pinin4fjords)
 - #381 - Cite the tools that ran, with their versions and references, in the Methods Description section of the MultiQC report, using the nf-core-utils plugin with the versions the processes report and the `meta.yml` of their modules (by @pinin4fjords)
+- #384 - Publish a `{contrast}{_paired}.samples.tsv` table with each rMATS contrast, naming the sample, condition, role and BAM file behind each position of the `SAMPLE_1` and `SAMPLE_2` columns, and document how to read them in the rMATS output docs. Also fix the paired samplesheet example in the usage docs, which had the condition labels swapped and mixed strandedness . Closes #366 (by @piplus2)
 
 ### Changed
 

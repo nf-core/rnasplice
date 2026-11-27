@@ -41,17 +41,19 @@ The samplesheet needs the `sample` and `condition` columns, and at least one of 
 
 The `seq_platform`, `seq_center` and `percent_mapped` columns that nf-core/rnaseq writes are accepted and ignored, so its samplesheets can be used as they are, see [Starting from an nf-core/rnaseq run](#starting-from-an-nf-corernaseq-run).
 
-In the case of paired differential splicing analysis (e.g., with `rMATS`), the treatment and control samples order must match:
+In the case of paired differential splicing analysis (e.g., with `rMATS`), the treatment and control samples order must match: the n-th sample of the treatment condition is paired with the n-th sample of the control condition. All samples need the same strandedness.
 
 ```csv
 sample,fastq_1,fastq_2,strandedness,condition
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz,forward,treatment
-CONTROL_REP2,AEG588A2_S2_L002_R1_001.fastq.gz,AEG588A2_S2_L002_R2_001.fastq.gz,forward,treatment
-CONTROL_REP3,AEG588A3_S3_L002_R1_001.fastq.gz,AEG588A3_S3_L002_R2_001.fastq.gz,forward,treatment
-TREATMENT_REP1,AEG588A4_S4_L003_R1_001.fastq.gz,AEG588A4_S4_L003_R2_001.fastq.gz,reverse,control
-TREATMENT_REP2,AEG588A5_S5_L003_R1_001.fastq.gz,AEG588A5_S5_L003_R2_001.fastq.gz,reverse,control
-TREATMENT_REP3,AEG588A6_S6_L003_R1_001.fastq.gz,AEG588A6_S6_L003_R2_001.fastq.gz,reverse,control
+CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz,reverse,control
+CONTROL_REP2,AEG588A2_S2_L002_R1_001.fastq.gz,AEG588A2_S2_L002_R2_001.fastq.gz,reverse,control
+CONTROL_REP3,AEG588A3_S3_L002_R1_001.fastq.gz,AEG588A3_S3_L002_R2_001.fastq.gz,reverse,control
+TREATMENT_REP1,AEG588A4_S4_L003_R1_001.fastq.gz,AEG588A4_S4_L003_R2_001.fastq.gz,reverse,treatment
+TREATMENT_REP2,AEG588A5_S5_L003_R1_001.fastq.gz,AEG588A5_S5_L003_R2_001.fastq.gz,reverse,treatment
+TREATMENT_REP3,AEG588A6_S6_L003_R1_001.fastq.gz,AEG588A6_S6_L003_R2_001.fastq.gz,reverse,treatment
 ```
+
+Here `CONTROL_REP1` is paired with `TREATMENT_REP1`, and so on. The `{contrast}_paired.samples.tsv` table of the rMATS results shows the pairs, see the [rMATS output](output.md#rmats).
 
 ### Strandedness
 
