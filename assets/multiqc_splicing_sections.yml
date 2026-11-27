@@ -1,0 +1,740 @@
+# Text, headers and tool tables of the splicing sections of the MultiQC report, which
+# CUSTOM_SPLICINGSUMMARY fills with the numbers it computes. {name} fields are filled in by
+# Python's str.format, so a literal brace has to be doubled
+
+# Sections sit under the splicing parent unless they name another
+parents:
+  splicing:
+    parent_id: splicing
+    parent_name: Splicing
+    parent_description: Whether the data supported the splicing analyses, what they found and whether they agree, computed by the pipeline from their result tables.
+  suppa2:
+    parent_id: splicing_suppa2
+    parent_name: SUPPA2
+    parent_description: SUPPA2 event and transcript PSI, computed by the pipeline from the SUPPA2 result tables.
+  leafcutter:
+    parent_id: splicing_leafcutter
+    parent_name: LeafCutter
+    parent_description: LeafCutter intron cluster testing, computed by the pipeline from the LeafCutter result tables.
+
+references: |-
+  References:
+
+  * Love MI, Soneson C, Patro R (2018). Swimming downstream: statistical analysis of
+    differential transcript usage following Salmon quantification. F1000Research 7:952.
+  * Mehmood A et al. (2020). Systematic evaluation of differential splicing tools for
+    RNA-seq studies. Briefings in Bioinformatics 21:2052.
+  * LeafCutter usage documentation:
+    <https://davidaknowles.github.io/leafcutter/articles/Usage.html>
+
+# Defaults of the options CUSTOM_SPLICINGSUMMARY takes in ext.args
+args:
+  fdr: 0.05
+  stager_alpha: 0.05
+  aspli_bin_fdr: 0.05
+  suppa_alpha: 0.05
+  suppa_dpsi: 0.05
+  suppa_gene_correction: true
+  suppa_paired: false
+  isa_alpha: 0.05
+  isa_dif: 0.1
+  leafcutter_min_samples_per_group: 3
+  leafcutter_min_samples_per_intron: 5
+  leafcutter_min_samples_per_condition: 5
+  leafcutter_min_coverage: 20
+  min_samps_gene_expr: 4
+  min_samps_feature_expr: 2
+  min_samps_feature_prop: 2
+  rmats_paired_stats: false
+
+limits:
+  rmats_fdr: 0.05 # the FDR cutoff of the rMATS summary.txt, which the pipeline does not change
+  p_bins: 20
+  p_min_features: 100
+  psi_concordance_min_events: 50
+  psi_concordance_few_events: 200
+  suppa_type_min_significant: 10
+  agreement_max_genes: 100
+
+# The leafcutter_ds flags, the arguments that set them, and their defaults
+leafcutter_flags:
+  { g: leafcutter_min_samples_per_group, i: leafcutter_min_samples_per_intron, c: leafcutter_min_coverage }
+leafcutter_defaults: { g: 3, i: 5, c: 20 }
+leafcutter_default_flags: -g 3 -i 5 -c 20
+
+routes: { STAR: STAR + Salmon, Salmon: Salmon }
+route_messages:
+  label: " ({route})"
+  from: " From the {route} quantification."
+  quantification: ", from the {route} quantification"
+
+# The analyses in the order of the cross-method table. family: analyses built on the same
+# quantification are one line of evidence; primary: the unit of the visible column, whose
+# genes the agreement section compares
+methods:
+  DEXSeq DEU: { family: Exon counts, primary: genes }
+  edgeR DEU: { family: Exon counts, primary: genes }
+  DEXSeq DTU: {}
+  DEXSeq DTU + stageR: { family: Transcript abundances, primary: genes }
+  SUPPA2: { family: Transcript abundances, primary: events }
+  IsoformSwitchAnalyzeR: { family: Transcript abundances, primary: genes with switches }
+  LeafCutter: { family: Junction reads, primary: clusters }
+  ASpli: { family: ASpli, primary: bins }
+  rMATS: { family: Junction reads, primary: JC events }
+
+# The rows of each contrast in the design check: the label of each analysis, whether it needs
+# replicates to estimate variance, and the option of its paired test, which needs equal groups
+design_analyses:
+  DEXSeq DEU: { label: DEXSeq DEU, variance: true }
+  edgeR DEU: { label: edgeR DEU, variance: true }
+  DRIMSeq: { label: DEXSeq DTU + stageR, variance: true }
+  SUPPA2: { label: SUPPA2, variance: true, paired: suppa_paired }
+  IsoformSwitchAnalyzeR: { label: IsoformSwitchAnalyzeR }
+  LeafCutter: { label: LeafCutter }
+  ASpli: { label: ASpli }
+  rMATS: { label: rMATS, paired: rmats_paired_stats }
+
+# The columns of the cross-method table by analysis and unit: threshold, effect-size cutoff
+# (default no_effect_cutoff), tested features (default tested), the unit of the median effect
+# size of the significant features (taken from the effect_from unit) and the series of the
+# p-value plot
+no_effect_cutoff: no effect-size cutoff
+tested: "{unit} tested"
+units:
+  DEXSeq DEU:
+    exon bins:
+      {
+        threshold: "padj < {fdr:g}",
+        tested: &dexseq_tested "after independent filtering, the {unit} with an adjusted p-value",
+        effect_unit: "|log2 fold change|",
+        histogram: DEXSeq DEU exon bins,
+      }
+    genes:
+      {
+        threshold: "gene q-value < {fdr:g}",
+        tested: *dexseq_tested,
+        effect_unit: "|log2 fold change| of significant exon bins",
+        effect_from: exon bins,
+      }
+  edgeR DEU:
+    exons: { threshold: "FDR < {fdr:g}", effect_unit: "|log2 fold change|", histogram: edgeR DEU exons }
+    genes: { threshold: "Simes FDR < {fdr:g}" }
+  DEXSeq DTU:
+    transcripts: { threshold: "padj < {fdr:g}", tested: *dexseq_tested, histogram: DEXSeq DTU transcripts }
+    genes: { threshold: "gene q-value < {fdr:g}", tested: *dexseq_tested }
+  DEXSeq DTU + stageR:
+    genes: { threshold: "screening padj < {stager_alpha:g}" }
+    transcripts:
+      {
+        threshold: "confirmation padj < {stager_alpha:g}, at a target OFDR of {stager_alpha:g}",
+        tested: "transcripts of the genes that passed screening, which the confirmation stage tests",
+      }
+  SUPPA2:
+    events:
+      {
+        <<: &suppa { threshold: "{suppa_correction} p < {suppa_alpha:g}", effect: "|dPSI| > {suppa_dpsi:g}" },
+        effect_unit: "|dPSI|",
+      }
+    transcripts: *suppa
+  IsoformSwitchAnalyzeR:
+    isoforms: &isa { threshold: "switch q < {isa_alpha:g}", effect: "|dIF| > {isa_dif:g}" }
+    genes with switches:
+      {
+        <<: *isa,
+        tested: genes with at least one isoform with a switch q-value,
+        effect_unit: "|dIF| of significant isoforms",
+        effect_from: isoforms,
+      }
+  LeafCutter:
+    clusters:
+      { threshold: "p.adjust < {fdr:g}", tested: clusters with an adjusted p-value, histogram: LeafCutter clusters }
+  ASpli:
+    bins: { threshold: "bin.fdr < {aspli_bin_fdr:g}", effect_unit: "|log2 fold change|", histogram: ASpli bins }
+    junction clusters: { threshold: "FDR < {fdr:g}", histogram: ASpli junction clusters }
+  rMATS:
+    JC events:
+      {
+        threshold: "FDR <= {rmats_fdr:g}",
+        effect: "no |dPSI| cutoff, the rMATS default",
+        tested: "events with junction-count (JC) statistics, the primary rMATS result",
+        effect_unit: "|IncLevelDifference|",
+        histogram: rMATS JC events,
+      }
+
+# Each kind of input: its name in failure notes and the analysis it belongs to (DRIMSeq stands
+# for DEXSeq DTU and its filter). The kinds with q are result tables where a feature is tested
+# when it has a q-value, and significant below the cutoff argument (default fdr; at or below it
+# when inclusive); effect is a column, or the prefix of the columns of each pair of levels
+kinds:
+  gene_annotation: { name: the gene annotation }
+  contrasts: { name: the contrastsheet }
+  samplesheet: { name: the samplesheet }
+  star_log: { name: STAR log }
+  dexseq_counts: { name: DEXSeq counts }
+  suppa_psi: { name: SUPPA2 PSI }
+  leafcutter_numers: { name: LeafCutter intron counts, analysis: LeafCutter }
+  leafcutter_strands: { name: LeafCutter junction strands }
+  stager: { name: DEXSeq DTU + stageR, analysis: DRIMSeq }
+  suppa_events: { name: SUPPA2 events, analysis: SUPPA2 }
+  suppa_isoforms: { name: SUPPA2 isoforms, analysis: SUPPA2 }
+  isa_features: { name: IsoformSwitchAnalyzeR, analysis: IsoformSwitchAnalyzeR }
+  leafcutter_ds: { name: LeafCutter, analysis: LeafCutter }
+  rmats_summary: { name: rMATS summary, analysis: rMATS }
+  dexseq_deu_bins:
+    {
+      name: DEXSeq DEU exon bins,
+      analysis: DEXSeq DEU,
+      method: DEXSeq DEU,
+      unit: exon bins,
+      q: padj,
+      p: pvalue,
+      effect: log2fold_,
+    }
+  dexseq_deu_genes:
+    { name: DEXSeq DEU genes, analysis: DEXSeq DEU, method: DEXSeq DEU, unit: genes, q: padj, gene: groupID }
+  edger_exons:
+    {
+      name: edgeR DEU exons,
+      analysis: edgeR DEU,
+      method: edgeR DEU,
+      unit: exons,
+      sep: ",",
+      q: FDR,
+      p: P.Value,
+      effect: logFC,
+    }
+  edger_genes:
+    { name: edgeR DEU genes, analysis: edgeR DEU, method: edgeR DEU, unit: genes, sep: ",", q: FDR, gene: Geneid }
+  dexseq_dtu_transcripts:
+    { name: DEXSeq DTU transcripts, analysis: DRIMSeq, method: DEXSeq DTU, unit: transcripts, q: padj, p: pvalue }
+  dexseq_dtu_genes:
+    { name: DEXSeq DTU genes, analysis: DRIMSeq, method: DEXSeq DTU, unit: genes, q: padj, gene: groupID }
+  aspli_bins:
+    {
+      name: ASpli bins,
+      analysis: ASpli,
+      method: ASpli,
+      unit: bins,
+      q: bin.fdr,
+      cutoff: aspli_bin_fdr,
+      p: pvalue,
+      gene: locus,
+      effect: logFC,
+    }
+  aspli_clusters:
+    { name: ASpli junction clusters, analysis: ASpli, method: ASpli, unit: junction clusters, q: FDR, p: pvalue }
+  rmats_jc:
+    {
+      name: rMATS JC events,
+      analysis: rMATS,
+      method: rMATS,
+      unit: JC events,
+      q: FDR,
+      cutoff: rmats_fdr,
+      inclusive: true,
+      p: PValue,
+      gene: GeneID,
+      effect: IncLevelDifference,
+      counted: false,
+    }
+
+dexseq_counters: [_empty, _ambiguous, _ambiguous_readpair_position, _lowaqual, _notaligned]
+
+# SUPPA2 event types, with the colours of their higher and lower in treatment bars
+suppa_event_types:
+  SE: [Skipped exon, "#437bb1", "#a1bdd8"]
+  A5: [Alternative 5' splice site, "#e8853a", "#f3c29c"]
+  A3: [Alternative 3' splice site, "#3a9a5b", "#9cccad"]
+  MX: [Mutually exclusive exons, "#8e5ea2", "#c6aed0"]
+  RI: [Retained intron, "#c0392b", "#df9c95"]
+  AF: [Alternative first exon, "#2a9d8f", "#94cec7"]
+  AL: [Alternative last exon, "#9c6b30", "#cdb597"]
+
+# The category of each status leafcutter_ds gives a cluster it did not test
+leafcutter_skip_statuses:
+  Too many introns in cluster: too_many_introns
+  <=1 junction in cluster: one_junction
+  <=1 sample with coverage>0: one_sample_covered
+  <=1 sample with coverage>min_coverage: one_sample_min_coverage
+  <2 introns used in >=min_samples_per_intron samples: too_few_introns_used
+  Not enough valid samples: not_enough_samples
+  timeout: timeout
+
+general_stats:
+  star_annotated_splices:
+    <<: &percent { suffix: "%", min: 0, max: 100, scale: RdYlGn }
+    title: Annotated Splices
+    namespace: STAR
+    description: "Percentage of the splices STAR found that are annotated junctions (Number of splices: Annotated (sjdb) over Total, from Log.final.out). Below about 95% suggests a genome/annotation mismatch."
+  star_splices:
+    title: Spliced Reads
+    namespace: STAR
+    description: Spliced reads per sample from STAR, in millions. No validated minimum exists; in one benchmark, detection of validated events was mostly stable from 40-50 M total reads per sample (Mehmood et al. 2020). See Junction Saturation for whether this sample's junction detection has levelled off.
+    suffix: " M"
+    format: "{:,.2f}"
+    min: 0
+    scale: Blues
+  dexseq_reads_in_bins:
+    <<: *percent
+    title: Reads in Exon Bins
+    namespace: DEXSeq
+    description: Approximate percentage of the reads dexseq_count counted into exon bins, against those it counted as _empty, _ambiguous, _lowaqual or _notaligned; a read overlapping several exon bins of one gene counts once for each. Low values usually mean dexseq_count ran with the wrong strandedness or a mismatched annotation.
+  suppa_events_quantified:
+    <<: *percent
+    title: Events Quantified
+    namespace: SUPPA2
+    description: Percentage of the SUPPA2 local splicing events with a PSI value in the sample, from the STAR + Salmon route when both routes ran
+    hidden: true
+  leafcutter_junction_reads:
+    title: Junction Reads
+    namespace: LeafCutter
+    description: Reads on the introns of the LeafCutter clusters in the sample, a read spanning several introns counting once for each. leafcutter_ds tests a cluster only in samples with at least --leafcutter_ds_min_coverage (-c) reads on it
+    format: "{:,.0f}"
+    min: 0
+    scale: Blues
+  leafcutter_introns_detected:
+    <<: *percent
+    title: Introns Detected
+    namespace: LeafCutter
+    description: Percentage of the introns in the LeafCutter clusters with at least one read in the sample
+    hidden: true
+  leafcutter_reads_strandless:
+    title: Reads Strandless
+    namespace: LeafCutter
+    description: Percentage of the junction reads of an unstranded sample on junctions that got no strand from the aligner XS tag, the splice motif or the annotation. LeafCutter discards these junctions without a message, so more than about 5% is worth checking
+    suffix: "%"
+    min: 0
+    max: 100
+    scale: OrRd
+    hidden: true
+    cond_formatting_rules: { warn: [{ gt: 5 }] }
+
+sections:
+  splicing_verdict:
+    section_name: Design and Depth
+    plot_type: html
+    description: The replicates, analysis settings and sequencing depth behind the differential splicing calls, with the published evidence that applies to them.
+    references: true
+    helptext: |-
+      The line gives the samples per contrast, any analysis settings below the tool
+      defaults, and the spliced reads of each sample (STAR `Number of splices: Total`, which
+      counts a read once for each junction it spans). Where a published evaluation or the
+      tool documentation covers a design like this one, the line adds what it found, and
+      then suggests treating the calls as exploratory. An input the pipeline could not
+      read, for example a table whose columns changed with a new version of its tool, is
+      listed with the error, and its results are left out of this report.
+
+      No published minimum number of replicates or depth applies to all splicing analyses.
+      Power and error control improve with replicates (Mehmood et al. 2020). The Design
+      Check below gives the details for each contrast and analysis, and the RSeQC Junction
+      Saturation section shows whether junction detection has levelled off at the depth of
+      each sample.
+    messages:
+      design: "Design: {designs} samples per contrast."
+      designs: "Design: {designs} samples."
+      permutation: With 2 vs 2 samples there are only 3 distinct ways to relabel the samples, so permutation checks cannot give a p-value below 1/3.
+      leafcutter: LeafCutter ran with <code>{flags}</code>; its defaults are <code>{leafcutter_default_flags}</code>.
+      splices: "Spliced reads per sample: median {median} (range {range})."
+      evidence_dtu: in simulations, most transcript-usage methods did not control the false discovery rate at 2 samples per group (Love et al. 2018)
+      evidence_leafcutter: LeafCutter is documented as well calibrated down to 4 vs 4
+      exploratory: Treat the calls below as exploratory.
+      facts: <div class="alert alert-info">{message}</div>
+      failure: '<div class="alert alert-warning">Could not summarise {name} ({filename}): {error}. Its results are left out of this report.</div>'
+
+  splicing_design_check:
+    section_name: Design Check
+    plot_type: table
+    description: Whether each contrast meets the requirements of each splicing analysis that ran and the guidance in its documentation, with the published evidence that applies to the design. Meeting the requirements of a tool does not mean the contrast is adequately powered.
+    references: true
+    helptext: |-
+      Each row is one analysis that ran on one contrast of the contrastsheet, with the
+      samples of the treatment and control conditions and their median STAR spliced reads.
+      The LeafCutter and DEXSeq DTU + stageR rows also have hidden columns with the settings
+      that apply to them. The status has three tiers:
+
+      * **Cannot run**: an analysis cannot test this contrast as configured. A condition
+        with one sample gives DEXSeq, edgeR, DEXSeq DTU and SUPPA2 no estimate of the
+        variance between replicates; the paired tests of SUPPA2 (`--diffsplice_paired`)
+        and rMATS (`--rmats_paired_stats`) need as many samples in each condition; and
+        LeafCutter and the DRIMSeq filter need the samples their settings ask for.
+      * **Runs below documented guidance**: the analysis runs, but with settings below
+        the tool defaults or with fewer samples than its documentation covers. LeafCutter
+        defaults to `-g 3 -i 5 -c 20`, is documented as well calibrated down to 4 vs 4, and
+        suggests `-i 4 -g 2` for 2 vs 2. In simulations, most transcript-usage methods did not
+        control the gene-level false discovery rate at 2 samples per group, so DEXSeq DTU +
+        stageR and IsoformSwitchAnalyzeR run below guidance there.
+      * **Meets tool requirements**: none of the above. This is not a statement that the
+        contrast is adequately powered.
+
+      The Details column says what to change, and the Evidence column gives the published
+      evaluations or documentation that apply to the design, where they exist.
+
+      No published minimum number of replicates applies to all splicing analyses. Power and
+      error control improve with replicates (Mehmood et al. 2020); the entries above give
+      the evidence that exists for specific tools.
+    pconfig:
+      {
+        id: splicing_design_check_table,
+        title: "Splicing: Design Check",
+        namespace: Design check,
+        col1_header: Contrast | analysis,
+        sort_rows: false,
+      }
+    headers:
+      treatment: { title: Treatment, description: Treatment condition of the contrast, scale: false }
+      control: { title: Control, description: Control condition of the contrast, scale: false }
+      n_treatment:
+        { title: Treatment samples, description: Samples of the treatment condition, format: "{:,.0f}", scale: false }
+      n_control:
+        { title: Control samples, description: Samples of the control condition, format: "{:,.0f}", scale: false }
+      splices:
+        {
+          title: Median spliced reads (M),
+          description: "Median STAR splices (Number of splices: Total) of the samples of the contrast, in millions",
+          format: "{:,.2f}",
+          scale: false,
+        }
+      leafcutter_g:
+        {
+          <<: &setting { format: "{:,.0f}", scale: false, hidden: true },
+          title: LeafCutter -g,
+          description: --leafcutter_ds_min_samples_per_group,
+        }
+      leafcutter_i: { <<: *setting, title: LeafCutter -i, description: --leafcutter_ds_min_samples_per_intron }
+      leafcutter_c: { <<: *setting, title: LeafCutter -c, description: --leafcutter_ds_min_coverage }
+      drimseq_gene:
+        {
+          <<: *setting,
+          title: DRIMSeq min samples,
+          description: "--min_samps_gene_expr, applied to all the samples of the run",
+        }
+      status:
+        title: Status
+        description: Cannot run, Runs below documented guidance, or Meets tool requirements. Meeting the requirements of a tool does not mean the contrast is adequately powered
+        scale: false
+        cond_formatting_rules: { fail: [{ s_eq: Cannot run }], warn: [{ s_eq: Runs below documented guidance }] }
+      details:
+        {
+          title: Details,
+          description: "What the analysis is short of in this contrast, and what to change",
+          scale: false,
+        }
+      evidence:
+        {
+          title: Evidence,
+          description: Published evidence or tool documentation that applies to this design,
+          scale: false,
+        }
+    messages:
+      cannot: Cannot run
+      below: Runs below documented guidance
+      meets: Meets tool requirements
+      variance: needs replicates to estimate variance ({n_treatment} and {n_control} samples)
+      suppa_paired: the paired test (--diffsplice_paired) needs equal groups ({n_treatment} and {n_control})
+      rmats_paired_stats: paired statistics (--rmats_paired_stats) need equal groups ({n_treatment} and {n_control})
+      leafcutter_minimum: "the pipeline tests a LeafCutter contrast only with at least {leafcutter_min_samples_per_condition} samples per condition, the larger of -g and -i ({n_treatment} and {n_control}) (lower --leafcutter_ds_min_samples_per_group and --leafcutter_ds_min_samples_per_intron or add replicates)"
+      leafcutter_defaults: settings {flags} are below the defaults {leafcutter_default_flags}
+      leafcutter_few: fewer than 4 samples per group ({n_treatment} and {n_control})
+      leafcutter_i: -i {leafcutter_min_samples_per_intron} is below the -i 4 (with -g 2) the documentation suggests for 2 vs 2
+      drimseq: the DRIMSeq filter needs {needed} samples and the run has {total} (lower --min_samps_gene_expr, --min_samps_feature_expr and --min_samps_feature_prop, or add samples)
+      dtu_few: most transcript-usage methods did not control gene-level FDR at 2 per group
+      evidence_leafcutter_few: well calibrated down to 4 vs 4 (LeafCutter documentation)
+      evidence_leafcutter_i: -i 4 with -g 2 is the documented setting for 2 vs 2 (LeafCutter documentation)
+      evidence_dtu_2: most methods did not control gene-level FDR at 2 per group (Love et al. 2018)
+      evidence_dtu_3: DEXSeq + stageR OFDR about 10% vs 5% target at 3 per group (Love et al. 2018)
+      details_cannot: "Cannot run: {items}."
+      details_below: "Runs below documented guidance: {items}."
+
+  suppa_psi_concordance:
+    section_name: PSI Concordance
+    parent: suppa2
+    plot_type: heatmap
+    description: Spearman correlation of PSI between samples ({total} events quantified in every sample, mean PSI 0.05-0.95).{route}{few}
+    helptext: |-
+      PSI (percent spliced in) is the share of an event's expression that comes from its
+      alternative form. This heatmap correlates the PSI values of each pair of samples over
+      the SUPPA2 local events quantified in every sample, leaving out events with a mean PSI
+      below 0.05 or above 0.95, which are nearly constant and would make every pair look
+      alike. Samples are sorted by condition.
+
+      With many events and a clear difference between the conditions, samples of the same
+      condition correlate more closely with each other than with the other condition,
+      giving blocks along the diagonal. With few events (under about
+      {psi_concordance_few_events}) or a subtle contrast, no block structure is expected
+      and single correlations are noisy; suspect mislabelling only when a sample's QC and
+      correlations stand out consistently.
+
+      A sample that correlates poorly with every other sample, and also stands out in the
+      QC sections above, may have a library or quantification problem worth checking
+      before trusting the differential results.
+    pconfig:
+      {
+        id: suppa_psi_concordance_plot,
+        title: "SUPPA2: PSI Concordance",
+        xlab: Sample,
+        ylab: Sample,
+        min: 0,
+        max: 1,
+        square: true,
+      }
+    messages:
+      few: " With under {psi_concordance_few_events} events the correlations are noisy and no block structure is expected."
+
+  differential_splicing:
+    section_name: Differential Splicing
+    plot_type: table
+    description: "Features each splicing analysis called significant in each contrast, one column per analysis at gene level where the analysis has one. Counts are not comparable across columns: the analyses count different units with different tests and effect-size cutoffs. STAR + Salmon: Salmon quantification of STAR alignments; Salmon: Salmon pseudo-alignment. An empty cell is a contrast the analysis did not test; the Design Check says why.{reciprocal}{rmats}"
+    helptext: |-
+      Each row is one contrast, and each visible column one analysis: the genes DEXSeq DEU,
+      edgeR, DEXSeq DTU with stageR and IsoformSwitchAnalyzeR call significant, the events
+      of SUPPA2 and rMATS, the intron clusters of LeafCutter and the bins of ASpli. Where an
+      analysis ran on both quantification routes, the column is the STAR + Salmon route.
+      The column descriptions give the threshold and effect-size cutoff of each analysis.
+
+      More columns are hidden: the feature-level counts (exon bins, exons, transcripts,
+      isoforms, junction clusters), the Salmon route, the number of features each analysis
+      tested, and the median effect size of the significant calls (|log2 fold change| for
+      DEXSeq DEU, edgeR and ASpli, |dPSI| for SUPPA2, |IncLevelDifference| for rMATS and
+      |dIF| for IsoformSwitchAnalyzeR). Show them with the Configure Columns button.
+
+      How to read it: a contrast with significant features in several analyses has
+      splicing changes that do not depend on one method, if the run has the replicates and
+      depth to support them (see Design and Depth, and Design Check). Zero in an analysis that tested
+      many features, in a well-replicated and deep run, suggests no large changes; it does
+      not show there are none. Zero in one that tested few says little. Small median effect
+      sizes with many calls point to subtle changes; large ones with few calls in a small
+      run are often driven by single samples.
+
+      rMATS counts junction-count (JC) events with FDR <= 0.05, the cutoff of the rMATS
+      summary.txt, and with no |dPSI| cutoff, the rMATS default. DEXSeq tests the features left after its independent filtering, those with
+      an adjusted p-value.
+    pconfig:
+      {
+        id: differential_splicing_table,
+        title: Differential splicing,
+        namespace: Differential splicing,
+        col1_header: Contrast,
+        sort_rows: false,
+      }
+    headers:
+      reciprocal:
+        {
+          title: Reverse of,
+          description: "The contrast that tests the same comparison in reverse, which is not an independent finding",
+          scale: false,
+        }
+      significant:
+        {
+          title: "{title}",
+          description: "{method}: {unit} called significant ({threshold}; {effect}){route_text}",
+          format: "{:,.0f}",
+          scale: Purples,
+        }
+      tested:
+        {
+          title: "{title}: tested",
+          description: "{method}: {tested_text}{route_text}",
+          format: "{:,.0f}",
+          scale: Blues,
+          hidden: true,
+        }
+      effect:
+        {
+          title: "{title}: median {effect_unit}",
+          description: "{method}: median {effect_unit} of the {unit} called significant{route_text}",
+          format: "{:,.2f}",
+          scale: Greens,
+          hidden: true,
+        }
+    messages:
+      rmats: " rMATS's read outcomes and event summaries are shown in an rMATS section by MultiQC versions that include the rMATS module (MultiQC/MultiQC#3749); this pipeline's MultiQC does not yet, so they are not shown."
+      reciprocal: " Contrasts in the Reverse of column test the same comparison in reverse, so they are not independent findings; for some tools, such as rMATS with paired statistics, their calls can differ slightly."
+
+  leafcutter_cluster_test_outcomes:
+    section_name: Cluster Test Outcomes
+    parent: leafcutter
+    plot_type: bargraph
+    description: "Outcome of the differential splicing test of each intron cluster, one bar per contrast, with leafcutter_ds run with -g {leafcutter_min_samples_per_group} (`--leafcutter_ds_min_samples_per_group`), -i {leafcutter_min_samples_per_intron} (`--leafcutter_ds_min_samples_per_intron`) and -c {leafcutter_min_coverage} (`--leafcutter_ds_min_coverage`). Significant: adjusted p < {fdr:g}. Many 'Not tested' clusters usually mean too few samples per group or too little depth, not an absence of splicing changes. Very few clusters in total means too few junction reads for clustering (see LeafCutter Junction Reads in General Statistics)."
+    helptext: |-
+      LeafCutter groups introns that share a splice site into clusters, and `leafcutter_ds`
+      tests each cluster for a change in intron usage between the conditions. It only tests
+      clusters that pass its coverage filters. The reasons for not testing a cluster, as
+      LeafCutter reports them in the `status` column, are:
+
+      * **Too many introns**: more introns than `--max_cluster_size`
+      * **One junction**: one junction in the cluster
+      * **One sample with reads**: at most one sample with reads on the cluster
+      * **One sample above min coverage**: at most one sample with `-c` reads
+      * **Too few introns in enough samples**: fewer than two introns with reads in `-i` samples
+      * **Not enough valid samples**: fewer than `-g` samples in a group reach `-c` reads
+      * **Timeout** and **Error**: the model fit did not finish
+
+      Good: many clusters, most of them tested, a share of them significant. Bad: most
+      clusters not tested, usually for one of the coverage reasons, or very few clusters
+      at all, which means the samples have too few junction reads for the clustering.
+      Check the Design Check and the LeafCutter junction reads in General Statistics; add
+      replicates or depth, or lower the settings above. The p-values are adjusted with the
+      Benjamini-Hochberg method.
+    pconfig:
+      {
+        id: leafcutter_cluster_test_outcomes_plot,
+        title: "LeafCutter: Cluster Test Outcomes",
+        ylab: Clusters,
+        cpswitch_counts_label: Number of clusters,
+      }
+    categories:
+      significant: { name: "Significant (adjusted p < {fdr:g})", color: "#7b4ea3" }
+      not_significant: { name: Not significant, color: "#437bb1" }
+      no_pvalue: { name: "Tested, no adjusted p-value", color: "#a6c4e2" }
+      too_many_introns: { name: "Not tested: too many introns", color: "#e0e0e0" }
+      one_junction: { name: "Not tested: one junction", color: "#cccccc" }
+      one_sample_covered: { name: "Not tested: one sample with reads", color: "#b1b1b1" }
+      one_sample_min_coverage: { name: "Not tested: one sample above min coverage", color: "#969696" }
+      too_few_introns_used: { name: "Not tested: too few introns in enough samples", color: "#7a7a7a" }
+      not_enough_samples: { name: "Not tested: not enough valid samples", color: "#5e5e5e" }
+      timeout: { name: "Not tested: timeout", color: "#424242" }
+      error: { name: "Not tested: error", color: "#262626" }
+
+  suppa_significant_events:
+    section_name: Significant Events
+    parent: suppa2
+    plot_type: bargraph
+    description: "Significant SUPPA2 events by type and direction ({suppa_correction} p < {suppa_alpha:g}, |dPSI| > {suppa_dpsi:g}). With few significant events, differences between types are not interpretable.{route}{without}"
+    helptext: |-
+      Each bar is one contrast, split by the SUPPA2 event type and by whether the PSI is
+      higher or lower in the treatment than in the control. SUPPA2 reports dPSI as the PSI of
+      condition 2 minus that of condition 1, and the pipeline runs it with the control as
+      condition 1, so a positive dPSI is a higher PSI in the treatment.
+
+      * **SE**: skipped exon
+      * **A5** / **A3**: alternative 5' / 3' splice site
+      * **MX**: mutually exclusive exons
+      * **RI**: retained intron
+      * **AF** / **AL**: alternative first / last exon
+
+      An event is significant with a `diffSplice` p-value below `--diffsplice_alpha` and an
+      absolute dPSI above `--clusterevents_dpsithreshold`, the dPSI bound of SUPPA2
+      `clusterEvents`, used here as the effect-size cutoff so that these counts match the
+      events the pipeline clusters.
+
+      With few significant events, differences between types or directions are not
+      interpretable. The annotation defines many more events of some types than others, so
+      where a type has at least {suppa_type_min_significant} significant events a second tab
+      shows them as a percentage of the tested events of that type, which compares types more
+      fairly than the counts. A strong bias towards one type or direction in a well-powered
+      run can be biology (for example more intron retention in one condition), or a technical
+      difference between the conditions, such as RNA degradation or library preparation,
+      worth checking in the QC.
+    pconfig:
+      {
+        id: suppa_significant_events_plot,
+        title: "SUPPA2: Significant Events",
+        ylab: Significant events,
+        stacking: group,
+        cpswitch: false,
+      }
+    data_labels:
+      - { name: Events, ylab: Significant events }
+      - {
+          name: "% of tested (types with {suppa_type_min_significant}+ significant)",
+          ylab: "% of the tested events of the type",
+        }
+    messages:
+      none: <p>No contrast has any significant events.</p>
+      without: " Contrasts without significant events, not shown: {contrasts}."
+      category: "{event_type}: {direction} in treatment"
+
+  splicing_method_agreement:
+    section_name: "Method Agreement: Shared Genes"
+    plot_type: table
+    description: "Genes called significant by at least two independent lines of evidence in each contrast, sorted by the number of them. Analyses built on the same quantification count once: transcript abundances (DEXSeq DTU + stageR, IsoformSwitchAnalyzeR, SUPPA2), exon counts (DEXSeq DEU, edgeR), junction reads (rMATS, LeafCutter), and ASpli, which combines its own bin and junction counts. An analysis that tests few genes calls few, so absence from this table is not disagreement.{reverse}{capped}"
+    helptext: |-
+      The analyses test different features (exon bins, events, transcripts, isoforms, intron
+      clusters), so their calls are compared by gene: an analysis calls a gene significant
+      when it calls any of the gene's features significant, and the two quantification
+      routes of one analysis count once. Gene IDs lose their version suffix, and the gene
+      names LeafCutter and IsoformSwitchAnalyzeR report are mapped to gene IDs through the
+      annotation.
+
+      Analyses built on the same quantification count once in the Lines of evidence column,
+      as their agreement is not independent support: transcript abundances (DEXSeq DTU +
+      stageR, IsoformSwitchAnalyzeR and SUPPA2, which all use the Salmon transcript
+      quantification), exon counts (DEXSeq DEU and edgeR), junction reads (rMATS and
+      LeafCutter), and ASpli, which combines its own bin and junction counts. A shared gene is a candidate only if the run
+      has adequate replicates and depth (see Design and Depth, and Design Check); highly expressed genes
+      are called first in small datasets. Where an analysis ran on both quantification
+      routes, the last column lists the analyses that call the gene from both.
+
+      Few or no shared genes is common: the analyses differ in power and in what they can
+      detect. Check the tested counts in the Differential Splicing table before reading it as
+      disagreement.
+    pconfig:
+      {
+        id: splicing_method_agreement_table,
+        title: "Splicing: Shared Genes",
+        namespace: Method agreement,
+        col1_header: Gene (contrast),
+        sort_rows: false,
+      }
+    headers:
+      gene_id: { title: Gene ID, scale: false }
+      n_families:
+        {
+          title: Lines of evidence,
+          description: Independent lines of evidence that call the gene significant,
+          format: "{:,.0f}",
+          scale: Purples,
+        }
+      n_methods:
+        { title: Analyses, description: Analyses that call the gene significant, format: "{:,.0f}", scale: Purples }
+      families:
+        { title: Evidence, description: Independent lines of evidence that call the gene significant, scale: false }
+      methods: { title: Called by, description: Analyses that call the gene significant, scale: false }
+      both_routes:
+        {
+          title: Called from both quantifications (STAR + Salmon and Salmon),
+          description: Analyses that call the gene significant from both quantification routes,
+          scale: false,
+        }
+    messages:
+      reverse: " Reverse contrasts are not shown ({contrasts})."
+      reverse_item: "{contrast} is the reverse of {other}"
+      capped: " Only the {agreement_max_genes} genes with the most support are shown for: {contrasts}."
+      none: <p>No gene is called significant by two or more independent lines of evidence in any contrast.</p>
+
+  splicing_pvalue_histograms:
+    section_name: P-value Distributions (Diagnostic)
+    plot_type: linegraph
+    description: For analyses with at least {p_min_features} tested features. A flat curve with a rise near 0 is expected; most features near 1 means the test had little power. One tab per contrast.{left_out}
+    helptext: |-
+      The raw p-values of the features each analysis tested, in {p_bins} bins of 0.05, as a
+      percentage of its tested features. Features without a real change have uniform
+      p-values, about {per_bin}% per bin, and real changes add a rise near 0.
+
+      * Flat with a rise near 0: the test behaves as expected and found changes.
+      * Flat without a rise: few or no changes.
+      * Most features near 1: the test had little power, often from too few replicates
+        or low counts. Check the Design Check.
+      * Rising towards 0 across the whole range: the p-values are too small, which can come
+        from an unmodelled batch effect. Consider adding it to the design.
+
+      SUPPA2 reports gene-corrected p-values, which are not uniform under the null, and
+      IsoformSwitchAnalyzeR and stageR report only adjusted values, so they are not shown.
+    pconfig:
+      {
+        id: splicing_pvalue_histograms_plot,
+        title: "Splicing: P-value Distributions",
+        xlab: p-value,
+        ylab: "% of tested features",
+        xmin: 0,
+        xmax: 1,
+        ymin: 0,
+        ymax: 30,
+        tt_suffix: "%",
+      }
+    messages:
+      left_out: "Not shown: {items}."
+      suppa: SUPPA2 (gene-corrected p-values are not uniform under the null)
+      few: "too few tested features (under {p_min_features}): {series}"
+      nothing: No analysis of this run tested enough features with raw p-values for a distribution.
+      note: <div class="alert alert-info">{message}</div>

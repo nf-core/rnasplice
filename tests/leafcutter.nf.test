@@ -56,8 +56,9 @@ nextflow_pipeline {
             def junc_strands = samples.collectEntries { sample ->
                 [ sample, path("${ds_dir}/${sample}.junc").readLines().collect { line -> line.split('\t')[5] } ]
             }
-            def mqc_strand_samples = path("${params.outdir}/multiqc/multiqc_data/multiqc_leafcutter_junction_strands_table.txt")
-                .readLines().drop(1).collect { line -> line.split('\t')[0] }
+            def general_stats = path("${params.outdir}/multiqc/multiqc_data/multiqc_general_stats.txt").readLines().collect { line -> line.split('\t', -1) }
+            def strandless_column = general_stats[0].findIndexOf { column -> column.endsWith('leafcutter_reads_strandless') }
+            def mqc_strand_samples = general_stats.drop(1).findAll { row -> row[strandless_column] }.collect { row -> row[0] }
 
             assert workflow.success
 

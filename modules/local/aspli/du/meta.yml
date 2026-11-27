@@ -38,6 +38,9 @@ input:
         type: file
         description: Serialised ASpliAS object of ASPLI_COUNTS
         pattern: "*.jcounts.rds"
+  - - bin_fdr:
+        type: float
+        description: Adjusted p-value cutoff for differential bin usage (`bin.fdr` of ASpli); `--bin_fdr` in `task.ext.args` overrides it
 output:
   gb_du:
     - - meta:

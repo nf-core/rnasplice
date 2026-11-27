@@ -1,0 +1,4 @@
+"","isoform_id","gene_id","condition_1","condition_2","dIF","isoform_switch_q_value"
+"1","T1","GENE1","B","A",0.3,0.001
+"2","T2","GENE2","B","A",0.05,0.5
+"3","T3","GENE1","A","B",-0.3,0.001

@@ -1,0 +1,4 @@
+cluster	status	loglr	df	p	p.adjust	genes
+chr1:clu_1_+	Success	8.1	1	0.0001	0.0002	G1
+chr1:clu_2_-	Success	0.2	1	0.5	0.5	G2
+chr1:clu_3_-	Not enough valid samples	NA	NA	NA	NA	G3
