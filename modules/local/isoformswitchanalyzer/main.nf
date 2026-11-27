@@ -3,8 +3,8 @@ process ISOFORMSWITCHANALYZER {
 
     conda "${moduleDir}/environment.yml"
     container "${workflow.containerEngine in ['singularity', 'apptainer'] && !task.ext.singularity_pull_docker_container
-        ? 'https://depot.galaxyproject.org/singularity/bioconductor-isoformswitchanalyzer:2.12.0--r45hd2fad28_0'
-        : 'biocontainers/bioconductor-isoformswitchanalyzer:2.12.0--r45hd2fad28_0'}"
+        ? 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/c5/c5dc4e54fdd4387ec788d763a80f73691870d1ba9451e5d7518f1f8d0499ffcf/data'
+        : 'community.wave.seqera.io/library/bioconductor-isoformswitchanalyzer_r-mass:93f7b7863f699086'}"
 
     input:
     path salmon_output          // path: one Salmon quant directory per sample
